@@ -4,7 +4,7 @@ This overlay adapts [oosexgang/hakios-uefi](https://github.com/oosexgang/hakios-
 
 It is **not** a pristine build of upstream HakiOS's declared Mu base `e51cd877e31c8fbb322032dc4cb6715e83d25ad3`. The working waffle platform, dependency revisions, memory map and vendor drivers are retained. HakiOS's boot manager changes, firmware identification, boot shim source and branding are adapted on top.
 
-Upstream's stage-0 redwood loader writes a raw logdump partition and assumes fixed payload placement. This adapter instead starts the existing waffle RAM/USB loader from its FV GUID. It retains the tested Boot iOS menu. No `PAYLOAD_BASE` is supplied when building the waffle boot shim, so the optional fixed-address copy is not compiled in. The adapted XnuLoader has no partition-write code. It does not add GPU support or resolve CP_INIT.
+Upstream's stage-0 redwood loader writes a raw logdump partition and assumes fixed payload placement. This adapter instead starts the existing waffle RAM/USB loader from its FV GUID. It automatically enters the RAM/USB loader. The existing Volume Up callback can select the menu; returning through `oem menu` falls through to that menu. The escape paths remain in code but were not physically exercised in this validation. No `PAYLOAD_BASE` is supplied when building the waffle boot shim, so the optional fixed-address copy is not compiled in. The adapted XnuLoader has no partition-write code. It does not add GPU support or resolve CP_INIT.
 
 ## Build
 
@@ -22,6 +22,10 @@ Output: `Mu-waffle.img` is the Android-format RAM boot container, and `Build/waf
 
 ## Local result, October 31, 2026
 
-Build succeeded. Separate container validation confirmed Android boot v4, the exact existing 55,808-byte loader, both recorded stock DTBs, and the matching XNU payload. PJD110 memory map, configuration, DTB and loader match the previous tree byte for byte. **The rebuilt HakiOS variant has not been hardware tested.**
+Build succeeded. Separate container validation confirmed Android boot v4, the exact existing 55,808-byte loader, both recorded stock DTBs, and the matching XNU payload. PJD110 memory map, configuration, DTB and loader match the previous tree byte for byte. The automatic-entry variant was hardware tested: it enumerated as `xnuloader` without selecting Boot iOS, returned to Android, and completed the actual automatic-cycle runner with `sys.boot_completed=1`. This verifies the boot transport, not GPU execution.
 
-The packaged local result and manifest are in `work/waffle/hakios-uefi/`. The included XNU kernel is the prior E03 diagnostic build; no new GPU experiment is enabled by this UEFI adaptation. Original waffle UEFI and Android have not been replaced.
+The packaged local result and manifest are in `work/waffle/hakios-uefi-auto/`. The included XNU kernel is the prior E03 diagnostic build; no new GPU experiment is enabled by this UEFI adaptation. Original waffle UEFI and Android have not been replaced.
+
+## Automatic host cycle
+
+`tools/run-waffle-auto.py --artifact work/waffle/hakios-uefi-auto` verifies the image hash, reboots Android into fastboot, RAM-boots the image, waits for the waffle USB loader and returns to Android. `--prepare-gpu` adds the existing prepare-only probe93; `--access-matrix` or `--measure-clocks` selects a diagnostic variant. These paths do not send CP RAW. Failures preserve reports; Android recovery must be confirmed before another experiment. This cannot physically press buttons if recovery loses USB.

@@ -57,6 +57,10 @@ int main(void)
     assert(waffle_cmdline_allowed("  -v   "));
 #ifdef WAFFLE_USERLAND
     assert(waffle_cmdline_allowed("waffle_gpu=93 waffle_ecats_access=1"));
+    assert(waffle_cmdline_allowed("waffle_gpu=93 waffle_gpu_measure=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_gpu_measure=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu_measure=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_gpu_measure=1 waffle_gpu_measure=1"));
     assert(waffle_cmdline_allowed("waffle_ecats_access=1 waffle_gpu=93"));
     assert(!waffle_cmdline_allowed("waffle_ecats_access=1"));
     assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_ecats_access=1"));

@@ -1,5 +1,6 @@
 /* GMU Gen7.9.1 firmware placement and bounded boot/stop diagnostics. */
 #include <kern/clock.h>
+#include <pexpert/pexpert.h>
 #include <vm/memory_types.h>
 #include <arm/memory_types.h>
 #include <libkern/libkern.h>
@@ -14,6 +15,7 @@
 #include <sys/waffle_gen7_config.h>
 #include <sys/waffle_gen7_hwcg.h>
 #include <sys/waffle_gen7_boot.h>
+#include <sys/waffle_gpu_measure.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
@@ -1281,6 +1283,39 @@ static void gen7_clock_delay(void *context,unsigned usec)
     (void)context;
     delay_for_interval(usec,NSEC_PER_USEC);
 }
+struct clock_measure_context {vm_offset_t gcc,gpucc;};
+static uint32_t clock_measure_read(void *opaque,unsigned bank,uint32_t off)
+{
+    struct clock_measure_context *c=opaque;
+    return rd(bank?c->gpucc:c->gcc,off);
+}
+static void clock_measure_write(void *opaque,unsigned bank,uint32_t off,uint32_t value)
+{
+    struct clock_measure_context *c=opaque;
+    wr(bank?c->gpucc:c->gcc,off,value);
+}
+static bool gen7_measure_clocks(unsigned probe)
+{
+    uint32_t requested=0;
+    if(!PE_parse_boot_argn("waffle_gpu_measure",&requested,sizeof(requested)))return true;
+    if(requested!=1 || probe!=93)return false;
+    struct clock_measure_context context={ml_io_map(WAFFLE_GCC_BASE,WAFFLE_GCC_SIZE),
+        ml_io_map(WAFFLE_GPUCC_BASE,WAFFLE_GPUCC_SIZE)};
+    if(!context.gcc || !context.gpucc)return false;
+    const struct waffle_measure_io io={&context,clock_measure_read,clock_measure_write,gen7_clock_delay};
+    struct waffle_measure_result gfx={0},gmu={0};
+    bool a=waffle_measure_clock(&io,0xf,&gfx);
+    if(!gfx.restored)stop_unsafe("GFX debug mux restore unverified");
+    bool b=waffle_measure_clock(&io,0x1f,&gmu);
+    if(!gmu.restored)stop_unsafe("GMU debug mux restore unverified");
+    say("waffle-gmu: CLOCK_MEASURE GFX hz=%llu short=%u full=%u complete=%u restored=%u\n",
+        gfx.hz,gfx.short_count,gfx.full_count,gfx.complete,gfx.restored);
+    say("waffle-gmu: CLOCK_MEASURE GMU hz=%llu short=%u full=%u complete=%u restored=%u\n",
+        gmu.hz,gmu.short_count,gmu.full_count,gmu.complete,gmu.restored);
+    say("waffle-gmu: CLOCK_MEASURE result=%u; no CP RAW\n",a&&b);
+    ml_io_unmap(context.gcc,WAFFLE_GCC_SIZE);ml_io_unmap(context.gpucc,WAFFLE_GPUCC_SIZE);
+    return a&&b;
+}
 static int gen7_hwcg_exercise(void *context)
 {
     const struct waffle_gen7_io io={context,gen7_config_read,gen7_config_write,gen7_config_mismatch,NULL};
@@ -1440,6 +1475,7 @@ static bool gpu_gen7_live_start(struct gen7_live_probe *live,vm_offset_t gpu,vm_
                 !hfi_raw_stage_control(gmu,hfi_alias,packet,11,plan))
                 say("waffle-gmu: RAW_STAGE67 refused; RAW not sent\n");
         }
+        if(probe==93 && !gen7_measure_clocks(probe))stop_unsafe("clock measurement incomplete; no RAW sent");
         if (probe==62) {
             /* Gen7 GBIF SCACHE register DWORD indices from pinned gen7_reg.h.
              * Read while GX/OOB is owned, before collapse; no LLCC programming. */

@@ -1,0 +1,9 @@
+{
+  "boot_image_accepted": true,
+  "automatic_loader_enumerated": true,
+  "physical_Boot_iOS_confirmation": false,
+  "platform_verified": "waffle",
+  "gpu_commands_sent": false,
+  "android_recovery_pending": false,
+  "android_confirmed": true
+}

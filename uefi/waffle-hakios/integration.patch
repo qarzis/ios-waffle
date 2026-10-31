@@ -38,7 +38,7 @@
  
  //
  // Global Variables
-@@ -153,10 +154,8 @@
+@@ -153,10 +154,15 @@
    UnregisterKeyCallback ();
  
    // Get Boot Manager Flag
@@ -47,11 +47,18 @@
 -#elif defined(VEUX_HACKIOS_MENU)
 -  BootManagerFlag = TRUE; // Open the HackIOS menu automatically in the veux RAM image.
 +  #if defined(HACKIOS_ONEPLUS12)
-+  BootManagerFlag = TRUE; // Retain the tested waffle Boot iOS menu.
++  // Volume Up enters the menu. Loader return (oem menu) falls through
++  // to the menu once, without immediately launching the loader again.
++  BootManagerFlag = EnterBootManager ();
++  if (!BootManagerFlag) {
++    Print (L"HakiOS waffle: starting RAM/USB loader...\n");
++    XnuLoaderMain ();
++  }
++  BootManagerFlag = TRUE;
  #else
    BootManagerFlag = EnterBootManager ();
  #endif
-@@ -208,6 +207,9 @@
+@@ -208,6 +214,9 @@
  PlatformBootManagerUnableToBoot ()
  {
    EFI_STATUS Status;

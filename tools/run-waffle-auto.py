@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""RAM boot the automatic waffle loader, optionally run a prepare-only GPU test.
+
+Never flashes. Optional standard Sahara collection uses the existing pinned
+collector, which resets after collecting offered crash segments.
+"""
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--artifact', type=Path, required=True)
+    parser.add_argument('--prepare-gpu', action='store_true', help='Run existing probe93; no RAW')
+    parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
+    parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
+    parser.add_argument('--fastboot', default=str(ROOT.parent / 'platform-tools/fastboot'))
+    parser.add_argument('--adb', default=str(ROOT.parent / 'platform-tools/adb'))
+    args = parser.parse_args()
+    artifact = args.artifact.resolve()
+    image = artifact / 'HakiOS-waffle-PJD110-AUTO-RAM.img'
+    if args.access_matrix and not args.prepare_gpu:
+        parser.error('--access-matrix requires --prepare-gpu')
+    if args.measure_clocks and not args.prepare_gpu:
+        parser.error('--measure-clocks requires --prepare-gpu')
+    manifest = json.loads((artifact / 'manifest.json').read_text())
+    if not manifest.get('automatic_usb_loader'):
+        parser.error('Artifact does not declare automatic loader entry')
+    if hashlib.sha256(image.read_bytes()).hexdigest() != manifest['boot_image_sha256']:
+        parser.error('Boot image does not match manifest')
+    for name in ('adb', 'fastboot'):
+        if not Path(getattr(args, name)).is_file():
+            parser.error(f'Missing {name}')
+    if args.prepare_gpu:
+        # The existing session runner pins these transport paths.
+        if Path(args.adb).resolve() != (ROOT.parent / 'platform-tools/adb').resolve() or \
+                Path(args.fastboot).resolve() != (ROOT.parent / 'platform-tools/fastboot').resolve():
+            parser.error('Prepare runner requires the standard workspace platform-tools')
+        if hashlib.sha256((artifact / 'kernel').read_bytes()).hexdigest() != manifest['kernel_sha256']:
+            parser.error('Kernel does not match manifest')
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    output = ROOT / 'work/waffle/auto-runs' / stamp
+    output.mkdir(parents=True, exist_ok=False)
+    report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': False,
+              'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
+              'measure_clocks': args.measure_clocks,
+              'physical_boot_selection': False, 'android_confirmed': False}
+
+    def command(items, timeout=10):
+        result = subprocess.run(items, capture_output=True, text=True, timeout=timeout, cwd=ROOT)
+        with (output / 'host.log').open('a') as log:
+            log.write(' '.join(map(str, items)) + '\n' + result.stdout + result.stderr + '\n')
+        return result
+
+    def wait_for(check, seconds):
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            if check():
+                return True
+            time.sleep(1)
+        return False
+
+    def android_ready():
+        p = command([args.adb, '-s', '1c62e9aa', 'shell', 'getprop', 'sys.boot_completed'])
+        return p.returncode == 0 and p.stdout.strip() == '1'
+
+    def fastboot_has(serial):
+        p = command([args.fastboot, 'devices'])
+        return any(line.split()[:1] == [serial] for line in p.stdout.splitlines())
+
+    collector = None
+    recovery_log = None
+    try:
+        if android_ready():
+            p = command([args.adb, '-s', '1c62e9aa', 'reboot', 'bootloader'])
+            if p.returncode:
+                raise RuntimeError('Android refused reboot to bootloader')
+        if not wait_for(lambda: fastboot_has('1c62e9aa'), 60):
+            raise RuntimeError('Expected PJD110 Android fastboot; no RAM boot sent')
+        p = command([args.fastboot, '-s', '1c62e9aa', 'boot', str(image)], timeout=30)
+        if p.returncode:
+            raise RuntimeError('RAM boot rejected')
+        if not wait_for(lambda: fastboot_has('xnuloader'), 60):
+            raise RuntimeError('Automatic loader did not enumerate')
+        p = command([args.fastboot, '-s', 'xnuloader', 'getvar', 'platform'])
+        if p.returncode or 'platform: waffle' not in p.stdout + p.stderr:
+            raise RuntimeError('Automatic loader platform mismatch')
+        report['automatic_loader_verified'] = True
+        if args.prepare_gpu:
+            recovery_log = (output / 'recovery.log').open('w')
+            collector = subprocess.Popen([sys.executable, 'tools/capture-waffle-crash.py',
+                '--collect', '--wait-seconds', '60'], cwd=ROOT,
+                stdout=recovery_log, stderr=subprocess.STDOUT)
+            items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '93', str(artifact)]
+            if args.access_matrix:
+                items.append('--access-matrix')
+            if args.measure_clocks:
+                items.append('--measure-clocks')
+            result = command(items, timeout=240)
+            report['runner_exit'] = result.returncode
+            if result.returncode:
+                raise RuntimeError('Prepare test failed; preserve original result and inspect recovery log')
+        else:
+            p = command([args.fastboot, '-s', 'xnuloader', 'reboot'])
+            if p.returncode:
+                raise RuntimeError('Loader refused Android reboot')
+        if not wait_for(android_ready, 90):
+            raise RuntimeError('Android recovery not confirmed; stop before another experiment')
+        report['android_confirmed'] = True
+        report['success'] = True
+    except Exception as error:
+        report['error'] = str(error)
+        report['success'] = False
+        # Try normal loader reboot without hiding the failed experiment.
+        try:
+            if fastboot_has('xnuloader'):
+                command([args.fastboot, '-s', 'xnuloader', 'reboot'])
+            report['android_confirmed'] = wait_for(android_ready, 60)
+        except Exception as recovery_error:
+            report['recovery_error'] = str(recovery_error)
+    finally:
+        if collector:
+            if collector.poll() is None and report['android_confirmed']:
+                collector.terminate()
+            try:
+                collector.wait(timeout=65)
+            except subprocess.TimeoutExpired:
+                collector.terminate()
+                report['collector_timeout'] = True
+        if recovery_log:
+            recovery_log.close()
+        (output / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({'output': str(output), **report}, indent=2))
+    return 0 if report.get('success') else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
