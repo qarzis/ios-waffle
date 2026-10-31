@@ -1,0 +1,180 @@
+{
+  "common_allocation_kinds": 10,
+  "comparison": [
+    {
+      "kind": 2,
+      "port_flags": "0x33f",
+      "port_size": 4096,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x33f"
+      ],
+      "native_sizes": [
+        4096
+      ],
+      "flags_match": true,
+      "size_match": true,
+      "alignment_match": true
+    },
+    {
+      "kind": 14,
+      "port_flags": "0x33f",
+      "port_size": 4096,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x33f"
+      ],
+      "native_sizes": [
+        4096
+      ],
+      "flags_match": true,
+      "size_match": true,
+      "alignment_match": true
+    },
+    {
+      "kind": 15,
+      "port_flags": "0x339",
+      "port_size": 4096,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x339"
+      ],
+      "native_sizes": [
+        4096
+      ],
+      "flags_match": true,
+      "size_match": true,
+      "alignment_match": true
+    },
+    {
+      "kind": 16,
+      "port_flags": "0x178",
+      "port_size": 32768,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x178"
+      ],
+      "native_sizes": [
+        32768
+      ],
+      "flags_match": true,
+      "size_match": true,
+      "alignment_match": true
+    },
+    {
+      "kind": 1,
+      "port_flags": "0x37b",
+      "port_size": 32768,
+      "port_alignment": 0,
+      "native_count": 5,
+      "native_flags": [
+        "0x37b",
+        "0x37b",
+        "0x37b",
+        "0x37b",
+        "0x37b"
+      ],
+      "native_sizes": [
+        32768,
+        32768,
+        32768,
+        32768,
+        32768
+      ],
+      "flags_match": true,
+      "size_match": true,
+      "alignment_match": true
+    },
+    {
+      "kind": 3,
+      "port_flags": "0x17f",
+      "port_size": 24,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x17f"
+      ],
+      "native_sizes": [
+        24
+      ],
+      "flags_match": true,
+      "size_match": true,
+      "alignment_match": true
+    },
+    {
+      "kind": 4,
+      "port_flags": "0x37f",
+      "port_size": 3657728,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x37f"
+      ],
+      "native_sizes": [
+        14630912
+      ],
+      "flags_match": true,
+      "size_match": false,
+      "alignment_match": true
+    },
+    {
+      "kind": 5,
+      "port_flags": "0x1007",
+      "port_size": 3657728,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x1007"
+      ],
+      "native_sizes": [
+        14630912
+      ],
+      "flags_match": true,
+      "size_match": false,
+      "alignment_match": true
+    },
+    {
+      "kind": 7,
+      "port_flags": "0x147",
+      "port_size": 4096,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x147"
+      ],
+      "native_sizes": [
+        16384
+      ],
+      "flags_match": true,
+      "size_match": false,
+      "alignment_match": true
+    },
+    {
+      "kind": 24,
+      "port_flags": "0x33f",
+      "port_size": 4096,
+      "port_alignment": 0,
+      "native_count": 1,
+      "native_flags": [
+        "0x33f"
+      ],
+      "native_sizes": [
+        4096
+      ],
+      "flags_match": true,
+      "size_match": true,
+      "alignment_match": true
+    }
+  ],
+  "native_only_kinds": [
+    25
+  ],
+  "all_native_host_handles_echo_gmu_handles": true,
+  "profile_limit": "Cold native has preemption/LPAC/DMS/IFPC enabled; size/multiplicity differences are not counterexamples for the disabled port profile.",
+  "size24_reply_confirmed": true,
+  "new_runtime_fix_justified": false
+}

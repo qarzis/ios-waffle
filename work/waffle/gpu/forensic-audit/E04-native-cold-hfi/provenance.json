@@ -1,0 +1,13 @@
+{
+  "experiment": "E04 native cold HFI baseline",
+  "cmdline": "kprobe_event=p:wfc/hfi,msm_kgsl:gen7_hfi_cmdq_write,bytes=%x2:u32,w0=+0(%x1):x32,w1=+4(%x1):x32,w2=+8(%x1):x32,w3=+12(%x1):x32,w4=+16(%x1):x32,w5=+20(%x1):x32,w6=+24(%x1):x32,w7=+28(%x1):x32,w8=+32(%x1):x32,w9=+36(%x1):x32,w10=+40(%x1):x32;p:wfc/cp,msm_kgsl:gen7_hwsched_cp_init,z=+13196(%x0):u32,t=+249856(+5384(%x0)):x32;r:wfc/cp_done,msm_kgsl:gen7_hwsched_cp_init,ret=$retval:s32 trace_buf_size=16384K androidboot.fastboot.boottrace=keep",
+  "stock_sha256": "984fbe6ab6f3971487e6e5f7351e0cbd89c9ff213437c9b8d3a25e9964a15129",
+  "image_sha256": "0541fae2937ed9a588ebef4dfc23ee84e606b3f5f1f7c62f7666e812e73a75df",
+  "only_cmdline_changed": true,
+  "kernel_ramdisk_unchanged": true,
+  "hardware_booted": true,
+  "flash_operations": false,
+  "android_boot_completed": "1",
+  "cleanup_exit": 0,
+  "trace_sha256": "8371ea3008e3ad8c67176becf39ccad2630e0a4cd4835860feb99f7a14b376f2"
+}

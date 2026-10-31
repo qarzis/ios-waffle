@@ -1,0 +1,122 @@
+{
+  "experiment": "E04",
+  "hfi_packets": 272,
+  "allocation_replies": 15,
+  "native_first_cp_return": 0,
+  "native_first_trust": 1,
+  "native_first_zap_loaded": 0,
+  "android_boot_completed": "1",
+  "cleanup_exit": 0,
+  "allocation_descriptors": [
+    {
+      "flags": "0x33f",
+      "kind": 2,
+      "size": 4096,
+      "alignment": 0,
+      "handle": 2
+    },
+    {
+      "flags": "0x33f",
+      "kind": 14,
+      "size": 4096,
+      "alignment": 0,
+      "handle": 14
+    },
+    {
+      "flags": "0x339",
+      "kind": 15,
+      "size": 4096,
+      "alignment": 0,
+      "handle": 15
+    },
+    {
+      "flags": "0x178",
+      "kind": 16,
+      "size": 32768,
+      "alignment": 0,
+      "handle": 16
+    },
+    {
+      "flags": "0x37b",
+      "kind": 1,
+      "size": 32768,
+      "alignment": 0,
+      "handle": 26
+    },
+    {
+      "flags": "0x37b",
+      "kind": 1,
+      "size": 32768,
+      "alignment": 0,
+      "handle": 27
+    },
+    {
+      "flags": "0x37b",
+      "kind": 1,
+      "size": 32768,
+      "alignment": 0,
+      "handle": 28
+    },
+    {
+      "flags": "0x37b",
+      "kind": 1,
+      "size": 32768,
+      "alignment": 0,
+      "handle": 29
+    },
+    {
+      "flags": "0x37b",
+      "kind": 1,
+      "size": 32768,
+      "alignment": 0,
+      "handle": 30
+    },
+    {
+      "flags": "0x17f",
+      "kind": 3,
+      "size": 24,
+      "alignment": 0,
+      "handle": 3
+    },
+    {
+      "flags": "0x37f",
+      "kind": 4,
+      "size": 14630912,
+      "alignment": 0,
+      "handle": 4
+    },
+    {
+      "flags": "0x1007",
+      "kind": 5,
+      "size": 14630912,
+      "alignment": 0,
+      "handle": 5
+    },
+    {
+      "flags": "0x147",
+      "kind": 7,
+      "size": 16384,
+      "alignment": 0,
+      "handle": 7
+    },
+    {
+      "flags": "0x33f",
+      "kind": 24,
+      "size": 4096,
+      "alignment": 0,
+      "handle": 24
+    },
+    {
+      "flags": "0x37f",
+      "kind": 25,
+      "size": 16384,
+      "alignment": 0,
+      "handle": 25
+    }
+  ],
+  "limitation": "Default native cold profile includes preemption/multiple rings; allocation sizes/counts cannot be directly compared with the port optional-off profile.",
+  "touch_regression_reported": true,
+  "ordinary_android_reboot_completed": true,
+  "user_confirmed_touch_restored": true,
+  "repeat_ram_image_allowed_by_plan": false
+}

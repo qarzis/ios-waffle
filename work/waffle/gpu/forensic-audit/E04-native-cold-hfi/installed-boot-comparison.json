@@ -1,0 +1,8 @@
+{
+  "installed_slot": "_b",
+  "read_bytes": 38293504,
+  "installed_prefix_sha256": "984fbe6ab6f3971487e6e5f7351e0cbd89c9ff213437c9b8d3a25e9964a15129",
+  "saved_boot_sha256": "984fbe6ab6f3971487e6e5f7351e0cbd89c9ff213437c9b8d3a25e9964a15129",
+  "read_only": true,
+  "returncode": 0
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "name": "general",
+    "exit": 0,
+    "bytes": 23767,
+    "sha256": "cec43509508821d1ad69279720d1f60894d409b1bc5f0bfbcd1306843dc2056f",
+    "stderr": ""
+  },
+  {
+    "name": "reset",
+    "exit": 0,
+    "bytes": 1261,
+    "sha256": "ac3af67adc4874d6bc2bc9fbbd0c48aef9644816d342c31916f85439b7cb2d49",
+    "stderr": ""
+  },
+  {
+    "name": "boot",
+    "exit": 0,
+    "bytes": 1261,
+    "sha256": "6edadc8588fdec2ada5697057cbd6fc5db4a8e071f645bca1210ef9c077b967c",
+    "stderr": ""
+  },
+  {
+    "name": "hyp_general",
+    "exit": 0,
+    "bytes": 762,
+    "sha256": "b271c98e4bf1a463e7a4e82ccdd582515e06f00e52de1c1a7133d74fe7e4984d",
+    "stderr": ""
+  },
+  {
+    "name": "vmid",
+    "exit": 0,
+    "bytes": 1261,
+    "sha256": "bed650fedec896ce055157471e41f98593acedd76dad2207c6c66b5cf704f92b",
+    "stderr": ""
+  }
+]

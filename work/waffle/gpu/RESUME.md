@@ -1,3 +1,15 @@
+# E04 cold HFI captured; touch recovered; analysis only
+
+E03 passed27access checks; H1 rejected for tested nonsecure edges/modes after
+GMU stop. E04nativecold HFI272packets/15allocation replies/firstCPret0 captured.
+Tencommonkinds matchflags/alignment; do not treat preemption-on allocation sizes
+as a bug in optional-off port. Userreported touch failure aftertemporaryboot;
+ordinaryAndroid reboot restoredtouch, userconfirmed. Do not repeat E04image
+untilcauseunderstood. Savedoriginalboot image matchesactiveboot_b prefix.
+H2/H3 remain open. No newRAW queued. NextactualDMAexperiment needs a method
+whose pre-CP prerequisites are established; nativecrashdumper not yetqualified.
+SeeGPU_DEBUG_LOG and forensic-audit/E04-native-cold-hfi. Phone ordinaryAndroid.
+
 # E03 access matrix PASS — 2026-10-31, Android confirmed
 
 Latest run 20261031T083550Z, optional waffle_ecats_access=1 on prepare-only

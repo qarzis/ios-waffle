@@ -69,3 +69,27 @@ Frozen pre-audit source hashes are intentionally retained as the immutable histo
 Run `work/waffle/runs/20261031T083550Z`, variant E03 on prepare-only probe93. Actual result: `ACCESS_MATRIX result=1 checks=27 allocations=8`; every recorded PA matched, every fault mask was zero, unprivileged instruction/data reads and privileged writes included. No RAW checkpoint/CP_INIT_RAW occurred. Full stop/PLL restoration completed. Runner exit0 and Android boot completion confirmed, independently rechecked with ADB `sys.boot_completed=1`. Detailed parsed evidence: `work/waffle/gpu/forensic-audit/E03-result.json`. Implementation commit `71061fc`; verified pretest archive SHA256 `da223b9042354572ca8ac3086d6e68cd7a6234c9b2b651b2b13fbb8b0527201b`.
 
 Disposition: reject H1 for the tested nonsecure page edges/access modes after GMU stop. Do not repeat an AP/TG1/ECATS permissions fix without a new counterexample. This does not prove live GPU DMA, coherency, secure access or CP execution. No failed hardware experiments in the new audit series. H2 (native CP prerequisites) and H3 (publication/firmware failure boundary) remain active. Phone returned to Android; no new RAW test queued.
+
+## E04 — native cold HFI trace; touch regression reported
+
+RAM-booted the preserved native boot image with only tracing cmdline changed (kernel/ramdisk unchanged). Captured 272 HFI writes, 15 allocation replies and first native CP_INIT return0 with TRUST1/zap_loaded0. Android boot_completed1; wfc probes removed after collection. Artifacts: forensic-audit/E04-native-cold-hfi. This is default native preemption-on profile, not the port optional-off profile. No inference that allocation-count differences are bugs.
+
+User then reported nonworking touch. Root cause is unknown; do not declare this RAM image a fully working phone baseline. Immediately issued ordinary adb reboot to restore the installed Android boot path. No flash/write of boot partitions occurred. Recovery and touch confirmation pending; pause GPU experiments until phone usability is restored.
+
+E04 recovery: ordinary Android boot_completed1, temporary kprobe cmdline absent, touchpanel input node registered. User explicitly confirmed touch works again. Do not repeat the E04 temporary boot image until its touch regression is understood. Continue analysis of saved trace without further phone reboot.
+
+## E04 comparison completed — no allocation fix justified
+
+The actual cold native replies now independently confirm the earlier source reading: kind3 size remains24 and host_handle echoes gmu_handle. Across ten common allocation kinds, flags and alignment agree with the port. Kind4/5 context records are14630912 native vs3657728 port, kind7 counter16384 vs4096, native has five kind1 rings and additional kind25 AQE sandbox. Native preemption/LPAC/DMS/IFPC are enabled in this capture, so these differences do not establish a bug in the optional-off port. Parsed comparison: E04-native-cold-hfi/allocation-comparison.json. No new code change justified.
+
+Read-only comparison of installed active boot_b prefix (38293504 bytes) matches the preserved original image SHA256984fbe6ab6f3971487e6e5f7351e0cbd89c9ff213437c9b8d3a25e9964a15129. A stale saved boot image does not explain the touch regression. The exact regression cause remains unknown; no repeat boot planned.
+
+Next H2 measurement must distinguish translated addresses from actual DMA. Native crashdumper CD_READ/CD_FINISH use GPU VAs and writeback markers, but available source does not establish that the engine operates before CP_INIT; a timeout would therefore be ambiguous. Do not implement a speculative crashdumper launch as if it were an established independent memory test. H2/H3 remain open, no RAW queued, phone in ordinary Android with user-confirmed working touch.
+
+## Further H2/H3 source review and available diagnostics
+
+Pinned Linux reference downloaded with provenance: linux-a6xx_gpu_state.c, linux-msm_gpu.c (linux-next2506121f625586726f593dc5e726248cdcf5e7fe). Snapshot does halt SQE before crashdumper, but additionally requires !gpu->needs_hw_init. msm_gpu_hw_init clears needs_hw_init only after funcs->hw_init succeeds. Therefore halting SQE is not sufficient evidence of crashdumper support before first CP init. Do not treat this route as a qualified pre-CP DMA test. No diagnostic hardware experiment added.
+
+Read-only live Android inspection found /proc/tzdbg (not the assumed debugfs path). Saved general/reset/boot/hyp_general/vmid and hashes under forensic-audit/live-tz-readonly. General/reset/boot/vmid explicitly return New Encrypted TZ Dialog, magic0x73d71034/version1. Pinned target-tz_log.c calls qcom_scm_request_encrypted_log and prints encrypted AES key material, nonce, tag and ciphertext. The printed Key field is not evidence of an available plaintext decryption key. No decoder/decryption capability for this device is established in the available sources. Current hyp S2 counter0 applies only to the current Android boot and must not be used to exclude a historical XNU fault. This does not independently establish the encoding of all older Sahara segments.
+
+No further driver changes or phone reboots in this review. CP execution remains unproven. Current missing evidence is either a readable reset/fault record from the failing run, or an independently qualified GPU read/write probe before CP init. Do not compensate with another ungrounded RAW retry.
