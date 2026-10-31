@@ -395,6 +395,11 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         (lpac_map!=1 || (probe!=93 && probe!=94))) {
         log_line("waffle-iommu: LPAC mapping requires controlled probe93/94; refused\n");return;
     }
+    uint32_t zap=0;
+    if(PE_parse_boot_argn("waffle_zap",&zap,sizeof(zap)) &&
+        (zap!=1 || probe!=94 || lpac_map!=1)) {
+        log_line("waffle-iommu: ZAP requires controlled94 with LPAC; refused\n");return;
+    }
     uint32_t access_matrix=0;
     if(PE_parse_boot_argn("waffle_ecats_access",&access_matrix,sizeof(access_matrix)) &&
         (access_matrix!=1 || probe!=93)) {

@@ -46,7 +46,7 @@ static inline int waffle_number(const char *word, size_t size, const char *key,
 
 static inline int waffle_cmdline_allowed(const char *line)
 {
-    unsigned matrix=0,measure=0,lpac=0,gpu_count=0;
+    unsigned matrix=0,measure=0,lpac=0,zap=0,gpu_count=0;
     int prepare93=0,native94=0;
     while (*line) {
         while (*line == ' ') line++;
@@ -57,6 +57,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
         measure+=waffle_token_equal(line,size,"waffle_gpu_measure=1");
         lpac+=waffle_token_equal(line,size,"waffle_lpac_map=1");
+        zap+=waffle_token_equal(line,size,"waffle_zap=1");
         gpu_count+=waffle_number(line,size,"waffle_gpu=",1,94);
         prepare93|=waffle_number(line,size,"waffle_gpu=",93,93);
         native94|=waffle_number(line,size,"waffle_gpu=",94,94);
@@ -70,7 +71,8 @@ static inline int waffle_cmdline_allowed(const char *line)
     }
     return ((!matrix && !measure) ||
         (matrix<=1 && measure<=1 && gpu_count==1 && prepare93)) &&
-        (!lpac || (lpac==1 && gpu_count==1 && (prepare93 || native94)));
+        (!lpac || (lpac==1 && gpu_count==1 && (prepare93 || native94))) &&
+        (!zap || (zap==1 && lpac==1 && gpu_count==1 && native94));
 }
 static inline int waffle_pll_control_requested(const char *line)
 {
@@ -102,7 +104,8 @@ static inline int waffle_gpu_token_allowed(const char *word, size_t size)
     return waffle_number(word, size, "waffle_gpu=", 1, 94) ||
         waffle_token_equal(word,size,"waffle_ecats_access=1") ||
         waffle_token_equal(word,size,"waffle_gpu_measure=1") ||
-        waffle_token_equal(word,size,"waffle_lpac_map=1");
+        waffle_token_equal(word,size,"waffle_lpac_map=1") ||
+        waffle_token_equal(word,size,"waffle_zap=1");
 #else
     (void)word; (void)size;
     return 0;

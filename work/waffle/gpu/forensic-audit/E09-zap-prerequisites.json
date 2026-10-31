@@ -1,0 +1,43 @@
+{
+  "dtb_checks": [
+    {
+      "dtb": "work/waffle/gpu/android-capture2/android-live.dtb",
+      "sha256": "c0a4036689044dd47e4a46076285d1fca13361f4c280690c5e2e80ed7382a92a",
+      "zap_memory_node": "/reserved-memory/gpu_microcode_region@9b09a000",
+      "base": "0x9b09a000",
+      "size": 8192,
+      "no_map": true,
+      "scm_explicit_clock_or_interconnect": false
+    },
+    {
+      "dtb": "/home/qarzis/OnePlus12-port/vendor_boot.img-2.dtb",
+      "sha256": "9bc1713b91598db5c996b98c4f93cad93a5fe9ae14e20214afb438cf58e25e42",
+      "zap_memory_node": "/reserved-memory/gpu_microcode_region@9b09a000",
+      "base": "0x9b09a000",
+      "size": 8192,
+      "no_map": true,
+      "scm_explicit_clock_or_interconnect": false
+    },
+    {
+      "dtb": "/home/qarzis/OnePlus12-port/vendor_boot.img-3.dtb",
+      "sha256": "2b27ad558c044b7ed7c2862413133659ad1f36a235597164bd24f9871038cc44",
+      "zap_memory_node": "/reserved-memory/gpu_microcode_region@9b09a000",
+      "base": "0x9b09a000",
+      "size": 8192,
+      "no_map": true,
+      "scm_explicit_clock_or_interconnect": false
+    }
+  ],
+  "UEFI_reserved": "MemoryMapLib PIL_Reserved 0x8bc00000..0xa3180000 UNCACHED_UNBUFFERED_XN",
+  "loader_exclusion": "waffle-memory-map.h reserved 0x86b00000..0xa3180000; single XNU RAM window selected by waffle_range_allowed",
+  "pas13_order": [
+    "supported query",
+    "init_image metadata arginfo0x82",
+    "mem_setup reserved_base/4096",
+    "copy exact1072byte payload WC",
+    "auth_and_reset",
+    "CP_SET_SECURE_MODE0 raw seq43",
+    "slumber seq44"
+  ],
+  "waitq_policy": "Existing synchronous SCM helper does not implement WAITQ2/3. Any unexpected/nonzero status retains memory/resources and returns to loader for Android reset; no speculative resume."
+}

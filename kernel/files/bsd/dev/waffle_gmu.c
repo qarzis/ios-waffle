@@ -16,6 +16,7 @@
 #include <sys/waffle_gen7_hwcg.h>
 #include <sys/waffle_gen7_boot.h>
 #include <sys/waffle_gpu_measure.h>
+#include <sys/waffle_zap_load.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
@@ -38,6 +39,12 @@ struct gen7_live_probe {
 static bool gpu_gen7_live_start(struct gen7_live_probe *,vm_offset_t,vm_offset_t,
     vm_offset_t,struct waffle_gmu_plan *,unsigned);
 static void gpu_gen7_live_finish(struct gen7_live_probe *,unsigned);
+static bool gen7_zap_transition(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
+static bool zap_requested(void)
+{
+    uint32_t value=0;
+    return PE_parse_boot_argn("waffle_zap",&value,sizeof(value)) && value==1;
+}
 
 static void say(const char *fmt, ...) __printflike(1, 2);
 static void say(const char *fmt, ...)
@@ -744,6 +751,93 @@ static int32_t scm_one(uint32_t function,uint64_t argument,uint64_t *answer)
     const uint64_t arguments[4]={argument,0,0,0};
     return scm_raw(function,1,arguments,answer);
 }
+/* E09: only reached after a verified CP_INIT, with live OOB/GX ownership. */
+struct zap_runtime {vm_offset_t payload;};
+static bool zap_pas_call(void *context,uint32_t function,uint32_t arginfo,
+    const uint64_t *args,uint64_t *answer)
+{
+    (void)context;
+    int32_t status=-1;
+    for(unsigned retry=0;retry<=20;++retry) {
+        status=scm_raw(function,arginfo,args,answer);
+        if(status!=-12)break;
+        delay_for_interval(30000,NSEC_PER_USEC);
+    }
+    say("waffle-gmu: ZAP_PAS function=%08x transport=%d service=%llx\n",function,status,*answer);
+    return status==0;
+}
+static bool zap_copy_payload(void *opaque,const uint8_t *data,unsigned bytes,unsigned memory_bytes)
+{
+    struct zap_runtime *c=opaque;
+    if(!c || !c->payload || bytes>memory_bytes || memory_bytes>8192)return false;
+    /* WC alias into the reserved no-map range, never a normal XNU allocation. */
+    volatile uint8_t *out=(volatile uint8_t *)(c->payload+0x2000);
+    for(unsigned i=0;i<memory_bytes;++i)out[i]=i<bytes?data[i]:0;
+    __asm__ volatile("dsb sy":::"memory");
+    for(unsigned i=0;i<memory_bytes;++i)if(out[i]!=(i<bytes?data[i]:0))return false;
+    say("waffle-gmu: ZAP_PAYLOAD copied=%u reserved=%llx readback=1\n",bytes,WAFFLE_ZAP_RESERVED_BASE);
+    return true;
+}
+static bool gen7_zap_transition(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi_alias,
+    struct waffle_gmu_plan *plan)
+{
+    uint32_t lpac=0;
+    if(!PE_parse_boot_argn("waffle_lpac_map",&lpac,sizeof(lpac)) || lpac!=1 ||
+        rd(gpu,0xf400*4)!=1) return false;
+    uint64_t length=0;
+    const uint8_t *image=macan_image_file("fw","gen70900_zap.mbn",&length);
+    struct waffle_zap_image p;
+    if(!waffle_zap_parse(image,length,&p) || PAGE_SIZE!=16384)return false;
+    /* Probe all PAS commands before allocating or submitting INIT_IMAGE. */
+    for(unsigned i=0;i<4;++i) {
+        const unsigned commands[]={7,1,2,5};
+        uint64_t answer=0;
+        if(scm_one(0x42000601,0x02000200|commands[i],&answer) || answer!=1) {
+            say("waffle-gmu: ZAP_PAS unavailable command=%u\n",commands[i]);return false;
+        }
+    }
+    vm_offset_t metadata=0,alias=0,payload=0;
+    if(kmem_alloc(kernel_map,&metadata,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
+        VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
+    uint64_t pa=kvtophys(metadata);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(metadata+PAGE_SIZE-1)!=pa+PAGE_SIZE-1)goto free_metadata;
+    for(vm_offset_t a=metadata;a<metadata+PAGE_SIZE;a+=64)
+        __asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    alias=ml_io_map_unmappable(pa,PAGE_SIZE,VM_WIMG_WCOMB);
+    payload=ml_io_map_unmappable(WAFFLE_ZAP_RESERVED_BASE&~16383ULL,PAGE_SIZE,VM_WIMG_WCOMB);
+    if(!alias || !payload)goto free_metadata;
+    volatile uint8_t *out=(volatile uint8_t *)alias;
+    for(unsigned i=0;i<p.header_bytes;++i)out[i]=image[i];
+    for(unsigned i=0;i<p.hash_bytes;++i)out[p.header_bytes+i]=image[p.hash_offset+i];
+    __asm__ volatile("dsb sy":::"memory");
+    struct zap_runtime runtime={payload};
+    const struct waffle_zap_io io={&runtime,zap_pas_call,zap_copy_payload};
+    struct waffle_zap_state state;
+    if(!waffle_zap_load(&io,image,length,pa,&state)) {
+        say("waffle-gmu: ZAP_LOAD result=0 stage=%u retained=%u\n",state.stage,state.retain);
+        if(state.retain)stop_unsafe("ZAP PAS state uncertain; retain metadata and reserved aliases");
+        goto free_metadata;
+    }
+    /* Native PAS metadata lifetime ends after MDT load, but retain this16KiB
+     * diagnostic allocation until Android reset to avoid speculative reuse. */
+    say("waffle-gmu: ZAP_LOAD authenticated=1 stage=%u metadata retained until reset\n",state.stage);
+    const uint32_t packet[]={(43u<<20)|(3u<<8)|131u,0x70e60001u,0};
+    if(!hfi_exchange_watch(gmu,hfi_alias,packet,3,"ZAP_UNSECURE",true,plan))
+        stop_unsafe("ZAP authenticated but CP secure switch ACK failed");
+    if(!wait_for(gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000))
+        stop_unsafe("ZAP secure switch idle timeout");
+    uint32_t trust=rd(gpu,0xf400*4);
+    if(trust)stop_unsafe("ZAP secure switch TRUST readback nonzero");
+    ml_io_unmap(payload,PAGE_SIZE);
+    say("waffle-gmu: ZAP_TRANSITION result=1 TRUST=%08x; no draw\n",trust);
+    return true;
+free_metadata:
+    if(payload)ml_io_unmap(payload,PAGE_SIZE);
+    if(alias)ml_io_unmap(alias,PAGE_SIZE);
+    kmem_free(kernel_map,metadata,PAGE_SIZE);
+    return false;
+}
 /* Native kgsl_set_smmu_aperture: bind the CP SMMU register aperture to
  * the user context bank. Probe37/38 only, before CM3/GX start. Android reset
  * restores native policy; no guessed register offset or secure-mode change. */
@@ -1105,7 +1199,7 @@ static bool boot_probe(vm_offset_t gmu, vm_offset_t qtb, struct waffle_gmu_plan 
     if (running && probe >= 18 && (probe < 25 || probe >= 31)) running = gpu_power_probe(gmu,cc,plan,probe,hfi_alias,&live);
     if ((running || minimum_attempted) && probe >= 16 && (probe < 25 || probe >= 31)) {
         bool exercise_ok = running;
-        const uint32_t slumber[] = {((probe>=79 ? 43u : probe>=33 ? 35u : probe >= 31 ? 33u : probe >= 24 ? 14u : probe >= 17 ? 8u : 7u)<<20)|(3u<<8)|33u,1,1};
+        const uint32_t slumber[] = {((probe==94 && zap_requested() ? 44u : probe>=79 ? 43u : probe>=33 ? 35u : probe >= 31 ? 33u : probe >= 24 ? 14u : probe >= 17 ? 8u : 7u)<<20)|(3u<<8)|33u,1,1};
         saved_counter = rd(gmu,WAFFLE_GMU_REG(0x1f840));
         counter_changed = true;
         wr(gmu,WAFFLE_GMU_REG(0x1f840),0);
@@ -1516,6 +1610,8 @@ static bool gpu_gen7_live_start(struct gen7_live_probe *live,vm_offset_t gpu,vm_
     if (live->state.config.phase!=WAFFLE_GEN7_SUBMITTED &&
         waffle_gen7_boot_finish(&registers,&live->state))
         stop_unsafe("pre-submission boot rollback failed");
+    if(!result && probe==94 && zap_requested())
+        return gen7_zap_transition(gpu,gmu,hfi_alias,plan);
     return result==0;
 }
 static void gpu_gen7_live_finish(struct gen7_live_probe *live,unsigned evidence)

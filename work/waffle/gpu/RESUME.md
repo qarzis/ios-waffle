@@ -1,3 +1,23 @@
+# USER RESUMED — E09 built, hardware pending
+
+Latest user «продолжай» revokes prior pause. E08 preserved/twoCP_INITpasses.
+E09 native PAS13+secure-switch implemented behind94+LPAC+waffle_zap=1;
+fullhost/XNU/EFI/container/sourcebindingpassed diagnostic-gpu-zap-e09.
+NoE09hardwareyet. Nextautobootwith--lpac-map --lpac-cp-init --zap;
+standardcollector, inspectPAStransport/service, switchseq43/TRUST0/slumber44,
+thenindependentAndroid1. NevermodifyoriginalE08artifact. SeeGPU_DEBUG_LOG.
+
+# USER PAUSED — do not resume without an explicit request
+
+User: «стопай пока что». Stop GPU/device work. No hardware test/build/process
+was started during the resumed ZAP review. Phone last independently confirmed
+ordinary Android boot_completed1. E08 working source/image unchanged; two
+successful CP_INIT runs remain preserved, latest Git4adf2cc onwaffle/hakios-uefi.
+E09 is a source-backed PLAN ONLY: runtime ZAP/PAS/secure-switch NOT implemented
+and NOT hardware tested. New records: GPU_DEBUG_LOG.md and
+forensic-audit/E09-zap-prerequisites.json (DTB reservation/SCM ABI/order review).
+No GPU writeback/draw yet. Resume only upon explicit user instruction.
+
 # E08 CP_INIT PASS — first successful XNU CP ACK, Android restored
 
 2026-10-31 run20261031T100500Z, auto20261031T100436Z, artifact
