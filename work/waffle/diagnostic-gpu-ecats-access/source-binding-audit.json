@@ -1,0 +1,29 @@
+{
+  "experiment": "E03-access-matrix-no-RAW",
+  "hardware_tested": false,
+  "expected_modified_frozen_files": [
+    "kernel/files/bsd/dev/waffle_smmu.c",
+    "loader/waffle.h",
+    "scripts/run_waffle_ios.py",
+    "tools/build-waffle-diagnostic.py"
+  ],
+  "source_binding_sha256": {
+    "kernel/files/bsd/dev/waffle_smmu.c": "fda1c667c4e0c15defb8b560f3312cbfc9681e92cc0b8c115904a6663414bfcc",
+    "loader/waffle.h": "4c0447495e2bf73e26c3aaf16fbc57649780a8b61bb8cc88b68efb33a741b91a",
+    "scripts/run_waffle_ios.py": "c9f76544f6d50fcaef19746aa457a0e23774fb29cbeaa380ad01424bfb1066f1",
+    "tools/build-waffle-diagnostic.py": "7be6b237675f82fa1a5b61ec511d98c5bd9c46ccebfac7592486f7599c80e1fa",
+    "tools/tests/waffle-ecats-access-host.py": "2655ee73b9014331415f199485f5dd9b07ea58a6eec00cd19cdc7399e9c320b2",
+    "tools/tests/waffle-policy.c": "4c247750195a6ed24638ea1dc8cc58ce50678c4347c409ea54b0eb6ab54b6bff",
+    "tools/tests/waffle-pool-permissions-host.py": "0e803b7c306ba4283da4fddad39d50aecf489de2a55abe80a0924821c4cc6d81",
+    "work/waffle/gpu/run-publish-test.py": "97a0714dbe32d96f1f17e6e6cd7bd6753399b7caa7eb4485d22277ff0f744ab8"
+  },
+  "kernel_sha256": "f11e33e5de12f8b9b1ca90c3596252df2ed94b871ff3997bff075feccf4308c0",
+  "firmware_packfs_sha256": "06979adb9e7cc04009196344bf2da8f98de0383ef35fef6c4c659af42f5e25d2",
+  "command": [
+    "python3",
+    "work/waffle/gpu/run-publish-test.py",
+    "93",
+    "work/waffle/diagnostic-gpu-ecats-access",
+    "--access-matrix"
+  ]
+}

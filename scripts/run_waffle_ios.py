@@ -35,11 +35,14 @@ def main():
     parser.add_argument("--fbscale", type=int, default=2, choices=(1, 2, 3), help="Render scale: 1 is faster, 2 is sharper")
     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
     parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
+    parser.add_argument("--gpu-access-matrix",action="store_true",help="Probe93 only: access-type ECATS after GMU shutdown, no CP RAW")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.gpu_access_matrix and args.gpu_probe!=93:
+        parser.error("--gpu-access-matrix requires prepare-only --gpu-probe 93")
     local_fastboot = next((path for path in (ROOT.parent / "platform-tools/fastboot",
                           ROOT.parent.parent / "platform-tools/fastboot") if path.is_file()), None)
     fastboot = args.fastboot or (str(local_fastboot) if local_fastboot else shutil.which("fastboot"))
@@ -69,6 +72,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.gpu_probe:
         arguments += f" waffle_gpu={args.gpu_probe}"
+    if args.gpu_access_matrix:
+        arguments += " waffle_ecats_access=1"
     payload = out / "payload.xnup"
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
@@ -106,6 +111,10 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            if args.gpu_access_matrix and (not re.search(
+                    r"ACCESS_MATRIX result=1 checks=[1-9][0-9]* allocations=[1-9][0-9]*; translation only, no RAW",final_text) or
+                    "RAW checkpoint" in final_text or "CP_INIT_RAW" in final_text):
+                raise RuntimeError(f"Access matrix did not pass or RAW appeared; logs: {out}")
             if re.search(r"(?:^|\n)(?:\[[^\n]*\]: )?panic\(cpu \d", final_text):
                 (out / "result.txt").write_text(line + "\nKERNEL PANIC (see kernel-final.log)\n")
                 raise RuntimeError(f"Kernel panicked before returning; logs: {out}")

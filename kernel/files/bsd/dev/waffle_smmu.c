@@ -6,6 +6,7 @@
 #include <libkern/libkern.h>
 #include <mach/mach_types.h>
 #include <mach/vm_param.h>
+#include <pexpert/pexpert.h>
 #include <sys/systm.h>
 #include <sys/waffle_gpu.h>
 #include <sys/waffle_gmu.h>
@@ -131,11 +132,19 @@ static bool pool_permissions(void *opaque,uint64_t va,uint32_t size,uint32_t fla
     log_line("waffle-iommu: allocation GPU permissions VA=%llx size=%u flags=%x applied\n",va,size,flags);
     return true;
 }
-static bool translate_page(vm_offset_t qtb, vm_offset_t cb, uint64_t iova, uint64_t expected, unsigned sid)
+enum ecats_access { ECATS_PRIV=1, ECATS_INST=2, ECATS_WRITE=4 };
+static bool translate_page_access(vm_offset_t qtb, vm_offset_t cb, uint64_t iova,
+    uint64_t expected, unsigned sid,unsigned access,unsigned attempts)
 {
-    for (unsigned attempt = 0; attempt < 3; ++attempt) {
+    if(sid>1023 || (access&~7u) || !attempts || attempts>3) return false;
+    for (unsigned attempt = 0; attempt < attempts; ++attempt) {
         w64(qtb, 0x430, sid);
-        w64(qtb, 0x438, (1u << 13) | (4u << 8) | 8);
+        /* Pinned qtb500_trigger_atos: nonsecure translation, no data transfer. */
+        uint64_t input=(4u<<8)|8;
+        if(access&ECATS_PRIV) input|=1u<<13;
+        if(access&ECATS_INST) input|=1u<<12;
+        if(access&ECATS_WRITE) input|=1;
+        w64(qtb, 0x438, input);
         w64(qtb, 0x440, iova);
         w64(qtb, 0x448, 1);
         bool finished = false;
@@ -145,8 +154,11 @@ static bool translate_page(vm_offset_t qtb, vm_offset_t cb, uint64_t iova, uint6
         }
         uint64_t output = r64(qtb, 0x458);
         uint32_t fsr_raw = r32(cb, 0x58), fsr = fsr_raw & FSR_FAULT_MASK;
-        log_line("waffle-iommu: ECATS SID=%u VA=%llx expected=%llx PA=%llx done=%u FSRraw=%08x faults=%08x\n",
-            sid, iova, expected, output >> 12, finished, fsr_raw, fsr);
+        log_line("waffle-iommu: ECATS SID=%u VA=%llx expected=%llx PA=%llx done=%u FSRraw=%08x faults=%08x access=%x\n",
+            sid, iova, expected, output >> 12, finished, fsr_raw, fsr,access);
+        if(attempts==1 && (!finished || (output&1) || fsr || (output>>12)!=expected))
+            log_line("waffle-iommu: ACCESS_MATRIX failure VA=%llx access=%x OUT=%llx FSR=%08x FAR=%llx\n",
+                iova,access,output,fsr_raw,r64(cb,0x60));
         w64(qtb, 0x448, 0);
         if (fsr) {
             log_line("waffle-iommu: fault FAR=%llx\n", r64(cb, 0x60));
@@ -156,6 +168,75 @@ static bool translate_page(vm_offset_t qtb, vm_offset_t cb, uint64_t iova, uint6
         if (finished && !(output & 1) && !fsr && (output >> 12) == expected) return true;
     }
     return false;
+}
+static bool translate_page(vm_offset_t qtb,vm_offset_t cb,uint64_t iova,uint64_t expected,unsigned sid)
+{
+    return translate_page_access(qtb,cb,iova,expected,sid,ECATS_PRIV,3);
+}
+/* Observe real START allocations now; run ECATS only after GMU has stopped. */
+struct access_matrix_context {
+    struct pool_permission_context permissions;
+    unsigned count;
+    struct {uint64_t va;uint32_t size,flags;} allocations[32];
+};
+static bool access_matrix_capture(void *opaque,uint64_t va,uint32_t size,uint32_t flags)
+{
+    struct access_matrix_context *c=opaque;
+    if(c->count==32 || !pool_permissions(&c->permissions,va,size,flags)) return false;
+    c->allocations[c->count].va=va;c->allocations[c->count].size=size;
+    c->allocations[c->count++].flags=flags;
+    return true;
+}
+static bool access_matrix_buffer(vm_offset_t qtb,vm_offset_t cb,uint64_t va,
+    vm_offset_t memory,uint32_t size,unsigned access,bool instruction,unsigned *checks)
+{
+    if(!size || (va&4095) || (memory&4095)) return false;
+    uint32_t last=(size-1)&~4095u;
+    for(unsigned edge=0;edge<2;++edge) {
+        if(edge && !last) break;
+        unsigned offset=edge?last:0;
+        for(unsigned n=0;n<3;++n) {
+            if((n==1 && !(access&ECATS_WRITE)) || (n==2 && !instruction)) continue;
+            unsigned mode=n==0?(access&~ECATS_WRITE):n==1?access:access|ECATS_INST;
+            ++*checks;
+            if(!translate_page_access(qtb,cb,va+offset,kvtophys(memory+offset),0,mode,1)) return false;
+        }
+    }
+    return true;
+}
+static bool access_matrix_run(struct access_matrix_context *c,
+    struct waffle_gmu_plan *plan,vm_offset_t qtb,vm_offset_t cb,vm_offset_t gmu,vm_offset_t cc)
+{
+    unsigned checks=0;
+    bool ok=c->count && (r32(gmu,WAFFLE_GMU_SYSRESET)&1) &&
+        (r32(cc,WAFFLE_GPU_GX_GDSCR)&((1u<<31)|1))==1 &&
+        (r64(qtb,0x410)&1) && (r64(qtb,0x418)&1) && !r64(qtb,0x448) &&
+        !(r32(cb,0x58)&FSR_FAULT_MASK);
+    log_line("waffle-iommu: ACCESS_MATRIX begin ready=%u allocations=%u; CM3 reset/GX off, no RAW\n",ok,c->count);
+    struct waffle_gmu_region *arena=NULL;
+    unsigned firmware_buffers=0;
+    for(unsigned i=0;ok && i<plan->count;++i) {
+        struct waffle_gmu_region *r=&plan->regions[i];
+        if(r->address==WAFFLE_HWSCHED_POOL_ADDRESS) arena=r;
+        if(r->address==WAFFLE_GPU_SQE_ADDRESS || r->address==WAFFLE_GPU_AQE_ADDRESS ||
+            r->address==WAFFLE_GPU_PWRUP_ADDRESS) {
+            ++firmware_buffers;
+            bool code=r->address!=WAFFLE_GPU_PWRUP_ADDRESS;
+            ok=access_matrix_buffer(qtb,cb,waffle_gpu_plan_alias(plan,r->address),r->memory,
+                r->size,code?0:ECATS_PRIV|ECATS_WRITE,code,&checks);
+        }
+    }
+    if(!arena || firmware_buffers!=3) ok=false;
+    uint64_t base=waffle_gpu_plan_alias(plan,WAFFLE_HWSCHED_POOL_ADDRESS);
+    for(unsigned i=0;ok && i<c->count;++i) {
+        uint64_t offset=c->allocations[i].va-base;
+        uint32_t size=c->allocations[i].size,flags=c->allocations[i].flags;
+        if(c->allocations[i].va<base || offset>arena->size || size>arena->size-offset) {ok=false;break;}
+        unsigned access=((flags&2)?ECATS_PRIV:0)|((flags&4)?ECATS_WRITE:0);
+        ok=access_matrix_buffer(qtb,cb,c->allocations[i].va,arena->memory+offset,size,access,false,&checks);
+    }
+    log_line("waffle-iommu: ACCESS_MATRIX result=%u checks=%u allocations=%u; translation only, no RAW\n",ok,checks,c->count);
+    return ok;
 }
 
 /* Diagnostic only: native GPUHALT policy with stall enabled (CFCFG1,HUPCF0),
@@ -302,6 +383,11 @@ static void protected_pool_release(struct protected_gpu_pool *);
 void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
     uint32_t contexts, uint32_t matches, unsigned probe)
 {
+    uint32_t access_matrix=0;
+    if(PE_parse_boot_argn("waffle_ecats_access",&access_matrix,sizeof(access_matrix)) &&
+        (access_matrix!=1 || probe!=93)) {
+        log_line("waffle-iommu: access matrix requires prepare-only probe93; refused\n");return;
+    }
     log_line("waffle-iommu: map QTB500 @%08x\n", WAFFLE_GPU_QTB_BASE);
     vm_offset_t qtb = ml_io_map(WAFFLE_GPU_QTB_BASE, WAFFLE_GPU_QTB_SIZE);
     if (!qtb) { log_line("waffle-iommu: QTB map failed\n"); return; }
@@ -477,8 +563,12 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         }
         struct pool_permission_context permission_context={.tables=&pool,.cb=gpu_context.cb};
         if(probe>=72){firmware.pool_permissions=pool_permissions;firmware.pool_permissions_context=&permission_context;}
-        if (matches_pa && waffle_gmu_probe_tcm(&firmware, probe, qtb))
+        struct access_matrix_context matrix={.permissions=permission_context};
+        if(access_matrix){firmware.pool_permissions=access_matrix_capture;firmware.pool_permissions_context=&matrix;}
+        if (matches_pa && waffle_gmu_probe_tcm(&firmware, probe, qtb)) {
             log_line("waffle-iommu: GMU test passed, boot_test=%u; CM3 held reset again\n", probe >= 9);
+            if(access_matrix) (void)access_matrix_run(&matrix,&firmware,qtb,gpu_context.cb,gmu,cc);
+        }
     }
 done:
     if (protected_pool) protected_pool_release(protected_pool);

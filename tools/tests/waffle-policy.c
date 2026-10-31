@@ -56,6 +56,13 @@ int main(void)
     assert(waffle_cmdline_allowed("-v bootcpu=1 epoch=1792750000 loader_return_after=10 fbscale=2"));
     assert(waffle_cmdline_allowed("  -v   "));
 #ifdef WAFFLE_USERLAND
+    assert(waffle_cmdline_allowed("waffle_gpu=93 waffle_ecats_access=1"));
+    assert(waffle_cmdline_allowed("waffle_ecats_access=1 waffle_gpu=93"));
+    assert(!waffle_cmdline_allowed("waffle_ecats_access=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_ecats_access=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_gpu=94 waffle_ecats_access=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_ecats_access=1 waffle_ecats_access=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_ecats_access=2"));
     assert(waffle_cmdline_allowed("waffle_gpu=1"));
     assert(waffle_cmdline_allowed("waffle_gpu=2 bootcpu=7 loader_return_after=30"));
     assert(waffle_cmdline_allowed("waffle_gpu=3 bootcpu=7 loader_return_after=30"));

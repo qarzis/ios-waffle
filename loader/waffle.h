@@ -46,12 +46,17 @@ static inline int waffle_number(const char *word, size_t size, const char *key,
 
 static inline int waffle_cmdline_allowed(const char *line)
 {
+    unsigned matrix=0,gpu_count=0;
+    int prepare93=0;
     while (*line) {
         while (*line == ' ') line++;
         const char *end = line;
         while (*end && *end != ' ') end++;
         size_t size = (size_t)(end - line);
         if (!size) break;
+        matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
+        gpu_count+=waffle_number(line,size,"waffle_gpu=",1,94);
+        prepare93|=waffle_number(line,size,"waffle_gpu=",93,93);
         if (!waffle_token_equal(line, size, "-v") &&
             !waffle_number(line, size, "bootcpu=", 0, 7) &&
             !waffle_number(line, size, "epoch=", 0, UINT32_MAX) &&
@@ -60,7 +65,7 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
     }
-    return 1;
+    return !matrix || (matrix==1 && gpu_count==1 && prepare93);
 }
 static inline int waffle_pll_control_requested(const char *line)
 {
@@ -89,7 +94,8 @@ static inline int waffle_pll_append_proof(char *line,size_t capacity,int verifie
 static inline int waffle_gpu_token_allowed(const char *word, size_t size)
 {
 #if defined(WAFFLE_USERLAND)
-    return waffle_number(word, size, "waffle_gpu=", 1, 94);
+    return waffle_number(word, size, "waffle_gpu=", 1, 94) ||
+        waffle_token_equal(word,size,"waffle_ecats_access=1");
 #else
     (void)word; (void)size;
     return 0;

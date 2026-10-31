@@ -1,7 +1,7 @@
 from pathlib import Path
 import subprocess,tempfile
 r=Path(__file__).resolve().parents[2]
-s=(r/'kernel/files/bsd/dev/waffle_smmu.c').read_text();code=s[s.index('struct pool_permission_context'):s.index('static bool translate_page(')]
+s=(r/'kernel/files/bsd/dev/waffle_smmu.c').read_text();code=s[s.index('struct pool_permission_context'):s.index('enum ecats_access')]
 h=r'''
 #include <stdint.h>
 #include <stdbool.h>

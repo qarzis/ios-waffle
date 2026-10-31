@@ -1,6 +1,6 @@
 # GPU forensic audit — OnePlus 12 / Adreno 750
 
-Audit in progress. Production source changes and further hardware probes are paused until diagnosis is complete. Builds and register readback are not proof of command execution.
+Forensic baseline and architecture review are recorded below and in the audit dossier. The next phase implements only the scoped H1 diagnostic experiment; no CP RAW retry is queued. The reset root cause remains unknown. Builds and register readback are not proof of command execution.
 
 ## Evidence baseline
 
@@ -51,3 +51,15 @@ No new failed hardware experiments during this audit: 0. The earlier many unsucc
 ## Anti-loop rules
 
 Record each experiment with evidence, expected result, observed result and disposition. Do not repeat a refuted change without new evidence. After three inconclusive hardware experiments, stop hardware iteration and revisit architectural assumptions. Compilation alone cannot mark a hardware stage complete.
+
+## 2026-10-31 — E03 implementation, hardware pending
+
+User requested continuous work and confirmed that phone access is available. Audit baseline is preserved on `waffle/gpu-forensic-baseline-20261031` (baseline `441a407`, debug-log follow-up `94bd0fc`). No production files were changed before the forensic review and initial plan were presented.
+
+The selected H1 experiment now has a bounded implementation: optional `waffle_ecats_access=1`, accepted only with prepare-only probe93. Ordinary probe93 retains its previous selection. RAW paths and CP payloads are unchanged. The callback records actual successful nonsecure GPU START allocations while preserving their existing permission updates. The access matrix runs only after successful GMU stop/TCM restoration, with CM3 reset, GX off and QTB halted, while GPU page tables and allocations are still retained. It does not halt QTB while GMU queues are live.
+
+It checks the first/last pages of SQE/AQE using unprivileged data/instruction reads, restore using privileged data read/write, and real HFI allocations using their requested privilege/write flags. Instruction mode is additional coverage, not an assertion about the closed firmware's actual transaction classification. No secure access requests and no actual memory transfers are added. The first failed translation ends the matrix, with OUT/FSR/FAR recorded before the existing cleanup.
+
+Host test executes actual production code against pinned native ECATS encoding and simulated faults. Passed checks include encoding, real allocation modes, missing readiness, wrong PA, timeout, first-failure stop, range rejection, descriptor capacity and original privileged-read encoding. A pre-existing host extractor needed a boundary update after introducing the parameterized helper; its actual permission tests pass again. These are software results only. Full XNU/EFI/container build is in progress under `diagnostic-gpu-ecats-access`; hardware result is still pending.
+
+Frozen pre-audit source hashes are intentionally retained as the immutable historical baseline. After this entry, changes in the scoped SMMU diagnostic, loader token policy, runner and build/test integration are expected; rerunning the original freeze assertion is not a hardware verification.
