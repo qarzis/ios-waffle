@@ -18,7 +18,7 @@ typedef uintptr_t vm_offset_t;
 #define GMU 0x1000u
 #define CC 0x2000u
 #define GPU 0x3000u
-struct waffle_gmu_plan {int placeholder;};
+struct waffle_gmu_plan {void *submit_session;};
 struct gen7_live_probe;
 static bool gpu_gen7_live_start(struct gen7_live_probe *live,vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi,struct waffle_gmu_plan *plan,unsigned probe) {(void)live;(void)gpu;(void)gmu;(void)hfi;(void)plan;(void)probe;return true;}
 static bool gpu_cp_probe(vm_offset_t gpu,struct waffle_gmu_plan *plan,unsigned probe) {(void)gpu;(void)plan;(void)probe;return true;}
@@ -65,7 +65,12 @@ int main(void) {
     test(1,1u<<31,1,0,false);
     test(0,0,1,0,false);
     test(0,1u<<31,1,1,false);
-    puts("GX power/clock/ACK denial and OOB release checks passed");return 0;
+    status=0;gdsc=1u<<31;acknowledged=1;mapfail=0;
+    mapped=reads=released=requested=0;
+    struct waffle_gmu_plan plan={.submit_session=(void *)1};
+    assert(gpu_power_probe(GMU,CC,&plan,94,3,NULL));
+    assert(requested==1 && released==0 && mapped==1 && reads==3);
+    puts("GX power/clock/ACK denial, normal release and explicit owned-session OOB handoff checks passed");return 0;
 }
 '''
 with tempfile.TemporaryDirectory() as directory:

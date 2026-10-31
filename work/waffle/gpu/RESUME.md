@@ -1,3 +1,13 @@
+# E12 owned session built — hardware pending
+
+User «дальше работай». Optionalwaffle_session=1 requires94/LPAC/ZAP/writeback/IB.
+Heapownedsubmit_session retainsOOB+BOalias aftergpu_power_probereturn,
+threeIBs44/45/46 uniquetokens/fences1/2/3, closeOOBthen slumber47,
+destroyafterallsixstopbits. Fullhost/XNU/EFI/container/sourcebindingPASS.
+Artifactdiagnostic-gpu-session-e12. Nextautotest--session withverifiedchain.
+OuterSMMUplan/tables still diagnosticstackowned: this isbounded prototype,
+NOT persistentiOSbackend. E11-r2originalartifact unchanged.
+
 # E11-r2 PASS — GPU command fetch + result verified; Android restored
 
 Userresumed, activeGPUport. No pause. Latest hardware run20261031T103147Z,

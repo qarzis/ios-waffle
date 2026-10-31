@@ -411,6 +411,11 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         (ib!=1 || probe!=94 || lpac_map!=1 || zap!=1 || writeback!=1)) {
         log_line("waffle-iommu: IB requires controlled94 LPAC/ZAP/writeback; refused\n");return;
     }
+    uint32_t session=0;
+    if(PE_parse_boot_argn("waffle_session",&session,sizeof(session)) &&
+        (session!=1 || probe!=94 || lpac_map!=1 || zap!=1 || writeback!=1 || ib!=1)) {
+        log_line("waffle-iommu: session requires controlled94 LPAC/ZAP/writeback/IB; refused\n");return;
+    }
     uint32_t access_matrix=0;
     if(PE_parse_boot_argn("waffle_ecats_access",&access_matrix,sizeof(access_matrix)) &&
         (access_matrix!=1 || probe!=93)) {

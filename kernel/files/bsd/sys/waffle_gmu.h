@@ -20,12 +20,15 @@ struct waffle_gmu_region {
     vm_offset_t memory;
     bool gpu_only, readonly;
 };
+struct waffle_submit_session;
 struct waffle_gmu_plan {
     const uint8_t *firmware;
     size_t length;
     unsigned count;
     bool split_gpu_va,compact_gpu_va;
     bool raw_stage_pause;
+    struct waffle_submit_session *submit_session;
+    unsigned session_slumber_sequence;
     bool (*pool_permissions)(void *,uint64_t,uint32_t,uint32_t);
     void *pool_permissions_context;
     vm_offset_t fault_smmu;
