@@ -17,6 +17,7 @@
 #include <sys/waffle_gen7_boot.h>
 #include <sys/waffle_gpu_measure.h>
 #include <sys/waffle_zap_load.h>
+#include <sys/waffle_gpu_writeback.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
@@ -40,6 +41,12 @@ static bool gpu_gen7_live_start(struct gen7_live_probe *,vm_offset_t,vm_offset_t
     vm_offset_t,struct waffle_gmu_plan *,unsigned);
 static void gpu_gen7_live_finish(struct gen7_live_probe *,unsigned);
 static bool gen7_zap_transition(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
+static bool gen7_memory_writeback(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
+static bool writeback_requested(void)
+{
+    uint32_t value=0;
+    return PE_parse_boot_argn("waffle_writeback",&value,sizeof(value)) && value==1;
+}
 static bool zap_requested(void)
 {
     uint32_t value=0;
@@ -169,6 +176,13 @@ bool waffle_gmu_prepare(struct waffle_gmu_plan *plan, unsigned probe)
         r->size=plan->compact_gpu_va?WAFFLE_GPU_COMPACT_POOL_BYTES:WAFFLE_HWSCHED_POOL_SIZE;
         if (kmem_alloc(kernel_map,&r->memory,round_page(r->size),
                 KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS) goto failed;
+    }
+    if(probe==94 && writeback_requested()) {
+        if(plan->count==WAFFLE_GMU_REGIONS || region_at(plan,WAFFLE_GPU_WRITEBACK_ADDRESS,1))goto failed;
+        struct waffle_gmu_region *r=&plan->regions[plan->count++];
+        r->address=WAFFLE_GPU_WRITEBACK_ADDRESS;r->size=WAFFLE_GPU_WRITEBACK_BYTES;r->gpu_only=true;
+        if(kmem_alloc(kernel_map,&r->memory,round_page(r->size),
+            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)goto failed;
     }
     cursor = 0;
     while ((result = waffle_fw_next(plan->firmware, plan->length, &cursor, &b)) == 1) {
@@ -831,12 +845,59 @@ static bool gen7_zap_transition(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi_
     if(trust)stop_unsafe("ZAP secure switch TRUST readback nonzero");
     ml_io_unmap(payload,PAGE_SIZE);
     say("waffle-gmu: ZAP_TRANSITION result=1 TRUST=%08x; no draw\n",trust);
+    if(writeback_requested())return gen7_memory_writeback(gpu,gmu,hfi_alias,plan);
     return true;
 free_metadata:
     if(payload)ml_io_unmap(payload,PAGE_SIZE);
     if(alias)ml_io_unmap(alias,PAGE_SIZE);
     kmem_free(kernel_map,metadata,PAGE_SIZE);
     return false;
+}
+static bool gen7_memory_writeback(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi_alias,
+    struct waffle_gmu_plan *plan)
+{
+    struct waffle_gmu_region *r=region_at(plan,WAFFLE_GPU_WRITEBACK_ADDRESS,WAFFLE_GPU_WRITEBACK_BYTES);
+    if(!r || !r->gpu_only || r->readonly || r->size!=16384 || rd(gpu,0xf400*4)!=0)return false;
+    uint64_t pa=kvtophys(r->memory);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(r->memory+16383)!=pa+16383)return false;
+    /* No CPU access through the cached alias after clean+invalidate. */
+    for(vm_offset_t a=r->memory;a<r->memory+16384;a+=64)
+        __asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    vm_offset_t alias=ml_io_map_unmappable(pa,16384,VM_WIMG_WCOMB);
+    if(!alias)return false;
+    volatile uint32_t *out=(volatile uint32_t *)alias;
+    for(unsigned i=0;i<4096;++i)out[i]=waffle_writeback_initial(i);
+    __asm__ volatile("dsb sy":::"memory");
+    for(unsigned i=0;i<4096;++i)if(out[i]!=waffle_writeback_initial(i)) {
+        ml_io_unmap(alias,16384);return false;
+    }
+    uint64_t va=waffle_gpu_plan_alias(plan,r->address)+WAFFLE_GPU_WRITEBACK_OFFSET;
+    uint32_t packet[9];
+    if(waffle_writeback_packet(packet,9,44,va)!=9){ml_io_unmap(alias,16384);return false;}
+    say("waffle-gmu: GPU_WRITEBACK begin VA=%llx PA=%llx initial_zero=1 guards=2\n",va,pa+256);
+    if(!hfi_exchange_watch(gmu,hfi_alias,packet,9,"GPU_WRITEBACK",true,plan))
+        stop_unsafe("GPU writeback ACK failed; retain result alias");
+    if(!wait_for(gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000))
+        stop_unsafe("GPU writeback idle timeout; retain alias");
+    /* Bounded NC polling observes the actual GPU transfer, not its ACK. */
+    bool seen=false;
+    for(unsigned attempt=0;attempt<2000;++attempt) {
+        __asm__ volatile("dsb sy":::"memory");
+        seen=true;
+        for(unsigned i=0;i<4;++i)if(out[64+i]!=waffle_writeback_values[i])seen=false;
+        if(seen)break;
+        delay_for_interval(100,NSEC_PER_USEC);
+    }
+    unsigned wrong=0;
+    for(unsigned i=0;i<4096;++i)if(out[i]!=waffle_writeback_expected(i)) {
+        if(!wrong)say("waffle-gmu: GPU_WRITEBACK mismatch index=%u got=%08x expected=%08x\n",i,out[i],waffle_writeback_expected(i));
+        ++wrong;
+    }
+    say("waffle-gmu: GPU_WRITEBACK values=%08x/%08x/%08x/%08x\n",out[64],out[65],out[66],out[67]);
+    say("waffle-gmu: GPU_WRITEBACK result=%u wrong_words=%u checked=4096; no draw\n",seen&&!wrong,wrong);
+    ml_io_unmap(alias,16384);
+    return seen && !wrong;
 }
 /* Native kgsl_set_smmu_aperture: bind the CP SMMU register aperture to
  * the user context bank. Probe37/38 only, before CM3/GX start. Android reset
@@ -1199,7 +1260,7 @@ static bool boot_probe(vm_offset_t gmu, vm_offset_t qtb, struct waffle_gmu_plan 
     if (running && probe >= 18 && (probe < 25 || probe >= 31)) running = gpu_power_probe(gmu,cc,plan,probe,hfi_alias,&live);
     if ((running || minimum_attempted) && probe >= 16 && (probe < 25 || probe >= 31)) {
         bool exercise_ok = running;
-        const uint32_t slumber[] = {((probe==94 && zap_requested() ? 44u : probe>=79 ? 43u : probe>=33 ? 35u : probe >= 31 ? 33u : probe >= 24 ? 14u : probe >= 17 ? 8u : 7u)<<20)|(3u<<8)|33u,1,1};
+        const uint32_t slumber[] = {((probe==94 && writeback_requested() ? 45u : probe==94 && zap_requested() ? 44u : probe>=79 ? 43u : probe>=33 ? 35u : probe >= 31 ? 33u : probe >= 24 ? 14u : probe >= 17 ? 8u : 7u)<<20)|(3u<<8)|33u,1,1};
         saved_counter = rd(gmu,WAFFLE_GMU_REG(0x1f840));
         counter_changed = true;
         wr(gmu,WAFFLE_GMU_REG(0x1f840),0);

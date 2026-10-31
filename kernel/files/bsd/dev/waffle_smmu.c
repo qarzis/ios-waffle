@@ -400,6 +400,11 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         (zap!=1 || probe!=94 || lpac_map!=1)) {
         log_line("waffle-iommu: ZAP requires controlled94 with LPAC; refused\n");return;
     }
+    uint32_t writeback=0;
+    if(PE_parse_boot_argn("waffle_writeback",&writeback,sizeof(writeback)) &&
+        (writeback!=1 || probe!=94 || lpac_map!=1 || zap!=1)) {
+        log_line("waffle-iommu: writeback requires controlled94 LPAC/ZAP; refused\n");return;
+    }
     uint32_t access_matrix=0;
     if(PE_parse_boot_argn("waffle_ecats_access",&access_matrix,sizeof(access_matrix)) &&
         (access_matrix!=1 || probe!=93)) {

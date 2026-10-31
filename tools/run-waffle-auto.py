@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
     parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--writeback',action='store_true',help='E10: dedicated GPU memory write after verified ZAP; requires --zap')
     parser.add_argument('--zap',action='store_true',help='E09: PAS13 authenticated load and native secure switch after CP_INIT')
     parser.add_argument('--lpac-map',action='store_true',help='Validate LPAC mappings on probe93, or controlled94 with --lpac-cp-init')
     parser.add_argument('--fastboot', default=str(ROOT.parent / 'platform-tools/fastboot'))
@@ -40,6 +41,8 @@ def main():
         parser.error('--lpac-map requires --prepare-gpu or controlled --lpac-cp-init')
     if args.zap and not args.lpac_cp_init:
         parser.error('--zap requires controlled --lpac-cp-init --lpac-map')
+    if args.writeback and not args.zap:
+        parser.error('--writeback requires --zap')
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if not manifest.get('automatic_usb_loader'):
         parser.error('Artifact does not declare automatic loader entry')
@@ -60,7 +63,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -117,6 +120,8 @@ def main():
                 items.append('--lpac-map')
             if args.zap:
                 items.append('--zap')
+            if args.writeback:
+                items.append('--writeback')
             result = command(items, timeout=240)
             report['runner_exit'] = result.returncode
             if result.returncode:
