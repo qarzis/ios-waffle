@@ -4,136 +4,136 @@
 
 <h1 align="center">ios-waffle</h1>
 
-<p align="center"><strong>Экспериментальный порт iOS 16.5 на OnePlus 12.</strong><br>
+<p align="center"><strong>An experimental iOS 16.5 port for the OnePlus 12.</strong><br>
 PJD110 · Snapdragon 8 Gen 3 / SM8650 · Adreno 750 · waffle<br>
-XNU и iOS загружаются через UEFI в оперативную память.</p>
+XNU and iOS boot through UEFI into RAM.</p>
 
-Порт достигает рабочего стола SpringBoard. Экран, касания и физические кнопки проверены на OnePlus 12. Интерфейс сейчас рисуется на CPU через Mesa softpipe. **Аппаратное ускорение GPU пока не работает.**
+The port reaches the SpringBoard desktop. Display output, touch input and physical buttons have been tested on the OnePlus 12. The interface currently uses CPU rendering through Mesa softpipe. **GPU hardware acceleration is not working yet.**
 
-Проект основан на [ios-macan](https://github.com/hxfuxyy/ios-macan). Поддержка Adreno 829 и периферии OnePlus Ace 6T из исходного проекта не означает поддержку этих функций на OnePlus 12.
+This project is based on [ios-macan](https://github.com/hxfuxyy/ios-macan). Adreno 829 and peripheral support in the original OnePlus Ace 6T project does not establish support for those features on the OnePlus 12.
 
-## Что работает
+## What works
 
-Состояние на **31 октября 2026 года**, по сохранённым проверкам на PJD110.
+Status as of **October 31, 2026**, based on recorded tests on the PJD110.
 
-✅ — подтверждено на телефоне · ⚠️ — частично реализовано · ❌ — рабочего пути для waffle нет · ⚪ — не подтверждено.
+✅ — verified on hardware · ⚠️ — partially implemented · ❌ — no working waffle implementation · ⚪ — unverified.
 
-| Функция | Статус | Что проверено на OnePlus 12 |
+| Feature | Status | Verified OnePlus 12 behavior |
 | :--- | :---: | :--- |
-| **Загрузка XNU** | ✅ | Вход в ядро, MMU, GIC, таймеры и загрузка iOS userland |
-| **SpringBoard / рабочий стол** | ✅ | iOS 16.5 достигает рабочего стола с программной графикой |
-| **Экран** | ✅ | Вывод через framebuffer UEFI; GOP 1440 × 3168 |
-| **Касания** | ✅ | Synaptics S3910: реальные нажатия, движения и свайпы в iOS |
-| **Кнопки** | ✅ | Питание, громкость вверх/вниз; подтверждены блокировка и пробуждение экрана |
-| **Программная графика** | ✅ | Mesa softpipe / EAGL shim, рендеринг интерфейса на CPU |
-| **Серийный номер в iOS** | ✅ | `WFFL00OPLUS12`, проверен в разделе «Об этом устройстве» |
-| **USB-загрузчик и логи** | ✅ | Передача ядра и RAM-образов с ПК, чтение логов, возврат в загрузчик |
-| **Возврат в Android** | ✅ | Проверялся после тестов, включая завершение загрузки Android |
-| **Все 8 ядер / SMP / управление частотами** | ⚪ | Подтверждён запуск на выбранном CPU; полноценная работа всех ядер не заявляется |
-| **GPU Adreno 750** | ⚠️ | Работают подготовительные проверки GMU/HFI/SMMU. Успешное выполнение CP_INIT и GPU-рендеринг под XNU не подтверждены |
-| **Metal** | ❌ | Backend для waffle отсутствует |
-| **Wi-Fi / Интернет** | ❌ | Сетевой драйвер донора не подключён в пути инициализации waffle |
-| **Звук** | ❌ | Путь ADSP/аудио донора не подключён для waffle |
-| **Микрофон** | ❌ | Рабочий аудиотракт не реализован |
-| **Батарея / зарядка из iOS** | ❌ | Драйвер батареи донора не подключён; управление зарядкой из iOS не реализовано |
-| **Вибрация / тактильная отдача** | ❌ | Рабочая интеграция для waffle отсутствует |
-| **Фонарик** | ❌ | Рабочая интеграция для waffle отсутствует |
-| **Камеры** | ❌ | Поддержка не реализована |
-| **Датчики** | ❌ | Гироскоп, акселерометр, освещение и приближение не подключены |
-| **Регулировка яркости** | ❌ | Подтверждён вывод изображения, управление яркостью из iOS не реализовано |
-| **120 Гц** | ⚪ | Режим панели и частота вывода iOS не подтверждены |
-| **Bluetooth** | ❌ | Поддержка не реализована |
-| **Сотовая связь / SIM** | ❌ | Поддержка не реализована |
-| **GPS / NFC** | ❌ | Поддержка не реализована |
-| **USB внутри iOS** | ❌ | Подтверждён транспорт загрузчика; пользовательский USB-стек iOS не реализован |
-| **Постоянное хранилище UFS** | ❌ | iOS работает с RAM-образами; изменения внутри RAM-сессии не сохраняются после перезагрузки |
-| **Полноценный сон устройства** | ❌ | Блокировка экрана работает, системный suspend не реализован |
-| **Sileo / твики / Dynamic Island** | ⚪ | Компоненты есть в исходном проекте; отдельная полная проверка на OnePlus 12 не заявляется |
-| **Apple ID / загрузки App Store** | ⚪ | Работоспособность на этом порте не подтверждена |
+| **XNU boot** | ✅ | Kernel entry, MMU, GIC, timers and iOS userland boot |
+| **SpringBoard / desktop** | ✅ | iOS 16.5 reaches the desktop with software rendering |
+| **Display** | ✅ | UEFI framebuffer output; 1440 × 3168 GOP |
+| **Touch** | ✅ | Synaptics S3910: real taps, movement and swipes in iOS |
+| **Buttons** | ✅ | Power and volume up/down; screen lock and wake confirmed |
+| **Software graphics** | ✅ | Mesa softpipe / EAGL shim; CPU-rendered interface |
+| **iOS serial number** | ✅ | `WFFL00OPLUS12`, verified in Settings → About |
+| **USB loader and logs** | ✅ | Kernel and RAM image transfers from the PC, log retrieval and return to the loader |
+| **Return to Android** | ✅ | Checked after tests, including completed Android boot |
+| **All 8 cores / SMP / frequency scaling** | ⚪ | Boot on a selected CPU is verified; full operation of all cores is not claimed |
+| **Adreno 750 GPU** | ⚠️ | GMU/HFI/SMMU preparation tests work. Successful CP_INIT execution and GPU rendering under XNU remain unconfirmed |
+| **Metal** | ❌ | No waffle backend |
+| **Wi-Fi / Internet** | ❌ | The donor network driver is not connected to waffle initialization |
+| **Sound** | ❌ | The donor ADSP/audio path is not connected for waffle |
+| **Microphone** | ❌ | No working audio path |
+| **Battery / charging from iOS** | ❌ | The donor battery driver is not connected; iOS charging control is not implemented |
+| **Vibration / haptics** | ❌ | No working waffle integration |
+| **Flashlight** | ❌ | No working waffle integration |
+| **Cameras** | ❌ | Not implemented |
+| **Sensors** | ❌ | Gyroscope, accelerometer, ambient light and proximity are not connected |
+| **Brightness control** | ❌ | Display output is verified; brightness control from iOS is not implemented |
+| **120 Hz** | ⚪ | Panel mode and iOS output refresh rate are unverified |
+| **Bluetooth** | ❌ | Not implemented |
+| **Cellular / SIM** | ❌ | Not implemented |
+| **GPS / NFC** | ❌ | Not implemented |
+| **USB inside iOS** | ❌ | Loader transport is verified; the iOS USB stack is not implemented |
+| **Persistent UFS storage** | ❌ | iOS uses RAM images; changes within a RAM session do not survive reboot |
+| **Full device sleep** | ❌ | Screen locking works; system suspend is not implemented |
+| **Sileo / tweaks / Dynamic Island** | ⚪ | Components exist in the original project; full validation on the OnePlus 12 is not claimed |
+| **Apple ID / App Store downloads** | ⚪ | Operation on this port is unverified |
 
-## Что уже исправлено и проверено
+## Fixes and verified milestones
 
-- **Карта памяти OnePlus 12.** Загрузчик учитывает живую карту RAM и зарезервированные области; исправлен ранний сбой копирования в TrustZone carveout.
-- **Вход в XNU и возврат.** Проверены ранние CPU/MMU/GIC checkpoints, ограниченные по времени userland-сессии и возврат управления в EFI.
-- **Сенсорный экран.** Реализованы питание Synaptics, GPIO SPI, протокол TCM, нормализация координат и доставка событий в iOS. Пользователь подтвердил касания и свайпы.
-- **Физические кнопки.** Подключены питание и обе кнопки громкости через SPMI; реальные события подтверждены в iOS.
-- **Графика интерфейса на CPU.** Для waffle выбран Mesa softpipe. Это позволяет работать с интерфейсом до завершения GPU-драйвера.
-- **GPU-подготовка.** Исправлены пересечение compact GPU mappings и кодирование TG1 для TTBR1 с таблицами 4 КБ. Эти исправления не устранили текущий сбой CP.
-- **Питание и частоты GMU.** Подготовительный тест №93 прошёл последовательность GMU 625 → 260 МГц, запрос HFI, остановку, выключение GX и восстановление PLL.
-- **Режимы доступа SMMU.** Тест E03 прошёл все 27 проверок трансляции для микрокода, restore-буфера и восьми HFI allocations без запуска CP RAW.
+- **OnePlus 12 memory map.** The loader uses the live RAM map and reserved regions. An early copy failure into a TrustZone carveout was fixed.
+- **XNU entry and return.** Early CPU/MMU/GIC checkpoints, bounded userland sessions and return to EFI have been tested.
+- **Touchscreen.** Synaptics power, GPIO SPI, the TCM protocol, coordinate normalization and event delivery to iOS are implemented. The user confirmed taps and swipes.
+- **Physical buttons.** Power and both volume buttons are connected through SPMI; real events were confirmed in iOS.
+- **CPU-rendered interface.** Waffle selects Mesa softpipe so the interface can run while GPU driver development continues.
+- **GPU preparation.** Compact GPU mapping overlap and TG1 encoding for TTBR1 with 4 KB tables were fixed. These fixes did not resolve the current CP failure.
+- **GMU power and clocks.** Preparation test 93 passed the GMU 625 → 260 MHz sequence, an HFI query, shutdown, GX power collapse and PLL restoration.
+- **SMMU access modes.** E03 passed all 27 translation checks for microcode, the restore buffer and eight HFI allocations without launching CP RAW.
 
-Подробности и ссылки на проверки: [bring-up](docs/waffle-bringup.md), [GPU](docs/waffle-gpu.md), [журнал отладки](GPU_DEBUG_LOG.md), [аудит](work/waffle/gpu/forensic-audit/AUDIT.md).
+Details and test references: [bring-up](docs/waffle-bringup.md), [GPU status](docs/waffle-gpu.md), [debug log](GPU_DEBUG_LOG.md), [forensic audit](work/waffle/gpu/forensic-audit/AUDIT.md).
 
-## Текущий блокер GPU
+## Current GPU blocker
 
-Штатный Android-драйвер запускает Adreno 750. В XNU пока подтверждены загрузка GMU firmware, обмен HFI, выделение памяти и подготовка GPU. После отправки RAW CP_INIT в прежних опытах телефон терял USB и переходил в Qualcomm 900e; успешного CP ACK под XNU нет.
+The stock Android driver runs the Adreno 750. Under XNU, GMU firmware boot, HFI communication, memory allocation and GPU preparation have been verified. Previous RAW CP_INIT experiments lost USB and entered Qualcomm 900e mode; no successful CP ACK under XNU has been recorded.
 
-E03 подтвердил проверенные режимы трансляции SMMU после остановки GMU. Он **не доказывает фактическое чтение памяти GPU**, исполнение микрокода или рисование кадра. Сборка драйвера и совпадение регистров тоже не считаются аппаратным успехом.
+E03 verified the tested SMMU translation modes after GMU shutdown. It **does not prove actual GPU memory reads**, microcode execution or frame rendering. A successful build or matching register values also does not establish working hardware execution.
 
-Причина 900e ещё не установлена. Оставшиеся направления — условия запуска CP и граница публикации/обработки RAW. Собрана холодная HFI-трасса штатного Android с успешным первым CP_INIT; журналы TrustZone/reset, доступные через Android, выдаются в зашифрованном виде.
+The cause of 900e remains unknown. The remaining investigation covers CP startup prerequisites and the RAW publication/firmware handling boundary. A cold stock Android HFI trace captured a successful first CP_INIT; TrustZone/reset logs available through Android are encrypted.
 
-Временный Android-образ трассировки E04 вызвал сообщённый пользователем отказ тача. Обычная перезагрузка восстановила его. Этот образ повторно не используется до выяснения причины.
+The user reported nonworking touch after the temporary E04 Android tracing image. A normal reboot restored touch. That image will not be reused until the cause is understood.
 
-Дальнейшие вехи: измеримое выполнение команды и обмен данными GPU → fence/timestamp → один проверенный кадр → подключение waffle backend к IOUserClient, Mesa и IOSurface → ускорение интерфейса iOS. Metal остаётся отдельной задачей.
+Next milestones: measurable command execution and GPU data transfer → fence/timestamp → one verified frame → a waffle backend connected to IOUserClient, Mesa and IOSurface → an accelerated iOS interface. Metal is a separate task.
 
-## Устройство и требования
+## Device and requirements
 
-Проверенное устройство — **OnePlus 12 PJD110**: Snapdragon 8 Gen 3 / SM8650, Adreno 750 Gen7.9.1, экран BOE с Synaptics S3910. Другие региональные варианты OnePlus 12 и другие панели не проверены.
+The tested device is the **OnePlus 12 PJD110**: Snapdragon 8 Gen 3 / SM8650, Adreno 750 Gen7.9.1, and a BOE panel with Synaptics S3910. Other regional OnePlus 12 variants and panels have not been tested.
 
-Для разработки нужны:
+Development requires:
 
-- разблокированный загрузчик с поддержкой `fastboot boot`;
-- root и USB debugging в Android для получения данных и firmware своего устройства;
-- Linux, `adb`, `fastboot` и подготовленный toolchain XNU;
-- собственные образы iOS 16.5, firmware телефона, записанные stock/live DTB и отдельное дерево Mu с платформой PJD110.
+- an unlocked bootloader supporting `fastboot boot`;
+- root and USB debugging in Android to collect device data and firmware;
+- Linux, `adb`, `fastboot` and a prepared XNU toolchain;
+- your own iOS 16.5 images, phone firmware, recorded stock/live DTBs, and a separate Mu tree with the PJD110 platform.
 
-**Готового универсального установщика OnePlus 12 здесь пока нет.** Скрипты `hackios` / `hackios.bat` и исходный workflow сборки унаследованы от донора; их сценарии Ace 6T и release kit не являются проверенной инструкцией запуска waffle. Полные локальные сборочные артефакты, RAM-образы и firmware, использованные в опытах, в эту публикацию не загружены.
+**There is no ready-to-use universal OnePlus 12 installer here yet.** The `hackios` / `hackios.bat` scripts and original build workflow are inherited from the donor. Their Ace 6T instructions and release kit are not a verified waffle boot guide. Complete local build artifacts, RAM images and firmware used in the experiments are not included in this publication.
 
-## Исходники и сборка
+## Source and building
 
 ```bash
 git clone https://github.com/qarzis/ios-waffle.git
 cd ios-waffle
 ```
 
-Подготовка и проверенные шаги диагностической сборки описаны в [docs/waffle-bringup.md](docs/waffle-bringup.md). Основные инструменты:
+Preparation and tested diagnostic build steps are documented in [docs/waffle-bringup.md](docs/waffle-bringup.md). Main tools:
 
-| Файл | Назначение |
+| File | Purpose |
 | :--- | :--- |
-| `tools/build-waffle-diagnostic.py` | Проверки на хосте, сборка XNU/EFI и упаковка диагностического образа |
-| `tools/validate-waffle-diagnostic.py` | Проверка boot-контейнера, EFI, ядра и payload |
-| `scripts/run_waffle_ios.py` | Передача ядра и RAM-образов, ограниченная сессия, сбор логов |
-| `tools/tests/waffle-ecats-access-host.py` | Проверка кода ECATS по штатному кодированию и моделям ошибок |
+| `tools/build-waffle-diagnostic.py` | Host checks, XNU/EFI builds and diagnostic image packaging |
+| `tools/validate-waffle-diagnostic.py` | Boot container, EFI, kernel and payload validation |
+| `scripts/run_waffle_ios.py` | Kernel/RAM image transfers, bounded sessions and log collection |
+| `tools/tests/waffle-ecats-access-host.py` | Checks actual ECATS code against native encoding and fault models |
 
-Сценарий RAM-загрузки:
+RAM boot sequence:
 
 ```text
-Android → fastboot boot → UEFI PJD110 → Boot iOS
-        → USB-загрузчик → XNU + root/system в RAM → SpringBoard
+Android → fastboot boot → PJD110 UEFI → Boot iOS
+        → USB loader → XNU + root/system images in RAM → SpringBoard
 ```
 
-Обычная iOS-сессия и минимальная GPU-диагностика используют разные наборы RAM-образов. Успешный диагностический тест не означает, что этот образ предназначен для загрузки рабочего стола. Не запускайте старые RAW-тесты из журнала как последовательную инструкцию: там сохранена история неудачных опытов.
+An ordinary iOS session and minimal GPU diagnostics use different RAM image sets. A successful diagnostic test does not mean its image can boot the desktop. Do not run historical RAW tests from the log as a step-by-step guide: the log preserves failed experiments.
 
-## Структура проекта
+## Repository layout
 
-| Каталог / файл | Содержимое |
+| Directory / file | Contents |
 | :--- | :--- |
-| `kernel/files/bsd/dev/waffle_*` | Порт Synaptics, Adreno/GMU и SMMU для OnePlus 12 |
-| `kernel/files/bsd/sys/waffle_*` | Профиль SM8650 и вспомогательные интерфейсы |
-| `kernel/kernel.patch` | Интеграция изменений в XNU |
-| `loader/` | USB-загрузчик, политика запуска и карта памяти waffle |
-| `userland/` | Интеграция iOS userland и выбор программного рендеринга |
-| `tools/`, `scripts/` | Сборка, проверки и запуск |
-| `docs/waffle-bringup.md` | Экран, касания, кнопки и ранний bring-up |
-| `docs/waffle-gpu.md` | Состояние GPU-порта и история аппаратных проверок |
-| `GPU_DEBUG_LOG.md` | Гипотезы, эксперименты, результаты и ограничения |
-| `work/waffle/gpu/forensic-audit/` | Опубликованная часть аудита и диагностических свидетельств |
-| `uefi/`, `wifi/`, `sileo/` | Унаследованные компоненты донора; наличие кода не означает готовую поддержку waffle |
+| `kernel/files/bsd/dev/waffle_*` | OnePlus 12 Synaptics, Adreno/GMU and SMMU port |
+| `kernel/files/bsd/sys/waffle_*` | SM8650 profile and supporting interfaces |
+| `kernel/kernel.patch` | Integration into XNU |
+| `loader/` | USB loader, waffle boot policy and memory map |
+| `userland/` | iOS userland integration and software renderer selection |
+| `tools/`, `scripts/` | Building, validation and boot tools |
+| `docs/waffle-bringup.md` | Display, touch, buttons and early bring-up |
+| `docs/waffle-gpu.md` | GPU port status and hardware test history |
+| `GPU_DEBUG_LOG.md` | Hypotheses, experiments, results and limitations |
+| `work/waffle/gpu/forensic-audit/` | Published audit material and diagnostic evidence |
+| `uefi/`, `wifi/`, `sileo/` | Inherited donor components; code presence does not establish working waffle support |
 
-## Благодарности и лицензии
+## Credits and licenses
 
-Основа порта — [hxfuxyy/ios-macan](https://github.com/hxfuxyy/ios-macan), работа OOSexGang и предшествующий порт vcvkk для POCO X5 Pro. Штатные исходники Qualcomm/OnePlus используются для сопоставления с оборудованием и протоколами.
+The port is based on [hxfuxyy/ios-macan](https://github.com/hxfuxyy/ios-macan), OOSexGang's work, and vcvkk's earlier POCO X5 Pro port. Stock Qualcomm/OnePlus sources are used to compare hardware configuration and protocols.
 
-Исходные лицензии компонентов сохраняются: XNU — APSL 2.0; Linux-компоненты, Mesa, Mu / Project Silicium, zstd и пользовательские пакеты распространяются по своим лицензиям. Уведомления Noto Sans находятся в `uefi/branding/assets/`.
+Original component licenses are preserved: XNU uses APSL 2.0; Linux components, Mesa, Mu / Project Silicium, zstd and userland packages retain their respective licenses. Noto Sans notices are in `uefi/branding/assets/`.
 
-Проект не связан с Apple или OnePlus. iOS принадлежит Apple и не распространяется в этом репозитории.
+Not affiliated with Apple or OnePlus. iOS belongs to Apple and is not distributed in this repository.
