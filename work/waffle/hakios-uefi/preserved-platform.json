@@ -1,0 +1,7 @@
+{
+  "Platforms/OnePlus/wafflePkg/Library/MemoryMapLib/MemoryMapLib.c": "0521c8961a689f95c74621bc473796b8b5684cd162bdc75f547b1a7c5468f873",
+  "Platforms/OnePlus/wafflePkg/Library/ConfigurationMapLib/ConfigurationMapLib.c": "914beff33ba086f9f32e833dae8f4f87f0e41a311dc690754ed57f1b51ba5791",
+  "Platforms/OnePlus/wafflePkg/Applications/XnuRamLoader/loader-waffle.efi": "57d0f79ad10aead804174042b871c41ae8eedda6c5792628542bcddfb34dc388",
+  "Resources/Configs/waffle.toml": "961da9eae64a5f15372370c34f43c1ccc868b90c85d22672d0b2c2a1df3ec2a6",
+  "Resources/DTBs/waffle.dtb": "53d550754eb1beef1fa17156997e23056a6dfb16b05f74ecf0b214058f02b01a"
+}

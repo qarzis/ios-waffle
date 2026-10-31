@@ -1,0 +1,7 @@
+{
+  "initial_idle_timer": "80",
+  "initial_ifpc": "1",
+  "host_restore_exit": 0,
+  "final": "80\n1\n1\n",
+  "capture_exit": 0
+}

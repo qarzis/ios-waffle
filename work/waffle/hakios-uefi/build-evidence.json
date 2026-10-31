@@ -1,0 +1,9 @@
+{
+  "build_exit": 0,
+  "container_validation_passed": true,
+  "bootshim_binary_matches_tested_waffle": true,
+  "adapter_has_no_partition_write_calls": true,
+  "hardware_tested": false,
+  "original_waffle_tree_preserved": true,
+  "friendly_image_sha256": "8f790f3557660ce60315c22b4d7f70eb30a70c55666f9e6e1a39fac10c87eb99"
+}
