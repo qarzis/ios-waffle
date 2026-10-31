@@ -1,0 +1,29 @@
+{
+  "experiment": "E12",
+  "run": "work/waffle/runs/20261031T104031Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T104007Z",
+  "session_heap_owned": true,
+  "oob_transferred_after_init_return": true,
+  "fence_results": {
+    "1": [
+      44,
+      "56404747/4d444651/12569ade/2569ade1"
+    ],
+    "2": [
+      45,
+      "55434444/4e474552/115599dd/266aaee2"
+    ],
+    "3": [
+      46,
+      "54424545/4f464453/105498dc/276bafe3"
+    ]
+  },
+  "full_buffer_words_checked_per_submit": 4096,
+  "all_wrong_words": 0,
+  "slumber_seq": 47,
+  "destroy_after_full_stop": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "87cbe1ebc149d52077dad4fe52118f3d8256c98d4e207d5191342d054e75d32e",
+  "production_persistence": false
+}

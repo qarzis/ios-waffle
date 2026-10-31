@@ -1,3 +1,13 @@
+# E12 PASS — owned submission session, three independent results
+
+run20261031T104031Z auto20261031T104007Z diagnostic-gpu-session-e12.
+OOBheldaftergpu_power_probe returned; heapownedBOsession, IB44/45/46 ACK0,
+fences1/2/3 uniquemarker/all4096wordschecked wrong0 each. Slumber47,
+fullstopbeforealias/heapfree, runner0/Android1. No900e.
+NextE13 GMUbegin/finishcontext ownershiprefactor, no newcommands; current
+boot_probe savedstate/livecontext stillstack. PreserveE12artifact. Outer
+TCM/SMMU/AOPowner lifetime stillneededbeforeiOSbackend. Userauthorizedcontinue.
+
 # E12 owned session built — hardware pending
 
 User «дальше работай». Optionalwaffle_session=1 requires94/LPAC/ZAP/writeback/IB.
