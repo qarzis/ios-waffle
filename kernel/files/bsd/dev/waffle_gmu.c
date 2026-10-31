@@ -42,6 +42,11 @@ static bool gpu_gen7_live_start(struct gen7_live_probe *,vm_offset_t,vm_offset_t
 static void gpu_gen7_live_finish(struct gen7_live_probe *,unsigned);
 static bool gen7_zap_transition(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
 static bool gen7_memory_writeback(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
+static bool ib_requested(void)
+{
+    uint32_t value=0;
+    return PE_parse_boot_argn("waffle_ib",&value,sizeof(value)) && value==1;
+}
 static bool writeback_requested(void)
 {
     uint32_t value=0;
@@ -875,8 +880,23 @@ static bool gen7_memory_writeback(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hf
     uint64_t va=waffle_gpu_plan_alias(plan,r->address)+WAFFLE_GPU_WRITEBACK_OFFSET;
     uint32_t packet[9];
     if(waffle_writeback_packet(packet,9,44,va)!=9){ml_io_unmap(alias,16384);return false;}
+    uint32_t commands[9],indirect[5];unsigned command_words=0;
+    if(ib_requested()) {
+        for(unsigned i=0;i<9;++i)commands[i]=packet[i];
+        command_words=8;
+        for(unsigned i=0;i<8;++i)out[256+i]=commands[i+1];
+        __asm__ volatile("dsb sy":::"memory");
+        for(unsigned i=0;i<8;++i)if(out[256+i]!=commands[i+1]) {
+            ml_io_unmap(alias,16384);return false;
+        }
+        if(waffle_writeback_ib_packet(indirect,5,44,waffle_gpu_plan_alias(plan,r->address)+1024,8)!=5) {
+            ml_io_unmap(alias,16384);return false;
+        }
+        say("waffle-gmu: GPU_IB begin VA=%llx words=8 staged_readback=1\n",waffle_gpu_plan_alias(plan,r->address)+1024);
+    }
     say("waffle-gmu: GPU_WRITEBACK begin VA=%llx PA=%llx initial_zero=1 guards=2\n",va,pa+256);
-    if(!hfi_exchange_watch(gmu,hfi_alias,packet,9,"GPU_WRITEBACK",true,plan))
+    if(!hfi_exchange_watch(gmu,hfi_alias,ib_requested()?indirect:packet,ib_requested()?5:9,
+        "GPU_WRITEBACK",true,plan))
         stop_unsafe("GPU writeback ACK failed; retain result alias");
     if(!wait_for(gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000))
         stop_unsafe("GPU writeback idle timeout; retain alias");
@@ -890,10 +910,14 @@ static bool gen7_memory_writeback(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hf
         delay_for_interval(100,NSEC_PER_USEC);
     }
     unsigned wrong=0;
-    for(unsigned i=0;i<4096;++i)if(out[i]!=waffle_writeback_expected(i)) {
-        if(!wrong)say("waffle-gmu: GPU_WRITEBACK mismatch index=%u got=%08x expected=%08x\n",i,out[i],waffle_writeback_expected(i));
-        ++wrong;
+    for(unsigned i=0;i<4096;++i) {
+        uint32_t expected=command_words && i>=256 && i<264 ? commands[i-255] : waffle_writeback_expected(i);
+        if(out[i]!=expected) {
+            if(!wrong)say("waffle-gmu: GPU_WRITEBACK mismatch index=%u got=%08x expected=%08x\n",i,out[i],expected);
+            ++wrong;
+        }
     }
+    if(ib_requested())say("waffle-gmu: GPU_IB result=%u command_words=8; GPU fetch and writeback\n",seen&&!wrong);
     say("waffle-gmu: GPU_WRITEBACK values=%08x/%08x/%08x/%08x\n",out[64],out[65],out[66],out[67]);
     say("waffle-gmu: GPU_WRITEBACK result=%u wrong_words=%u checked=4096; no draw\n",seen&&!wrong,wrong);
     ml_io_unmap(alias,16384);

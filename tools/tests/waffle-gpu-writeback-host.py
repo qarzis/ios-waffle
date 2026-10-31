@@ -27,6 +27,8 @@ struct waffle_gmu_region {uint32_t address,size;vm_offset_t memory;bool gpu_only
 static _Alignas(16384) uint32_t arena[4096];
 static struct waffle_gmu_region region={0x80074000,16384,(uintptr_t)arena,true,false};
 static unsigned mode,sends,maps,unmaps,delays;
+static bool indirect_mode;
+static bool ib_requested(void) {return indirect_mode;}
 static jmp_buf reset;
 static struct waffle_gmu_region *region_at(struct waffle_gmu_plan *p,unsigned va,unsigned size) {
  assert(p && va==0x80074000 && size==16384);return mode==1?NULL:&region;
@@ -49,7 +51,15 @@ static void stop_unsafe(const char *reason) {assert(reason);longjmp(reset,1);}
 '''
 exchange=r'''
 static bool hfi_exchange_watch(uintptr_t gmu,uintptr_t hfi,const uint32_t *p,unsigned words,const char *name,bool zero,struct waffle_gmu_plan *plan) {
- assert(gmu==2 && hfi==3 && words==9 && !strcmp(name,"GPU_WRITEBACK") && zero && plan);
+ assert(gmu==2 && hfi==3 && words==(indirect_mode?5:9) && !strcmp(name,"GPU_WRITEBACK") && zero && plan);
+ if(indirect_mode) {
+  assert(p[0]==((44u<<20)|(5u<<8)|131u) && p[1]==cp_type7_packet(0x3f,3));
+  assert(((uint64_t)p[3]<<32|p[2])==waffle_gpu_compact_alias(0x80074400) && p[4]==8);
+  /* The simulated GPU must fetch the actual staged IB, not host expected values. */
+  static uint32_t fetched[9];fetched[0]=(44u<<20)|(9u<<8)|131u;
+  for(unsigned i=0;i<8;++i)fetched[1+i]=arena[256+i];
+  p=fetched;
+ }
  assert(p[0]==((44u<<20)|(9u<<8)|131u));
  assert(p[1]==cp_type7_packet(0x3d,6) && p[8]==cp_type7_packet(0x12,0));
  assert(((uint64_t)p[3]<<32|p[2])==waffle_gpu_compact_alias(0x80074100));
@@ -65,7 +75,8 @@ static bool hfi_exchange_watch(uintptr_t gmu,uintptr_t hfi,const uint32_t *p,uns
 t=r'''
 int main(void) {
  struct waffle_gmu_plan plan={0};
- for(mode=0;mode<=8;++mode){
+ for(unsigned indirect_case=0;indirect_case<2;++indirect_case)for(mode=0;mode<=8;++mode){
+  indirect_mode=indirect_case;
   sends=maps=unmaps=delays=0;memset(arena,0,sizeof(arena));
   if(!setjmp(reset)) {
    bool ok=gen7_memory_writeback(1,2,3,&plan);
@@ -75,6 +86,12 @@ int main(void) {
   assert(unmaps==((mode==0 || mode>=6)?1u:0u));
   assert(delays==(mode==6?2000u:0u));
  }
+ uint32_t ib[5];
+ assert(!waffle_writeback_ib_packet(ib,4,44,0x1000,8));
+ assert(!waffle_writeback_ib_packet(ib,5,44,0x1000,0));
+ assert(!waffle_writeback_ib_packet(ib,5,44,0x1001,8));
+ assert(!waffle_writeback_ib_packet(ib,5,0,0x1000,8));
+ assert(!waffle_writeback_ib_packet(ib,5,44,UINT64_MAX-3,8));
  uint32_t packet[9];assert(!waffle_writeback_packet(packet,8,44,0x1000));
  assert(!waffle_writeback_packet(packet,9,0,0x1000));
  assert(!waffle_writeback_packet(packet,9,44,0x1001));

@@ -191,3 +191,9 @@ E10 fullhost/XNU/EFI/container/current-source-binding passed. Corrected hostharn
 Run20261031T102517Z/auto20261031T102453Z. CP_INIT42/ZAP43 passed; dedicatedBO VA1ff8000474100 PA8d15ac100 initiallyzero marker/two guards. GPU_WRITEBACK44 ACK0, CPU NC reads57414646/4c454750/13579bdf/2468ace0. All4096words checked, wrong0:4092other words unchanged. This establishes actual CP memory execution and GPU->CPU visibility for this NC buffer, beyond ACK/ECATS. Slumber45/fullshutdown/PLLrestore passed, runner0/autosuccess/independentAndroid1. No900e. No rasterization/shader/frame yet. Exactimage kept diagnostic-gpu-writeback-e10; evidenceE10-result.json.
 
 Next E11 narrow contract: GPU command-buffer fetch via native CP_INDIRECT_BUFFER_PFE0x3f, containing exactly the already-proven memorywrite+wait stream at offset0x400 of the sameBO, with marker at0x100. This adds GPU read of a CPU-populated PM4 buffer; all output and command words/guards must match. Native PM4 header encoder/source and existing macan ring submit confirm3word IB addresslo/hi/count. No IOKit ready flag or Mesa switch until this contract and persistent power/map/fence lifetime exist.
+
+## E11 implementation — command-buffer fetch, hardware pending
+
+Optional waffle_ib=1 requires94+LPAC+ZAP+writeback. SameBO/initialmarker/guards, exact E10 PM4eightword stream staged atBO+0x400 (GPU VA1ff8000474400); RAW44 carries only native CP_INDIRECT_BUFFER_PFE addresslo/hi/count8. Existing direct E10 selected without option. Full4096word check includes unchanged staged command words. Host test exercises actual production helper both modes; simulated GPU in IB case fetches actual staged commands, native encoder verifies opcode0x3f/count3, all transfer/guard/ACK/idle negative cases retained. No Mesa/IOKit-ready flags changed.
+
+E11 fullhost/XNU/EFI/container/current-sourcebinding passed diagnostic-gpu-ib-e11. Native0x3f/3 PM4encoder verified; preservedE10 andE09 options. NoE11hardwareyet.

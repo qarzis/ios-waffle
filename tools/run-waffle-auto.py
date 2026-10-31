@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
     parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--ib',action='store_true',help='E11: GPU indirect command-buffer fetch; requires --writeback')
     parser.add_argument('--writeback',action='store_true',help='E10: dedicated GPU memory write after verified ZAP; requires --zap')
     parser.add_argument('--zap',action='store_true',help='E09: PAS13 authenticated load and native secure switch after CP_INIT')
     parser.add_argument('--lpac-map',action='store_true',help='Validate LPAC mappings on probe93, or controlled94 with --lpac-cp-init')
@@ -43,6 +44,8 @@ def main():
         parser.error('--zap requires controlled --lpac-cp-init --lpac-map')
     if args.writeback and not args.zap:
         parser.error('--writeback requires --zap')
+    if args.ib and not args.writeback:
+        parser.error('--ib requires --writeback')
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if not manifest.get('automatic_usb_loader'):
         parser.error('Artifact does not declare automatic loader entry')
@@ -63,7 +66,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -122,6 +125,8 @@ def main():
                 items.append('--zap')
             if args.writeback:
                 items.append('--writeback')
+            if args.ib:
+                items.append('--ib')
             result = command(items, timeout=240)
             report['runner_exit'] = result.returncode
             if result.returncode:

@@ -18,6 +18,17 @@ static inline unsigned waffle_writeback_packet(uint32_t *out,unsigned capacity,
     out[8]=0x70928000u; /* Native CP_WAIT_MEM_WRITES, zero payload. */
     return 9;
 }
+/* Native CP_INDIRECT_BUFFER_PFE(0x3f), address and size in dwords. */
+static inline unsigned waffle_writeback_ib_packet(uint32_t *out,unsigned capacity,
+    unsigned seq,uint64_t va,unsigned words)
+{
+    if(!out || capacity<5 || !seq || seq>4095 || (va&3) || !words || words>0xfffff ||
+        !waffle_gpu_va_valid(va) || !waffle_gpu_va_valid(va+(uint64_t)words*4-1) ||
+        va+(uint64_t)words*4<va)return 0;
+    out[0]=(seq<<20)|(5u<<8)|131u;out[1]=0x70bf8003u;
+    out[2]=(uint32_t)va;out[3]=(uint32_t)(va>>32);out[4]=words;
+    return 5;
+}
 static inline uint32_t waffle_writeback_initial(unsigned index)
 {
     return index==63 || index==68 ? 0xc0decafeu : 0;
