@@ -1,0 +1,11 @@
+{
+  "chip_id": "0x43051401", "generation": 7,
+  "binary_bytes": 128, "instruction_dwords": 32, "instrlen": 1,
+  "max_reg": 1, "max_half_reg": -1, "constlen": 0,
+  "local_size": [8, 1, 1], "buffer_count": 1,
+  "local_invocation_id_regid": 0, "work_group_id_regid": 252,
+  "branchstack_hw": 0, "shared_bytes": 0,
+  "mergedregs": true, "early_preamble": false, "double_threadsize": true,
+  "buffer_dwords": [8],
+  "device_opened": false, "gpu_executed": false
+}

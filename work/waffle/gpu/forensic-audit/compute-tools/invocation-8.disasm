@@ -1,0 +1,29 @@
+; num_ubos:           0
+; num_driver_params:  0
+; offsets:
+; ubo_state:
+;   num_enabled:      0
+  0[200cc004_00000000] mov.u32u32 r1.x, r0.x
+  1[00000500_00000000] (rpt5)nop
+  2[c0260004_00674000] stib.b.untyped.1d.u32.1.imm r1.x, r0.x, 0
+  3[03000000_00000000] end
+  4[00000000_00000000] nop
+  5[00000000_00000000] nop
+  6[00000000_00000000] nop
+  7[00000000_00000000] nop
+  8[00000000_00000000] nop
+  9[00000000_00000000] nop
+ 10[00000000_00000000] nop
+ 11[00000000_00000000] nop
+ 12[00000000_00000000] nop
+ 13[00000000_00000000] nop
+ 14[00000000_00000000] nop
+ 15[00000000_00000000] nop
+; CL: outputs:
+; CL: inputs: r0.x (SYSTEM_VALUE_LOCAL_INVOCATION_ID slot=42 cm=7,il=0,b=0)
+; CL prog 0/0: 10 instr, 7 nops, 3 non-nops, 1 mov, 0 cov, 32 dwords
+; CL prog 0/0: 0 last-baryf, 0 last-helper, 0 half, 2 full, 0 constlen
+; CL prog 0/0: 8 cat0, 1 cat1, 0 cat2, 0 cat3, 0 cat4, 0 cat5, 1 cat6, 0 cat7
+; CL prog 0/0: 0 sstall, 0 (ss), 0 systall, 0 (sy), 0 loops
+; CL prog 0/0: 16 max_waves, 1 double_threadsize
+

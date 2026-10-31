@@ -1,3 +1,34 @@
+# E20 verified; E21 offline shader preparation completed (no GPU shader yet)
+
+LastHARDWAREverifiedGit80802ac E20-r2 dynamic16KiB BO afterGPUstartup,
+low80078000/high1ff8000478000 PA8d1a74000, 3IB44/45/46 all4096wordswrong0,
+fullstop/detach/BO free thenAOPcleanup, runner0/Android1/no900e.
+Run20261031T205950Z auto205926Z artifactdiagnostic-gpu-dynamic-bo-e20-r2.
+Noactivehardware/buildprocess; phoneordinaryAndroid. E19working796012e preserved.
+
+E21HOSTPREPARATIONonly: localMesa26.3ComputeratorA7xx+fullNIR toolbuild done.
+OldQRISCconfigurationhasnir_stub; enablingfreedrenodriveralone insufficient;
+Mesonwith_gfx_compute requiresOpenGL/Vulkan/CLC. Separatecompute-build now
+opengltrue (EGL/GLX/platformsdisabled), tooltargetbuilt withvenvPATH.
+StockMesasourceNOTedited; QRISCdisassemblerSHA unchanged.
+Externaltools/waffle-ir3-assemble.c +build-waffle-ir3-tools.py assemblesoffline
+usingactualFD750chip43051401/ir3_compiler_create(NULL)/ir3_parse_asm.
+Ownfixturetools/tests/fixtures/waffle-invocation-8.asm:8localthreads, SSBO8words,
+storelocalid -> output; 128bytebin SHA36842135a4ade7d74c0ad213585dee20f9176d344733f7f2bf7ef6b6b606c148.
+Metadata/disasm/workresult inforensic-audit/compute-tools. Actualhosttest
+repeatdeterminism+ISAdecode/reassembleinstructionbytes+invalidinputPASS.
+Paddingnormalizationmatchesnativeir3_shader.cvalidator; notfullpaddedbinidentity.
+ToolusesnoDRMdevice. No shader orimageexecutedonphone.
+
+NEXT: source-backedComputeratorA7xxPM4export/relocations thenboundedkernel
+submissionofgenericIB +shader/bufferpayload. Reviewa6xx.cc cs_restore/program/
+const/uav/emit_grid; generatedXMLtypedpackers; useFD750propertiesandmetadata.
+Do notinventregistersorclaimCP_MEM_WRITEasrendering. NeedactualSP-written8word
+result first, thencompute-generatedoffscreenpixelpattern. PersistentiOSbackend,
+realuserBOallocator/fences/IRQrecovery/compositor stillmissing.
+KeepE20kernel/loaderstableuntilhostpacketexport+validationready.
+UsercontinuesGPUwork; automaticRAMonly, neverflash, noBootiOSconfirmationneeded.
+
 # E20-r2 PASS — post-bootstrap dynamic BO GPU fetch/write verified
 
 Control93 run20261031T205814Z/auto205750Z ACCESS27/alloc8/LPAC42 PASS.
