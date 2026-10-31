@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 source = (ROOT / 'kernel/files/bsd/dev/waffle_gmu.c').read_text()
-code = source[source.index('struct power_sequence {'):source.index('static bool boot_probe(')]
+code = source[source.index('struct power_sequence {'):source.index('static const struct { uint32_t index, value; } gmu_boot_setup[]')]
 harness = r'''
 #include <stdint.h>
 #include <stdbool.h>

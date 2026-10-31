@@ -1,0 +1,10 @@
+{
+  "kernel/files/bsd/dev/waffle_gmu.c": "38ed02ca6ceaab0eb292d0c549b3ae15695cf5e9055431ec6485931d97506797",
+  "kernel/files/bsd/sys/waffle_gmu.h": "359541c2937bddb5aed6301b340b72ba5deb1b1d540b153c8fc613860826e767",
+  "tools/tests/waffle-gmu-owner-host.py": "fcc26080b88ab4cba647cf3af757b0202cd4e2d3fc0db6abda928f29767a5a4e",
+  "tools/tests/waffle-powerseq-host.py": "28518ce1c1a12a7976880fc260b3eb8a3380bbc95463e2e1e3137509c3c683e1",
+  "tools/build-waffle-diagnostic.py": "c5ed2c52a30d9f2b5587e89f40621fdb40983e0bd01360fb273f75424f69f40b",
+  "scripts/run_waffle_ios.py": "7c4bb6b36c01dad0860f763e4b259491d4e0381b841c4ed0dd67a3dd4e92de7a",
+  "tools/run-waffle-auto.py": "ac7d01c1ac3859c1439b8c772af01719e9a01a8d37444c954df7c0fad0342cd1",
+  "work/waffle/gpu/run-publish-test.py": "cb41867cedf9548a30914028bb2744d6534628e7976f1fed7323ec2e811c7b93"
+}

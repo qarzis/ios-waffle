@@ -1,3 +1,11 @@
+# E13 GMU owner built — prepare-only control pending
+
+Scopedoldboot_probe->gmu_boot_context/begin/finish/wrapper; no changesoutside
+thatfunctionregion, setupconstants exactsameasE12. SessionpathGMUownerheap,
+default93stackowner. Fullhost/XNU/EFI/container/sourcebindingPASS.
+Artifactdiagnostic-gpu-gmu-owner-e13. Nextautoprepare93+LPAC noRAW; afterpass
+andAndroid1 run94fullsession. E12workingartifact preserved.
+
 # E12 PASS — owned submission session, three independent results
 
 run20261031T104031Z auto20261031T104007Z diagnostic-gpu-session-e12.
