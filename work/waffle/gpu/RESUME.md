@@ -1,3 +1,11 @@
+# E09 PASS — authenticated ZAP, TRUST0, Android restored
+
+run20261031T102106Z automatic20261031T102042Z artifactdiagnostic-gpu-zap-e09.
+PAS13 init/mem/auth0, signedZAPauthenticated, secure-switch43ACK0/TRUST0,
+slumber44/fullcollapse/PLLrestorepass, runner0/Android1. E08untouched.
+NextE10 dedicatedBO GPUwriteback withnativeCP_MEM_WRITE+WAIT_MEM_WRITES;
+notimplemented/hardwaretested yet. Userresumed; RAMonly/autoloadpermitted.
+
 # USER RESUMED — E09 built, hardware pending
 
 Latest user «продолжай» revokes prior pause. E08 preserved/twoCP_INITpasses.
