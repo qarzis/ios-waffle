@@ -1,227 +1,139 @@
-# ios-waffle: experimental OnePlus 12 port
-
-This branch preserves ongoing work on the OnePlus 12 (PJD110 / SM8650 / Adreno 750), based on ios-macan. **GPU acceleration is not working yet.** The waffle iOS graphics path uses CPU rendering. GMU/HFI preparation and the E03 SMMU access matrix passed hardware checks; CP_INIT execution remains unconfirmed and prior RAW attempts entered Qualcomm 900e.
-
-See [GPU status](docs/waffle-gpu.md), [debug log](GPU_DEBUG_LOG.md), and [forensic audit](work/waffle/gpu/forensic-audit/AUDIT.md). Source and selected diagnostic evidence are included; local firmware, iOS assets and built boot images are not included in this upload. This branch is an experimental development snapshot.
-
-The upstream README below describes the original **OnePlus Ace 6T** port. Its GPU support claims do not describe the OnePlus 12 work on this branch.
-
----
-
 <p align="center">
-  <img src="uefi/branding/assets/logo.png" width="120" alt="HackIOS">
+  <img src="uefi/branding/assets/logo.png" width="120" alt="ios-waffle">
 </p>
 
-<h1 align="center">ios-macan</h1>
+<h1 align="center">ios-waffle</h1>
 
-<p align="center"><strong>Real iOS 16.5 on the OnePlus Ace 6T.</strong><br>
-Apple's own XNU kernel and iOS userland, booted straight from RAM.<br>
-No emulator · nothing flashed · one reboot and Android is back</p>
+<p align="center"><strong>Экспериментальный порт iOS 16.5 на OnePlus 12.</strong><br>
+PJD110 · Snapdragon 8 Gen 3 / SM8650 · Adreno 750 · waffle<br>
+XNU и iOS загружаются через UEFI в оперативную память.</p>
 
----
+Порт достигает рабочего стола SpringBoard. Экран, касания и физические кнопки проверены на OnePlus 12. Интерфейс сейчас рисуется на CPU через Mesa softpipe. **Аппаратное ускорение GPU пока не работает.**
 
-## What is this
+Проект основан на [ios-macan](https://github.com/hxfuxyy/ios-macan). Поддержка Adreno 829 и периферии OnePlus Ace 6T из исходного проекта не означает поддержку этих функций на OnePlus 12.
 
-`ios-macan` starts Apple's XNU kernel and the iOS 16.5 userland (the iPhone X build) on the **OnePlus Ace 6T**
-(PLR110, Snapdragon SM8845, Adreno 829). Not a skin, not a launcher: SpringBoard, Settings, apps, Sileo and
-tweaks run on the phone's own CPU and GPU.
+## Что работает
 
-Nothing is written to the phone. Everything is sent over USB into RAM; reboot the phone and Android is exactly as
-it was. Apple's files are not in this repository: the script downloads them from Apple's servers on your PC.
+Состояние на **31 октября 2026 года**, по сохранённым проверкам на PJD110.
 
-## What works
+✅ — подтверждено на телефоне · ⚠️ — частично реализовано · ❌ — рабочего пути для waffle нет · ⚪ — не подтверждено.
 
-| | Status | Notes |
+| Функция | Статус | Что проверено на OnePlus 12 |
 | :--- | :---: | :--- |
-| **CPU, interrupts, timers** | ✅ | all 8 cores, six at full clock |
-| **Display** | ✅ | iPhone X layout (375 × 812 points) |
-| **GPU** | ✅ | OpenGL ES through Mesa on the Adreno 829; the whole interface is GPU-drawn, 80–100 fps |
-| **Metal** | ❌ | apps that need Metal do not run |
-| **Touch** | ✅ | multi-touch |
-| **Buttons** | ✅ | power, volume up, volume down |
-| **Wi-Fi** | ✅ | joins your network, DHCP, Internet |
-| **Vibration** | ✅ | keyboard and system haptics, vibrations, CoreHaptics |
-| **Flashlight** | ✅ | from Control Center, with brightness levels |
-| **Battery** | ⚠️ | real level, voltage, temperature and cycles; iOS does not manage charging |
-| **Packages** | ✅ | Sileo, ElleKit, PreferenceLoader, tweaks, NewTerm |
-| **Dynamic Island** | ⚠️ | experimental (`--island 2`): iOS's own alerts show in it, live activities such as timers not yet |
-| **120 Hz** | ⚠️ | iOS draws above 60 fps; the panel itself still runs its default mode |
-| **Sound** | ❌ | the audio DSP is being brought up |
-| **Microphone** | ❌ | waits on the audio DSP |
-| **Camera** | ❌ | |
-| **Sensors** | ❌ | gyroscope, accelerometer, proximity, light |
-| **Brightness** | ❌ | one fixed level |
-| **Bluetooth** | ❌ | |
-| **Cellular, SIM** | ❌ | |
-| **GPS, NFC** | ❌ | |
-| **USB** | ⚠️ | only the link to the PC that boots iOS and fetches logs; no USB inside iOS |
-| **Storage (UFS)** | ❌ | iOS runs from RAM: whatever you install is gone after a reboot |
-| **Sleep** | ❌ | the phone does not suspend while iOS runs |
-| **Hardware AES** | ❌ | encryption runs in software |
-| **Apple ID, App Store downloads** | ❌ | the App Store opens, but signing in needs a Secure Enclave the phone does not have |
+| **Загрузка XNU** | ✅ | Вход в ядро, MMU, GIC, таймеры и загрузка iOS userland |
+| **SpringBoard / рабочий стол** | ✅ | iOS 16.5 достигает рабочего стола с программной графикой |
+| **Экран** | ✅ | Вывод через framebuffer UEFI; GOP 1440 × 3168 |
+| **Касания** | ✅ | Synaptics S3910: реальные нажатия, движения и свайпы в iOS |
+| **Кнопки** | ✅ | Питание, громкость вверх/вниз; подтверждены блокировка и пробуждение экрана |
+| **Программная графика** | ✅ | Mesa softpipe / EAGL shim, рендеринг интерфейса на CPU |
+| **Серийный номер в iOS** | ✅ | `WFFL00OPLUS12`, проверен в разделе «Об этом устройстве» |
+| **USB-загрузчик и логи** | ✅ | Передача ядра и RAM-образов с ПК, чтение логов, возврат в загрузчик |
+| **Возврат в Android** | ✅ | Проверялся после тестов, включая завершение загрузки Android |
+| **Все 8 ядер / SMP / управление частотами** | ⚪ | Подтверждён запуск на выбранном CPU; полноценная работа всех ядер не заявляется |
+| **GPU Adreno 750** | ⚠️ | Работают подготовительные проверки GMU/HFI/SMMU. Успешное выполнение CP_INIT и GPU-рендеринг под XNU не подтверждены |
+| **Metal** | ❌ | Backend для waffle отсутствует |
+| **Wi-Fi / Интернет** | ❌ | Сетевой драйвер донора не подключён в пути инициализации waffle |
+| **Звук** | ❌ | Путь ADSP/аудио донора не подключён для waffle |
+| **Микрофон** | ❌ | Рабочий аудиотракт не реализован |
+| **Батарея / зарядка из iOS** | ❌ | Драйвер батареи донора не подключён; управление зарядкой из iOS не реализовано |
+| **Вибрация / тактильная отдача** | ❌ | Рабочая интеграция для waffle отсутствует |
+| **Фонарик** | ❌ | Рабочая интеграция для waffle отсутствует |
+| **Камеры** | ❌ | Поддержка не реализована |
+| **Датчики** | ❌ | Гироскоп, акселерометр, освещение и приближение не подключены |
+| **Регулировка яркости** | ❌ | Подтверждён вывод изображения, управление яркостью из iOS не реализовано |
+| **120 Гц** | ⚪ | Режим панели и частота вывода iOS не подтверждены |
+| **Bluetooth** | ❌ | Поддержка не реализована |
+| **Сотовая связь / SIM** | ❌ | Поддержка не реализована |
+| **GPS / NFC** | ❌ | Поддержка не реализована |
+| **USB внутри iOS** | ❌ | Подтверждён транспорт загрузчика; пользовательский USB-стек iOS не реализован |
+| **Постоянное хранилище UFS** | ❌ | iOS работает с RAM-образами; изменения внутри RAM-сессии не сохраняются после перезагрузки |
+| **Полноценный сон устройства** | ❌ | Блокировка экрана работает, системный suspend не реализован |
+| **Sileo / твики / Dynamic Island** | ⚪ | Компоненты есть в исходном проекте; отдельная полная проверка на OnePlus 12 не заявляется |
+| **Apple ID / загрузки App Store** | ⚪ | Работоспособность на этом порте не подтверждена |
 
-## Before you start
+## Что уже исправлено и проверено
 
-You need:
+- **Карта памяти OnePlus 12.** Загрузчик учитывает живую карту RAM и зарезервированные области; исправлен ранний сбой копирования в TrustZone carveout.
+- **Вход в XNU и возврат.** Проверены ранние CPU/MMU/GIC checkpoints, ограниченные по времени userland-сессии и возврат управления в EFI.
+- **Сенсорный экран.** Реализованы питание Synaptics, GPIO SPI, протокол TCM, нормализация координат и доставка событий в iOS. Пользователь подтвердил касания и свайпы.
+- **Физические кнопки.** Подключены питание и обе кнопки громкости через SPMI; реальные события подтверждены в iOS.
+- **Графика интерфейса на CPU.** Для waffle выбран Mesa softpipe. Это позволяет работать с интерфейсом до завершения GPU-драйвера.
+- **GPU-подготовка.** Исправлены пересечение compact GPU mappings и кодирование TG1 для TTBR1 с таблицами 4 КБ. Эти исправления не устранили текущий сбой CP.
+- **Питание и частоты GMU.** Подготовительный тест №93 прошёл последовательность GMU 625 → 260 МГц, запрос HFI, остановку, выключение GX и восстановление PLL.
+- **Режимы доступа SMMU.** Тест E03 прошёл все 27 проверок трансляции для микрокода, restore-буфера и восьми HFI allocations без запуска CP RAW.
 
-1. **A OnePlus Ace 6T with an unlocked bootloader** (`fastboot boot` must work).
-2. **Root in Android** (Magisk, KernelSU or APatch) and **USB debugging** on: the script uses them to reboot
-   the phone into the bootloader and to copy the phone's own firmware (GPU, Wi-Fi, vibration, audio).
-3. **A USB cable**, a PC with **Windows 10/11 or Linux**, and about **15 GB** of free disk space.
+Подробности и ссылки на проверки: [bring-up](docs/waffle-bringup.md), [GPU](docs/waffle-gpu.md), [журнал отладки](GPU_DEBUG_LOG.md), [аудит](work/waffle/gpu/forensic-audit/AUDIT.md).
 
-What gets downloaded, and from where:
+## Текущий блокер GPU
 
-| | From |
-| :--- | :--- |
-| the kernel, the UEFI image, our userland (`hackios-kit.zip`) | this repository's [Releases](../../releases), built by GitHub Actions from this code |
-| iOS 16.5 (about 7 GB) | Apple's own servers, on your PC: it is never redistributed |
-| GPU, Wi-Fi, vibration and audio firmware | your phone, over USB, from its Android |
+Штатный Android-драйвер запускает Adreno 750. В XNU пока подтверждены загрузка GMU firmware, обмен HFI, выделение памяти и подготовка GPU. После отправки RAW CP_INIT в прежних опытах телефон терял USB и переходил в Qualcomm 900e; успешного CP ACK под XNU нет.
 
-## Tutorial: Windows 10 / 11
+E03 подтвердил проверенные режимы трансляции SMMU после остановки GMU. Он **не доказывает фактическое чтение памяти GPU**, исполнение микрокода или рисование кадра. Сборка драйвера и совпадение регистров тоже не считаются аппаратным успехом.
 
-1. **Install Python 3** (once). Open *Terminal* or *Command Prompt* and run:
-   ```bat
-   winget install -e --id Python.Python.3.12
-   ```
-   (or get it from [python.org](https://www.python.org/downloads/) and tick *Add python.exe to PATH*).
-2. **Download this repository**: the green *Code* button → *Download ZIP*, unpack it, and open a terminal in
-   the unpacked folder (or `git clone https://github.com/hxfuxyy/ios-macan.git` and `cd ios-macan`).
-3. **Plug in the phone**, booted into Android, unlocked, rooted, USB debugging on. Accept the
-   *Allow USB debugging* prompt on the phone and grant root to *Shell* when Magisk/KernelSU asks.
-4. **Tell it your Wi-Fi** (optional, but without it iOS has no Internet):
-   ```bat
-   hackios.bat --wifi "Your Wi-Fi name" "your-password"
-   ```
-5. **Get everything** (the first time takes a while: it downloads about 7 GB from Apple):
-   ```bat
-   hackios.bat --get
-   ```
-   It downloads the release kit, iOS 16.5 from Apple, copies the firmware from the phone and makes the images,
-   with a progress bar for every download. `adb`, `fastboot` (Google's platform-tools) and 7-Zip are downloaded
-   automatically if they are missing. If it stops (no Internet, Ctrl+C), run it again: finished parts are kept.
-   Keep the folder on an NTFS drive with a short path, e.g. `C:\ios-macan`.
-6. **Start iOS**:
-   ```bat
-   hackios.bat --boot
-   ```
-   The phone reboots into the bootloader, then into iOS. Nothing is flashed.
+Причина 900e ещё не установлена. Оставшиеся направления — условия запуска CP и граница публикации/обработки RAW. Собрана холодная HFI-трасса штатного Android с успешным первым CP_INIT; журналы TrustZone/reset, доступные через Android, выдаются в зашифрованном виде.
 
-   The first time, Windows may not know the phone in fastboot mode (`--boot` then stops and says so). Run
-   ```bat
-   hackios.bat --driver
-   ```
-   It opens Zadig: pick the device with USB ID **18D1 D00D**, keep **WinUSB**, press *Install Driver*, then run
-   `--boot` again. Once is enough: the phone's fastboot and the iOS loader use the same driver.
-7. **Back to Android**: `hackios.bat --android`.
+Временный Android-образ трассировки E04 вызвал сообщённый пользователем отказ тача. Обычная перезагрузка восстановила его. Этот образ повторно не используется до выяснения причины.
 
-Next time only step 6 is needed.
+Дальнейшие вехи: измеримое выполнение команды и обмен данными GPU → fence/timestamp → один проверенный кадр → подключение waffle backend к IOUserClient, Mesa и IOSurface → ускорение интерфейса iOS. Metal остаётся отдельной задачей.
 
-## Tutorial: Linux
+## Устройство и требования
 
-```sh
-git clone https://github.com/hxfuxyy/ios-macan.git
-cd ios-macan
-./hackios --wifi "Your Wi-Fi name" "your-password"
-./hackios --get
-./hackios --boot
+Проверенное устройство — **OnePlus 12 PJD110**: Snapdragon 8 Gen 3 / SM8650, Adreno 750 Gen7.9.1, экран BOE с Synaptics S3910. Другие региональные варианты OnePlus 12 и другие панели не проверены.
+
+Для разработки нужны:
+
+- разблокированный загрузчик с поддержкой `fastboot boot`;
+- root и USB debugging в Android для получения данных и firmware своего устройства;
+- Linux, `adb`, `fastboot` и подготовленный toolchain XNU;
+- собственные образы iOS 16.5, firmware телефона, записанные stock/live DTB и отдельное дерево Mu с платформой PJD110.
+
+**Готового универсального установщика OnePlus 12 здесь пока нет.** Скрипты `hackios` / `hackios.bat` и исходный workflow сборки унаследованы от донора; их сценарии Ace 6T и release kit не являются проверенной инструкцией запуска waffle. Полные локальные сборочные артефакты, RAM-образы и firmware, использованные в опытах, в эту публикацию не загружены.
+
+## Исходники и сборка
+
+```bash
+git clone https://github.com/qarzis/ios-waffle.git
+cd ios-waffle
 ```
 
-Needed: python3, 7z (`p7zip-full` or `7zip`) and a C compiler (for one small tool). On Ubuntu/Debian:
-`sudo apt install python3 p7zip-full gcc`. `adb` and `fastboot` are downloaded into `work/platform-tools`
-automatically if they are not installed. If fastboot says *no permissions*, run `./hackios --udev` once (it asks for
-sudo) and plug the phone in again.
+Подготовка и проверенные шаги диагностической сборки описаны в [docs/waffle-bringup.md](docs/waffle-bringup.md). Основные инструменты:
 
-## Building everything yourself
-
-The release kit is built by [GitHub Actions](.github/workflows/build.yml) from this code; you can build the same
-on Linux (on Windows inside WSL 2):
-
-```sh
-./hackios --install     # toolchain, Apple's XNU + kernel/, ath12k, Mesa, iOS from Apple, firmware, then --build
-./hackios --build       # userland, Sileo root, kernel, UEFI (from uefi/mu), images
-./hackios --boot
-```
-
-Needed: clang, lld, llvm, make, flex, bison, perl, python3, meson, ninja, git, curl, 7z, zstd, adb, fastboot.
-The theos toolchain and the iOS 16.5 SDK are downloaded into `work/theos` automatically. The UEFI firmware
-source is complete in `uefi/mu` (no external checkout).
-
-## All commands
-
-On Windows use `hackios.bat`, on Linux `./hackios`.
-
-| Command | What it does |
+| Файл | Назначение |
 | :--- | :--- |
-| `--get` | the release kit, iOS from Apple, the phone's firmware, the images: everything to boot |
-| `--boot` | Android, fastboot or the loader → iOS, all from RAM |
-| `--boot -- OPTIONS` | the same with options (below) |
-| `--android` | back to Android |
-| `--wifi NAME PASS` | the Wi-Fi network iOS joins (then `--assemble`, or `--get` if not done yet) |
-| `--status` | what is connected and what is ready |
-| `--tools` | download adb and fastboot into `work/platform-tools` (done automatically when missing) |
-| `--driver` | (Windows) the WinUSB driver for the phone in fastboot and the iOS loader |
-| `--udev` | (Linux) let adb and fastboot use the phone without root |
-| `--fetch`, `--firmware`, `--assemble` | single steps of `--get` |
-| `--run` | iOS on a phone already in the loader |
-| `--install`, `--deps`, `--build`, `--kernel`, `--clean` | building everything yourself (Linux / WSL) |
+| `tools/build-waffle-diagnostic.py` | Проверки на хосте, сборка XNU/EFI и упаковка диагностического образа |
+| `tools/validate-waffle-diagnostic.py` | Проверка boot-контейнера, EFI, ядра и payload |
+| `scripts/run_waffle_ios.py` | Передача ядра и RAM-образов, ограниченная сессия, сбор логов |
+| `tools/tests/waffle-ecats-access-host.py` | Проверка кода ECATS по штатному кодированию и моделям ошибок |
 
-Options after `--`:
-
-| Option | |
-| :--- | :--- |
-| `--seconds N` | come back to the PC after N seconds with the kernel's log (default `0`: run until you reboot) |
-| `--island 2` | turn on the Dynamic Island |
-| `--no-wifi`, `--no-gpu` | without Wi-Fi, or with software drawing |
-| `--haptic 0`, `--torch 0` | without vibration or flashlight |
-| `--cpus N` | use fewer CPU cores |
-
-Example: `hackios.bat --boot -- --island 2 --seconds 300`
-
-## If something goes wrong
-
-- **"no phone over USB"**: check the cable, that USB debugging is on, and that the phone asked to allow the PC.
-- **"Android has no working root"**: grant root to *Shell* in Magisk/KernelSU (`adb shell su -c id` must say `uid=0`).
-- **Windows does not see the phone in fastboot or in the loader**: `hackios.bat --driver` (Zadig, WinUSB for
-  USB ID 18D1 D00D). The iOS loader shows up as a fastboot device named `xnuloader`.
-- **Linux: "no permissions"**: `./hackios --udev`, then plug the phone in again.
-- **Wrong time in iOS**: the time zone is taken from your PC; set another one with `TZ_NAME=Europe/Kiev` before
-  `--assemble` (`set TZ_NAME=Europe/Kiev` on Windows).
-- **Something else failed**: the message says what to do; unexpected errors are written to `work/logs/hackios.log`.
-- **Stuck on the Apple logo or a black screen**: reboot into Android and run `--boot` again.
-- **No Wi-Fi in iOS**: run `--wifi` with your network, then `--assemble`, then `--boot`.
-- **Windows support is new**: building the iOS images natively on Windows has been checked less than on Linux.
-  If `--get` fails on Windows, run the same steps inside WSL (`wsl ./hackios --get`) and boot from Windows.
-
-## How it boots
+Сценарий RAM-загрузки:
 
 ```text
-Android ─▶ bootloader ── fastboot boot (RAM) ──▶ UEFI (uefi/) ──▶ USB loader (loader/)
-        ──▶ XNU 8796.121.2 + kernel/ ──▶ root image + iOS system image in RAM ──▶ launchd ──▶ SpringBoard
+Android → fastboot boot → UEFI PJD110 → Boot iOS
+        → USB-загрузчик → XNU + root/system в RAM → SpringBoard
 ```
 
-## Inside
+Обычная iOS-сессия и минимальная GPU-диагностика используют разные наборы RAM-образов. Успешный диагностический тест не означает, что этот образ предназначен для загрузки рабочего стола. Не запускайте старые RAW-тесты из журнала как последовательную инструкцию: там сохранена история неудачных опытов.
 
-| | |
+## Структура проекта
+
+| Каталог / файл | Содержимое |
 | :--- | :--- |
-| `hackios`, `hackios.bat` | the one entry point (Linux, Windows) |
-| `.github/workflows/` | the build of the release kit |
-| `kernel/` | `kernel.patch` (Apple's files) and `files/` (the phone's drivers `macan_*`, GPU, packfs, IOKit services) |
-| `loader/` | the USB loader that takes the kernel and the images |
-| `uefi/` | the complete UEFI firmware source (`uefi/mu`: Project Mu with the Ace 6T platform, menu and branding) |
-| `userland/` | init, injected libraries (window server, SpringBoard, Dynamic Island, GL, media, App Store), images |
-| `sileo/` | the rootless prefix, Sileo, ElleKit, PreferenceLoader |
-| `wifi/` | Linux ath12k and the layer that runs it in XNU |
-| `tools/` | kernel build, Mesa and its Darwin patch, ath12k build, packfs, the image assembler, firmware staging, `xl` |
-| `scripts/` | boot and run |
+| `kernel/files/bsd/dev/waffle_*` | Порт Synaptics, Adreno/GMU и SMMU для OnePlus 12 |
+| `kernel/files/bsd/sys/waffle_*` | Профиль SM8650 и вспомогательные интерфейсы |
+| `kernel/kernel.patch` | Интеграция изменений в XNU |
+| `loader/` | USB-загрузчик, политика запуска и карта памяти waffle |
+| `userland/` | Интеграция iOS userland и выбор программного рендеринга |
+| `tools/`, `scripts/` | Сборка, проверки и запуск |
+| `docs/waffle-bringup.md` | Экран, касания, кнопки и ранний bring-up |
+| `docs/waffle-gpu.md` | Состояние GPU-порта и история аппаратных проверок |
+| `GPU_DEBUG_LOG.md` | Гипотезы, эксперименты, результаты и ограничения |
+| `work/waffle/gpu/forensic-audit/` | Опубликованная часть аудита и диагностических свидетельств |
+| `uefi/`, `wifi/`, `sileo/` | Унаследованные компоненты донора; наличие кода не означает готовую поддержку waffle |
 
-## Credits
+## Благодарности и лицензии
 
-OOSexGang: [@netusd](https://t.me/netusd), [@wannqn](https://t.me/wannqn), [@hxfuxyyXD](https://t.me/hxfuxyyXD),
-[@oodze](https://t.me/oodze) · [channel](https://t.me/oosexgangdevs). Started from vcvkk's POCO X5 Pro port.
+Основа порта — [hxfuxyy/ios-macan](https://github.com/hxfuxyy/ios-macan), работа OOSexGang и предшествующий порт vcvkk для POCO X5 Pro. Штатные исходники Qualcomm/OnePlus используются для сопоставления с оборудованием и протоколами.
 
-XNU-derived code is under the APSL 2.0. Third-party parts keep their licences: Linux ath12k (BSD-3-Clause-Clear
-/ GPL-2.0), Mesa (MIT), Mu / Project Silicium (BSD-2-Clause-Patent), zstd (BSD), ElleKit, PreferenceLoader,
-Sileo, Procursus; the Noto Sans notice is in `uefi/branding/assets/`.
+Исходные лицензии компонентов сохраняются: XNU — APSL 2.0; Linux-компоненты, Mesa, Mu / Project Silicium, zstd и пользовательские пакеты распространяются по своим лицензиям. Уведомления Noto Sans находятся в `uefi/branding/assets/`.
 
-Not affiliated with Apple or OnePlus. iOS is Apple's: this project does not ship it, it downloads it from Apple
-for you.
+Проект не связан с Apple или OnePlus. iOS принадлежит Apple и не распространяется в этом репозитории.
