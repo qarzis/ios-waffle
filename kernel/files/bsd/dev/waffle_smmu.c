@@ -393,7 +393,7 @@ static const uint32_t smmu_gmu_offsets[]={0x4,0x10,0x20,0x24,0x28,0x2c,0x30,0x38
 struct smmu_owner {
     vm_offset_t smmu,qtb,gmu,cc,cb,target;
     unsigned page,pages,contexts,matches,probe,index,lpac_checks;
-    uint32_t lpac_map,zap,writeback,ib,session,access_matrix,dynamic_bo;
+    uint32_t lpac_map,zap,writeback,ib,session,access_matrix,dynamic_bo,compute_mode;
     uint32_t saved_ctl,saved_smr,saved_s2cr,old_cbar,old_cba2r,old[9];
     uint64_t old_fence,old_inputs[3],target_pa;
     struct gpu_context gpu_context,lpac_context;
@@ -441,6 +441,10 @@ static bool smmu_owner_begin(struct smmu_owner *s)
         (s->dynamic_bo!=1 || probe!=94 || s->session!=1)) {
         log_line("waffle-iommu: dynamic BO requires controlled94 session; refused\n");return false;
     }
+    if(PE_parse_boot_argn("waffle_compute",&s->compute_mode,sizeof(s->compute_mode)) &&
+        ((s->compute_mode!=1 && s->compute_mode!=2) || probe!=94 || s->dynamic_bo!=1 || s->session!=1)) {
+        log_line("waffle-iommu: compute requires controlled94 dynamic BO session; refused\n");return false;
+    }
     if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&
         (s->access_matrix!=1 || probe!=93)) {
         log_line("waffle-iommu: access matrix requires prepare-only probe93; refused\n");return false;
@@ -484,6 +488,7 @@ static bool smmu_owner_begin(struct smmu_owner *s)
     for (unsigned i = 0; i < 3; ++i) s->old_inputs[i] = r64(s->qtb, 0x430 + 8 * i);
     s->snapshot_ready=true;
     if (probe >= 8 && !waffle_gmu_prepare(&s->firmware, probe)) return false;
+    s->firmware.compute_mode=s->compute_mode;
     if (!new_table(&s->pool) || kmem_alloc(kernel_map, &s->target, PAGE_SIZE,
             KMA_KOBJECT | KMA_ZERO | KMA_DATA, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) return false;
     s->target_pa = kvtophys(s->target);

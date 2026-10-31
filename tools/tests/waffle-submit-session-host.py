@@ -13,6 +13,7 @@ h=r'''
 #include <string.h>
 #include <setjmp.h>
 #include "waffle_gpu_writeback.h"
+#include "waffle_gpu_compute.h"
 typedef uintptr_t vm_offset_t;
 #define PAGE_SIZE 16384
 #define KMA_KOBJECT 1
@@ -31,7 +32,7 @@ typedef uintptr_t vm_offset_t;
 #define WAFFLE_GEN7_STOP_GBIF_DRAINED 16
 #define WAFFLE_GEN7_STOP_QTB_DRAINED 32
 struct waffle_submit_session;
-struct waffle_gmu_plan {struct waffle_submit_session *submit_session;unsigned session_slumber_sequence;bool raw_stage_pause;};
+struct waffle_gmu_plan {struct waffle_submit_session *submit_session;unsigned session_slumber_sequence,compute_mode;bool raw_stage_pause;};
 struct waffle_gmu_owner {struct waffle_gmu_plan *plan;};
 struct waffle_gmu_region {uint32_t address,size;uintptr_t memory;bool gpu_only,readonly;};
 static _Alignas(16384) uint32_t arena[4096],dynamic_arena[4096];
@@ -40,7 +41,7 @@ static uint64_t active_address=0x80074400;
 static _Alignas(16384) uint8_t heap[16384];
 static struct waffle_gmu_region region={0x80074000,16384,(uintptr_t)arena,true,false};
 static unsigned mode,sends,allocs,frees,maps,unmaps,releases,waits,delays;
-static bool after_open;
+static bool after_open,compute_case;
 static uint32_t first_token[4];
 static jmp_buf trap;
 static bool ib_requested(void){return mode!=1;}
@@ -65,7 +66,7 @@ static void ml_io_unmap(uintptr_t alias,unsigned size){assert((alias==(uintptr_t
 static void delay_for_interval(unsigned amount,unsigned unit){assert((amount==100 || amount==1000000) && unit==1000);++delays;}
 static bool wait_for(uintptr_t gmu,unsigned off,unsigned mask,unsigned expected,unsigned loops){
  assert(gmu==2 && off==0x23b0c && mask==(1u<<23) && !expected && loops==2000);++waits;
- return mode!=6 && !(mode==15 && waits==4);
+ return mode!=6 && mode!=24 && !(mode==15 && waits==4);
 }
 static void say(const char *fmt,...){(void)fmt;}
 static void stop_unsafe(const char *reason){assert(reason);longjmp(trap,1);}
@@ -73,10 +74,21 @@ static bool hfi_exchange_watch(uintptr_t,uintptr_t,const uint32_t *,unsigned,con
 '''
 callback=r'''
 static bool hfi_exchange_watch(uintptr_t gmu,uintptr_t hfi,const uint32_t *p,unsigned words,const char *name,bool zero,struct waffle_gmu_plan *watch){
- assert(gmu==2 && hfi==3 && words==5 && !strcmp(name,"SESSION_IB") && zero);
+ assert(gmu==2 && hfi==3 && words==5 && !strcmp(name,compute_case?"COMPUTE_IB":"SESSION_IB") && zero);
  struct waffle_submit_session *session=watch->submit_session;
  assert(session && watch!=session->plan && !watch->raw_stage_pause && session->plan->raw_stage_pause);
  assert(session->phase==SUBMIT_BUSY && session->owns_oob && !releases && !frees && unmaps==(active_arena==dynamic_arena?1u:0u));
+ if(compute_case){
+  assert(watch->compute_mode==1 || watch->compute_mode==2);
+  assert(p[4]==WAFFLE_COMPUTE_WORDS && ((uint64_t)p[3]<<32|p[2])==waffle_gpu_compact_alias(0x80078400));
+  assert(session->submitted==1 && session->completed==0 && session->next_sequence==45);
+  for(unsigned i=0;i<4096;i++)assert(active_arena[i]==waffle_compute_initial(watch->compute_mode,i));
+  sends++;
+  if(mode!=20)active_arena[2048]=1;
+  if(watch->compute_mode==2 && mode!=21)for(unsigned i=0;i<8;i++)active_arena[64+i]=i;
+  if(mode==22)active_arena[4095]^=1;
+  return mode!=23;
+ }
  unsigned fence=++sends;
  assert(session->submitted==fence && session->completed==fence-1 && session->next_sequence==44+fence);
  assert(p[0]==(((43+fence)<<20)|(5u<<8)|131u) && p[1]==0x70bf8003 && p[4]==8);
@@ -155,6 +167,22 @@ int main(void){
   }
   assert(submit_session_close(&plan));submit_session_destroy(&plan,63);
   assert(frees==1 && unmaps==(failure?1u:2u));
+ }
+ compute_case=true;
+ for(unsigned dispatch=1;dispatch<=2;dispatch++)for(unsigned failure=0;failure<7;failure++){
+  mode=0;sends=allocs=frees=maps=unmaps=releases=waits=delays=0;after_open=false;
+  struct waffle_gmu_plan plan={.raw_stage_pause=true,.compute_mode=dispatch};
+  assert(submit_session_open(1,2,3,&plan));after_open=true;
+  struct waffle_gmu_owner owner={.plan=&plan};
+  struct waffle_gmu_region fresh={WAFFLE_GPU_DYNAMIC_ADDRESS,16384,(uintptr_t)dynamic_arena,true,false};
+  assert(waffle_gmu_owner_bind_bo(&owner,&fresh));active_arena=dynamic_arena;active_address=0x80078400;
+  mode=failure?19+failure:0;
+  if(mode==25)plan.submit_session->ib_va=waffle_gpu_compact_alias(0x80074400);
+  bool success=mode==0 || (dispatch==1 && mode==21);
+  assert(submit_session_run(&plan)==success);
+  if(success){assert(plan.submit_session->completed==1 && plan.session_slumber_sequence==45 && sends==1);assert(submit_session_close(&plan));submit_session_destroy(&plan,63);assert(frees==1 && unmaps==2);}
+  else if(mode==25){assert(!sends && plan.submit_session->phase==SUBMIT_READY);mode=0;assert(submit_session_close(&plan));submit_session_destroy(&plan,63);}
+  else{assert(sends==1 && plan.submit_session->phase==SUBMIT_POISONED && !submit_session_close(&plan) && !frees && unmaps==1);}
  }
  return 0;
 }

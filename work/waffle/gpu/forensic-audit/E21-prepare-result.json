@@ -1,0 +1,15 @@
+{
+  "experiment": "E21 prepare without dispatch",
+  "run": "work/waffle/runs/20261031T212939Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T212916Z",
+  "mesa_state_and_shader_preload_accepted": true,
+  "dispatch_sent": false,
+  "eight_output_words_still_poisoned": true,
+  "gpu_control_fence": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "9ba2f57bf55a36c9cb7332b631b785f038f1abbcc1dbc98236034c7bcf861fb6"
+}

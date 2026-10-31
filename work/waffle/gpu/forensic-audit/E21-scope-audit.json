@@ -1,0 +1,18 @@
+{
+  "experiment": "E21",
+  "base": "6aa731442bbf536c3ddd474a742996624b25fa29",
+  "scope": "bounded arbitrary-size IB exchange and source-backed compute payload, loader/runner gates",
+  "all_board_aop_power_clock_unchanged": true,
+  "all_gmu_firmware_boot_security_tcm_stop_helpers_unchanged": true,
+  "smmu_dynamic_mapping_and_teardown_helpers_unchanged": true,
+  "gpu_protected_configuration_unchanged": true,
+  "stock_mesa_a7xx_emitter_used": true,
+  "command_dwords": 184,
+  "register_writes": 73,
+  "protected_register_conflicts": 0,
+  "modes": {
+    "1": "only CP_EXEC_CS replaced by same-length CP_NOP; output remains poisoned",
+    "2": "original Mesa dispatch; eight output words must be local IDs0..7"
+  },
+  "hardware_tested": false
+}

@@ -1,0 +1,14 @@
+{
+  "probe": 94,
+  "started_at": "2026-10-31T21:32:22.388086+00:00",
+  "variant": "E21-compute-mode2",
+  "runner_exit": 0,
+  "runs": [
+    "work/waffle/runs/20261031T213222Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true
+}

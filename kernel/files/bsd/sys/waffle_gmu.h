@@ -29,6 +29,7 @@ struct waffle_gmu_plan {
     bool raw_stage_pause;
     struct waffle_submit_session *submit_session;
     unsigned session_slumber_sequence;
+    unsigned compute_mode;
     bool (*pool_permissions)(void *,uint64_t,uint32_t,uint32_t);
     void *pool_permissions_context;
     vm_offset_t fault_smmu;

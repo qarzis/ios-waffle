@@ -28,16 +28,23 @@ def result_from_log(data):
     return f"result: returned {match[1]} 0" if match else ""
 
 
-def validate_aop_owner_log(text):
+def validate_aop_owner_log(text, compute_mode=0):
     """Require actual GPU results and child-first teardown for the owned path."""
     markers=[
         "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
         "full GPU owner returned live to init caller; no mutex held",
     ]
-    for fence in (1,2,3):
-        values="/".join(f"{word ^ (fence * 0x01010101):08x}" for word in
-                        (0x57414646,0x4c454750,0x13579bdf,0x2468ace0))
-        markers.append(f"SESSION fence={fence} seq={43+fence} values={values} wrong_words=0")
+    if compute_mode:
+        values="/".join(f"{i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
+        markers += [f"COMPUTE begin mode={compute_mode} dispatch={int(compute_mode==2)} words=184 output_poison=1",
+            "COMPUTE_IB ACK matched seq44 value=00000000 valid=1",
+            f"COMPUTE values={values} control=00000001 checked=4096 wrong_words=0 mode={compute_mode}",
+            "SESSION result=1 submitted=1 completed=1 next_sequence=45 OOB=1; bounded kernel session"]
+    else:
+        for fence in (1,2,3):
+            values="/".join(f"{word ^ (fence * 0x01010101):08x}" for word in
+                            (0x57414646,0x4c454750,0x13579bdf,0x2468ace0))
+            markers.append(f"SESSION fence={fence} seq={43+fence} values={values} wrong_words=0")
     markers += [
         "SMMU_OWNER released after child stop and context detach",
         "CLOCK_OWNER released before CX restore result=1",
@@ -63,6 +70,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-compute",type=int,choices=(1,2),help="E21: 1=state/control without dispatch; 2=eight-thread compute shader")
     parser.add_argument("--gpu-dynamic-bo",action="store_true",help="E20: allocate/map/bind test BO after GPU startup; requires session")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
@@ -81,6 +89,8 @@ def main():
         parser.error("--gpu-writeback requires --gpu-zap")
     if args.gpu_ib and not args.gpu_writeback:
         parser.error("--gpu-ib requires --gpu-writeback")
+    if args.gpu_compute and not args.gpu_dynamic_bo:
+        parser.error("--gpu-compute requires --gpu-dynamic-bo")
     if args.gpu_dynamic_bo and not args.gpu_session:
         parser.error("--gpu-dynamic-bo requires --gpu-session")
     if args.gpu_session and not args.gpu_ib:
@@ -130,6 +140,8 @@ def main():
         arguments += " waffle_session=1"
     if args.gpu_dynamic_bo:
         arguments += " waffle_dynamic_bo=1"
+    if args.gpu_compute:
+        arguments += f" waffle_compute={args.gpu_compute}"
     payload = out / "payload.xnup"
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
@@ -167,7 +179,7 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
-            if args.gpu_session and not all(marker in final_text for marker in (
+            if args.gpu_session and not args.gpu_compute and not all(marker in final_text for marker in (
                     "SESSION OOB ownership transferred; init returned with GX retained",
                     "SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session",
                     "SESSION closed OOB_released=1 outstanding=0",
@@ -177,7 +189,7 @@ def main():
             if args.gpu_dynamic_bo:
                 markers=("full GPU owner returned live to init caller; no mutex held",
                     "SESSION rebound BO VA=1ff8000478000", "DYNAMIC_BO published after GPU startup VA=80078000 pages=4 aliases=2 unprivileged=1",
-                    "SESSION fence=1", "SESSION fence=2", "SESSION fence=3",
+                    *(["COMPUTE values="] if args.gpu_compute else ["SESSION fence=1", "SESSION fence=2", "SESSION fence=3"]),
                     "DYNAMIC_BO released after GPU stop and context detach", "SMMU_OWNER released after child stop and context detach")
                 positions=[final_text.find(marker) for marker in markers]
                 if -1 in positions or positions!=sorted(positions):
@@ -228,7 +240,7 @@ def main():
             if "waffle-gmu: REBOOT REQUIRED" in final_text:
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
-                validate_aop_owner_log(final_text)
+                validate_aop_owner_log(final_text, args.gpu_compute or 0)
             elif args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
                     f"AOP channel{args.gpu_probe} result=0 channel=ffff0000 ack=ffff0000 link=0000ffff linkack=0000ffff",
                     f"AOP channel{args.gpu_probe} cleanup complete")):
@@ -374,7 +386,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")

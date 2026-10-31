@@ -31,3 +31,17 @@ for text in invalid:
         continue
     raise AssertionError('Incomplete or invalid hardware result was accepted')
 print('Actual AOP runner validation: positive result, all missing markers, wrong GPU values, held mutex and teardown order checks passed')
+
+for mode in (1,2):
+    output="/".join(f"{i if mode==2 else 0xdead0000+i:08x}" for i in range(8))
+    compute=lines[:2]+[f"COMPUTE begin mode={mode} dispatch={int(mode==2)} words=184 output_poison=1",
+        "COMPUTE_IB ACK matched seq44 value=00000000 valid=1",
+        f"COMPUTE values={output} control=00000001 checked=4096 wrong_words=0 mode={mode}",
+        "SESSION result=1 submitted=1 completed=1 next_sequence=45 OOB=1; bounded kernel session"]+lines[5:]
+    text="\n".join(compute)
+    module.validate_aop_owner_log(text,mode)
+    for bad in (text.replace('control=00000001','control=00000000'),text.replace('wrong_words=0','wrong_words=1'),text.replace(output,'00000000/00000000')):
+        try:module.validate_aop_owner_log(bad,mode)
+        except RuntimeError:continue
+        raise AssertionError('Bad compute result accepted')
+print('Actual compute runner validation: prepare/dispatch values, control fence and readback failures checked')

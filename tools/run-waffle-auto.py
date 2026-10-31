@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
     parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--compute',choices=('prepare','dispatch'),help='E21 bounded shader state/control or dispatch; requires --dynamic-bo')
     parser.add_argument('--dynamic-bo',action='store_true',help='E20: post-bootstrap test BO; requires --session')
     parser.add_argument('--session',action='store_true',help='E12 bounded owned session: requires --ib and entire verified chain')
     parser.add_argument('--ib',action='store_true',help='E11: GPU indirect command-buffer fetch; requires --writeback')
@@ -48,6 +49,8 @@ def main():
         parser.error('--writeback requires --zap')
     if args.ib and not args.writeback:
         parser.error('--ib requires --writeback')
+    if args.compute and not args.dynamic_bo:
+        parser.error('--compute requires --dynamic-bo')
     if args.dynamic_bo and not args.session:
         parser.error('--dynamic-bo requires --session')
     if args.session and not args.ib:
@@ -72,7 +75,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -137,6 +140,8 @@ def main():
                 items.append('--session')
             if args.dynamic_bo:
                 items.append('--dynamic-bo')
+            if args.compute:
+                items.append('--compute-'+args.compute)
             result = command(items, timeout=240)
             report['runner_exit'] = result.returncode
             if result.returncode:

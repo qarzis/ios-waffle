@@ -1,3 +1,57 @@
+# E21 PASS — FIRST REAL COMPUTE SHADER on Adreno750/XNU; publishing at user request
+
+LastverifiedE21runtime source+logs nowcheckpointed. Control93 run20261031T212802Z
+ACCESS27/alloc8/LPAC42 PASS. Prepare94mode1 run212939Z/auto212916Z: state/load/fence
+184wordMesaA7xx stream withonlyEXECreplacedNOP, output8poison/control1/4096wrong0.
+Dispatch94mode2 run20261031T213222Z/auto213158Z: actualSPshader output0,1,2,3,4,5,6,7;
+control1/all4096wordswrong0, ACK44/slumber45/fullshutdown/AOPrestore, runner0/
+autosuccess/independentAndroid1, no900e. Artifactdiagnostic-gpu-compute-e21.
+Bothhardware-result-compute-prepare.json and-dispatch.json saved.
+Shader128bytes SHA36842135a4ade7d74c0ad213585dee20f9176d344733f7f2bf7ef6b6b606c148.
+No image/rasterization/iOSGPUacceleration yet. PhoneordinaryAndroid; noactiveGPUtest.
+
+Userwarnedlowremainingquota thenexplicitlyrequested SAVE/PUSHGIT. Publishingonly
+verifiedE21code/evidence toqarzis/ios-waffle; do notstartnewGPUexperiment now.
+MaintaincompactEnglishREADMEtable; GPUbriefnotecomputechecked/iOSstillCPU.
+Currentpublicationworktree/home/qarzis/ios-waffle-publish defaultwaffle/gpu-bringup,
+lastpublice28bd88 (E15source+compactREADME), cleanbeforepublish.
+Mainworkingtree staysmainc0ec663/untrackedoverlay; archivecommit-tree on
+waffle/hakios-uefi, verifiedrefwaffle/gpu-verified-session. PreserveE20 80802ac
+andhostprep6aa7314. No all-files main staging, no firmware/images/iOSassets push.
+
+NEXTAFTERPUBLISH: firstoffscreenimage16x16. Offlinecandidatework/.../compute-tools/
+ramp256.asm/bin/json assembles128byte256threadshader: alphaORlocalid thenSSBOstore.
+NOTYETRUNTIMEINTEGRATED/TESTED. Needexporterallow256wordoutput atBOoffset3000
+(current8wordoutputoffset100wouldoverlapcommandifgrown), regenerateauditedpayload/
+headerandcontrol/dispatchvariants, verifyall4096guards, dumpactualpixelsfromGPU,
+thenserializeactualreadbacktoPNG. NoCPUfabricationofexpectedimage.
+KeepE21hardwarestateuntilnewhostpacket+guardvalidationready. No iOSGPUready yet.
+
+# E21 full build done; hardware control93 currently running
+
+LastHARDWAREverifiedE20 Git80802ac; hostassemblerprep Git6aa7314 preserved.
+E21 exportsactualstockMesaComputeratorA7XX withhostBO/ringrecorders:184dwords,
+13packets/73regwrites/fourBOsfit16KiB, nosourceMesaedits/nodeviceexecution.
+Auditedall48nativeCPprotectspans zeroconflicts, shader/UAV/controladdresses,
+packetparity/bounds anddescriptor. Payload/PM4/manifesttworepeatsbyteidentical.
+Own8threadIR3shader128bytes(shadersource+binarySHAfromprevprep) included.
+Newkernel compute1=ONLYCP_EXEC_CS5wordpacketreplacedwithsame-lengthNOP;
+compute2=originaldispatch. Command400..1000, shader1000, descriptor1100,
+output100..120(initialdead0000+i), control2000..3000(initialzero).
+SourceguardsoutsideBOsindexXORpattern. Bothmodesmustcontrolseqno1/check4096;
+onlymode2expectsSPoutput0..7. CommonIBexchangeextracted, old3IBhosttestsPASS.
+Kernel/SMMUparsecompute1/2requires94dynamicBOsession; flagsvalidatedinloader,
+auto/publish/IOSrunner beforeUSB. RunnerchecksCOMPUTEACK44+data+end45+fullstop.
+Fullsuite/XNU/EFI/container/current-sourcebindingPASS artifactdiagnostic-gpu-compute-e21.
+Currentexecsession51001 auto93control; logfilework/waffle/gpu/auto-compute-e21-control.log.
+AfterPASS/Android1 run94entirechain --dynamic-bo --compute prepare; ONLYafter
+thatPASS/Android1 run --compute dispatch. SaveALLreportsbeforeanynewpatch.
+NoE21hardwareoutcome yet; useraskedifonphone, answeredcurrentlycontrol93.
+Allboard/AOP/clock/GMUbootstrap/TCM/security andSMMUdynamicmapping/teardown
+unchanged (E21-scope-audit). No GPUimage orshaderexecution claimed yet.
+NoGitcheckpointforE21runtimechangespendinghardware. RAMonly, neverflash,
+autoUEFI/no manualBootiOSneeded. PhoneUSBcurrentlycontrolledbyrunner.
+
 # E20 verified; E21 offline shader preparation completed (no GPU shader yet)
 
 LastHARDWAREverifiedGit80802ac E20-r2 dynamic16KiB BO afterGPUstartup,
