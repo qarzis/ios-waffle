@@ -37,7 +37,7 @@ def main():
     parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
     parser.add_argument("--gpu-access-matrix",action="store_true",help="Probe93 only: access-type ECATS after GMU shutdown, no CP RAW")
     parser.add_argument("--gpu-measure-clocks",action="store_true",help="Probe93 only: physically measure GFX/GMU clocks without RAW")
-    parser.add_argument("--gpu-lpac-map",action="store_true",help="Probe93 only: validate LPAC SID1 bootstrap mappings without RAW")
+    parser.add_argument("--gpu-lpac-map",action="store_true",help="Probe93/94 only: validated LPAC SID1 mappings (94 sends CP_INIT)")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
@@ -47,8 +47,8 @@ def main():
         parser.error("--gpu-access-matrix requires prepare-only --gpu-probe 93")
     if args.gpu_measure_clocks and args.gpu_probe!=93:
         parser.error("--gpu-measure-clocks requires prepare-only --gpu-probe 93")
-    if args.gpu_lpac_map and args.gpu_probe!=93:
-        parser.error("--gpu-lpac-map requires prepare-only --gpu-probe 93")
+    if args.gpu_lpac_map and args.gpu_probe not in (93,94):
+        parser.error("--gpu-lpac-map requires controlled --gpu-probe 93/94")
     local_fastboot = next((path for path in (ROOT.parent / "platform-tools/fastboot",
                           ROOT.parent.parent / "platform-tools/fastboot") if path.is_file()), None)
     fastboot = args.fastboot or (str(local_fastboot) if local_fastboot else shutil.which("fastboot"))
@@ -121,9 +121,10 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
-            if args.gpu_lpac_map and (not re.search(r"LPAC_MAP lifecycle=1 checks=[1-9][0-9]*; no CP RAW",final_text) or
+            if args.gpu_lpac_map and (not re.search(r"LPAC_MAP lifecycle=1 checks=[1-9][0-9]*; "+
+                    ("no CP RAW" if args.gpu_probe==93 else "CP control completed"),final_text) or
                     "LPAC_MAP restored=1" not in final_text or
-                    "RAW checkpoint" in final_text or "CP_INIT_RAW" in final_text):
+                    (args.gpu_probe==93 and ("RAW checkpoint" in final_text or "CP_INIT_RAW" in final_text))):
                 raise RuntimeError(f"LPAC mapping/lifecycle incomplete or RAW appeared; logs: {out}")
             if args.gpu_measure_clocks and ("CLOCK_MEASURE result=1; no CP RAW" not in final_text or
                     "RAW checkpoint" in final_text or "CP_INIT_RAW" in final_text):
@@ -322,7 +323,7 @@ def main():
                 raise RuntimeError(f"CP thread-control-only or full cleanup did not pass; logs: {out}")
             if args.gpu_probe == 36 and "stall diagnostics armed for CB0/CB1/CB2; CFIE masked" not in final_text:
                 raise RuntimeError(f"Stalled-fault diagnostic contexts were not armed; logs: {out}")
-            if args.gpu_probe in (37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "SCM CP SMMU aperture CB0 status=0" not in final_text:
+            if args.gpu_probe in (37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not re.search(r"SCM CP SMMU aperture (?:selector=0 )?CB0 status=0(?: |$)",final_text):
                 raise RuntimeError(f"CP SMMU aperture not configured; logs: {out}")
             if args.gpu_probe in (39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
                     "GPU split TTBR1 enabled=1", "native global GPU VA SQE="+("1ff8000410000" if args.gpu_probe>=54 else "1ff8080010000"))):

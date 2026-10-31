@@ -1,0 +1,15 @@
+{
+  "experiment": "E07",
+  "run": "work/waffle/runs/20261031T100057Z",
+  "raw_sent": false,
+  "lpac_checks": 42,
+  "routing": "SID1/CB1; GMU SID5/CB3",
+  "lifecycle_pass": true,
+  "context_restored": true,
+  "kernel_validation_offline": "passed using actual runner validation block",
+  "original_runner_exit": 1,
+  "original_runner_failure": "Legacy SCM log text matcher rejected added selector field",
+  "android_independently_confirmed": true,
+  "log_sha256": "97ba8fc044f0db2919db744d5e29a1355ca1942fc1ed70e2b6916c560871d4dc",
+  "script_sha256": "3c9617c1fd6a07094f0dd8604df0bc8efa5b92502c98b2218453878db705d939"
+}

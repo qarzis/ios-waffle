@@ -99,12 +99,18 @@ static bool map_page(struct table_pool *pool,uint64_t iova,uint64_t pa,bool read
 }
 /* Change only the high GPU alias, before replying to the allocation request.
  * GMU's low alias retains its independent read/write permissions. */
-struct pool_permission_context {struct table_pool *tables;vm_offset_t cb;};
+struct pool_permission_context {struct table_pool *tables;vm_offset_t cb,lpac_cb;};
 static uint64_t *permission_table(struct table_pool *pool,uint64_t entry)
 {
     if((entry&3)!=3) return NULL;
     for(unsigned i=0;i<pool->count;i++) if(pool->phys[i]==(entry&PTE_ADDRESS)) return (uint64_t *)pool->memory[i];
     return NULL;
+}
+static bool pool_permission_sync(struct pool_permission_context *c)
+{
+    bool user_ok=tlb_sync(c->cb);
+    bool lpac_ok=!c->lpac_cb || tlb_sync(c->lpac_cb);
+    return user_ok && lpac_ok;
 }
 static bool pool_permissions(void *opaque,uint64_t va,uint32_t size,uint32_t flags)
 {
@@ -125,9 +131,9 @@ static bool pool_permissions(void *opaque,uint64_t va,uint32_t size,uint32_t fla
         uint64_t value=(old&~(3ULL<<6))|((flags&4)?0:1ULL<<7)|((flags&2)?0:1ULL<<6);
         if(value==old) continue;
         *entry=0;clean((vm_offset_t)entry&~4095ULL);
-        if(!tlb_sync(c->cb)) return false;
+        if(!pool_permission_sync(c)) return false;
         *entry=value;clean((vm_offset_t)entry&~4095ULL);
-        if(!tlb_sync(c->cb)) return false;
+        if(!pool_permission_sync(c)) return false;
     }
     log_line("waffle-iommu: allocation GPU permissions VA=%llx size=%u flags=%x applied\n",va,size,flags);
     return true;
@@ -386,8 +392,8 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
 {
     uint32_t lpac_map=0;
     if(PE_parse_boot_argn("waffle_lpac_map",&lpac_map,sizeof(lpac_map)) &&
-        (lpac_map!=1 || probe!=93)) {
-        log_line("waffle-iommu: LPAC mapping requires prepare-only probe93; refused\n");return;
+        (lpac_map!=1 || (probe!=93 && probe!=94))) {
+        log_line("waffle-iommu: LPAC mapping requires controlled probe93/94; refused\n");return;
     }
     uint32_t access_matrix=0;
     if(PE_parse_boot_argn("waffle_ecats_access",&access_matrix,sizeof(access_matrix)) &&
@@ -591,14 +597,17 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
             firmware.fault_smmu=smmu;firmware.fault_page=page;firmware.fault_pages=pages;
             log_line("waffle-iommu: HUPCF%u RAW fault readback armed; no fault clear/resume\n",probe);
         }
-        struct pool_permission_context permission_context={.tables=&pool,.cb=gpu_context.cb};
+        struct pool_permission_context permission_context={.tables=&pool,.cb=gpu_context.cb,
+            .lpac_cb=lpac_map?lpac_context.cb:0};
         if(probe>=72){firmware.pool_permissions=pool_permissions;firmware.pool_permissions_context=&permission_context;}
         struct access_matrix_context matrix={.permissions=permission_context};
         if(access_matrix){firmware.pool_permissions=access_matrix_capture;firmware.pool_permissions_context=&matrix;}
         if (matches_pa && waffle_gmu_probe_tcm(&firmware, probe, qtb)) {
             log_line("waffle-iommu: GMU test passed, boot_test=%u; CM3 held reset again\n", probe >= 9);
-            if(lpac_map && !(r32(lpac_context.cb,0x58)&FSR_FAULT_MASK))
-                log_line("waffle-iommu: LPAC_MAP lifecycle=1 checks=%u; no CP RAW\n",lpac_checks);
+            if(lpac_map && !(r32(lpac_context.cb,0x58)&FSR_FAULT_MASK)) {
+                if(probe==93) log_line("waffle-iommu: LPAC_MAP lifecycle=1 checks=%u; no CP RAW\n",lpac_checks);
+                else log_line("waffle-iommu: LPAC_MAP lifecycle=1 checks=%u; CP control completed\n",lpac_checks);
+            }
             if(access_matrix) (void)access_matrix_run(&matrix,&firmware,qtb,gpu_context.cb,gmu,cc);
         }
     }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RAM boot the automatic waffle loader, optionally run a prepare-only GPU test.
+"""RAM boot the automatic waffle loader and run a bounded GPU diagnostic.
 
 Never flashes. Optional standard Sahara collection uses the existing pinned
 collector, which resets after collecting offered crash segments.
@@ -22,7 +22,8 @@ def main():
     parser.add_argument('--prepare-gpu', action='store_true', help='Run existing probe93; no RAW')
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
-    parser.add_argument('--lpac-map',action='store_true',help='Validate LPAC mappings on prepare-only probe93')
+    parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--lpac-map',action='store_true',help='Validate LPAC mappings on probe93, or controlled94 with --lpac-cp-init')
     parser.add_argument('--fastboot', default=str(ROOT.parent / 'platform-tools/fastboot'))
     parser.add_argument('--adb', default=str(ROOT.parent / 'platform-tools/adb'))
     args = parser.parse_args()
@@ -32,8 +33,10 @@ def main():
         parser.error('--access-matrix requires --prepare-gpu')
     if args.measure_clocks and not args.prepare_gpu:
         parser.error('--measure-clocks requires --prepare-gpu')
-    if args.lpac_map and not args.prepare_gpu:
-        parser.error('--lpac-map requires --prepare-gpu')
+    if args.lpac_cp_init and (not args.lpac_map or args.prepare_gpu):
+        parser.error('--lpac-cp-init requires --lpac-map and excludes --prepare-gpu')
+    if args.lpac_map and not (args.prepare_gpu or args.lpac_cp_init):
+        parser.error('--lpac-map requires --prepare-gpu or controlled --lpac-cp-init')
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if not manifest.get('automatic_usb_loader'):
         parser.error('Artifact does not declare automatic loader entry')
@@ -42,7 +45,7 @@ def main():
     for name in ('adb', 'fastboot'):
         if not Path(getattr(args, name)).is_file():
             parser.error(f'Missing {name}')
-    if args.prepare_gpu:
+    if args.prepare_gpu or args.lpac_cp_init:
         # The existing session runner pins these transport paths.
         if Path(args.adb).resolve() != (ROOT.parent / 'platform-tools/adb').resolve() or \
                 Path(args.fastboot).resolve() != (ROOT.parent / 'platform-tools/fastboot').resolve():
@@ -52,9 +55,9 @@ def main():
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     output = ROOT / 'work/waffle/auto-runs' / stamp
     output.mkdir(parents=True, exist_ok=False)
-    report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': False,
+    report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -97,12 +100,12 @@ def main():
         if p.returncode or 'platform: waffle' not in p.stdout + p.stderr:
             raise RuntimeError('Automatic loader platform mismatch')
         report['automatic_loader_verified'] = True
-        if args.prepare_gpu:
+        if args.prepare_gpu or args.lpac_cp_init:
             recovery_log = (output / 'recovery.log').open('w')
             collector = subprocess.Popen([sys.executable, 'tools/capture-waffle-crash.py',
                 '--collect', '--wait-seconds', '60'], cwd=ROOT,
                 stdout=recovery_log, stderr=subprocess.STDOUT)
-            items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '93', str(artifact)]
+            items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '94' if args.lpac_cp_init else '93', str(artifact)]
             if args.access_matrix:
                 items.append('--access-matrix')
             if args.measure_clocks:
@@ -112,7 +115,7 @@ def main():
             result = command(items, timeout=240)
             report['runner_exit'] = result.returncode
             if result.returncode:
-                raise RuntimeError('Prepare test failed; preserve original result and inspect recovery log')
+                raise RuntimeError('GPU test failed; preserve original result and inspect recovery log')
         else:
             p = command([args.fastboot, '-s', 'xnuloader', 'reboot'])
             if p.returncode:

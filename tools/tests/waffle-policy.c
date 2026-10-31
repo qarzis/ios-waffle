@@ -59,7 +59,10 @@ int main(void)
     assert(waffle_cmdline_allowed("waffle_gpu=93 waffle_ecats_access=1"));
     assert(waffle_cmdline_allowed("waffle_gpu=93 waffle_gpu_measure=1"));
     assert(waffle_cmdline_allowed("waffle_gpu=93 waffle_lpac_map=1"));
-    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1"));
+    assert(waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_gpu_measure=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=92 waffle_lpac_map=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_gpu=94 waffle_lpac_map=1"));
     assert(!waffle_cmdline_allowed("waffle_lpac_map=1"));
     assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_lpac_map=1 waffle_lpac_map=1"));
     assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_lpac_map=2"));

@@ -9,12 +9,12 @@ assert options<={'--access-matrix','--measure-clocks','--lpac-map'}
 access_matrix='--access-matrix' in options
 measure_clocks='--measure-clocks' in options
 lpac_map='--lpac-map' in options
-assert not options or probe==93
+assert not options or probe==93 or (probe==94 and options=={'--lpac-map'})
 before=set(Path('work/waffle/runs').iterdir())
 report={'probe':probe,'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()}
 if access_matrix:report['variant']='E03-access-matrix-no-RAW'
 if measure_clocks:report['variant']='E06-clock-measure-no-RAW'
-if lpac_map:report['variant']='E07-LPAC-map-no-RAW'
+if lpac_map:report['variant']='E07-LPAC-map-no-RAW' if probe==93 else 'E08-LPAC-map-CP_INIT'
 try:
  with (artifact/f'hardware-host-{probe}.log').open('w') as log:
   result=subprocess.run(['python3','scripts/run_waffle_ios.py','--kernel',str(artifact/'kernel'),'--root','work/waffle/gpu/probe-firmware-system.packfs','--system','work/waffle/gpu/probe-firmware-system.packfs','--seconds','90' if probe>=77 else '30','--gpu-probe',str(probe),*(['--gpu-access-matrix'] if access_matrix else []),*(['--gpu-measure-clocks'] if measure_clocks else []),*(['--gpu-lpac-map'] if lpac_map else [])],stdout=log,stderr=subprocess.STDOUT,timeout=180)
