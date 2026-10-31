@@ -1,0 +1,11 @@
+{
+  "experiment": "E15-default-matrix-control",
+  "run": "work/waffle/runs/20261031T111053Z",
+  "access_checks": 27,
+  "hfi_allocations": 8,
+  "lpac_checks": 42,
+  "gpu_raw": false,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "6b15e0333f71aebbf17b43a8b54c053ad91490569e5fcb7818b940910327e538"
+}

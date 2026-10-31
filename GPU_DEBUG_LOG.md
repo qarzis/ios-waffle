@@ -265,3 +265,9 @@ E15 implementation: oldwaffle_smmu_probe onlysplit intoparentowner/begin/complet
 Host actualparentcode covered42 default/heap scenarios: constructorfailures, partialcontextsetup, callbacklifetime, livechilddetachmentrefusal, safe childexercise failure, unknownstop, corruptedcallback pointer and TLBtimeoutretention. Draft mechanical transformation was corrected to preserve struct/member identifiers; hostharness indentation warnings fixed beforefullbuild. No hardware attempts during draft. Relevantmapper/context/access/permissions tests passed. Fullbuild pending diagnostic-gpu-smmu-owner-e15. Nexthardware control93+LPAC+accessmatrix (testsnewmatrixcallbacklifetime), then same3IBsession94afterAndroid1.
 
 E15 fullhost/XNU/EFI/container/current-source-binding passed. Firsthardware93+LPAC+accessmatrix noRAW exercises both parent-owned callback variants; full94session onlyafterAndroid1. NoE15hardware resultyet.
+
+E15 default93controlPASS run20261031T111053Z/auto20261031T111029Z: accessmatrix27checks/8realHFIallocations, LPAC42checks, noRAW, fullTCM/SMMU/PLLstop; runner0/autosuccess/Android1. This exercises matrix callback data after SMMU constructorreturn. Next94heapowner/3IBsession only after confirmedAndroid.
+
+## E15 hardware PASS — SMMU parent owner and callback survive begin return
+
+Control93 run20261031T111053Z ACCESS27/alloc8/LPAC42 passed. Heap94session run20261031T111210Z/auto20261031T111146Z: SMMUbeginreturnedheap1/callback_owned1/livechild1, same3IB44/45/46 uniquemarkers/all4096wordswrong0, childGMU/TCMendedbeforecontextsdetach, rootownerreleased, PLLrestored. Runner0/autosuccess/independentAndroid1. No900e/fault. This removes constructorstack dependence for plan/table/context/callback storage within the bounded root wrapper; actual boardclock/AOP owners remain outside it. EvidenceE15-result.json. No shader/draw/iOS acceleration claim.

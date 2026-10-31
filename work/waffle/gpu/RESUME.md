@@ -1,3 +1,16 @@
+# E15 PASS — SMMU parent heap owner verified
+
+Control93 ACCESS27/alloc8/LPAC42 run20261031T111053Z PASS. Full94session
+run20261031T111210Z auto20261031T111146Z PASS; artifactdiagnostic-gpu-smmu-owner-e15.
+Rootplan/tables/contexts/callback nowheapowned, beginsurvivesreturnwithliveGMU;
+threeIB44/45/46 correctmarkers/all4096wordswrong0, childGMU/TCMstopbefore
+detach/TLB/poolfree/rootfree/PLLrestore, runner0/Android1. No900e.
+Next exposeSMMUcomponentbegin/exercise/end totheboardclockcaller, then
+boardclocks/CX/AOPlifetime, keepingexistingcommands. Noactualdraw/userqueueyet.
+Lastuserclarifiedstatusquestion concernedactiveGPUwork, nototherperipherals.
+Answer: currentlyresourceownershipfoundation, nextclock/AOP beforepersistentbackend.
+UsercontinuesGPUtask; noactivehardwareprocess/testqueued. NoGitHubpushyet.
+
 # E15 SMMU parent owner built — hardware controls pending
 
 Oldwaffle_smmu_probe splitintoowner/begin/complete/finish/wrapper. Parent

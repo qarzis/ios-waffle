@@ -1,0 +1,16 @@
+{
+  "experiment": "E15",
+  "run": "work/waffle/runs/20261031T111210Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T111146Z",
+  "heap_owned_parent_tables_plan_contexts_and_callbacks": true,
+  "constructor_returned_with_live_child": true,
+  "three_gpu_results_verified": true,
+  "all_words_checked_per_result": 4096,
+  "parent_freed_after_child_and_contexts": true,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "default_control_access27_lpac42_passed": true,
+  "log_sha256": "8382b475f66a3e29516d2c47989d3c25046428595ea46208219febb92ea9466d",
+  "iOS_gpu_acceleration": false
+}
