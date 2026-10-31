@@ -1,3 +1,44 @@
+# E20-r2 PASS — post-bootstrap dynamic BO GPU fetch/write verified
+
+Control93 run20261031T205814Z/auto205750Z ACCESS27/alloc8/LPAC42 PASS.
+Dynamic94 run20261031T205950Z/auto205926Z diagnostic-gpu-dynamic-bo-e20-r2:
+new16KiBBO low80078000/high1ff8000478000 PA8d1a74000 allocatedAFTERGPU
+startup; dualaliasAP_UNPRIV/tableclean/dualASIDTLB thenREADYsessionNCbind;
+3IB44/45/46 eachall4096wordswrong0. FullGPUstop/contextdetach beforeBO
+free; allclock/CX/AOPrestore, runner0/autosuccess/independentAndroid1/no900e.
+OriginalE20firstlaunch205410Z loaderrefusal beforekernel preserved; fixedonly
+loaderflagallowlist, actualpolicytests; GPUnonmetadatabinaryunchanged.
+Latestworkingrefwaffle/hakios-uefi +waffle/gpu-verified-session updated.
+E19working796012e preserved. Noactivehardwaretest; phoneordinaryAndroid.
+NextboundedgenericIB andsource-backedcompute shader. LocalMesa26.3computerator
+main.ccselectsa6xx_init<A7XX>; a6xx.ccemitsCS/UAV/NDRANGE/execute;IR3assembly
+assembler needsofflineBO/relocation adapter. SourceSHA inventory E21-compute-
+source-inventory.json. NoE21implementationyet. No shaders/images/iOSGPUready.
+Usercontinues task, RAMonlyautoUEFI, neverflash; no physicalBootiOSneeded.
+
+# E20-r2 built; corrected loader policy, hardware control running
+
+LastverifiedE19 Git796012e (AOPshortmutex/fullownedroot PASS).
+E20 implementspostbootstrap16KiB BOatlow80078000/high1ff8000478000,
+freePTE+regionoverlapchecks, explicitunprivdualalias/clean/dual-ASIDTLB,
+zero-submissionREADY NCBOrebind, retainoldbacking, freeonlyafterstop/detach.
+Actualmapper12cases +actualsessionnewalias3results/oldBOuntouched/failedbind +
+parentdynamicfreeorderchecks/fullsuite/XNU/EFI/container/sourcebindingPASS.
+Originalartifactdiagnostic-gpu-dynamic-bo-e20 control93PASS run205251Z.
+First94launch run20261031T205410Z auto205346Z REJECTEDBYLOADERbeforekernel:
+unsupportedRAMtestrequest. HypothesisNOTtested; no900e, Android1 recovered.
+Rootcauseomittedwaffle_dynamic_bo inloaderallowlist. Correctedonlyloaderpolicy
+andpolicytests; E20-r2 separateartifactdiagnostic-gpu-dynamic-bo-e20-r2.
+AllGPUcode/sourceidentical; binarydiff22bytesonlyLC_UUID+twobuildtimestamps
+(provenE20-r2-kernel-comparison.json). Originalfailedartifact/logsintact.
+Current93control auto20261031T205750Z activeexecsession66184;
+logwork/waffle/gpu/auto-dynamic-bo-e20-r2-control.log. AfterPASS/Android1,
+run94entirechainwith--dynamic-bo. Do NOTrepeat ifunknownfailure; inspectlogs.
+E20sourceuncommitted untilactualhardware. NextgenericboundedIB/shader path:
+localMesa26.3 computerator/a6xx.cc hasa6xx_init<A7XX> backend andIR3ASMtools,
+source-basedcandidateforfirstcompute-generatedoffscreenpattern. Notimplemented.
+No iOSGPUready/rendering; usercontinues task, RAMonlyautoUEFI, neverflash.
+
 # E19 PASS — owned full GPU lifetime, AOP mutex released
 
 Control93 run20261031T204228Z auto204204Z ACCESS27/alloc8/LPAC42 PASS.

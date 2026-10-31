@@ -48,5 +48,7 @@ void waffle_gmu_free(struct waffle_gmu_plan *);
 struct waffle_gmu_owner;
 struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *,unsigned,vm_offset_t);
 bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *,struct waffle_gmu_region *);
 bool waffle_gmu_owner_end(struct waffle_gmu_owner *);
 #endif

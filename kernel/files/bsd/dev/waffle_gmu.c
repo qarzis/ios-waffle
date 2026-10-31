@@ -1973,3 +1973,33 @@ static void submit_session_destroy(struct waffle_gmu_plan *plan,unsigned evidenc
     kmem_free(kernel_map,allocation,PAGE_SIZE);
     say("waffle-gmu: SESSION destroyed after full stop; aliases and heap released\n");
 }
+
+/* Bounded post-bootstrap BO binding. Parent owns mappings and backing pages
+ * until full stop. Never replace an alias after a command has been published. */
+bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *owner)
+{
+    struct waffle_submit_session *s=owner && owner->plan?owner->plan->submit_session:NULL;
+    return s && s->phase==SUBMIT_READY && s->owns_oob && !s->submitted && !s->completed &&
+        s->next_sequence==44 && !rd(s->gpu,0xf400*4) &&
+        !(rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3);
+}
+bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *owner,struct waffle_gmu_region *r)
+{
+    if(!waffle_gmu_owner_can_bind_bo(owner) || !r || r->address!=WAFFLE_GPU_DYNAMIC_ADDRESS ||
+        !r->memory || !r->gpu_only || r->readonly || r->size!=16384)return false;
+    uint64_t pa=kvtophys(r->memory);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(r->memory+16383)!=pa+16383)return false;
+    struct waffle_submit_session *s=owner->plan->submit_session;
+    uint64_t va=waffle_gpu_plan_alias(owner->plan,r->address);
+    if(!va || !waffle_gpu_va_valid(va+16383))return false;
+    for(vm_offset_t a=r->memory;a<r->memory+16384;a+=64)
+        __asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    vm_offset_t alias=ml_io_map_unmappable(pa,16384,VM_WIMG_WCOMB);
+    if(!alias)return false;
+    vm_offset_t old_alias=s->alias;
+    s->alias=alias;s->result_va=va+256;s->ib_va=va+1024;
+    ml_io_unmap(old_alias,16384);
+    say("waffle-gmu: SESSION rebound BO VA=%llx PA=%llx idle=1 outstanding=0\n",va,pa);
+    return true;
+}

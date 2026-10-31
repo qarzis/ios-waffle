@@ -63,6 +63,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-dynamic-bo",action="store_true",help="E20: allocate/map/bind test BO after GPU startup; requires session")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
@@ -80,6 +81,8 @@ def main():
         parser.error("--gpu-writeback requires --gpu-zap")
     if args.gpu_ib and not args.gpu_writeback:
         parser.error("--gpu-ib requires --gpu-writeback")
+    if args.gpu_dynamic_bo and not args.gpu_session:
+        parser.error("--gpu-dynamic-bo requires --gpu-session")
     if args.gpu_session and not args.gpu_ib:
         parser.error("--gpu-session requires --gpu-ib")
     local_fastboot = next((path for path in (ROOT.parent / "platform-tools/fastboot",
@@ -125,6 +128,8 @@ def main():
         arguments += " waffle_ib=1"
     if args.gpu_session:
         arguments += " waffle_session=1"
+    if args.gpu_dynamic_bo:
+        arguments += " waffle_dynamic_bo=1"
     payload = out / "payload.xnup"
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
@@ -169,6 +174,14 @@ def main():
                     "SESSION destroyed after full stop; aliases and heap released",
                     *[f"SESSION_IB ACK matched seq{i} value=00000000 valid=1" for i in (44,45,46)])):
                 raise RuntimeError(f"Owned session/multiple GPU results/stop not confirmed; logs: {out}")
+            if args.gpu_dynamic_bo:
+                markers=("full GPU owner returned live to init caller; no mutex held",
+                    "SESSION rebound BO VA=1ff8000478000", "DYNAMIC_BO published after GPU startup VA=80078000 pages=4 aliases=2 unprivileged=1",
+                    "SESSION fence=1", "SESSION fence=2", "SESSION fence=3",
+                    "DYNAMIC_BO released after GPU stop and context detach", "SMMU_OWNER released after child stop and context detach")
+                positions=[final_text.find(marker) for marker in markers]
+                if -1 in positions or positions!=sorted(positions):
+                    raise RuntimeError(f"Dynamic BO publication/use/release not confirmed; logs: {out}")
             if args.gpu_ib and not args.gpu_session and "GPU_IB result=1 command_words=8; GPU fetch and writeback" not in final_text:
                 raise RuntimeError(f"GPU indirect-buffer fetch/writeback not confirmed; logs: {out}")
             if args.gpu_writeback and not args.gpu_session and not all(marker in final_text for marker in (

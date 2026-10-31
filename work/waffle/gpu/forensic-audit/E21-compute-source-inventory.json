@@ -1,0 +1,29 @@
+{
+  "candidate": "E21/E22 bounded generic IB and source-backed A7xx compute shader",
+  "status": "source inventory only; no rendering implemented or tested",
+  "mesa": "26.3.0-rc1",
+  "sources": {
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/computerator/README.rst": "2a7f754575b8c170b0c2481f772dc10df9520bae00de9a823921400bf097b432",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/computerator/main.cc": "3934df8c6512f7f86ffdd6d1dded68a732522150ff0dc093b4e5df9ef05b970b",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/computerator/a6xx.cc": "976df8534a104a95d2b635fc238a2c353ff5d7102d1f1c48c6a30f9628573d05",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/computerator/ir3_asm.cc": "c385c86f17a9a38a415380d1f9ca6f08f8e2f4dc7c556f045081e3a9d65a04a2",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/computerator/examples/buf-init.asm": "efd39c6c8b1619514380c6ff8ce904637ba08f4f069f2932f5710e8ebb446773"
+  },
+  "observed_interfaces": [
+    "main.cc selects a6xx_init<A7XX> for generation7",
+    "a6xx.cc emits compute state, UAV/constants, NDRANGE and execution from Mesa generated definitions",
+    "ir3_asm.cc assembles IR3 shader then allocates/uploads BO through fd_bo APIs"
+  ],
+  "missing_adapter": [
+    "offline deterministic BO allocation/relocations and command stream export",
+    "bounded submission API with independent command size/layout and guard verification",
+    "verified shader-executed output under XNU"
+  ],
+  "proposed_first_image": "compute shader generates small offscreen RGBA pattern; serialize actual readback only",
+  "not_claimed": [
+    "shader execution",
+    "rasterization",
+    "GPU-rendered iOS interface",
+    "onscreen presentation"
+  ]
+}

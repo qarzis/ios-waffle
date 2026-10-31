@@ -42,6 +42,8 @@ h+=r'''
 static _Alignas(16384) uint8_t smmu[0x40000],qtb[0x1000],gmu[WAFFLE_GMU_SIZE],cc[WAFFLE_GPUCC_SIZE];
 static _Alignas(16384) uint8_t heap[16384],target[16384],sqe[16384],table[16384];
 static struct protected_gpu_pool protected;
+static _Alignas(16384) uint8_t dynamic_storage[16384];
+static unsigned dynamic_frees;
 static struct waffle_gmu_owner child_object;
 static unsigned mode,allocs,heap_frees,data_frees,fw_frees,detaches,callbacks,child_ends,matrix_runs,mmio_maps;
 static bool heap_mode,child_live;
@@ -78,6 +80,7 @@ static int kmem_alloc(unsigned map,uintptr_t *out,unsigned size,unsigned flags,u
 static void kmem_free(unsigned map,uintptr_t p,unsigned size){
  assert(map==7 && size==16384 && !child_live);
  if(p==(uintptr_t)heap){assert(!heap_frees);++heap_frees;}
+ else if(p==(uintptr_t)dynamic_storage){assert(!dynamic_frees && detaches==2 && fw_frees==1 && child_ends==1 && !heap_frees);dynamic_frees++;}
  else{assert(p==(uintptr_t)target || p==(uintptr_t)table);++data_frees;}
 }
 static uint64_t kvtophys(uintptr_t p){
@@ -144,6 +147,11 @@ static bool waffle_gmu_owner_end(struct waffle_gmu_owner *child){
  if(mode==12)longjmp(trap,1);
  child_live=false;active_plan->submit_session=NULL;++child_ends;return true;
 }
+static uint64_t *permission_table(struct table_pool *p,uint64_t entry){(void)p;(void)entry;assert(0);return NULL;}
+static bool pool_permission_sync(struct pool_permission_context *p){(void)p;assert(0);return false;}
+static bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *p){(void)p;assert(0);return false;}
+static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *p,struct waffle_gmu_region *r){(void)p;(void)r;assert(0);return false;}
+
 '''
 # The exercise callback obtains the parent-owned plan when the child starts.
 h=h.replace('static struct waffle_gmu_owner *waffle_gmu_owner_begin(', 'static struct waffle_gmu_plan *active_plan;\nstatic struct waffle_gmu_owner *waffle_gmu_owner_begin(').replace(' child_live=true;p->submit_session=', ' active_plan=p;child_live=true;p->submit_session=').replace('\nstatic struct waffle_gmu_plan *active_plan;\nstatic bool waffle_gmu_owner_exercise','\nstatic bool waffle_gmu_owner_exercise')
@@ -186,7 +194,9 @@ int main(void){
    assert(waffle_smmu_owner_exercise(live) && callbacks==2 && child_live && !detaches);
    assert(!waffle_smmu_owner_exercise(live) && callbacks==2);
   }
+  if(early){live->state.dynamic.memory=(uintptr_t)dynamic_storage;dynamic_frees=0;}
   assert(waffle_smmu_owner_end(live)==!early);
+  if(early)assert(dynamic_frees==1);
   assert(!child_live && child_ends==1 && heap_frees==1 && data_frees==2 && fw_frees==1);
  }
  /* Even a caller attempting cleanup directly cannot detach a live child. */

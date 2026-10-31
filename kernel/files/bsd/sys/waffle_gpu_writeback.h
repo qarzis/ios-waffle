@@ -4,6 +4,7 @@
 #define WAFFLE_GPU_WRITEBACK_ADDRESS 0x80074000u
 #define WAFFLE_GPU_WRITEBACK_BYTES 16384u
 #define WAFFLE_GPU_WRITEBACK_OFFSET 256u
+#define WAFFLE_GPU_DYNAMIC_ADDRESS 0x80078000u
 /* Native user command buffers need AP_UNPRIV. Limit the diagnostic exception
  * to this dedicated region; other writable firmware/restore buffers stay PRIV. */
 static inline bool waffle_diagnostic_unprivileged(uint32_t address,bool gpu_only,bool readonly)

@@ -1,0 +1,14 @@
+{
+  "probe": 94,
+  "started_at": "2026-10-31T20:59:50.498731+00:00",
+  "variant": "E20-post-bootstrap-dynamic-BO",
+  "runner_exit": 0,
+  "runs": [
+    "work/waffle/runs/20261031T205950Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true
+}

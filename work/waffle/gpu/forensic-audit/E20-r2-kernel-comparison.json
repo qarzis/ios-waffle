@@ -1,0 +1,30 @@
+{
+  "experiment": "E20-r2 loader correction",
+  "kernel_bytes": 15592896,
+  "different_bytes": 22,
+  "differences_only_build_metadata": true,
+  "uuid_range": [
+    4720,
+    4736
+  ],
+  "version_strings": [
+    {
+      "range": [
+        261973,
+        262112
+      ],
+      "old": "Darwin Kernel Version 22.5.0: Sat Oct 31 23:51:35 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837",
+      "new": "Darwin Kernel Version 22.5.0: Sat Oct 31 23:55:49 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837"
+    },
+    {
+      "range": [
+        262113,
+        262252
+      ],
+      "old": "Darwin Kernel Version 22.5.0: Sat Oct 31 23:51:35 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837",
+      "new": "Darwin Kernel Version 22.5.0: Sat Oct 31 23:55:49 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837"
+    }
+  ],
+  "kernel_source_unchanged": true,
+  "nonmetadata_bytes_identical": true
+}
