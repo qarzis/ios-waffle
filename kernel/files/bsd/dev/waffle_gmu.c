@@ -747,8 +747,9 @@ static int32_t scm_one(uint32_t function,uint64_t argument,uint64_t *answer)
 /* Native kgsl_set_smmu_aperture: bind the CP SMMU register aperture to
  * the user context bank. Probe37/38 only, before CM3/GX start. Android reset
  * restores native policy; no guessed register offset or secure-mode change. */
-bool waffle_scm_gpu_aperture(void)
+static bool scm_gpu_aperture(unsigned selector,unsigned bank)
 {
+    if (selector>1 || bank>255) return false;
     uint64_t answer=0;
     int32_t status=scm_one(0x42000601,0x02000c1b,&answer);
     say("waffle-gmu: SCM CP SMMU aperture availability status=%d value=%llx\n",status,answer);
@@ -770,19 +771,22 @@ bool waffle_scm_gpu_aperture(void)
     for (unsigned i=0;i<56;++i) extended[i]=0;
     waffle_scm_put64(extended,0xffffffffu);
     __asm__ volatile("dsb sy":::"memory");
-    const uint64_t arguments[4]={0xffff0000u,0xffffffffu,0xffffffffu,pa};
+    const uint64_t arguments[4]={0xffff0000u|(selector<<8)|bank,0xffffffffu,0xffffffffu,pa};
     for (unsigned retry=0;;++retry) {
         status=scm_raw(0x42000c1b,4,arguments,&answer);
         if (status!=-12 || retry==20) break;
         delay_for_interval(30000,NSEC_PER_USEC);
     }
     ok=status==0; /* Native qcom_scm_call checks transport status, not a1. */
-    say("waffle-gmu: SCM CP SMMU aperture CB0 status=%d result=%llx ready=%u\n",status,answer,ok);
+    say("waffle-gmu: SCM CP SMMU aperture selector=%u CB%u status=%d result=%llx ready=%u\n",selector,bank,status,answer,ok);
 release:
     if (alias) ml_io_unmap(alias,PAGE_SIZE);
     kmem_free(kernel_map,metadata,PAGE_SIZE);
     return ok;
 }
+
+bool waffle_scm_gpu_aperture(void) { return scm_gpu_aperture(0,0); }
+bool waffle_scm_lpac_aperture(void) { return scm_gpu_aperture(1,1); }
 
 bool waffle_scm_assign_pages(const uint64_t *pages,unsigned count,unsigned mode)
 {

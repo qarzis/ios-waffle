@@ -320,7 +320,8 @@ static bool gpu_context_begin(struct gpu_context *g, vm_offset_t smmu,
  * TTBR0 (A1 clear), then set_ttbr0_cfg enables both halves. */
 static inline bool gpu_context_split(struct gpu_context *g)
 {
-    if (!g || !g->changed || g->bank || g->sid) return false;
+    if (!g || !g->changed || !((g->bank==0 && g->sid==0) ||
+            (g->bank==1 && g->sid==1))) return false;
     uint32_t ctl=r32(g->cb,0),tcr=r32(g->cb,0x30);
     uint64_t ttbr=r64(g->cb,0x20);
     if (!(ctl&1) || (r32(g->cb,0x58)&FSR_FAULT_MASK) ||
@@ -383,6 +384,11 @@ static void protected_pool_release(struct protected_gpu_pool *);
 void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
     uint32_t contexts, uint32_t matches, unsigned probe)
 {
+    uint32_t lpac_map=0;
+    if(PE_parse_boot_argn("waffle_lpac_map",&lpac_map,sizeof(lpac_map)) &&
+        (lpac_map!=1 || probe!=93)) {
+        log_line("waffle-iommu: LPAC mapping requires prepare-only probe93; refused\n");return;
+    }
     uint32_t access_matrix=0;
     if(PE_parse_boot_argn("waffle_ecats_access",&access_matrix,sizeof(access_matrix)) &&
         (access_matrix!=1 || probe!=93)) {
@@ -400,14 +406,14 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         (r32(cc, WAFFLE_GPU_GX_GDSCR) & ((1u << 31) | 1)) != 1) {
         log_line("waffle-iommu: GMU not held in reset or GX not collapsed; no writes\n"); return;
     }
-    const unsigned index = 1, sid = 5;
+    const unsigned index = lpac_map ? 3 : 1, sid = 5;
     if (contexts <= index || matches <= index || (r64(qtb, 0x410) & 1) || r64(qtb, 0x448)) {
         log_line("waffle-iommu: QTB/context not idle; no writes\n"); return;
     }
     vm_offset_t cb = smmu + (pages + index) * page;
     uint32_t saved_ctl = r32(cb, 0);
     if ((saved_ctl & 1) || (r32(cb, 0x58) & FSR_FAULT_MASK)) {
-        log_line("waffle-iommu: context1 enabled or faulted; no writes\n"); return;
+        log_line("waffle-iommu: context%u enabled or faulted; no writes\n",index); return;
     }
     for (unsigned i = 0; i < matches; ++i) {
         uint32_t smr = r32(smmu, 0x800 + i * 4), s2cr = r32(smmu, 0xc00 + i * 4);
@@ -418,7 +424,7 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         }
     }
     uint32_t saved_smr = r32(smmu, 0x800 + index * 4), saved_s2cr = r32(smmu, 0xc00 + index * 4);
-    if (saved_smr >> 31) { log_line("waffle-iommu: entry1 occupied; no writes\n"); return; }
+    if (saved_smr >> 31) { log_line("waffle-iommu: entry%u occupied; no writes\n",index); return; }
     const uint32_t offsets[] = {0x4, 0x10, 0x20, 0x24, 0x28, 0x2c, 0x30, 0x38, 0x3c};
     uint32_t old[sizeof(offsets)/sizeof(offsets[0])];
     for (unsigned i = 0; i < sizeof(offsets)/sizeof(offsets[0]); ++i) old[i] = r32(cb, offsets[i]);
@@ -426,7 +432,8 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
     uint32_t old_cba2r = r32(smmu, page + 0x800 + index * 4);
     uint64_t old_fence = r64(qtb, 0x410), old_inputs[3];
     for (unsigned i = 0; i < 3; ++i) old_inputs[i] = r64(qtb, 0x430 + 8 * i);
-    struct gpu_context gpu_context = {0};
+    struct gpu_context gpu_context = {0}, lpac_context = {0};
+    unsigned lpac_checks=0;
     struct table_pool pool = {0};
     struct waffle_gmu_plan firmware = {0};
     struct protected_gpu_pool *protected_pool=NULL;
@@ -506,6 +513,29 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         if (!translate_page(qtb,gpu_context.cb,0x80000000,target_pa,0)) goto done;
         log_line("waffle-iommu: GPU SID0 translation matches allocated PA\n");
     }
+    if (lpac_map) {
+        if (!gpu_context_begin_at(&lpac_context,smmu,page,pages,contexts,matches,pool.phys[0],1,1,1) ||
+            !gpu_context_split(&lpac_context)) goto done;
+        /* Check every mapped SQE page, including BR/BV/LPAC bootstrap and
+         * jump tables. No HFI pool translations: permissions change later. */
+        bool found=false;
+        for (unsigned i=0;i<firmware.count;++i) {
+            struct waffle_gmu_region *r=&firmware.regions[i];
+            if (r->address!=WAFFLE_GPU_SQE_ADDRESS) continue;
+            if (!r->readonly || !r->gpu_only || !r->size || r->size>0x20000) goto done;
+            found=true;
+            for (uint32_t off=0;off<r->size;off+=4096) {
+                for (unsigned instruction=0;instruction<2;++instruction) {
+                    ++lpac_checks;
+                    if (!translate_page_access(qtb,lpac_context.cb,
+                        waffle_gpu_plan_alias(&firmware,(uint64_t)r->address+off),
+                        kvtophys(r->memory+off),1,instruction?ECATS_INST:0,1)) goto done;
+                }
+            }
+        }
+        if (!found || !waffle_scm_lpac_aperture()) goto done;
+        log_line("waffle-iommu: LPAC_MAP routing=1 checks=%u SID1/CB1 GMU_SID5/CB3; translation only\n",lpac_checks);
+    }
     bool matches_pa = translate_page(qtb, cb, iova, target_pa, 5);
     if (matches_pa) log_line("waffle-iommu: HARDWARE TRANSLATION MATCHES allocated PA\n");
     if (matches_pa && probe>=30) {
@@ -567,12 +597,16 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         if(access_matrix){firmware.pool_permissions=access_matrix_capture;firmware.pool_permissions_context=&matrix;}
         if (matches_pa && waffle_gmu_probe_tcm(&firmware, probe, qtb)) {
             log_line("waffle-iommu: GMU test passed, boot_test=%u; CM3 held reset again\n", probe >= 9);
+            if(lpac_map && !(r32(lpac_context.cb,0x58)&FSR_FAULT_MASK))
+                log_line("waffle-iommu: LPAC_MAP lifecycle=1 checks=%u; no CP RAW\n",lpac_checks);
             if(access_matrix) (void)access_matrix_run(&matrix,&firmware,qtb,gpu_context.cb,gmu,cc);
         }
     }
 done:
     if (protected_pool) protected_pool_release(protected_pool);
-    safe_free = gpu_context_end(&gpu_context);
+    bool lpac_restored=gpu_context_end(&lpac_context);
+    safe_free = gpu_context_end(&gpu_context) && lpac_restored;
+    if(lpac_map) log_line("waffle-iommu: LPAC_MAP restored=%u\n",lpac_restored);
     w64(qtb, 0x448, 0);
     if (stream_changed) {
         w32(smmu, 0x800 + index * 4, 0);

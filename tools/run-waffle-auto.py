@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--prepare-gpu', action='store_true', help='Run existing probe93; no RAW')
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
+    parser.add_argument('--lpac-map',action='store_true',help='Validate LPAC mappings on prepare-only probe93')
     parser.add_argument('--fastboot', default=str(ROOT.parent / 'platform-tools/fastboot'))
     parser.add_argument('--adb', default=str(ROOT.parent / 'platform-tools/adb'))
     args = parser.parse_args()
@@ -31,6 +32,8 @@ def main():
         parser.error('--access-matrix requires --prepare-gpu')
     if args.measure_clocks and not args.prepare_gpu:
         parser.error('--measure-clocks requires --prepare-gpu')
+    if args.lpac_map and not args.prepare_gpu:
+        parser.error('--lpac-map requires --prepare-gpu')
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if not manifest.get('automatic_usb_loader'):
         parser.error('Artifact does not declare automatic loader entry')
@@ -51,7 +54,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': False,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -104,6 +107,8 @@ def main():
                 items.append('--access-matrix')
             if args.measure_clocks:
                 items.append('--measure-clocks')
+            if args.lpac_map:
+                items.append('--lpac-map')
             result = command(items, timeout=240)
             report['runner_exit'] = result.returncode
             if result.returncode:

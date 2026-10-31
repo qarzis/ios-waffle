@@ -4,10 +4,10 @@ from pathlib import Path
 import subprocess,tempfile,hashlib,json
 ROOT=Path(__file__).resolve().parents[2]
 source=(ROOT/'kernel/files/bsd/dev/waffle_gmu.c').read_text()
-code=source[source.index('bool waffle_scm_gpu_aperture('):source.index('bool waffle_scm_assign_pages(')]
+code=source[source.index('static bool scm_gpu_aperture('):source.index('bool waffle_scm_assign_pages(')]
 code=code.replace('__asm__ volatile("dc civac, %0"::"r"(p):"memory");','clean(p);').replace('__asm__ volatile("dsb sy":::"memory");','barrier();')
 v=ROOT/'work/waffle/gpu/vendor/kernel-drivers-firmware-qcom_scm.c'
-native=v.read_text();native=native[native.index('int qcom_scm_kgsl_set_smmu_aperture('):native.index('EXPORT_SYMBOL(qcom_scm_kgsl_set_smmu_aperture)')]
+native=v.read_text();native=native.replace('EXPORT_SYMBOL(qcom_scm_kgsl_set_smmu_aperture);','').replace('EXPORT_SYMBOL(qcom_scm_kgsl_set_smmu_lpac_aperture);','');native=native[native.index('int qcom_scm_kgsl_set_smmu_aperture('):native.index('int qcom_scm_kgsl_init_regs(')]
 harness=r'''
 #include <stdint.h>
 #include <stdbool.h>
@@ -27,6 +27,7 @@ typedef uintptr_t vm_offset_t;
 #define QCOM_SCM_SVC_MP 0x0c
 #define QCOM_SCM_MP_CP_SMMU_APERTURE_ID 0x1b
 #define QCOM_SCM_CP_APERTURE_REG 0
+#define QCOM_SCM_CP_LPAC_APERTURE_REG 1
 #define ARM_SMCCC_OWNER_SIP 2
 #define QCOM_SCM_ARGS(n) (n)
 struct qcom_scm_desc {unsigned svc,cmd,owner,arginfo;uint64_t args[10];};
@@ -82,10 +83,12 @@ static void delay_for_interval(unsigned t,unsigned unit) {assert(t==30000 && uni
 '''
 tests=r'''
 int main(void) {
- assert(qcom_scm_kgsl_set_smmu_aperture(0)==0);
+ for(unsigned lpac=0;lpac<2;++lpac) {
+ if(lpac) assert(qcom_scm_kgsl_set_smmu_lpac_aperture(1)==0);
+ else assert(qcom_scm_kgsl_set_smmu_aperture(0)==0);
  for(mode=0;mode<=8;++mode) {
   allocs=frees=unmaps=calls=delays=barriers=0;
-  bool ok=waffle_scm_gpu_aperture();
+  bool ok=lpac?waffle_scm_lpac_aperture():waffle_scm_gpu_aperture();
   assert(ok==(mode==0 || mode==7));
   assert(frees==allocs);
   if(mode==0)assert(calls==1 && unmaps==1 && !delays);
@@ -95,7 +98,8 @@ int main(void) {
   if(mode==7)assert(calls==2 && delays==1 && unmaps==1);
   if(mode==8)assert(calls==21 && delays==20 && unmaps==1);
  }
- puts("Actual CP aperture SCM helper matches native descriptor/SCM64 extended args; unsupported, allocation/alias/PA failure, busy bound and cleanup passed");
+ }
+ puts("Actual CP and LPAC aperture SCM helper matches native descriptor/SCM64 extended args; unsupported, allocation/alias/PA failure, busy bound and cleanup passed");
 }
 '''
 with tempfile.TemporaryDirectory() as d:

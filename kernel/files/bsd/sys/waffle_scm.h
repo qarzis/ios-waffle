@@ -14,6 +14,7 @@ enum waffle_scm_assignment {
  * Caller owns whole pages and cleans them before a transfer. Returns false
  * only before submission; uncertain post-submission ownership stops the test. */
 bool waffle_scm_gpu_aperture(void);
+bool waffle_scm_lpac_aperture(void);
 bool waffle_scm_assign_pages(const uint64_t *,unsigned,unsigned);
 static inline void waffle_scm_put32(volatile uint8_t *p,uint32_t value)
 {
