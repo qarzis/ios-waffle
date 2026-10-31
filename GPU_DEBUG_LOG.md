@@ -301,3 +301,19 @@ E17 default93 control PASS run20261031T201004Z/auto20261031T200940Z: ACCESS27/al
 ## E17 hardware PASS — board clock journal survives begin return to CX caller
 
 Control93 run20261031T201004Z ACCESS27/alloc8/LPAC42 passed. Session94 run20261031T201108Z/auto20261031T201045Z: CLOCK_OWNER beginreturnedheap1/livechild1/journal14 toCXcaller; sameIB44/45/46 each all4096wordswrong0/distincttokens, SMMUchildendedbeforePLL/reverseclockjournalrestore, CLOCK_OWNERreleasedbeforeCXrestore, AOPcleanup. Runner0/autosuccess/independentAndroid1; no900e. No SMMU/GMU/commandchanges. EvidenceE17-result.json. NextCX/CFGowner thenAOPtransport/ACDlifetime perE18-board-lifetime-plan.md (planonly, notimplemented). No persistent iOS backend/draw claim.
+
+## E18 plan — board power parent across return to AOP callback
+
+E17verified8e138d9 preserved. Implement only existing94session heapparent for savedCFG gating/CXcollapse ownership and liveclockchild. Reuse existing power/cfg programming paths, optionalparent argument forCXpath; defaultcontrolsretain immediatecleanup. Parent returnslive throughprobe_gpu_body toAOPcallback; separateexercise/end closesclock/SMMU/GMU beforeacquiredCX/CFGrestore. IfCXalreadyon, do notcollapseit. Hostchecks coverpartialconstruction/defaultandborrowedCX/exactrestoredCFG/unknownchildretention. Same93controlthen3IB94. AOPstillscopedsharedmutex transaction; no persistentiOSreadiness. SeeE18-board-lifetime-plan.md.
+
+E18 implementation: optionalheap powerparent onlysession94 captures CFGsavedbits/CXacquired flag/clockchild, existingCX/body paths reused. Returnslive toAOPtask; childfinishfree beforeacquiredCX+CFGrestore/rootfree. Already-poweredCX remainsborrowed and isnotcollapsed. Activeparent rejectsduplicatebegin beforewrites. EntireGMU/SMMU andE17clockhelpers/dispatch unchanged. Actualhost14scenariospassed mapping/allocation/powerfail/borrowedCX/CFGunchanged/duplicatebegin/childerror+unknownstopretention/AOPcallbackhandoff. Initialtest incorrectlyexpectedzeroallwrites whenCXunavailable despitelegitimateCFGacquire/restore; fixedexpectation,productionunchanged. Fullbuildnext; noE18hardwareyet.
+
+E18 fullhost/XNU/EFI/container/sourcebinding passed diagnostic-gpu-power-owner-e18. Default93 control first then94session afterAndroid1. NoE18hardwareyet.
+
+E18 default93control PASS run20261031T201618Z/auto20261031T201554Z ACCESS27/alloc8/LPAC42 noRAW/fullshutdown/PLL/CX/AOPrestore. Runner0/autosuccess/independentAndroid1. Next94heappowerparent session on sameartifact.
+
+## E18 hardware PASS — power parent retains CX/CFG across return to AOP caller
+
+Control93 run20261031T201618Z ACCESS27/alloc8/LPAC42 passed. Session94 run20261031T201717Z/auto20261031T201653Z: POWER_OWNER beginreturnedheap1/clocklive1/acquiredCX1/CFGchanged1 toAOPcaller; sameIB44/45/46 all4096wordswrong0/distincttokens. SMMU/GMUstopped beforePLL/clockjournalrestore, clockownerfree beforeCXcollapse+CFGrestore, powerparentfree afterrestore beforeAOPoff/cleanup. Runner0/autosuccess/independentAndroid1; no900e. EntireSMMU/GMU/E17clockhelpersunchanged. EvidenceE18-result.json. BorrowedCXbehavior verifiedhostonly; hardware used acquiredCX1. NoiOSGPUrendering claim.
+
+Next E19 planonly: explicitAOP/QMP/ACDowner withheapcallbackstorage and boundedper-message sharedmutexholds. Existingtransaction sendsACDoff aftercallback, so cannot retainboard byflag. Split channelbegin/end preserving existingguard/payload/restorebehavior; release sharedlock duringliveGPUwork, reacquire forvalidatedoff/channelrestore onlyafterpowerchildend. Hosttestswillneed constructorrollback/on-offreceiptfailures/busyforeignmessage/channelidentity/shortlockhandoff and sourceparity; then samecontrol93/3IB94. NoE19implementation/hardwareyet. No userspace readiness or renderer switch.

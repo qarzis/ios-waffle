@@ -107,6 +107,7 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-gmu-owner-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-tcm-owner-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-smmu-owner-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-board-power-owner-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-secure-context-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-protected-pool-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gpu-start-tables-host.py"])
@@ -194,7 +195,7 @@ def main():
                      "tools/tests/waffle-gpu-measure-host.py", "kernel/files/bsd/sys/waffle_gpu_measure.h",
                      "tools/tests/waffle-log-retrieval-host.py",
                      "tools/tests/waffle-smmu-fault-host.py", "tools/tests/waffle-hfi-publication-host.py", "tools/tests/waffle-post-prepare-query-host.py", "tools/tests/waffle-hfi-features-host.py", "tools/tests/waffle-pool-permissions-host.py", "tools/tests/waffle-dcvs-votes-host.py",
-                     "tools/tests/waffle-scm-aperture-host.py", "tools/tests/waffle-zap-host.py", "tools/tests/waffle-zap-load-host.py", "tools/tests/waffle-gpu-writeback-host.py", "tools/tests/waffle-submit-session-host.py", "tools/tests/waffle-gmu-owner-host.py", "tools/tests/waffle-tcm-owner-host.py", "tools/tests/waffle-smmu-owner-host.py", "kernel/files/bsd/sys/waffle_gpu_writeback.h", "kernel/files/bsd/sys/waffle_zap.h", "kernel/files/bsd/sys/waffle_zap_load.h",
+                     "tools/tests/waffle-scm-aperture-host.py", "tools/tests/waffle-zap-host.py", "tools/tests/waffle-zap-load-host.py", "tools/tests/waffle-gpu-writeback-host.py", "tools/tests/waffle-submit-session-host.py", "tools/tests/waffle-gmu-owner-host.py", "tools/tests/waffle-tcm-owner-host.py", "tools/tests/waffle-smmu-owner-host.py", "tools/tests/waffle-board-power-owner-host.py", "kernel/files/bsd/sys/waffle_gpu_writeback.h", "kernel/files/bsd/sys/waffle_zap.h", "kernel/files/bsd/sys/waffle_zap_load.h",
                      "tools/tests/waffle-gen7-cp-lifecycle.c", "tools/tests/waffle-hwcg-host.py",
                      "tools/build-waffle-gpu-start-tables.py", "tools/tests/waffle-gpu-start-tables-host.py",
                      "tools/tests/waffle-gen7-config-host.py", "tools/tests/waffle-gen7-transaction.c", "tools/tests/waffle-cp-init-host.py",

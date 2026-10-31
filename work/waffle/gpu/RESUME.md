@@ -1,3 +1,34 @@
+# E18 PASS — owned board CX/CFG parent returned live to AOP caller
+
+Control93 run20261031T201618Z ACCESS27/alloc8/LPAC42 passed. Session94
+run20261031T201717Z auto20261031T201653Z diagnostic-gpu-power-owner-e18:
+POWER_OWNER heap1/clocklive1/acquiredCX1/CFGchanged1 returned toAOPcaller;
+same3IB44/45/46 all4096wordswrong0, SMMU/GMUstop thenPLL/clocksrestore,
+clockfree beforeCXcollapse/CFGrestore, powerparentfree beforeAOPcleanup.
+Runner0/autosuccess/independentAndroid1, no900e. BorrowedCXtestedhostonly.
+Noactivebuild/test; phoneordinaryAndroid. Source+evidence checkpoint at
+waffle/hakios-uefi andwaffle/gpu-verified-session. E16 60a17c0/E17 8e138d9 preserved.
+NextE19AOP/QMP/ACDownership: currenttransaction holds sharedmutex aroundGPU
+and sendsACDoff aftercallback. Needheapcallbackstate +boundedper-message
+mutexholds; explicitbegin/end withpartialfailure/foreignmessage/restorechecks.
+NoE19codeyet. Nativeclockmoduleglobals serializedbyoneactiveclockowner.
+No persistentiOSbackend/dynamicBO/userspacefence/IRQrecovery/shader/drawyet.
+UserreturnedaskedstatusduringE18; answeredbrieflyandcontinued. RAMonlyautoUEFI,
+no manualBootiOSconfirmations. Neverflash. GitHubREADME e28bd88 unchanged;
+newGPUworklocalonly. Seeforensic-audit/E16/E17/E18-result.json +GPU_DEBUG_LOG.
+
+# E18 built; hardware default control running
+
+Artifactdiagnostic-gpu-power-owner-e18 fullhost/XNU/EFI/validation/sourcebindingPASS.
+Session94 optional heap board_power_owner captures acquiredCX/CFGbits/clockchild;
+probe_gpu_body returnslive toAOPcallback; childstopbeforeCX/CFG/rootfree.
+Already-onCXisborrowed/notcollapsed. Default93remainsimmediatecleanup.
+Actual14-scenario powerhost plusprevioussuitepass. EntireGMU/SMMU andE17clock
+helpersunchanged. NoE18hardwareoutcomeyet; activeexecsession99845,
+work/waffle/gpu/auto-power-owner-e18-control.log. Confirmrunner/Android1
+before94session. LastverifiedE17Git8e138d9. Userreturnedaskedstatus, answered
+brieflyandcontinuedGPUtask. No physicalBootiOSneeded. Neverflash.
+
 # E17 PASS — heap board clock journal returned live to CX caller
 
 Control93 run20261031T201004Z ACCESS27/alloc8/LPAC42 passed. Session94
