@@ -1,0 +1,8 @@
+{
+  "kernel/files/bsd/sys/waffle_gen7_cp.h": "d6986aa01877536fe454a2f83d16d688b77ed65b2482738160aa1e8d9058d98c",
+  "kernel/files/bsd/sys/waffle_hfi.h": "292e625a6d306e24414bc26f3bcc64238cd6ad7c6d6d74a3b392786fd100d0a7",
+  "kernel/files/bsd/sys/waffle_hfi_tables.h": "a87c8b19ec03a95105fb6d918526686556ef80d440e018ef345aab9bb2ecc44f",
+  "kernel/files/bsd/sys/waffle_gpu_pll.h": "0c363f8e514dee5c1280e7e5f860df918feb0c648e3c76dfd6589b2644d46db2",
+  "kernel/files/bsd/sys/waffle_gmu_clock.h": "0394cfec931cfb93440645bbbd64c9fbe8d5f80d72d3926a8ecba8361d4ad7f9",
+  "kernel/files/bsd/dev/waffle_gmu.c": "4f14f7aa214f6c2f76e274a0bb802819b6914c88b9e36e7388a65639b69fec97"
+}

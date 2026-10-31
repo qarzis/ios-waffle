@@ -1,3 +1,22 @@
+# E08 CP_INIT PASS — first successful XNU CP ACK, Android restored
+
+2026-10-31 run20261031T100500Z, auto20261031T100436Z, artifact
+work/waffle/diagnostic-gpu-lpac-cp-e08. CP_INIT_RAW seq42 ACK0 valid1,
+Gen7 result0 phase3 polls1. Full slumber/RSC/GX/CM3/TCM/LPAC/PLL cleanup.
+Runnerexit0, autocycle success, independent Android boot_completed1.
+No900e. No draw/frame/Metal/iOS GPU integration tested.
+New evidence: SQE bootstrap starts BV+LPAC before first PM4; port lacked
+SID1. Optional waffle_lpac_map=1 installs LPAC SID1/CB1 +native GMU SID5/CB3,
+splitTTBR1 and native LPAC SCM aperture. E07preparecontrol passed42SQE
+translations/fullGMUcycle. E08adds dual-ASID TLBI for sharedtable updates and
+runs existing94packet unchanged. This prerequisite set fixes CP_INIT in one
+run; individual contributions notisolated. No need to repeat failed PLL fixes.
+Userauthorizes autonomous RAM-only testing; autoUEFI selectsloader without
+physical BootiOS. Standard collector armed forRAW; returnAndroid verifyafter.
+Next: unchanged positive E08 reproduction, then bounded GPU memorywriteback.
+Keep exact successful artifact immutable. SeeGPU_DEBUG_LOG.md/E08-result.json.
+Phone ordinaryAndroid. No agents orformalgoal.
+
 # E06-r2 PASS; automatic HakiOS loader verified; QRisc analysis next
 
 Automatic BootiOS physical selection no longer required with newlybuilt
