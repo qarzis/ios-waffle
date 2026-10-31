@@ -623,7 +623,17 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
         if(probe>=72){firmware.pool_permissions=pool_permissions;firmware.pool_permissions_context=&permission_context;}
         struct access_matrix_context matrix={.permissions=permission_context};
         if(access_matrix){firmware.pool_permissions=access_matrix_capture;firmware.pool_permissions_context=&matrix;}
-        if (matches_pa && waffle_gmu_probe_tcm(&firmware, probe, qtb)) {
+        bool gmu_ok=false;
+        if(matches_pa && session) {
+            struct waffle_gmu_owner *owner=waffle_gmu_owner_begin(&firmware,probe,qtb);
+            if(owner) {
+                log_line("waffle-iommu: GMU component returned live; parent owns SMMU and firmware\n");
+                bool exercised=waffle_gmu_owner_exercise(owner);
+                bool stopped=waffle_gmu_owner_end(owner);
+                gmu_ok=exercised && stopped;
+            }
+        } else if(matches_pa)gmu_ok=waffle_gmu_probe_tcm(&firmware,probe,qtb);
+        if (gmu_ok) {
             log_line("waffle-iommu: GMU test passed, boot_test=%u; CM3 held reset again\n", probe >= 9);
             if(lpac_map && !(r32(lpac_context.cb,0x58)&FSR_FAULT_MASK)) {
                 if(probe==93) log_line("waffle-iommu: LPAC_MAP lifecycle=1 checks=%u; no CP RAW\n",lpac_checks);

@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 s=(root/'kernel/files/bsd/dev/waffle_gmu.c').read_text()
-code=s[s.index('static const struct { uint32_t index, value; } gmu_boot_setup[]'):s.index('bool waffle_gmu_probe_tcm(')]
+code=s[s.index('static const struct { uint32_t index, value; } gmu_boot_setup[]'):s.index('struct waffle_tcm_context {')]
 code=code.replace('__asm__ volatile("dc ivac, %0" :: "r"(a) : "memory");','invalidate(a);').replace('__asm__ volatile("dsb sy" ::: "memory");','barrier();')
 h=r'''
 #include <assert.h>

@@ -1,3 +1,14 @@
+# E14 GMU+TCM component owner built — hardware controls pending
+
+Opaquewaffle_gmu_owner_begin/exercise/end nowcalleddirectlybySMMUparent
+inexisting--session94 path. OwnerholdsTCMsnapshot+GMUstate+submit child;
+beginreturnslive; endverifiedstop/TCMrestore/free. DefaultTCMwrapperuses
+extractedload/restore helpers, checksCM3resetbeforeTCMwrites. Fullhost/XNU/
+EFI/container/sourcebindingPASS diagnostic-gpu-component-owner-e14.
+Nextdefault93+LPACcontrol noRAW thensession94afterAndroid1. E13verified
+checkpoint632f330 preserved. NoE14hardwareyet. OuterSMMU/plan/clocks/AOP
+stillparent-owned; no productioniOSbackendclaim.
+
 # E13 PASS — GMU begin/finish heap owner verified
 
 Control93 run20261031T104701Z PASS; session94 run20261031T104800Z PASS.

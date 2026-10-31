@@ -44,4 +44,9 @@ static inline uint64_t waffle_gpu_plan_alias(const struct waffle_gmu_plan *plan,
 bool waffle_gmu_prepare(struct waffle_gmu_plan *, unsigned);
 bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *, unsigned, vm_offset_t);
 void waffle_gmu_free(struct waffle_gmu_plan *);
+/* Parent retains SMMU/plan/clock ownership across these calls. */
+struct waffle_gmu_owner;
+struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *,unsigned,vm_offset_t);
+bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_end(struct waffle_gmu_owner *);
 #endif

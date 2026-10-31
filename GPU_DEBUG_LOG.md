@@ -235,3 +235,11 @@ E13 defaultstack93 controlPASS run20261031T104701Z/auto20261031T104637Z: LPAC42/
 ## E13 hardware PASS — explicit GMU begin/finish owner
 
 Default93control run20261031T104701Z passed. Heap94session run20261031T104800Z/auto20261031T104736Z: gmu_boot_begin returnedwithheapowner retained, sameIB44/45/46 uniquefences/markers all4096wordswrong0, slumber47/fullstop, ownerreleasedafterfinishresult1, TCM/context/PLLrestore. Runner0/autosuccess/independentAndroid1. No900e. Confirms relocated GMU state survives beginreturn without breaking stop or defaults. EvidenceE13-result.json; no new commands/clockchanges. Next unresolved owner boundary: TCMbackup/lifetime and outerplan/SMMU/clock/AOP roots, so no productionready claim.
+
+## E14 component ownership — TCM and GMU start return to parent
+
+Next documented E13 boundary was TCM lifetime. Implementation now adds opaque waffle_gmu_owner begin/exercise/end, called directly from SMMU parent for the existing session option. Begin owns heap GMUcontext plus32KiB TCMsnapshot and returns live with OOB/BO; parent then invokes exercise/end as separate APIcalls. End verifies childcompletion, slumber/reset/drain, restoresTCM and onlythenfrees snapshot/rootowner. Existing defaultTCMdiagnostic uses extracted load/restore helpers and oldbootwrapper. CM3reset is explicitly checked before restoring TCM; failed restoration retains snapshot rather than freeing uncertain ownership. No new PM4/HFI packets or power writes beyond alreadyverified E12sequence.
+
+ActualTCM/component API host tests cover overlapping firmwareblocks, partial/fullsnapshotrestore, malformedinput/map/allocationfailure, parenthandoff and constructorrollback, liveCM3/failedstop/failedrestoration retention. Removed unused local leftover from extraction; no behavioral workaround. ExistingGMU/session/RSCactualtests pass. NoE14hardwareyet. Outerplan/SMMU/clock/AOP ownership is still a live parent requirement; no iOS/userqueue exposure.
+
+E14 fullhost/XNU/EFI/container/current-source-binding passed. New TCMhost tests execute actual helper and publicowner API; default/full snapshots, constructorfailures, separateparentcalls and failure retention allpass. Firstdefault93control (noRAW), then session94afterAndroidconfirmation. NoE14hardwareyet.

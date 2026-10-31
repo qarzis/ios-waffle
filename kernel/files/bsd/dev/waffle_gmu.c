@@ -1415,22 +1415,27 @@ static bool boot_probe(vm_offset_t gmu,vm_offset_t qtb,struct waffle_gmu_plan *p
     }
     return ok;
 }
-bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan, unsigned probe, vm_offset_t qtb)
+struct waffle_tcm_context {
+    vm_offset_t gmu,backup;
+    size_t total;
+    bool boot,restore_ready;
+};
+static bool tcm_owner_load(struct waffle_tcm_context *c,struct waffle_gmu_plan *plan,unsigned probe)
 {
-    bool boot = probe >= 9;
-    vm_offset_t gmu = ml_io_map(WAFFLE_GMU_BASE, WAFFLE_GMU_SIZE);
-    if (!gmu || !(*(volatile uint32_t *)(gmu + WAFFLE_GMU_SYSRESET) & 1)) return false;
-    size_t cursor = 0, total = 0;
+
+    c->boot = probe >= 9;
+    c->gmu = ml_io_map(WAFFLE_GMU_BASE, WAFFLE_GMU_SIZE);
+    if (!c->gmu || !(*(volatile uint32_t *)(c->gmu + WAFFLE_GMU_SYSRESET) & 1)) return false;
+    size_t cursor = 0;
     struct waffle_fw_block b;
     int result;
     while ((result = waffle_fw_next(plan->firmware, plan->length, &cursor, &b)) == 1) {
         unsigned kind = waffle_fw_region(b.address, b.size);
-        if (b.size && kind && kind <= 2) total += b.size;
+        if (b.size && kind && kind <= 2) c->total += b.size;
     }
-    if (result < 0 || !total || total > 32768) return false;
-    if (boot) total = 32768;
-    vm_offset_t backup = 0;
-    if (kmem_alloc(kernel_map, &backup, round_page(total), KMA_KOBJECT | KMA_ZERO | KMA_DATA,
+    if (result < 0 || !c->total || c->total > 32768) return false;
+    if (c->boot) c->total = 32768;
+    if (kmem_alloc(kernel_map, &c->backup, round_page(c->total), KMA_KOBJECT | KMA_ZERO | KMA_DATA,
             VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) return false;
     cursor = 0;
     size_t saved = 0;
@@ -1443,12 +1448,12 @@ bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan, unsigned probe, vm_offse
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4)
-            *(uint32_t *)(backup + saved + n) = *(volatile uint32_t *)(gmu + offset + n);
+            *(uint32_t *)(c->backup + saved + n) = *(volatile uint32_t *)(c->gmu + offset + n);
         saved += b.size;
     }
-    if (boot) for (unsigned n = 0; n < 16384; n += 4) {
-        *(uint32_t *)(backup + n) = rd(gmu, WAFFLE_GMU_ITCM + n);
-        *(uint32_t *)(backup + 16384 + n) = rd(gmu, WAFFLE_GMU_DTCM + n);
+    if (c->boot) for (unsigned n = 0; n < 16384; n += 4) {
+        *(uint32_t *)(c->backup + n) = rd(c->gmu, WAFFLE_GMU_ITCM + n);
+        *(uint32_t *)(c->backup + 16384 + n) = rd(c->gmu, WAFFLE_GMU_DTCM + n);
     }
     cursor = 0;
     bool ok = true;
@@ -1458,49 +1463,118 @@ bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan, unsigned probe, vm_offse
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4)
-            *(volatile uint32_t *)(gmu + offset + n) = waffle_fw_u32(b.payload + n);
+            *(volatile uint32_t *)(c->gmu + offset + n) = waffle_fw_u32(b.payload + n);
         __asm__ volatile("dsb sy" ::: "memory");
         for (unsigned n = 0; n < b.size; n += 4)
-            if (*(volatile uint32_t *)(gmu + offset + n) != waffle_fw_u32(b.payload + n)) ok = false;
+            if (*(volatile uint32_t *)(c->gmu + offset + n) != waffle_fw_u32(b.payload + n)) ok = false;
         say("waffle-gmu: TCM %08x bytes=%u readback=%s\n", b.address, b.size, ok ? "matches" : "FAILED");
     }
-    if (ok && boot) ok = boot_probe(gmu, qtb, plan, probe);
-    cursor = 0; saved = 0;
+    c->restore_ready=true;
+    return ok;
+}
+static bool tcm_owner_restore(struct waffle_tcm_context *c,struct waffle_gmu_plan *plan)
+{
+    if(!c->restore_ready || !c->backup || !(rd(c->gmu,WAFFLE_GMU_SYSRESET)&1))
+        stop_unsafe("TCM snapshot cannot restore while CM3 state is unknown");
+    size_t cursor=0,saved=0;
+    struct waffle_fw_block b;
     while (waffle_fw_next(plan->firmware, plan->length, &cursor, &b) == 1) {
         unsigned kind = waffle_fw_region(b.address, b.size);
         if (!b.size || !kind || kind > 2) continue;
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4)
-            *(volatile uint32_t *)(gmu + offset + n) = boot ?
-                rd(backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
-                *(uint32_t *)(backup + saved + n);
+            *(volatile uint32_t *)(c->gmu + offset + n) = c->boot ?
+                rd(c->backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
+                *(uint32_t *)(c->backup + saved + n);
         saved += b.size;
     }
-    if (boot) for (unsigned n = 0; n < 16384; n += 4) {
-        wr(gmu, WAFFLE_GMU_ITCM + n, *(uint32_t *)(backup + n));
-        wr(gmu, WAFFLE_GMU_DTCM + n, *(uint32_t *)(backup + 16384 + n));
+    if (c->boot) for (unsigned n = 0; n < 16384; n += 4) {
+        wr(c->gmu, WAFFLE_GMU_ITCM + n, *(uint32_t *)(c->backup + n));
+        wr(c->gmu, WAFFLE_GMU_DTCM + n, *(uint32_t *)(c->backup + 16384 + n));
     }
     __asm__ volatile("dsb sy" ::: "memory");
     cursor = 0; saved = 0;
     bool restored = true;
-    if (boot) for (unsigned n = 0; n < 16384; n += 4)
-        if (rd(gmu, WAFFLE_GMU_ITCM + n) != rd(backup, n) ||
-            rd(gmu, WAFFLE_GMU_DTCM + n) != rd(backup, 16384 + n)) restored = false;
+    if (c->boot) for (unsigned n = 0; n < 16384; n += 4)
+        if (rd(c->gmu, WAFFLE_GMU_ITCM + n) != rd(c->backup, n) ||
+            rd(c->gmu, WAFFLE_GMU_DTCM + n) != rd(c->backup, 16384 + n)) restored = false;
     while (waffle_fw_next(plan->firmware, plan->length, &cursor, &b) == 1) {
         unsigned kind = waffle_fw_region(b.address, b.size);
         if (!b.size || !kind || kind > 2) continue;
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4) {
-            uint32_t original = boot ? rd(backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
-                *(uint32_t *)(backup + saved + n);
-            if (*(volatile uint32_t *)(gmu + offset + n) != original) restored = false;
+            uint32_t original = c->boot ? rd(c->backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
+                *(uint32_t *)(c->backup + saved + n);
+            if (*(volatile uint32_t *)(c->gmu + offset + n) != original) restored = false;
         }
         saved += b.size;
     }
-    kmem_free(kernel_map, backup, round_page(total));
-    say("waffle-gmu: TCM restore readback=%s; boot_test=%u CM3 held reset\n", restored ? "matches" : "FAILED", boot);
+    if(!restored)stop_unsafe("TCM restoration readback failed; retain snapshot owner");
+    kmem_free(kernel_map, c->backup, round_page(c->total));
+    c->backup=0;c->restore_ready=false;
+    say("waffle-gmu: TCM restore readback=%s; boot_test=%u CM3 held reset\n", restored ? "matches" : "FAILED", c->boot);
+    return restored;}
+bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan,unsigned probe,vm_offset_t qtb)
+{
+    struct waffle_tcm_context tcm={0};
+    bool ok=tcm_owner_load(&tcm,plan,probe);
+    if(!tcm.restore_ready)return false;
+    if(ok && tcm.boot)ok=boot_probe(tcm.gmu,qtb,plan,probe);
+    bool restored=tcm_owner_restore(&tcm,plan);
+    return ok && restored;
+}
+/* This component owns all GMU/TCM state. Parent must retain plan and SMMU. */
+struct waffle_gmu_owner {
+    struct waffle_tcm_context tcm;
+    struct gmu_boot_context boot;
+    struct waffle_gmu_plan *plan;
+    vm_offset_t allocation;
+    bool exercise_ok;
+};
+struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *plan,unsigned probe,vm_offset_t qtb)
+{
+    if(!plan || probe!=94 || !session_requested() || plan->submit_session ||
+        sizeof(struct waffle_gmu_owner)>PAGE_SIZE)return NULL;
+    vm_offset_t allocation=0;
+    if(kmem_alloc(kernel_map,&allocation,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
+        VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+    struct waffle_gmu_owner *owner=(struct waffle_gmu_owner *)allocation;
+    owner->allocation=allocation;owner->plan=plan;owner->exercise_ok=true;
+    if(!tcm_owner_load(&owner->tcm,plan,probe))goto failed;
+    owner->boot=(struct gmu_boot_context){.gmu=owner->tcm.gmu,.qtb=qtb,.plan=plan,.probe=probe};
+    if(!gmu_boot_begin(&owner->boot) || !plan->submit_session)goto failed;
+    say("waffle-gmu: GMU_OWNER begin returned heap=1; state retained\n");
+    say("waffle-gmu: TCM_OWNER begin returned snapshot=32768 heap=1 OOB=1\n");
+    return owner;
+failed:
+    if(owner->boot.configured) {
+        if(plan->submit_session && !submit_session_close(plan))
+            stop_unsafe("GMU constructor cannot release active submission owner");
+        (void)gmu_boot_finish(&owner->boot);
+    }
+    if(owner->tcm.restore_ready)(void)tcm_owner_restore(&owner->tcm,plan);
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    return NULL;
+}
+bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *owner)
+{
+    if(!owner || !owner->plan->submit_session)return false;
+    owner->exercise_ok=submit_session_run(owner->plan);
+    return owner->exercise_ok;
+}
+bool waffle_gmu_owner_end(struct waffle_gmu_owner *owner)
+{
+    if(!owner || !owner->plan->submit_session)return false;
+    if(!submit_session_close(owner->plan))stop_unsafe("GMU owner cannot stop with uncertain completion");
+    owner->boot.running=owner->exercise_ok;
+    bool ok=gmu_boot_finish(&owner->boot);
+    bool restored=tcm_owner_restore(&owner->tcm,owner->plan);
+    if(owner->plan->submit_session)stop_unsafe("GMU owner still has an active child session");
+    vm_offset_t allocation=owner->allocation;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    say("waffle-gmu: TCM_OWNER released after GMU stop and snapshot restoration result=%u\n",ok&&restored);
     return ok && restored;
 }
 
