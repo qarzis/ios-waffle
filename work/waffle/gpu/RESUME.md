@@ -13,7 +13,9 @@ runs existing94packet unchanged. This prerequisite set fixes CP_INIT in one
 run; individual contributions notisolated. No need to repeat failed PLL fixes.
 Userauthorizes autonomous RAM-only testing; autoUEFI selectsloader without
 physical BootiOS. Standard collector armed forRAW; returnAndroid verifyafter.
-Next: unchanged positive E08 reproduction, then bounded GPU memorywriteback.
+Unchanged reproduction20261031T100701Z alsoPASS; runner0/Android1.
+Next: verify ZAP PAS13/native unsecure-transition ownership, then bounded
+GPU memorywriteback. Existing ZAP parser isofflineonly, no runtime loader.
 Keep exact successful artifact immutable. SeeGPU_DEBUG_LOG.md/E08-result.json.
 Phone ordinaryAndroid. No agents orformalgoal.
 

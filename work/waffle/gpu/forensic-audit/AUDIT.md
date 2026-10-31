@@ -1,3 +1,30 @@
+## Обновление после E08: прежний блокер CP_INIT пройден
+
+31 октября 2026: два запуска неизменного образа — 20261031T100500Z и
+20261031T100701Z — получили CP_INIT_RAW seq42 ACK0 valid1, Gen7result0,
+полный shutdown/PLL restore и подтверждённый Android. E07 предварительно
+проверил42 перевода SQE через отсутствовавший SID1. Добавлены LPAC SID1/CB1,
+его native SCM aperture, native GMU SID5/CB3 и TLBI обоих ASID при общих
+изменениях таблиц. Эти предпосылки вместе устраняют прежний сбой CP_INIT;
+отдельный вклад каждого изменения и конкретный исторический fault не декодированы.
+Нет900e в этих двух запусках. Это подтверждает инициализацию CP, но не кадры.
+
+| Компонент | Текущее подтверждение |
+|---|---|
+| Питание, clocks, GMU/HFI | Проверены запуск и полный останов; физические GFX~231/GMU~260МГц |
+| IOMMU user/protected/LPAC/GMU | Проверены diagnostic translations и teardown; произвольный DMA пока не проверен |
+| Command submission | Частично: полная штатная CP_INIT аппаратно подтверждена дважды |
+| Synchronization | ACK/idle поллятся; пользовательские fences и GPU writeback не проверены |
+| ZAP/PAS13 и unsecure transition | Отсутствует runtime implementation; есть firmware и offline parser |
+| Рисование и Mesa backend waffle | GPU draw не проверен; полноценный backend не реализован |
+| Графический стек iOS | Существующий программный вывод работает; GPU integration не подтверждена |
+
+Текущая следующая граница: native authenticated ZAP load/unsecure transition
+и независимый результат GPU memorywriteback. До записи в reserved ZAP region
+нужно подтвердить владение RAM, PAS ABI и map/cache lifetime по исходникам.
+GPU_DEBUG_LOG.md и E08-result.json/E08-repeat-result.json содержат результаты.
+Ниже сохранён исходный аудит до этих экспериментов.
+
 # Аудит GPU OnePlus 12, 31 октября 2026
 
 ## Блокер и границы доказанного
