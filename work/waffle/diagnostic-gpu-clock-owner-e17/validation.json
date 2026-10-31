@@ -1,0 +1,12 @@
+{
+  "android_boot_version": 4,
+  "embedded_loader_bytes": 57344,
+  "embedded_loader_matches": true,
+  "stock_dtbs": [
+    "9bc1713b91598db5c996b98c4f93cad93a5fe9ae14e20214afb438cf58e25e42",
+    "2b27ad558c044b7ed7c2862413133659ad1f36a235597164bd24f9871038cc44"
+  ],
+  "kernel_bytes": 15593024,
+  "payload_matches": true,
+  "hardware_tested": false
+}

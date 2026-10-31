@@ -1,0 +1,14 @@
+{
+  "probe": 94,
+  "started_at": "2026-10-31T20:05:43.303645+00:00",
+  "variant": "E12-owned-multisubmit-session",
+  "runner_exit": 0,
+  "runs": [
+    "work/waffle/runs/20261031T200543Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true
+}

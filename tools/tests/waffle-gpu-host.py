@@ -24,6 +24,15 @@ typedef size_t vm_size_t;
 #define __printflike(a,b) __attribute__((format(printf,a,b)))
 #define NSEC_PER_USEC 1000
 #define VM_WIMG_IO 7u
+#define PAGE_SIZE 16384
+#define KMA_KOBJECT 1
+#define KMA_ZERO 2
+#define KMA_DATA 4
+#define VM_KERN_MEMORY_IOKIT 5
+#define KERN_SUCCESS 0
+#define kernel_map 7
+int kmem_alloc(unsigned,uintptr_t *,unsigned,unsigned,unsigned);
+void kmem_free(unsigned,uintptr_t,unsigned);
 typedef unsigned lck_mtx_t;
 static inline bool lck_mtx_try_lock(lck_mtx_t *p) { (void)p; return false; }
 static inline void lck_mtx_unlock(lck_mtx_t *p) { (void)p; }
@@ -85,6 +94,8 @@ struct waffle_smmu_owner *waffle_smmu_owner_begin(uintptr_t b,uint32_t p,uint32_
 }
 bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *o) {(void)o;assert(0);return false;}
 bool waffle_smmu_owner_end(struct waffle_smmu_owner *o) {(void)o;assert(0);return false;}
+int kmem_alloc(unsigned m,uintptr_t *p,unsigned n,unsigned f,unsigned t){(void)m;(void)p;(void)n;(void)f;(void)t;assert(0);return 1;}
+void kmem_free(unsigned m,uintptr_t p,unsigned n){(void)m;(void)p;(void)n;assert(0);}
 void waffle_adreno_init(void);
 static void reset(unsigned mode, unsigned board, uint32_t cfg) {
     memset(gcc,0,sizeof(gcc)); memset(cc,0xa5,sizeof(cc));
@@ -155,7 +166,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="waffle-gpu-test-") as directory:
         d = Path(directory)
         (d / "mock_xnu.h").write_text(COMMON)
-        for name in ("kern/clock.h", "kern/locks.h", "vm/memory_types.h", "arm/memory_types.h", "libkern/libkern.h", "mach/mach_types.h",
+        for name in ("kern/clock.h", "kern/locks.h", "vm/memory_types.h", "vm/vm_kern.h", "arm/memory_types.h", "libkern/libkern.h", "mach/mach_types.h",
                      "pexpert/pexpert.h", "sys/systm.h"):
             p = d / name
             p.parent.mkdir(parents=True, exist_ok=True)

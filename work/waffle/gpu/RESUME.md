@@ -1,3 +1,34 @@
+# E17 PASS — heap board clock journal returned live to CX caller
+
+Control93 run20261031T201004Z ACCESS27/alloc8/LPAC42 passed. Session94
+run20261031T201108Z auto20261031T201045Z diagnostic-gpu-clock-owner-e17:
+clockbeginreturnsheap1/liveSMMUchild1/journal14 toCXcaller, same3IB44/45/46
+all4096wordswrong0, SMMUstop/detach beforePLL/journalrestore; clockownerfree
+beforeCX/CFG/AOPrestore. Runner0/autosuccess/independentAndroid1, no900e.
+Noactivebuild/test; phoneordinaryAndroid. E16verifiedGit60a17c0 preserved.
+E17checkpointrefwaffle/hakios-uefi +waffle/gpu-verified-session updated.
+NextCX/CFGrootowner, thenAOPpersistentchannel/ACD withshortsharedmutexholds;
+seeE18-board-lifetime-plan.md. NoE18codeyet. Nativeclockmoduleglobals serialized
+byoneactiveclockowner, no concurrentIOKit/reopensessionqualified.
+No GPUdraw/shader/iOSacceleration/dynamicBO/userspacefence backend yet.
+Useraway, autonomouslyRAMonly. AutomaticUEFI, noBootiOSconfirmationsneeded.
+GitHubdefaultREADME simplifieduserrequest e28bd88; newGPUworklocalonly.
+
+# E17 built; default hardware control PASS, session hardware in progress
+
+Artifactdiagnostic-gpu-clock-owner-e17 fullhost/XNU/EFI/validation/sourcebindingPASS.
+board_clock_owner owns14-entry savedjournal/flags/SMMUchild, heap94 returnslive
+fromprobe_clocks toCXcaller; defaultstackcontrol preserved, activeowner guard.
+UnknownPLL/RCGrestore retainsowner/reset. SMMUandGMU unchanged fromverifiedE16.
+Actualhost checks livejournal afterreturn, duplicatebegin/exercise refusal,
+allocationfailurebeforewrites, childbeforeclockrestore, PLL/RCGretention.
+Default93 controlrun20261031T201004Z auto20261031T200940Z ACCESS27/alloc8/LPAC42
+fullshutdown/Android1 PASS. Fullsession94 currentlyrunning via
+functions exec session73377, logfilework/waffle/gpu/auto-clock-owner-e17-session.log.
+Do notstartanotherhardwareexperimentuntilrunner/androidconfirmed.
+LastverifiedGitE16 60a17c0; E17source notyetcommittedpendinghardwareresult.
+Useraway, autonomouslyRAMonly. No physicalBootiOSneeded.
+
 # E16 PASS — public SMMU component handed live to clock caller
 
 Control93 run20261031T200441Z ACCESS27/alloc8/LPAC42 passed. Session94

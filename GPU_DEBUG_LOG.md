@@ -287,3 +287,17 @@ E16 default93 control PASS run20261031T200441Z/auto20261031T200417Z: ACCESS27/al
 ## E16 hardware PASS — public SMMU owner returned live to board clock caller
 
 Control93 run20261031T200441Z ACCESS27/alloc8/LPAC42 passed. Session94 run20261031T200543Z/auto20261031T200519Z: publicbegin returnslive through probe_smmu to probe_clocks; sameIB44/45/46 each all4096wordswrong0/distincttokens, endstopsGMU/TCM thenSMMUdetach/free beforePLL/clocks/CX/AOPrestore. Runner0/autosuccess/independentAndroid1; no900e. Scope unchangedGMU/internalSMMUhelpers. EvidenceE16-result.json. Next unresolved boundary: saved boardclock changes remain local to probe_clocks; CX/GCC/AOP transaction remains caller-scoped. No persistent iOS backend or draw claim.
+
+## E17 plan — explicit board clock owner across begin return
+
+Verified E16 checkpoint60a17c0 preserved. Remaining blocker: probe_clocks saved[16] rollback journal/count/flags are caller-local, even though child SMMU can return live. Hypothesis: moving that journal and child pointer into an explicit board clock owner allows begin to return live to CX caller and still stop child before PLL/clock restoration. Keep existing static native-clock callbacks/state (module-lifetime, serialized by one active owner); no claim of full board lifetime yet. Scope: split only probe_clocks into begin/exercise/finish plus wrapper, heap mode for existing94session, default caller-owned context, single-active-owner guard before writes. Unknown child/PLL/clock restoration must retain owner through reset. Same default93 control and threeIB94 hardware test. CX/GCC/AOP lifetime remains subsequent boundary. No E17 code/hardware pass claimed yet.
+
+E17 implementation: explicit board_clock_owner owns14-entry clock journal/flags and SMMUchild; heap94 beginreturns live toCXcaller, defaultstackowner. One active owner guards existing module-lifetime native callbacks. Childend beforePLL/reversejournalrestore; unsafePLL/RCG restoration retainsowner/reset. No SMMU/GMU changes, no new programming constants; surroundingboardcode unchanged except two call names (scopeaudit). Actualhost tests pass legacyrollback, heapjournal afterconstructorreturn, duplicatebegin/exercise denial, allocationfailurebeforewrites, safechildfailure, and unsafePLLretention. Removed unused local from extracted finish before fullbuild. NoE17hardwareyet.
+
+E17 full host suite/XNU/EFI/container/sourcebinding passed. Added explicit failed-RCG-restore retention case to actualclockhost (rerunPASS after fullsuite invocation, snapshottedcurrenttestedtest); both PLL and RCG unknownrestore retain metadata/reset. Next default93+LPAC+accessmatrix then94session afterAndroid1. NoE17hardwareyet.
+
+E17 default93 control PASS run20261031T201004Z/auto20261031T200940Z: ACCESS27/alloc8/LPAC42 noRAW/fullshutdown/PLL/CX/AOPrestore. Runner0/autosuccess/independentAndroid1. Next94heapclockowner session on sameartifact.
+
+## E17 hardware PASS — board clock journal survives begin return to CX caller
+
+Control93 run20261031T201004Z ACCESS27/alloc8/LPAC42 passed. Session94 run20261031T201108Z/auto20261031T201045Z: CLOCK_OWNER beginreturnedheap1/livechild1/journal14 toCXcaller; sameIB44/45/46 each all4096wordswrong0/distincttokens, SMMUchildendedbeforePLL/reverseclockjournalrestore, CLOCK_OWNERreleasedbeforeCXrestore, AOPcleanup. Runner0/autosuccess/independentAndroid1; no900e. No SMMU/GMU/commandchanges. EvidenceE17-result.json. NextCX/CFGowner thenAOPtransport/ACDlifetime perE18-board-lifetime-plan.md (planonly, notimplemented). No persistent iOS backend/draw claim.
