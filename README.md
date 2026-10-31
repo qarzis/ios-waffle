@@ -1,3 +1,13 @@
+# ios-waffle: experimental OnePlus 12 port
+
+This branch preserves ongoing work on the OnePlus 12 (PJD110 / SM8650 / Adreno 750), based on ios-macan. **GPU acceleration is not working yet.** The waffle iOS graphics path uses CPU rendering. GMU/HFI preparation and the E03 SMMU access matrix passed hardware checks; CP_INIT execution remains unconfirmed and prior RAW attempts entered Qualcomm 900e.
+
+See [GPU status](docs/waffle-gpu.md), [debug log](GPU_DEBUG_LOG.md), and [forensic audit](work/waffle/gpu/forensic-audit/AUDIT.md). Source and selected diagnostic evidence are included; local firmware, iOS assets and built boot images are not included in this upload. This branch is an experimental development snapshot.
+
+The upstream README below describes the original **OnePlus Ace 6T** port. Its GPU support claims do not describe the OnePlus 12 work on this branch.
+
+---
+
 <p align="center">
   <img src="uefi/branding/assets/logo.png" width="120" alt="HackIOS">
 </p>
