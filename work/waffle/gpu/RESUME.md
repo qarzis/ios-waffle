@@ -1,3 +1,11 @@
+# E10 PASS — GPU writes verified memory, Android restored
+
+20261031T102517Z artifactdiagnostic-gpu-writeback-e10: CP42/ZAP43ACK0,
+GPU_WRITEBACK44ACK0 +actualCPU4wordmarker matched, all4096wordschecked wrong0.
+Slumber45/fullshutdown/PLLrestore, runner0/Android1. No900e/no drawyet.
+E09PAS13+TRUST0 passes; allworkingartifacts preserved. NextE11 IBfetch of
+knownmemorywrite stream beforepersistentIOKit backend. NoE11code/hardwareyet.
+
 # E09 PASS — authenticated ZAP, TRUST0, Android restored
 
 run20261031T102106Z automatic20261031T102042Z artifactdiagnostic-gpu-zap-e09.
