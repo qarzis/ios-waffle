@@ -1,0 +1,189 @@
+{
+  "normalizations": [
+    "header sequence bits 31:20",
+    "restore GPU VA words 8 and 9"
+  ],
+  "records": [
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/acd-setvalue-native-20261029T183623Z.trace",
+      "line": 210,
+      "native_packet": [
+        "11800b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/context-state-native-20261029T192653Z.trace",
+      "line": 214,
+      "native_packet": [
+        "12200b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/dcvs-native-20261029T191645Z.trace",
+      "line": 212,
+      "native_packet": [
+        "2f000b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/memattrs-native-20261029T184451Z.trace",
+      "line": 211,
+      "native_packet": [
+        "1c300b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/minimal-native-20261029T141226Z.trace",
+      "line": 208,
+      "native_packet": [
+        "20100b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/precp-regs-native-20261029T190728Z.trace",
+      "line": 213,
+      "native_packet": [
+        "1be00b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/regions-native-20261029T190706Z.trace",
+      "line": 212,
+      "native_packet": [
+        "10b00b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/ring-state-native-20261029T192759Z.trace",
+      "line": 214,
+      "native_packet": [
+        "1e300b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/ucode-native-20261029T184347Z.trace",
+      "line": 211,
+      "native_packet": [
+        "11f00b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    },
+    {
+      "file": "work/waffle/gpu/android-live-audit-20261029/ucode-physical-native-20261029T191130Z.trace",
+      "line": 211,
+      "native_packet": [
+        "25200b83",
+        "70970001",
+        "08000000",
+        "70c80007",
+        "0000094b",
+        "00000003",
+        "20000000",
+        "00000002",
+        "00042000",
+        "0001ff80",
+        "80000000"
+      ],
+      "mismatched_word_indices_after_normalization": []
+    }
+  ],
+  "limitation": "Does not validate mapped restore contents, DMA, timing or hardware state."
+}

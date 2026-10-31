@@ -1,6 +1,10 @@
 #include "efi.h"
 #include "payload.h"
 #include "platform.h"
+#if defined(XNU_PLATFORM_WAFFLE)
+#include "waffle.h"
+#include "waffle-memory.h"
+#endif
 #include "macan-memory.h"
 #if defined(XNU_PLATFORM_MACAN)
 #include "pac-probe.h"
@@ -10,7 +14,10 @@
 static void hackios_ready_screen(void);
 #endif
 #include "identity.h"
-#if defined(XNU_PLATFORM_MACAN)
+#if defined(XNU_PLATFORM_MACAN) || defined(XNU_PLATFORM_WAFFLE)
+#define XNU_OWNED_RAM 1
+#endif
+#if defined(XNU_OWNED_RAM)
 static uint64_t payload_base, panic_log_base;
 #define PAYLOAD_BASE payload_base
 #define PANIC_LOG_BASE panic_log_base
@@ -169,6 +176,10 @@ print(const char *fmt, ...)
  __builtin_va_end(ap);
 }
 #define READ_SYSREG(name) ({ uint64_t _v; __asm__ volatile ("mrs %0, " #name : "=r" (_v)); _v; })
+#if defined(XNU_PLATFORM_WAFFLE)
+#include "waffle-power.h"
+static struct waffle_npa_hold waffle_power_hold;
+#endif
 static void
 flush_dcache(uint64_t start, uint64_t end)
 {
@@ -244,7 +255,7 @@ compose_logs(const char *klog, uint64_t klog_len)
 static void
 write_logs(const char *klog, uint64_t klog_len)
 {
- #if defined(XNU_PLATFORM_MACAN)
+ #if defined(XNU_OWNED_RAM)
     efi_block_io *bio = NULL;
 #else
     efi_block_io *bio = find_log_partition();
@@ -407,7 +418,7 @@ __asm__ (
         "  mrs x9, icc_pmr_el1\n     str x9, [x10, #344]\n"
         "  mrs x9, icc_igrpen1_el1\n str x9, [x10, #352]\n"
         "  mrs x9, icc_bpr1_el1\n    str x9, [x10, #360]\n"
-#if defined(XNU_PLATFORM_MACAN)
+#if defined(XNU_OWNED_RAM)
         "  .arch_extension pauth\n"
         "  mrs x9, APIAKeyLo_EL1\n str x9, [x10, #368]\n"
         "  mrs x9, APIAKeyHi_EL1\n str x9, [x10, #376]\n"
@@ -452,7 +463,7 @@ __asm__ (
         "  ldr x9, [x10, #16]\n  msr mair_el1, x9\n"
         "  ldr x9, [x10, #32]\n  msr vbar_el1, x9\n"
         "  ldr x9, [x10, #40]\n  msr cpacr_el1, x9\n"
-#if defined(XNU_PLATFORM_MACAN)
+#if defined(XNU_OWNED_RAM)
         "  ldr x9, [x10, #368]\n msr APIAKeyLo_EL1, x9\n"
         "  ldr x9, [x10, #376]\n msr APIAKeyHi_EL1, x9\n"
         "  ldr x9, [x10, #384]\n msr APIBKeyLo_EL1, x9\n"
@@ -1233,7 +1244,7 @@ print_memory_map(void)
   }
  }
 }
-#if defined(XNU_PLATFORM_MACAN)
+#if defined(XNU_OWNED_RAM)
 static efi_status
 allocate_safe_pages(uint64_t bytes, uint64_t *address)
 {
@@ -1243,15 +1254,31 @@ allocate_safe_pages(uint64_t bytes, uint64_t *address)
     efi_status status=BS->get_memory_map(&size,map,&key,&stride,&version);
     if (EFI_ERROR(status)) return status;
     if (stride < sizeof(efi_memory_descriptor) || size % stride) return EFI_ERROR_BIT | 2;
+#if defined(XNU_PLATFORM_WAFFLE)
+    uint64_t best_base = 0, best_size = 0;
+#endif
     for (uint64_t off=0; off<size; off+=stride) {
         const efi_memory_descriptor *d=(const void *)(map+off);
         if (d->type != EfiConventionalMemory || d->pages > (UINT64_MAX-d->phys_start)/4096) continue;
         uint64_t base=0, length=0;
+#if defined(XNU_PLATFORM_MACAN)
         macan_largest_gap(d->phys_start,d->phys_start+d->pages*4096,4096,&base,&length);
         if (length < bytes || !macan_range_allowed(base,bytes)) continue;
+#else
+        (void)base; (void)length;
+        waffle_largest_gap(d->phys_start, d->phys_start + d->pages * 4096,
+            4096, &best_base, &best_size);
+        continue;
+#endif
         status=BS->allocate_pages(AllocateAddress,EfiLoaderData,bytes>>12,&base);
         if (!EFI_ERROR(status)) { *address=base; return status; }
     }
+#if defined(XNU_PLATFORM_WAFFLE)
+    if (best_size >= bytes && waffle_range_allowed(best_base, bytes)) {
+        status = BS->allocate_pages(AllocateAddress, EfiLoaderData, bytes >> 12, &best_base);
+        if (!EFI_ERROR(status)) { *address = best_base; return status; }
+    }
+#endif
     return EFI_ERROR_BIT | 9;
 }
 #endif
@@ -1273,7 +1300,7 @@ choose_window(const struct payload_info *pi)
  if (desc_size < sizeof(efi_memory_descriptor) || map_size % desc_size) return 0;
  for (uint64_t off = 0; off < map_size; off += desc_size) {
   efi_memory_descriptor *d = (efi_memory_descriptor *)(map_buf + off);
-  if (d->type != EfiConventionalMemory) {
+  if (d->type != EfiConventionalMemory || d->pages > (UINT64_MAX - d->phys_start) / 4096) {
    continue;
   }
   uint64_t lo = d->phys_start, hi = d->phys_start + (d->pages << 12);
@@ -1288,6 +1315,8 @@ choose_window(const struct payload_info *pi)
   hi &= ~(BASE_ALIGN - 1);
   #if defined(XNU_PLATFORM_MACAN)
         macan_largest_gap(lo,hi,BASE_ALIGN,&best_base,&best_size);
+#elif defined(XNU_PLATFORM_WAFFLE)
+        waffle_largest_gap(lo,hi,BASE_ALIGN,&best_base,&best_size);
 #else
         if (hi > lo && hi-lo > best_size) { best_base=lo; best_size=hi-lo; }
 #endif
@@ -1325,6 +1354,33 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
  if (!have_checkpoint) {
         checkpoint = pi.checkpoint;
     }
+#if defined(XNU_PLATFORM_WAFFLE)
+    if (pi.forced_base || pi.resident_rd ||
+#if !defined(WAFFLE_USERLAND)
+        pi.ramdisk_size || resident_rd_size ||
+#endif
+        !waffle_checkpoint_allowed(checkpoint) || !waffle_cmdline_allowed(pi.cmdline)) {
+        print("waffle: unsupported RAM test request\n");
+        return 0;
+    }
+#if defined(WAFFLE_KERNEL_SIZE) && defined(WAFFLE_KERNEL_CRC32)
+    if (pi.kernel_size != WAFFLE_KERNEL_SIZE ||
+        payload_crc32(pi.kernel, pi.kernel_size) != WAFFLE_KERNEL_CRC32) {
+        print("waffle: kernel does not match this diagnostic build\n");
+        return 0;
+    }
+#else
+    if (checkpoint != CHECKPOINT_SELFTEST) {
+        print("waffle: build with WAFFLE_KERNEL_HEADER before starting XNU\n");
+        return 0;
+    }
+#endif
+    if (waffle_pll_control_requested(pi.cmdline) &&
+        !waffle_firmware_power_hold(BS,&waffle_power_hold,print)) {
+        print("waffle: PLL control requires verified firmware power; reboot\n");
+        return 0;
+    }
+#endif
 #if defined(XNU_PLATFORM_MACAN)
     if (pi.forced_base || pi.resident_rd) {
         print("macan: externally forced RAM addresses are disabled\n");
@@ -1353,6 +1409,9 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
         while (*end && *end != ' ') end++;
         if (end == safe) break;
         int numeric_ok = 0;
+#if defined(WAFFLE_USERLAND)
+        if (PLAT == &platform_waffle && waffle_gpu_token_allowed(safe, (size_t)(end - safe))) numeric_ok = 1;
+#endif
         const char *keys[] = {"loader_return_after=", "epoch=", "sb_delay=", "fbscale=", "macan_gpu_pause=", "wifi_pause=", "wifi_hold=", "wifi_ready=", "wifi_listen=", "rec_secs=", "rec_start=", "rec_mb=", "torch_max_s="};
         for (unsigned k=0; k<sizeof(keys)/sizeof(keys[0]); k++) {
             if (!starts_with(safe, keys[k])) continue;
@@ -1522,9 +1581,9 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
  if (checkpoint == CHECKPOINT_SELFTEST) {
         kernel_mpidr = this_mpidr;
     }
-#if defined(XNU_PLATFORM_MACAN)
-    if (checkpoint != CHECKPOINT_SELFTEST && checkpoint != 0 && kernel_mpidr == this_mpidr) {
-        print("macan: native checkpoint requires a separate bootcpu for USB observation\n");
+#if defined(XNU_OWNED_RAM)
+    if (checkpoint != CHECKPOINT_SELFTEST && (checkpoint != 0 || PLAT == &platform_waffle) && kernel_mpidr == this_mpidr) {
+        print("native checkpoint requires a separate bootcpu for USB observation\n");
         return 0;
     }
 #endif
@@ -1544,15 +1603,27 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
    break;
   }
  }
- for (uint64_t *q = (uint64_t *)kern_lo; q < (uint64_t *)kern_hi; q++) {
+#if defined(XNU_PLATFORM_WAFFLE)
+ if (checkpoint == 0 && (kernel_budget == 0 || kernel_budget > WAFFLE_RETURN_LIMIT)) {
+  print("waffle: userland test requires loader_return_after=1..%d\n", (uint64_t)WAFFLE_RETURN_LIMIT);
+  return 0;
+ }
+#endif
+ int return_slot_found = 0;
+ for (uint64_t *q = (uint64_t *)kern_lo; q + 4 <= (uint64_t *)kern_hi; q++) {
   if (*q == 0x545352444C554E58ULL ) {
    q[1] = kernel_mpidr != this_mpidr ? (uint64_t)(uintptr_t)&other_cpu_return_stub :
        (uint64_t)(uintptr_t)&loader_return_stub;
    q[2] = checkpoint;
    q[3] = slide;
+   return_slot_found = 1;
    print("return slot patched at %x, checkpoint %d\n", (uint64_t)(uintptr_t)q, checkpoint);
    break;
   }
+ }
+ if (!return_slot_found) {
+  print("kernel has no loader return/checkpoint slot; stopped\n");
+  return 0;
  }
  struct boot_args *ba = (struct boot_args *)ba_pa;
  memset(ba, 0, sizeof(*ba));
@@ -1580,7 +1651,8 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
   own_serial |= starts_with(c, "serial=");
  }
  const char *base_cmdline = (PLAT->uart != 0 && !own_serial) ? "debug=0x8 serial=3 " :
-     PLAT == &platform_macan ? "debug=0x8 macan=1 " : "debug=0x8 ";
+     PLAT == &platform_macan ? "debug=0x8 macan=1 " :
+     PLAT == &platform_waffle ? "debug=0x8 waffle=1 " : "debug=0x8 ";
  uint32_t n = 0;
  for (const char *c = base_cmdline; *c && n < BOOT_LINE_LENGTH - 1; c++) {
   ba->commandLine[n++] = *c;
@@ -1619,6 +1691,12 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
  for (const char *c = pi.cmdline; *c && n < BOOT_LINE_LENGTH - 1; c++) {
   ba->commandLine[n++] = *c;
  }
+#if defined(XNU_PLATFORM_WAFFLE)
+ if (waffle_pll_control_requested(pi.cmdline) &&
+     !waffle_pll_append_proof(ba->commandLine,BOOT_LINE_LENGTH,waffle_power_hold.verified)) {
+  print("waffle: PLL power handoff refused\n");return 0;
+ }
+#endif
  const struct platform *plat = PLAT;
  struct dt_writer w = { .base = (uint8_t *)dt_pa, .cur = (uint8_t *)dt_pa, .depth = 0 };
  uint64_t cntfrq = READ_SYSREG(CNTFRQ_EL0);
@@ -1631,7 +1709,8 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
  dt_begin(&w, "device-tree");
  dt_identity(&w, identity_root, sizeof(identity_root) / sizeof(identity_root[0]), identity_root_data);
  dt_prop_str(&w, "platform-name", "t8015");
- dt_prop_padded(&w, "serial-number", plat == &platform_macan ? "MACAN00ACE6T" : "RDW00POCOX5P", 32);
+ dt_prop_padded(&w, "serial-number", plat == &platform_waffle ? "WFFL00OPLUS12" :
+     plat == &platform_macan ? "MACAN00ACE6T" : "RDW00POCOX5P", 32);
  dt_prop_padded(&w, "mlb-serial-number", plat == &platform_macan ? "MACAN00ACE6TMLB00" : "RDW00POCOX5PMLB00", 32);
  dt_prop_padded(&w, "model-number", "MQAC2", 32);
  dt_prop_padded(&w, "region-info", "LL/A", 32);
@@ -2031,7 +2110,7 @@ fb_command(char *cmd)
  {
   if (busy && (starts_with(cmd, "oem ramdisk") || starts_with(cmd, "download:") || starts_with(cmd, "oem run") ||
       starts_with(cmd, "oem selftest") || starts_with(cmd, "oem hang") || starts_with(cmd, "oem recording") ||
-      starts_with(cmd, "oem clearscreen") || starts_with(cmd, "oem memmap") || starts_with(cmd, "oem pac-probe"))) {
+      starts_with(cmd, "oem clearscreen") || starts_with(cmd, "oem memmap") || starts_with(cmd, "oem waffle-power") || starts_with(cmd, "oem pac-probe"))) {
    fb_reply("FAIL", "a kernel is running (oem stop ends it)");
   } else if (starts_with(cmd, "oem stop")) {
    if (running_live != NULL) {
@@ -2042,6 +2121,16 @@ fb_command(char *cmd)
    const char *var = cmd + 7;
    if (str_eq(var, "product")) {
     fb_reply("OKAY", "xnuloader");
+   } else if (str_eq(var, "platform")) {
+    fb_reply("OKAY", PLAT->name);
+#if defined(XNU_PLATFORM_WAFFLE)
+   } else if (str_eq(var, "kernel-supported")) {
+#if defined(WAFFLE_USERLAND)
+    fb_reply("OKAY", "software-userland-test");
+#else
+    fb_reply("OKAY", "early-checkpoints-only");
+#endif
+#endif
    } else if (str_eq(var, "version")) {
     fb_reply("OKAY", "0.5");
    } else if (str_eq(var, "max-download-size")) {
@@ -2058,6 +2147,10 @@ fb_command(char *cmd)
     fb_reply("OKAY", "");
    }
   } else if (starts_with(cmd, "oem ramdisk")) {
+#if defined(XNU_PLATFORM_WAFFLE) && !defined(WAFFLE_USERLAND)
+            fb_reply("FAIL", "root disks unavailable during waffle early bring-up");
+            return;
+#endif
 #if defined(XNU_PLATFORM_MACAN) && !defined(MACAN_KERNEL_EXECUTION)
             fb_reply("FAIL", "resident root disk disabled during handoff selftest");
             return;
@@ -2209,6 +2302,14 @@ fb_command(char *cmd)
    fb_reply("OKAY", "watchdog test: not petting any more");
    for (;;) {
    }
+#if defined(XNU_PLATFORM_WAFFLE)
+  } else if (str_eq(cmd, "oem waffle-power-hold")) {
+   int complete=waffle_firmware_power_hold(BS,&waffle_power_hold,print);
+   fb_reply(complete?"OKAY":"FAIL",complete?"baseline NPA votes held until reset":"NPA hold incomplete; reboot required");
+  } else if (str_eq(cmd, "oem waffle-power")) {
+   int complete=waffle_firmware_power_audit(BS,print);
+   fb_reply(complete?"OKAY":"FAIL",complete?"read-only firmware power audit passed":"firmware power capability incomplete; inspect log");
+#endif
   } else if (starts_with(cmd, "oem memmap")) {
    print_memory_map();
    fb_reply("OKAY", "");
@@ -2279,7 +2380,7 @@ usb_command_loop(void)
   }
   memcpy(cmd, usb_rx_buf, (size_t)n);
   cmd[n] = 0;
-#if defined(XNU_PLATFORM_MACAN)
+#if defined(XNU_OWNED_RAM)
         if (str_eq(cmd, "oem menu")) {
             if (kernel_hung) { fb_reply("FAIL", "kernel still owns RAM; cold reset required"); continue; }
             fb_reply("OKAY", "");
@@ -2392,6 +2493,8 @@ efi_main(efi_handle image, efi_system_table *st)
      READ_SYSREG(ID_AA64MMFR0_EL1), READ_SYSREG(CNTFRQ_EL0), (uint64_t)(uintptr_t)&__ImageBase);
  #if defined(XNU_PLATFORM_MACAN)
     PLAT = &platform_macan;
+#elif defined(XNU_PLATFORM_WAFFLE)
+    PLAT = &platform_waffle;
 #else
     PLAT = &platform_qemu_virt;
     payload_bytes = PAYLOAD_MAX_SIZE;
@@ -2404,7 +2507,7 @@ efi_main(efi_handle image, efi_system_table *st)
   SCREEN.width = GOP->mode->info->width;
   SCREEN.height = GOP->mode->info->height;
   SCREEN.stride = GOP->mode->info->pixels_per_scanline * 4;
-  #if !defined(XNU_PLATFORM_MACAN)
+  #if !defined(XNU_OWNED_RAM)
         if (SCREEN.base == 0xE1000000ULL) {
    PLAT = &platform_redwood;
   } else {
@@ -2414,12 +2517,26 @@ efi_main(efi_handle image, efi_system_table *st)
   print("display %d x %d at %x\n", (uint64_t)SCREEN.width, (uint64_t)SCREEN.height, SCREEN.base);
  }
  print("platform %s\n", PLAT->name);
+#if defined(XNU_OWNED_RAM)
 #if defined(XNU_PLATFORM_MACAN)
     if (READ_SYSREG(CurrentEL) >> 2 != 1 || SCREEN.base != 0xFC800000ULL ||
         SCREEN.width != 1272 || SCREEN.height != 2800 || SCREEN.stride != 1272 * 4) {
         print("macan: CPU/GOP does not match verified PLR110; stopped\n");
         return EFI_ERROR_BIT | 3;
     }
+#else
+    /* PJD110 UEFI Display_Reserved is [0xD5100000,0xD7C00000).
+     * Validate GOP instead of assuming a fixed framebuffer offset/stride.
+     */
+    uint64_t screen_bytes = (uint64_t)SCREEN.stride * SCREEN.height;
+    if (READ_SYSREG(CurrentEL) >> 2 != 1 || !GOP ||
+        SCREEN.width != 1440 || SCREEN.height != 3168 || SCREEN.stride < 1440 * 4 ||
+        SCREEN.base < 0xD5100000ULL || SCREEN.base >= 0xD7C00000ULL ||
+        screen_bytes > 0xD7C00000ULL - SCREEN.base || screen_bytes > GOP->mode->fb_size) {
+        print("waffle: expected PJD110 EL1/GOP configuration; stopped\n");
+        return EFI_ERROR_BIT | 3;
+    }
+#endif
     efi_status status = allocate_safe_pages(PAYLOAD_MAX_SIZE, &payload_base);
     if (EFI_ERROR(status)) return status;
     status = allocate_safe_pages(PANIC_LOG_SIZE, &panic_log_base);
@@ -2433,14 +2550,14 @@ efi_main(efi_handle image, efi_system_table *st)
     initial->magic = PAYLOAD_MAGIC;
     initial->size = sizeof(struct payload_entry);
     payload_bytes = 32;
-    print("macan: owned payload=%x/%x panic=%x/%x\n", payload_base,
+    print("owned payload=%x/%x panic=%x/%x\n", payload_base,
           (uint64_t)PAYLOAD_MAX_SIZE, panic_log_base, (uint64_t)PANIC_LOG_SIZE);
 #else
     install_exception_hook();
 #endif
     wdt_arm();
  int have_payload = parse_payload(&pi, 0);
- #if defined(XNU_PLATFORM_MACAN)
+ #if defined(XNU_OWNED_RAM)
     if (have_payload) pi.usb_mode = 1;
 #endif
     int usb_started = have_payload && pi.usb_mode && usb_start();
@@ -2451,7 +2568,7 @@ efi_main(efi_handle image, efi_system_table *st)
 #endif
   usb_command_loop();
  }
- #if defined(XNU_PLATFORM_MACAN)
+ #if defined(XNU_OWNED_RAM)
     if (win_size) {
         BS->free_pages(win_base, win_size >> 12);
         win_base = win_size = 0;

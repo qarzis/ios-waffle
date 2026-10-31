@@ -161,7 +161,9 @@ static const struct cdevsw touch_cdevsw = {
 };
 extern void macan_adsp_init(void);
 extern void macan_synaptics_init(void);
+extern void waffle_synaptics_init(void);
 extern void macan_adreno_init(void);
+extern void waffle_adreno_init(void);
 void
 redwood_input_init(void)
 {
@@ -170,6 +172,13 @@ redwood_input_init(void)
   printf("redwood-touch: cannot create the device\n");
  }
  exit_call = thread_call_allocate(exit_hold_elapsed, NULL);
+ uint32_t waffle = 0;
+ if (PE_parse_boot_argn("waffle", &waffle, sizeof(waffle)) && waffle) {
+  waffle_adreno_init();
+  waffle_synaptics_init();
+  redwood_buttons_init();
+  return;
+ }
  redwood_cpufreq_init();
  redwood_virtio_input_init();
  macan_synaptics_init();

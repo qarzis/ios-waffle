@@ -1,0 +1,300 @@
+#include <assert.h>
+#include <string.h>
+#include "../../loader/platform.h"
+#include "../../loader/waffle.h"
+#include "../../loader/waffle-memory.h"
+
+int main(void)
+{
+    assert(waffle_pll_control_requested("waffle_gpu=92"));
+    assert(waffle_pll_control_requested("bootcpu=7 waffle_gpu=092 epoch=1"));
+    assert(!waffle_pll_control_requested("waffle_gpu=91"));
+    assert(waffle_pll_control_requested("waffle_gpu=93"));
+    assert(waffle_pll_control_requested("waffle_gpu=94"));
+    assert(!waffle_pll_control_requested("waffle_gpu=95"));
+    assert(!waffle_pll_control_requested("xwaffle_gpu=92"));
+    assert(!waffle_pll_control_requested("waffle_gpu=920"));
+    assert(!waffle_cmdline_allowed("waffle_fw_cxmx=256"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=92 waffle_fw_cxmx=256"));
+    char proof[64]="waffle_gpu=92";
+    assert(!waffle_pll_append_proof(proof,sizeof(proof),0));
+    assert(!strcmp(proof,"waffle_gpu=92"));
+    assert(!waffle_pll_append_proof(proof,13,1));
+    assert(!strcmp(proof,"waffle_gpu=92"));
+    assert(waffle_pll_append_proof(proof,sizeof(proof),1));
+    assert(!strcmp(proof,"waffle_gpu=92 waffle_fw_cxmx=256"));
+    assert(platform_waffle.gic_dist == 0x17100000);
+    assert(platform_waffle.gic_redist == 0x17180000);
+    assert(platform_waffle.gic_redist_size == 0x200000);
+    assert(platform_waffle.gic_redist_stride == 0x40000);
+    assert(platform_waffle.psci_hvc == 0);
+    /* Regression: EFI advertised the 64 MB payload at 0x82000000 as free,
+     * but copying into its TrustZone carveout faulted at 0x82700000.
+     */
+    assert(!waffle_range_allowed(0x82000000, 0x4000000));
+    assert(!waffle_range_allowed(0x82700000, 4096));
+    assert(!waffle_range_allowed(0x80000000, 0x80000));
+    assert(!waffle_range_allowed(0x8af700000ULL, 4096));
+    assert(!waffle_range_allowed(0x8b5f00000ULL, 4096));
+    assert(!waffle_range_allowed(UINT64_MAX - 1, 4096));
+    assert(!waffle_range_allowed(0x8c0000000ULL, 0));
+    assert(waffle_range_allowed(0x8c0000000ULL, 0x4000000));
+    uint64_t selected = 0, available = 0;
+    waffle_largest_gap(0x82000000, 0x84a00000, 4096, &selected, &available);
+    assert(selected == 0x82000000 && available == 0x4a0000);
+    selected = available = 0;
+    waffle_largest_gap(0, 1ULL << 40, 0x2000000, &selected, &available);
+    assert(available >= 0x4000000 && !(selected & 0x1ffffff));
+    assert(waffle_range_allowed(selected, available));
+    /* Every selected window must obey both the RAM allowlist and carveouts. */
+    for (uint64_t start = 0x80000000; start < 0x100000000ULL; start += 0x100000) {
+        selected = available = 0;
+        waffle_largest_gap(start, start + 0x8000000, 4096, &selected, &available);
+        assert(!available || (selected >= start && selected + available <= start + 0x8000000 &&
+                            waffle_range_allowed(selected, available)));
+    }
+    assert(waffle_cmdline_allowed("-v bootcpu=1 epoch=1792750000 loader_return_after=10 fbscale=2"));
+    assert(waffle_cmdline_allowed("  -v   "));
+#ifdef WAFFLE_USERLAND
+    assert(waffle_cmdline_allowed("waffle_gpu=1"));
+    assert(waffle_cmdline_allowed("waffle_gpu=2 bootcpu=7 loader_return_after=30"));
+    assert(waffle_cmdline_allowed("waffle_gpu=3 bootcpu=7 loader_return_after=30"));
+    assert(waffle_cmdline_allowed("waffle_gpu=4 bootcpu=7 loader_return_after=30"));
+    assert(waffle_cmdline_allowed("waffle_gpu=5 bootcpu=7 loader_return_after=30"));
+    assert(waffle_cmdline_allowed("waffle_gpu=6"));
+    assert(waffle_cmdline_allowed("waffle_gpu=7"));
+    assert(waffle_cmdline_allowed("waffle_gpu=8"));
+    assert(waffle_cmdline_allowed("waffle_gpu=9"));
+    assert(waffle_cmdline_allowed("waffle_gpu=10"));
+    assert(waffle_cmdline_allowed("waffle_gpu=11"));
+    assert(waffle_cmdline_allowed("waffle_gpu=12"));
+    assert(waffle_cmdline_allowed("waffle_gpu=13"));
+    assert(waffle_cmdline_allowed("waffle_gpu=14"));
+    assert(waffle_cmdline_allowed("waffle_gpu=15"));
+    assert(waffle_cmdline_allowed("waffle_gpu=16"));
+    assert(waffle_cmdline_allowed("waffle_gpu=17"));
+    assert(waffle_cmdline_allowed("waffle_gpu=18"));
+    assert(waffle_cmdline_allowed("waffle_gpu=19"));
+    assert(waffle_cmdline_allowed("waffle_gpu=20"));
+    assert(waffle_cmdline_allowed("waffle_gpu=21"));
+    assert(waffle_cmdline_allowed("waffle_gpu=22"));
+    assert(waffle_cmdline_allowed("waffle_gpu=23"));
+    assert(waffle_cmdline_allowed("waffle_gpu=24"));
+    assert(waffle_cmdline_allowed("waffle_gpu=25"));
+    assert(waffle_cmdline_allowed("waffle_gpu=26"));
+    assert(waffle_cmdline_allowed("waffle_gpu=27"));
+    assert(waffle_cmdline_allowed("waffle_gpu=28"));
+    assert(waffle_cmdline_allowed("waffle_gpu=29"));
+    assert(waffle_cmdline_allowed("waffle_gpu=30"));
+    assert(waffle_cmdline_allowed("waffle_gpu=31"));
+    assert(waffle_cmdline_allowed("waffle_gpu=32"));
+    assert(waffle_cmdline_allowed("waffle_gpu=33"));
+    assert(waffle_cmdline_allowed("waffle_gpu=34"));
+    assert(waffle_cmdline_allowed("waffle_gpu=35"));
+    assert(waffle_cmdline_allowed("waffle_gpu=36"));
+    assert(waffle_cmdline_allowed("waffle_gpu=37"));
+    assert(waffle_cmdline_allowed("waffle_gpu=38"));
+    assert(waffle_cmdline_allowed("waffle_gpu=39"));
+    assert(waffle_cmdline_allowed("waffle_gpu=40"));
+    assert(waffle_cmdline_allowed("waffle_gpu=41"));
+    assert(waffle_cmdline_allowed("waffle_gpu=42"));
+    assert(waffle_cmdline_allowed("waffle_gpu=43"));
+    assert(waffle_cmdline_allowed("waffle_gpu=44"));
+    assert(waffle_cmdline_allowed("waffle_gpu=45"));
+    assert(waffle_cmdline_allowed("waffle_gpu=46"));
+    assert(waffle_cmdline_allowed("waffle_gpu=47"));
+    assert(waffle_cmdline_allowed("waffle_gpu=48"));
+    assert(waffle_cmdline_allowed("waffle_gpu=49"));
+    assert(waffle_cmdline_allowed("waffle_gpu=50"));
+    assert(waffle_cmdline_allowed("waffle_gpu=51"));
+    assert(waffle_cmdline_allowed("waffle_gpu=52"));
+    assert(waffle_cmdline_allowed("waffle_gpu=53"));
+    assert(waffle_cmdline_allowed("waffle_gpu=54"));
+    assert(waffle_cmdline_allowed("waffle_gpu=55"));
+    assert(waffle_cmdline_allowed("waffle_gpu=56"));
+    assert(waffle_cmdline_allowed("waffle_gpu=57"));
+    assert(waffle_cmdline_allowed("waffle_gpu=58"));
+    assert(waffle_cmdline_allowed("waffle_gpu=59"));
+    assert(waffle_cmdline_allowed("waffle_gpu=60"));
+    assert(waffle_cmdline_allowed("waffle_gpu=61"));
+    assert(waffle_cmdline_allowed("waffle_gpu=62"));
+    assert(waffle_cmdline_allowed("waffle_gpu=63"));
+    assert(waffle_cmdline_allowed("waffle_gpu=64"));
+    assert(waffle_cmdline_allowed("waffle_gpu=65"));
+    assert(waffle_cmdline_allowed("waffle_gpu=66"));
+    assert(waffle_cmdline_allowed("waffle_gpu=67"));
+    assert(waffle_cmdline_allowed("waffle_gpu=68"));
+    assert(waffle_cmdline_allowed("waffle_gpu=69"));
+    assert(waffle_cmdline_allowed("waffle_gpu=70"));
+    assert(waffle_cmdline_allowed("waffle_gpu=71"));
+    assert(waffle_cmdline_allowed("waffle_gpu=72"));
+    assert(waffle_cmdline_allowed("waffle_gpu=73"));
+    assert(waffle_cmdline_allowed("waffle_gpu=74"));
+    assert(waffle_cmdline_allowed("waffle_gpu=75"));
+    assert(waffle_cmdline_allowed("waffle_gpu=76"));
+    assert(waffle_cmdline_allowed("waffle_gpu=77"));
+    assert(waffle_cmdline_allowed("waffle_gpu=78"));
+    assert(waffle_cmdline_allowed("waffle_gpu=79"));
+    assert(waffle_cmdline_allowed("waffle_gpu=80"));
+    assert(waffle_cmdline_allowed("waffle_gpu=81"));
+    assert(waffle_cmdline_allowed("waffle_gpu=82"));
+    assert(waffle_cmdline_allowed("waffle_gpu=83"));
+    assert(waffle_cmdline_allowed("waffle_gpu=84"));
+    assert(waffle_cmdline_allowed("waffle_gpu=85"));
+    assert(waffle_cmdline_allowed("waffle_gpu=86"));
+    assert(waffle_cmdline_allowed("waffle_gpu=87"));
+    assert(waffle_cmdline_allowed("waffle_gpu=88"));
+    assert(waffle_cmdline_allowed("waffle_gpu=89"));
+    assert(waffle_cmdline_allowed("waffle_gpu=90"));
+    assert(waffle_cmdline_allowed("waffle_gpu=91"));
+    assert(waffle_cmdline_allowed("waffle_gpu=92"));
+    assert(waffle_cmdline_allowed("waffle_gpu=93"));
+    assert(waffle_cmdline_allowed("waffle_gpu=94"));
+#else
+    assert(!waffle_cmdline_allowed("waffle_gpu=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=2"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=3"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=4"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=5"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=6"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=7"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=8"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=9"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=10"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=11"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=12"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=13"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=14"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=15"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=16"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=17"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=18"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=19"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=20"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=21"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=22"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=23"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=24"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=25"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=26"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=27"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=28"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=29"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=30"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=31"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=32"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=33"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=34"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=35"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=36"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=37"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=38"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=39"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=40"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=41"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=42"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=43"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=44"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=45"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=46"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=47"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=48"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=49"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=50"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=51"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=52"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=53"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=54"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=55"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=56"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=57"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=58"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=59"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=60"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=61"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=62"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=63"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=64"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=65"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=66"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=67"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=68"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=69"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=70"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=71"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=72"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=73"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=74"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=75"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=76"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=77"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=78"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=79"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=80"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=81"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=82"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=83"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=84"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=85"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=86"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=87"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=88"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=89"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=90"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=91"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=92"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=93"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94"));
+#endif
+    assert(!waffle_cmdline_allowed("waffle_gpu=0"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=95"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=4294967297"));
+    const char *bad[] = {
+        "macan=1", "macan_gpu=1", "battery=1", "haptic=1", "wifi=1",
+        "cpus=8", "rd=md0", "bootcpu=8", "bootcpu=", "bootcpu=-1",
+        "epoch=4294967296", "epoch=99999999999999999999999999999999",
+        "loader_return_after=0", "loader_return_after=301", "fbscale=0",
+        "-v\twifi=1", "bootcpu=1x", "-v rootdev=sd0"
+    };
+    for (unsigned i = 0; i < sizeof(bad) / sizeof(bad[0]); i++)
+        assert(!waffle_cmdline_allowed(bad[i]));
+#if defined(WAFFLE_USERLAND)
+    assert(waffle_cmdline_allowed("loader_return_after=300"));
+    assert(waffle_cmdline_allowed("loader_return_after=61"));
+    assert(waffle_checkpoint_allowed(0));
+#else
+    assert(!waffle_cmdline_allowed("loader_return_after=61"));
+    assert(!waffle_checkpoint_allowed(0));
+#endif
+    assert(!waffle_checkpoint_allowed(6));
+    assert(!waffle_checkpoint_allowed(24));
+    assert(waffle_checkpoint_allowed(23));
+    assert(waffle_checkpoint_allowed(50));
+    assert(waffle_checkpoint_allowed(64));
+    assert(!waffle_checkpoint_allowed(65));
+    assert(!waffle_checkpoint_allowed(UINT64_MAX));
+    assert(waffle_checkpoint_allowed(1));
+    assert(waffle_checkpoint_allowed(5));
+    assert(waffle_checkpoint_allowed(10));
+    assert(waffle_checkpoint_allowed(21));
+    assert(waffle_checkpoint_allowed(999));
+    for (int cpu = 0; cpu < 8; cpu++) {
+        assert(platform_mpidr(&platform_waffle, cpu) == (uint64_t)cpu * 256);
+        assert(platform_core_index(&platform_waffle, (uint64_t)cpu * 256) == cpu);
+    }
+    assert(platform_mpidr(&platform_waffle, -1) == UINT64_MAX);
+    assert(platform_mpidr(&platform_waffle, 8) == UINT64_MAX);
+    assert(platform_core_index(&platform_waffle, 0x10000) == -1);
+    /* Exercise parsing across arbitrary bytes, including token separators. */
+    uint32_t random = 17;
+    for (unsigned n = 0; n < 10000; n++) {
+        char line[64];
+        for (unsigned i = 0; i < sizeof(line) - 1; i++) {
+            random = random * 1664525u + 1013904223u;
+            line[i] = (char)(1 + random % 127);
+        }
+        line[sizeof(line) - 1] = 0;
+        (void)waffle_cmdline_allowed(line);
+    }
+    return 0;
+}

@@ -9,8 +9,8 @@ CC="xnu-clang -arch arm64 -Os -static -nostdlib -ffreestanding -fno-stack-protec
 LD="-Wl,-e,_start -Wl,-pagezero_size,0x100000000"
 SDK=${THEOS:-$HOME/theos}/sdks/iPhoneOS16.5.sdk
 DYN="xnu-clang -arch arm64 -isysroot $SDK -O1"
-INJECT=${INJECT-"/redwood/lib/libredwood.dylib backboardd containermanagerd containermanagerd_system
-/redwood/lib/libredwood-sb.dylib SpringBoard
+INJECT=${INJECT-"/redwood/lib/libredwood.dylib backboardd containermanagerd containermanagerd_system Preferences PosterBoard
+/redwood/lib/libredwood-sb.dylib SpringBoard PosterBoard Preferences
 /redwood/lib/libredwood-media.dylib mediaserverd
 /redwood/lib/libredwood-app.dylib Sileo
 /redwood/lib/libredwood-tweaks.dylib Preferences"}
@@ -54,7 +54,7 @@ if [ -d $SDK/usr/lib ]; then
 		$DYN -dynamiclib -install_name /redwood/lib/libredwood.dylib -framework CoreFoundation -framework IOKit -lobjc \
 			-o obj/libredwood.dylib src/inject.c
 		$DYN -dynamiclib -install_name /redwood/lib/libredwood-sb.dylib -framework CoreFoundation -framework IOKit -lobjc \
-			-o obj/libredwood-sb.dylib src/inject_sb.c src/inject_island.m -framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics
+            -o obj/libredwood-sb.dylib src/inject_sb.c src/inject_island.m src/inject_poster.m src/inject_settings.m -framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics
 		$DYN -dynamiclib -install_name /redwood/lib/libredwood-tweaks.dylib -framework CoreFoundation -lobjc \
 			-o obj/libredwood-tweaks.dylib src/inject_tweaks.c
 		$DYN -dynamiclib -install_name /redwood/lib/libredwood-app.dylib -lobjc \

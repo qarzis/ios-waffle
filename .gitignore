@@ -32,6 +32,9 @@ FMMT_Build.log
 !/loader/efi.h
 !/loader/payload.h
 !/loader/platform.h
+!/loader/waffle.h
+!/loader/waffle-memory.h
+!/loader/waffle-memory-map.h
 !/loader/macan-memory.h
 !/loader/pac-probe.h
 !/loader/identity.h

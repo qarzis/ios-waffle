@@ -1,0 +1,129 @@
+{
+  "audit_started_utc": "2026-10-31T07:51:56.204821+00:00",
+  "files": {
+    "kernel/files/bsd/dev/macan_adreno.c": {
+      "sha256": "ff9e4f4496daec465bf1ff4fa76af9e2ceb40d9db042204086881abc56e8d8e7",
+      "bytes": 91987
+    },
+    "kernel/files/bsd/dev/macan_input.c": {
+      "sha256": "c6b605441a683ca8ecefa5e26e269dea36123ec36379b98842c23e0e90308f6d",
+      "bytes": 5549
+    },
+    "kernel/files/bsd/dev/waffle_adreno.c": {
+      "sha256": "299a93528ed3a67a2636ec401d8927c536a4dea2a0e893012937410cfaae59b5",
+      "bytes": 27087
+    },
+    "kernel/files/bsd/dev/waffle_gmu.c": {
+      "sha256": "df18f8a58b8ffd230c87ce0cee34e54fe99d849109b180b86a2af0cfa7243a51",
+      "bytes": 80202
+    },
+    "kernel/files/bsd/dev/waffle_smmu.c": {
+      "sha256": "dcf24424c46a72c7ae64ddf25c17f1c9e834294126ba3cc9a720221378404e16",
+      "bytes": 34077
+    },
+    "kernel/files/bsd/dev/waffle_synaptics.c": {
+      "sha256": "a388512ea4502731f4bd4ea637ae977e588ab2033218bc5b3e1349f0db13adac",
+      "bytes": 12087
+    },
+    "kernel/files/bsd/sys/waffle_aop.h": {
+      "sha256": "53b3a6f88663f8c9a0396249b0db89c999c8d67160d45e19deaddd790b6ccd8d",
+      "bytes": 6592
+    },
+    "kernel/files/bsd/sys/waffle_gen7_boot.h": {
+      "sha256": "7e2c89be1eac73f4337c27ccaf5cd8147b8d5040ca77f61fb96ad9b337088f0a",
+      "bytes": 5552
+    },
+    "kernel/files/bsd/sys/waffle_gen7_config.h": {
+      "sha256": "28e0a1e8046d4503cea8b9d62155f1c7a307806e48b2f13e5489a0350ecd4c09",
+      "bytes": 8149
+    },
+    "kernel/files/bsd/sys/waffle_gen7_cp.h": {
+      "sha256": "d6986aa01877536fe454a2f83d16d688b77ed65b2482738160aa1e8d9058d98c",
+      "bytes": 3608
+    },
+    "kernel/files/bsd/sys/waffle_gen7_hwcg.h": {
+      "sha256": "3b50fc8d9ecd82813d661e1a48479b8572461631aa902081e08414e2e1c36c0b",
+      "bytes": 5529
+    },
+    "kernel/files/bsd/sys/waffle_gen7_tables.h": {
+      "sha256": "e0e687b75882a70f5163882a89561ff3c636281a0b839060d109b26cfb71527a",
+      "bytes": 11529
+    },
+    "kernel/files/bsd/sys/waffle_gmu.h": {
+      "sha256": "ddf52c13f887cadae4ea6bbba876b96465ecfd47745ca8fb0a7eb0f4002cdb56",
+      "bytes": 1604
+    },
+    "kernel/files/bsd/sys/waffle_gmu_clock.h": {
+      "sha256": "0394cfec931cfb93440645bbbd64c9fbe8d5f80d72d3926a8ecba8361d4ad7f9",
+      "bytes": 2605
+    },
+    "kernel/files/bsd/sys/waffle_gmu_firmware.h": {
+      "sha256": "0015772696909df78515432d6d81d5ecabbd44de2aefc16d2370d53b631f877f",
+      "bytes": 1737
+    },
+    "kernel/files/bsd/sys/waffle_gpu.h": {
+      "sha256": "3f49e7a79673ca857409f28f2dfb1d9a2a728159b1c334df75b9c9806baaf9c8",
+      "bytes": 2713
+    },
+    "kernel/files/bsd/sys/waffle_gpu_pll.h": {
+      "sha256": "0c363f8e514dee5c1280e7e5f860df918feb0c648e3c76dfd6589b2644d46db2",
+      "bytes": 5994
+    },
+    "kernel/files/bsd/sys/waffle_gpu_va.h": {
+      "sha256": "be4b9c022b0664d7c38b4b0330c063eb7c7a0b6456f95ba6eef3c62ba51a547e",
+      "bytes": 1342
+    },
+    "kernel/files/bsd/sys/waffle_hfi.h": {
+      "sha256": "292e625a6d306e24414bc26f3bcc64238cd6ad7c6d6d74a3b392786fd100d0a7",
+      "bytes": 8186
+    },
+    "kernel/files/bsd/sys/waffle_hfi_tables.h": {
+      "sha256": "a87c8b19ec03a95105fb6d918526686556ef80d440e018ef345aab9bb2ecc44f",
+      "bytes": 3141
+    },
+    "kernel/files/bsd/sys/waffle_scm.h": {
+      "sha256": "74b27635cdc0170a0f03ca99f989c9ce33147f1b4ce192db9cde696ee8286e3e",
+      "bytes": 3325
+    },
+    "kernel/files/bsd/sys/waffle_zap.h": {
+      "sha256": "8489d85588e591c73e00c851443b1d9a280c3c03a4b114e171a911490d8e2de1",
+      "bytes": 2829
+    },
+    "kernel/files/iokit/Kernel/MacanGPU.cpp": {
+      "sha256": "5618877ae10e7cd1c8e8b1e2ddb90ff674c661328e443ddfc4926310b4857ca6",
+      "bytes": 30310
+    },
+    "kernel/files/osfmk/arm64/loader_return.c": {
+      "sha256": "22da8fa85c02bd66e90a8f349ac2bff30764208e24f958ea202b29760ddb8559",
+      "bytes": 13703
+    },
+    "kernel/kernel.patch": {
+      "sha256": "3c13412b5fd3ea3806af6be68e0855f6903a49e7ea175b407debd578e06a8096",
+      "bytes": 107422
+    },
+    "loader/loader.c": {
+      "sha256": "c0ed0ebff83c456761568c94d20005b0d3cda91b98d907a0a3869422cdf770fa",
+      "bytes": 91440
+    },
+    "loader/waffle-power.h": {
+      "sha256": "9e8cf08a970fc3c86a98f8f046c3b61c2287d96cd650f84295e6749da1c915e6",
+      "bytes": 7686
+    },
+    "loader/waffle.h": {
+      "sha256": "321f82e0323e649fe9b7468059f078b6b87dda6f4c1763cafb141611ac35e8ac",
+      "bytes": 3256
+    },
+    "scripts/run_waffle_ios.py": {
+      "sha256": "08b2790e8d96f4df686f36a647a551cca97c746015fb540ea4bddd5c64ebb3e4",
+      "bytes": 27112
+    },
+    "tools/build-waffle-diagnostic.py": {
+      "sha256": "2b3c4c1f7ea31c6929bf88048de3af6088ed3394ca612ff6a832e00d8361602a",
+      "bytes": 16259
+    },
+    "userland/src/inject.c": {
+      "sha256": "09f25498c205d395c2a45a9bb7c63edf180c8f89d2cae410509c79b905b5ec4c",
+      "bytes": 32641
+    }
+  }
+}

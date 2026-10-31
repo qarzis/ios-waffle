@@ -603,7 +603,12 @@ send_button(IOHIDServiceClientRef buttons, const struct redwood_touch *t)
  }
  event = IOHIDEventCreateKeyboardEvent(NULL, t->time, HID_PAGE_CONSUMER, usage, t->type == REDWOOD_BUTTON_DOWN, 0);
  IOHIDEventSetIntegerValue(event, FIELD_IS_BUILT_IN, 1);
- IOHIDVirtualServiceClientDispatchEvent(buttons, event);
+ Boolean delivered = IOHIDVirtualServiceClientDispatchEvent(buttons, event);
+ static unsigned button_samples;
+ if (button_samples++ < 24 || !delivered) {
+  say("redwood: input: button %u %s HID usage %#x delivered=%u\n", t->finger,
+      t->type == REDWOOD_BUTTON_DOWN ? "down" : "up", usage, delivered);
+ }
  CFRelease(event);
 }
 static bool touch_latency;
@@ -728,6 +733,15 @@ opengl_es(void)
   return;
  }
  if (sysctlbyname("kern.bootargs", arguments, &size, NULL, 0) == 0) {
+  if (strstr(arguments, "waffle=1") != NULL) {
+   /* SM8650 GPU bring-up is separate. Use Mesa's CPU renderer through the
+    * existing EAGL shim, instead of CoreAnimation's unusable fallback.
+    */
+   setenv("GALLIUM_DRIVER", "softpipe", 1);
+   wanted = 1;
+   told = 1;
+   say("waffle: CoreAnimation uses Mesa softpipe (CPU rendering)\n");
+  }
   functions_said_yes(arguments);
   compile_shaders_said = strstr(arguments, "glcompile=1") != NULL;
   for (argument = arguments; (argument = strstr(argument, "gl=")) != NULL; argument += 3) {
@@ -795,5 +809,12 @@ redwood_init(void)
   input_start();
  } else if (strncmp(name, "containermanagerd", 17) == 0) {
   container_manager_fixes();
+ } else if (strcmp(name, "Preferences") == 0 || strcmp(name, "PosterBoard") == 0) {
+  char arguments[1024] = "";
+  size_t size = sizeof(arguments) - 1;
+  if (sysctlbyname("kern.bootargs", arguments, &size, NULL, 0) == 0 && strstr(arguments, "waffle=1")) {
+   say("waffle: %s enables Mesa for client-side CoreImage/OpenGL rendering\n", name);
+   opengl_es();
+  }
  }
 }

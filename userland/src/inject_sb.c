@@ -16,6 +16,17 @@
 #include <sys/sysctl.h>
 #include <unistd.h>
 static int say_fd = 2;
+static bool dump_hidden_windows;
+static size_t
+append_more(char *buffer,size_t capacity,size_t used,const char *format,...)
+{
+ if (used>=capacity) return capacity;
+ va_list ap;va_start(ap,format);
+ int added=vsnprintf(buffer+used,capacity-used,format,ap);
+ va_end(ap);
+ if (added<0) return used;
+ return (size_t)added>=capacity-used?capacity:used+(size_t)added;
+}
 static void
 say(const char *format, ...)
 {
@@ -406,7 +417,7 @@ layer_line(id layer, const char *role, int depth)
  char more[1024] = "";
  size_t n = 0;
  if (SEND(BOOL, layer, "isHidden")) {
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " HIDDEN");
+  n = append_more(more, sizeof(more), n, " HIDDEN");
  }
  if (contents != NULL) {
   id text = (id)CFCopyDescription((CFTypeRef)contents);
@@ -424,44 +435,44 @@ layer_line(id layer, const char *role, int depth)
    flat[k++] = *from++;
   }
   flat[k] = 0;
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " contents %s", flat);
+  n = append_more(more, sizeof(more), n, " contents %s", flat);
   CFRelease((CFTypeRef)text);
  }
  if (contents != NULL && class_respondsToSelector(object_getClass(layer), sel_registerName("contentsMultiplyColor")) &&
      SEND(void *, layer, "contentsMultiplyColor") != NULL) {
   id text = (id)CFCopyDescription(SEND(void *, layer, "contentsMultiplyColor"));
   const char *numbers = strstr(text_of(text), "( ");
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " times %.40s", numbers ? numbers : "?");
+  n = append_more(more, sizeof(more), n, " times %.40s", numbers ? numbers : "?");
   CFRelease((CFTypeRef)text);
  }
  if (colour != NULL) {
   id text = (id)CFCopyDescription(colour);
   const char *numbers = strstr(text_of(text), "( ");
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " colour %.40s", numbers ? numbers : "?");
+  n = append_more(more, sizeof(more), n, " colour %.40s", numbers ? numbers : "?");
   CFRelease((CFTypeRef)text);
  }
  if (strcmp(class_name, "CAPortalLayer") == 0) {
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " PORTAL of %p%s%s", (void *)SEND(id, layer, "sourceLayer"),
+  n = append_more(more, sizeof(more), n, " PORTAL of %p%s%s", (void *)SEND(id, layer, "sourceLayer"),
       SEND(BOOL, layer, "hidesSourceLayer") ? " (hides it)" : "", SEND(BOOL, layer, "matchesOpacity") ? " (its opacity)" : "");
  } else if (strcmp(class_name, "CABackdropLayer") == 0) {
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " BACKDROP group \"%s\" scale %g%s", text_of(SEND(id, layer, "groupName")),
+  n = append_more(more, sizeof(more), n, " BACKDROP group \"%s\" scale %g%s", text_of(SEND(id, layer, "groupName")),
       SEND(double, layer, "scale"), SEND(BOOL, layer, "captureOnly") ? " (capture only)" : "");
  } else if (strcmp(class_name, "CAGradientLayer") == 0) {
   struct { double x, y; } from = SEND(typeof(from), layer, "startPoint"), to = SEND(typeof(to), layer, "endPoint");
   id colours = SEND(id, layer, "colors");
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " GRADIENT %s from %g,%g to %g,%g at %.40s:", text_of(SEND(id, layer, "type")),
+  n = append_more(more, sizeof(more), n, " GRADIENT %s from %g,%g to %g,%g at %.40s:", text_of(SEND(id, layer, "type")),
       from.x, from.y, to.x, to.y, text_of(SEND(id, layer, "locations")));
   for (long i = 0; colours != NULL && i < SEND(long, colours, "count") && n < sizeof(more); i++) {
    id text = (id)CFCopyDescription((CFTypeRef)SEND1(id, colours, "objectAtIndex:", long, i));
    const char *numbers = strstr(text_of(text), "( ");
-   n += (size_t)snprintf(more + n, sizeof(more) - n, " %.30s", numbers ? numbers : "?");
+   n = append_more(more, sizeof(more), n, " %.30s", numbers ? numbers : "?");
    CFRelease((CFTypeRef)text);
   }
  } else if (strcmp(class_name, "CAShapeLayer") == 0) {
   void *stroke = SEND(void *, layer, "strokeColor"), *fill = SEND(void *, layer, "fillColor");
   id text_stroke = stroke ? (id)CFCopyDescription(stroke) : NULL, text_fill = fill ? (id)CFCopyDescription(fill) : NULL;
   const char *ns = text_stroke ? strstr(text_of(text_stroke), "( ") : NULL, *nf = text_fill ? strstr(text_of(text_fill), "( ") : NULL;
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " SHAPE line %g stroke %.30s fill %.30s ends %g-%g", SEND(double, layer,
+  n = append_more(more, sizeof(more), n, " SHAPE line %g stroke %.30s fill %.30s ends %g-%g", SEND(double, layer,
       "lineWidth"), ns ? ns : "-", nf ? nf : "-", SEND(double, layer, "strokeStart"), SEND(double, layer, "strokeEnd"));
   if (text_stroke != NULL) {
    CFRelease((CFTypeRef)text_stroke);
@@ -470,23 +481,23 @@ layer_line(id layer, const char *role, int depth)
    CFRelease((CFTypeRef)text_fill);
   }
  } else if (strcmp(class_name, "CALayerHost") == 0) {
-  n += (size_t)snprintf(more + n, sizeof(more) - n, " HOST of context %#x%s%s", SEND(unsigned, layer, "contextId"),
+  n = append_more(more, sizeof(more), n, " HOST of context %#x%s%s", SEND(unsigned, layer, "contextId"),
       SEND(BOOL, layer, "inheritsSecurity") ? " (inherits security)" : "",
       SEND(BOOL, layer, "rendersAsynchronously") ? " (asynchronously)" : "");
  }
  {
   id delegate = SEND(id, layer, "delegate");
   if (delegate != NULL) {
-   n += (size_t)snprintf(more + n, sizeof(more) - n, " of %s", object_getClassName(delegate));
+   n = append_more(more, sizeof(more), n, " of %s", object_getClassName(delegate));
   }
  }
  {
   id keys = SEND(id, layer, "animationKeys");
   if (SEND(BOOL, layer, "shouldRasterize")) {
-   n += (size_t)snprintf(more + n, sizeof(more) - n, " RASTERIZED");
+   n = append_more(more, sizeof(more), n, " RASTERIZED");
   }
   for (long i = 0; keys != NULL && i < SEND(long, keys, "count") && n < sizeof(more); i++) {
-   n += (size_t)snprintf(more + n, sizeof(more) - n, "%s%s", i == 0 ? " ANIMATIONS " : ",",
+   n = append_more(more, sizeof(more), n, "%s%s", i == 0 ? " ANIMATIONS " : ",",
        text_of(SEND1(id, keys, "objectAtIndex:", long, i)));
   }
  }
@@ -540,7 +551,8 @@ layers(void)
 {
  Class window = objc_getClass("UIWindow");
  SEL all = sel_registerName("allWindowsIncludingInternalWindows:onlyVisibleWindows:");
- id windows = window && class_getClassMethod(window, all) ? ((id (*)(Class, SEL, BOOL, BOOL))objc_msgSend)(window, all, 1, 1) : NULL;
+ id windows = window && class_getClassMethod(window, all) ?
+     ((id (*)(Class, SEL, BOOL, BOOL))objc_msgSend)(window, all, 1, !dump_hidden_windows) : NULL;
  id application = SEND(id, objc_getClass("UIApplication"), "sharedApplication");
  id authentication = application && class_respondsToSelector(object_getClass(application),
      sel_registerName("authenticationController")) ? SEND(id, application, "authenticationController") : NULL;
@@ -558,6 +570,13 @@ layers(void)
       layers_of, object_getClassName(w), SEND(double, w, "windowLevel"), context ? SEND(unsigned, context, "contextId") : 0,
       context && SEND(BOOL, context, "isSecure") ? "" : "not ", context ? (unsigned)SEND(unsigned long long, context, "commitId") : 0,
       scene ? text_of(SEND(id, scene, "_persistenceIdentifier")) : "none", scene ? SEND(long, scene, "activationState") : -1L);
+  say("redwood: layers%s: window hidden=%u alpha=%g\n",layers_of,
+      (unsigned)SEND(BOOL,w,"isHidden"),SEND(double,w,"alpha"));
+  id controller=SEND(id,w,"rootViewController");
+  for (unsigned depth=0;controller && depth<8;++depth) {
+   say("redwood: layers%s: controller%u %s\n",layers_of,depth,object_getClassName(controller));
+   controller=SEND(id,controller,"presentedViewController");
+  }
   layer_line(SEND(id, w, "layer"), "", 1);
  }
  if (application != NULL) {
@@ -665,6 +684,8 @@ load_tweaks(void)
  }
 }
 extern void redwood_island_init(void);
+extern void redwood_poster_init(void);
+extern void redwood_settings_init(void);
 __attribute__((constructor))
 static void
 redwood_springboard_init(void)
@@ -672,6 +693,10 @@ redwood_springboard_init(void)
  const char *name = getprogname();
  size_t length = 0;
  IMP activation, snapshot_format, battery_lvl, battery_st, poster_switcher;
+ char arguments[1024] = "";
+ size_t arguments_size = sizeof(arguments) - 1;
+ bool waffle = sysctlbyname("kern.bootargs", arguments, &arguments_size, NULL, 0) == 0 &&
+     strstr(arguments, "waffle=1") != NULL;
  int token;
  if (name == NULL) {
   return;
@@ -680,13 +705,21 @@ redwood_springboard_init(void)
   static char who[64];
   snprintf(who, sizeof(who), " of %s", name);
   layers_of = who;
+  dump_hidden_windows=strcmp(name,"PosterBoard")==0;
   if ((say_fd = open("/dev/console", O_WRONLY | O_NOCTTY)) < 0) {
    say_fd = 2;
   }
+  if (strcmp(name, "PosterBoard") == 0) redwood_poster_init();
+  if (strcmp(name, "Preferences") == 0) redwood_settings_init();
   say("redwood: in %s[%d]: its layers are said on the notification com.redwood.layers\n", name, getpid());
   notify_register_dispatch("com.redwood.layers", &token, dispatch_get_main_queue(), ^(__unused int t) {
    layers();
   });
+  if (strcmp(name,"PosterBoard")==0 || strcmp(name,"Preferences")==0) {
+   notify_register_dispatch("com.redwood.poster.layers", &token, dispatch_get_main_queue(), ^(__unused int t) {
+    layers();
+   });
+  }
   return;
  }
  redwood_island_init();
@@ -700,8 +733,8 @@ redwood_springboard_init(void)
  plain_vibrancy();
  original_lock_long_press = (void (*)(id, SEL, id))replace_method("SBLockHardwareButton", "longPress:", 0x1c4f6ab44UL,
      (IMP)lock_long_press);
- poster_switcher = replace_method("SBMainDisplayPolicyAggregator", "_allowsCapabilityPosterSwitcherWithExplanation:",
-     0x1c507e0fcUL, (IMP)poster_switcher_allowed);
+ poster_switcher = waffle ? NULL : replace_method("SBMainDisplayPolicyAggregator",
+     "_allowsCapabilityPosterSwitcherWithExplanation:", 0x1c507e0fcUL, (IMP)poster_switcher_allowed);
  original_switcher_wallpaper_overlay = (void (*)(id, SEL))replace_method("SBAppSwitcherPageView",
      "_createOrDestroyWallpaperOverlayView", 0x1c4af7860UL, (IMP)switcher_wallpaper_overlay);
  original_battery_level = (float (*)(id, SEL))replace_method("UIDevice", "batteryLevel", 0x1897021b0UL, (IMP)battery_level);
@@ -725,7 +758,7 @@ redwood_springboard_init(void)
      activation ? "answered here" : "NOT replaced", original_set_setup_required_reason ? "refused" : "NOT replaced",
      snapshot_format ? "as JPEG" : "NOT changed", original_lock_long_press ? "checked" : "NOT checked",
      battery_lvl ? "from QG" : "NOT replaced", battery_st ? "from QG" : "NOT replaced",
-     poster_switcher ? "not offered" : "NOT withheld");
+     waffle ? "native iOS policy (waffle)" : poster_switcher ? "not offered" : "NOT withheld");
  say("redwood: battery UI: shows%% %s, set-shows%% %s, bolt %s, chargePercent %s, setChargePercent %s, lockscreen ring %s\n",
      original_battery_view_shows_percentage ? "ok" : "NO",
      original_battery_view_set_shows_percentage ? "ok" : "NO",

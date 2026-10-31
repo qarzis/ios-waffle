@@ -1,0 +1,477 @@
+--- 93/kernel/files/bsd/dev/waffle_adreno.c
++++ 94/kernel/files/bsd/dev/waffle_adreno.c
+@@ -287,6 +287,7 @@
+ }
+ static struct pll92_context native_clock_context;
+ static vm_offset_t native_clock_gmu;
++static unsigned native_clock_probe;
+ static struct waffle_gmu_clock_state native_clock_state;
+ static const struct waffle_pll1_io native_pll_io={&native_clock_context,
+     pll92_read,pll92_write,pll92_wait,pll92_barrier,pll92_delay,pll92_power_held,pll92_unused};
+@@ -313,15 +314,15 @@
+     &native_clock_context,native_clock_root,native_clock_set_root,native_clock_cm3_reset,native_clock_gx_off};
+ bool waffle_gpu_native_runtime_clock(unsigned probe)
+ {
+-    if(probe!=93 || !waffle_gmu_clock_runtime(&native_clock_io,&native_clock_state))return false;
+-    gpu_log("waffle-gpu: NATIVE93 runtime GMU260 PLL520 CFG=%08x MODE=%08x L=%08x ALPHA=%08x\n",
+-        native_clock_root(&native_clock_context),pll92_read(&native_clock_context,0x1000),
++    if((probe!=93 && probe!=94) || probe!=native_clock_probe || !waffle_gmu_clock_runtime(&native_clock_io,&native_clock_state))return false;
++    gpu_log("waffle-gpu: NATIVE%u runtime GMU260 PLL520 CFG=%08x MODE=%08x L=%08x ALPHA=%08x\n",
++        probe,native_clock_root(&native_clock_context),pll92_read(&native_clock_context,0x1000),
+         pll92_read(&native_clock_context,0x1010),pll92_read(&native_clock_context,0x1014));
+     return true;
+ }
+ static void native_clock_reboot_required(void)
+ {
+-    gpu_log("waffle-gpu: NATIVE93 REBOOT REQUIRED; retain PLL, CX clocks and firmware votes\n");
++    gpu_log("waffle-gpu: NATIVE%u REBOOT REQUIRED; retain PLL, CX clocks and firmware votes\n",native_clock_probe);
+     loader_return();
+     for(;;)delay_for_interval(1000,NSEC_PER_USEC);
+ }
+@@ -380,13 +381,13 @@
+             gpu_log("waffle-gpu: CX AO counter %08x -> %08x delta=%u (1000us interval)\n",
+                 before, after, after - before);
+             if(probe==92)pll_passed=probe_pll1(cc,gmu);
+-            if(probe==93) {
+-                native_clock_context.cc=cc;native_clock_gmu=gmu;
++            if(probe==93 || probe==94) {
++                native_clock_context.cc=cc;native_clock_gmu=gmu;native_clock_probe=probe;
+                 ok=waffle_gmu_clock_start(&native_clock_io,&native_clock_state);
+-                gpu_log("waffle-gpu: NATIVE93 startup GMU625 PLL1250 ready=%u CFG=%08x MODE=%08x L=%08x ALPHA=%08x\n",
+-                    ok,native_clock_root(&native_clock_context),read_reg(cc,0x1000),read_reg(cc,0x1010),read_reg(cc,0x1014));
++                gpu_log("waffle-gpu: NATIVE%u startup GMU625 PLL1250 ready=%u CFG=%08x MODE=%08x L=%08x ALPHA=%08x\n",
++                    probe,ok,native_clock_root(&native_clock_context),read_reg(cc,0x1000),read_reg(cc,0x1010),read_reg(cc,0x1014));
+             }
+-        } else {gpu_log("waffle-gpu: GMU mapping failed\n");if(probe==93)ok=false;}
++        } else {gpu_log("waffle-gpu: GMU mapping failed\n");if(probe==93 || probe==94)ok=false;}
+     }
+     if (ok && probe >= 5 && probe!=92) {
+         const uint32_t buses[] = { WAFFLE_GPU_MEMNOC, WAFFLE_GPU_DDR_AXI };
+@@ -409,11 +410,11 @@
+             else gpu_log("waffle-gpu: SMMU clock halted; no SMMU reads\n");
+         }
+     }
+-    if(probe==93 && native_clock_context.cc) {
++    if((probe==93 || probe==94) && native_clock_context.cc) {
+         native_passed=native_clock_state.runtime;
+         if(!waffle_gmu_clock_finish(&native_clock_io,&native_clock_state))native_clock_reboot_required();
+-        gpu_log("waffle-gpu: NATIVE93 detached and PLL scalar restore=1 owned=%u CFG=%08x\n",
+-            native_clock_state.pll.owned,native_clock_root(&native_clock_context));
++        gpu_log("waffle-gpu: NATIVE%u detached and PLL scalar restore=1 owned=%u CFG=%08x\n",
++            probe,native_clock_state.pll.owned,native_clock_root(&native_clock_context));
+     }
+     while (count) {
+         struct clock_change *c = &saved[--count];
+@@ -434,6 +435,8 @@
+         ok && pll_passed && clocks_restored);
+     if(probe==93)gpu_log("waffle-gpu: NATIVE93 clock control passed=%u; no CP RAW sent\n",
+         ok && native_passed && clocks_restored);
++    if(probe==94)gpu_log("waffle-gpu: NATIVE94 clock control passed=%u; GMU stopped and PLL restored\n",
++        ok && native_passed && clocks_restored);
+ }
+ static void probe_cx(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
+ {
+@@ -477,7 +480,7 @@
+     uint32_t waffle = 0, probe = 0;
+     if (!PE_parse_boot_argn("waffle", &waffle, sizeof(waffle)) || waffle != 1 ||
+         !PE_parse_boot_argn("waffle_gpu", &probe, sizeof(probe)) || probe == 0) return;
+-    if (probe > 93) {
++    if (probe > 94) {
+         gpu_log("waffle-gpu: unsupported stage %u; no MMIO access\n", probe);
+         loader_return();
+         return;
+@@ -487,7 +490,7 @@
+         loader_return();
+         return;
+     }
+-    if(probe==92 || probe==93) {
++    if(probe==92 || probe==93 || probe==94) {
+         if(!PE_parse_boot_argn("waffle_fw_cxmx",&pll92_power,sizeof(pll92_power)) || pll92_power!=256) {
+             gpu_log("waffle-gpu: PLL%u firmware power proof missing; no MMIO access\n",probe);
+             loader_return();return;
+@@ -510,7 +513,7 @@
+ {
+     gpu_log("waffle-gpu: Adreno750 Gen7.9.1 profile-chipid=%08x stage=%u; %s\n",
+         WAFFLE_GPU_CHIP_ID, probe,(probe==35 || probe==36 || probe==80 || probe==82 || probe==85)?"polled CP thread-control only":
+-        (probe==33 || probe==38 || probe==40 || probe==42 || probe==44 || probe==49 || probe==51 || probe==53 || probe==55 || probe==57 || probe==59 || probe==64 || probe==66 || probe==86 || probe==89 || probe==91)?"polled CP init only":"no GPU command submission");
++        (probe==33 || probe==38 || probe==40 || probe==42 || probe==44 || probe==49 || probe==51 || probe==53 || probe==55 || probe==57 || probe==59 || probe==64 || probe==66 || probe==86 || probe==89 || probe==91 || probe==94)?"polled CP init only":"no GPU command submission");
+     vm_offset_t gcc = ml_io_map(WAFFLE_GCC_BASE, WAFFLE_GCC_SIZE);
+     if (!gcc) { gpu_log("waffle-gpu: GCC map failed\n");  return; }
+     show(gcc, WAFFLE_GCC_BASE, "GPU_CFG_AHB_CBCR", WAFFLE_GPU_CFG_AHB);
+--- 93/kernel/files/bsd/dev/waffle_gmu.c
++++ 94/kernel/files/bsd/dev/waffle_gmu.c
+@@ -1094,7 +1094,7 @@
+             rd(gmu,WAFFLE_GMU_REG(0x1f8d0)),rd(cc,WAFFLE_GPU_GX_GDSCR),
+             rd(gmu,WAFFLE_GMU_REG(0x1cbff)));
+     }
+-    if(running && probe==93 && !waffle_gpu_native_runtime_clock(probe))
++    if(running && (probe==93 || probe==94) && !waffle_gpu_native_runtime_clock(probe))
+         stop_unsafe("native GMU260 transition failed; retain PLL and power");
+     if (running && probe >= 18 && (probe < 25 || probe >= 31)) running = gpu_power_probe(gmu,cc,plan,probe,hfi_alias,&live);
+     if ((running || minimum_attempted) && probe >= 16 && (probe < 25 || probe >= 31)) {
+@@ -1368,13 +1368,13 @@
+         say("waffle-gmu: RAM_LOG_MANIFEST refused; RAW not sent\n");
+         return false;
+     }
+-    if ((io->probe==53 || io->probe==55 || io->probe==57 || io->probe==59 || io->probe==64 || io->probe==66 || io->probe==68 || io->probe==70 || io->probe==71 || io->probe==73 || io->probe==76 || io->probe==80 || io->probe==82 || io->probe==85 || io->probe==86 || io->probe==89 || io->probe==91)) {
++    if ((io->probe==53 || io->probe==55 || io->probe==57 || io->probe==59 || io->probe==64 || io->probe==66 || io->probe==68 || io->probe==70 || io->probe==71 || io->probe==73 || io->probe==76 || io->probe==80 || io->probe==82 || io->probe==85 || io->probe==86 || io->probe==89 || io->probe==91 || io->probe==94)) {
+         say("waffle-gmu: PRE_RAW_SNAPSHOT words=%u CPstate=%08x AO_busy=%08x\n",
+             words,rd(io->gpu,0x808*4),rd(io->gmu,WAFFLE_GMU_REG(0x23b0c)));
+         for(unsigned i=0;i<words;i++) say("waffle-gmu: PRE_RAW packet[%u]=%08x\n",i,packet[i]);
+         const uint32_t *list=(const uint32_t *)io->power->memory;
+         for(unsigned i=0;i<16;i++) say("waffle-gmu: PRE_RAW restore[%u]=%08x\n",i,list[i]);
+-        if (io->probe!=68 && io->probe!=70 && io->probe!=71 && io->probe!=73 && io->probe!=76 && io->probe!=80 && io->probe!=82 && io->probe!=85 && io->probe!=86 && io->probe!=89 && io->probe!=91) {
++        if (io->probe!=68 && io->probe!=70 && io->probe!=71 && io->probe!=73 && io->probe!=76 && io->probe!=80 && io->probe!=82 && io->probe!=85 && io->probe!=86 && io->probe!=89 && io->probe!=91 && io->probe!=94) {
+         say("waffle-gmu: PRE_RAW_HOLD begin 5s; RAW not sent yet\n");
+         delay_for_interval(5000000,NSEC_PER_USEC);
+         say("waffle-gmu: PRE_RAW_HOLD end; publishing RAW\n");
+@@ -1391,7 +1391,7 @@
+     if (!live || !hfi_alias || !power || !power->gpu_only || power->readonly ||
+         !sqe || !aqe || !sqe->gpu_only || !aqe->gpu_only || !sqe->readonly || !aqe->readonly ||
+         plan->protected_address!=(probe>=56?0x100000000ULL:0xa0000000u) || plan->protected_size!=0x400000u) return false;
+-    plan->raw_stage_pause=probe==68 || probe==70 || probe==71 || probe==73 || probe==76 || probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91;
++    plan->raw_stage_pause=probe==68 || probe==70 || probe==71 || probe==73 || probe==76 || probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91 || probe==94;
+     live->state.config.native_trusted_window=probe>=56;
+     if (probe>=56) say("waffle-gmu: native trusted window base=f0000000 size=fffff000 protected_VA=100000000\n");
+     live->context=(struct gen7_config_io){.gpu=gpu,.gmu=gmu,.hfi_alias=hfi_alias,.power=power,.plan=plan,.probe=probe};
+@@ -1403,11 +1403,11 @@
+     if (plan->split_gpu_va) say("waffle-gmu: native global GPU VA SQE=%llx AQE=%llx restore=%llx\n",sqe_va,aqe_va,restore_va);
+     int result=(probe==35 || probe==36 || probe==71 || probe==73 || probe==76 || probe==80 || probe==82 || probe==85) ?
+         waffle_gen7_boot_thread_start(&io,&live->state,(uint32_t *)power->memory,power->size/4,
+-        sqe_va,aqe_va,restore_va,(probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91)?42:34) : (probe==34 || probe==37 || probe==39 || probe==41 || probe==43 || probe==48 || probe==50 || probe==52 || probe==54 || probe==56 || probe==58 || probe==60 || probe==62 || probe==63 || probe==65 || probe==67 || probe==69 || probe==72 || probe==74 || probe==75 || probe==77 || probe==78 || probe==79 || probe==81 || probe==83 || probe==84 || probe==87 || probe==88 || probe==90 || probe==93) ?
++        sqe_va,aqe_va,restore_va,(probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91 || probe==94)?42:34) : (probe==34 || probe==37 || probe==39 || probe==41 || probe==43 || probe==48 || probe==50 || probe==52 || probe==54 || probe==56 || probe==58 || probe==60 || probe==62 || probe==63 || probe==65 || probe==67 || probe==69 || probe==72 || probe==74 || probe==75 || probe==77 || probe==78 || probe==79 || probe==81 || probe==83 || probe==84 || probe==87 || probe==88 || probe==90 || probe==93) ?
+         waffle_gen7_boot_prepare(&io,&live->state,(uint32_t *)power->memory,power->size/4,
+-            sqe_va,aqe_va,restore_va,(probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91)?42:34) :
++            sqe_va,aqe_va,restore_va,(probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91 || probe==94)?42:34) :
+         waffle_gen7_boot_start(&io,&live->state,(uint32_t *)power->memory,power->size/4,
+-            sqe_va,aqe_va,restore_va,(probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91)?42:34);
++            sqe_va,aqe_va,restore_va,(probe==80 || probe==82 || probe==85 || probe==86 || probe==89 || probe==91 || probe==94)?42:34);
+     if ((probe==34 || probe==37 || probe==39 || probe==41 || probe==43 || probe==48 || probe==50 || probe==52 || probe==54 || probe==56 || probe==58 || probe==60 || probe==62 || probe==63 || probe==65 || probe==67 || probe==69 || probe==72 || probe==74 || probe==75 || probe==77 || probe==78 || probe==79 || probe==81 || probe==83 || probe==84 || probe==87 || probe==88 || probe==90 || probe==93) && !result) {
+         /* Conservative ownership transition ONLY: no packet publication.
+          * Exercise native collapse with config/HWCG/bases left active, exactly
+--- 93/kernel/files/bsd/dev/waffle_smmu.c
++++ 94/kernel/files/bsd/dev/waffle_smmu.c
+@@ -428,7 +428,7 @@
+         else {firmware.protected_address=protected_pool->address;firmware.protected_size=PROTECTED_POOL_BYTES;}
+     }
+     if (matches_pa && probe>=37 && !waffle_scm_gpu_aperture()) goto done;
+-    if (matches_pa && (probe==90 || probe==93 || probe==91)) {
++    if (matches_pa && (probe==90 || probe==93 || probe==91 || probe==94)) {
+         if (!protected_pool || !diagnostic_context_stall(protected_pool->context.cb)) goto done;
+         log_line("waffle-iommu: SEC_STALL%u CB2 SCTLR=%08x; CFIE masked\n",probe,r32(protected_pool->context.cb,0));
+     }
+@@ -459,8 +459,8 @@
+                 matches_pa = false; break;
+             }
+         }
+-        if (matches_pa && (probe==84 || probe==85 || probe==86 || probe==87 || probe==88 || probe==89 || probe==91 || probe==90 || probe==93) && !gpu_context_fault_continue(gpu_context.cb)) goto done;
+-        if (matches_pa && (probe==83 || probe==84 || probe==85 || probe==86 || probe==87 || probe==88 || probe==89 || probe==91 || probe==90 || probe==93)) {
++        if (matches_pa && (probe==84 || probe==85 || probe==86 || probe==87 || probe==88 || probe==89 || probe==91 || probe==94 || probe==90 || probe==93) && !gpu_context_fault_continue(gpu_context.cb)) goto done;
++        if (matches_pa && (probe==83 || probe==84 || probe==85 || probe==86 || probe==87 || probe==88 || probe==89 || probe==91 || probe==94 || probe==90 || probe==93)) {
+             /* Read-only CB0 snapshot while its clocks and mappings are owned.
+              * Compare actual readback, including architectural RES1/RAZ bits,
+              * with Android; source write constants alone are insufficient. */
+@@ -471,7 +471,7 @@
+                 probe,r64(gpu_context.cb,0x20),r64(gpu_context.cb,0x28),r32(gpu_context.cb,0x38),r32(gpu_context.cb,0x3c),
+                 r32(smmu,page),r32(smmu,page+0x800),r32(smmu,0xc00));
+         }
+-        if (matches_pa && (probe==85 || probe==86 || probe==89 || probe==91)) {
++        if (matches_pa && (probe==85 || probe==86 || probe==89 || probe==91 || probe==94)) {
+             firmware.fault_smmu=smmu;firmware.fault_page=page;firmware.fault_pages=pages;
+             log_line("waffle-iommu: HUPCF%u RAW fault readback armed; no fault clear/resume\n",probe);
+         }
+--- 93/kernel/files/bsd/sys/waffle_gpu.h
++++ 94/kernel/files/bsd/sys/waffle_gpu.h
+@@ -54,6 +54,6 @@
+ #define WAFFLE_GPU_SQE_FW        "gen70900_sqe.fw"
+ #define WAFFLE_GPU_AQE_FW        "gen70900_aqe.fw"
+ #define WAFFLE_GPU_ZAP_FW        "gen70900_zap.mbn"
+-/* Diagnostic93 only: successful native PLL1250/GMU625 start must precede it. */
++/* Diagnostics93/94 only: successful native PLL1250/GMU625 start must precede it. */
+ bool waffle_gpu_native_runtime_clock(unsigned probe);
+ #endif
+--- 93/kernel/files/bsd/sys/waffle_gpu_pll.h
++++ 94/kernel/files/bsd/sys/waffle_gpu_pll.h
+@@ -1,4 +1,4 @@
+-/* PJD110 PLL1 diagnostic implementation; isolated92 and GMU-clock93 callers.
++/* PJD110 PLL1 diagnostic implementation; isolated92 and GMU-clock93/94 callers.
+  * Caller must own verified CX>=128/MX>=192 votes throughout this session.
+  * All callbacks access GPUCC PLL1 only. wait() has a microsecond deadline.
+  * begin/restore require every PLL1 consumer to be detached. On any failure
+--- 93/loader/waffle.h
++++ 94/loader/waffle.h
+@@ -68,7 +68,7 @@
+         while (*line==' ') line++;
+         const char *end=line;
+         while (*end && *end!=' ') end++;
+-        if (waffle_number(line,(size_t)(end-line),"waffle_gpu=",92,93)) return 1;
++        if (waffle_number(line,(size_t)(end-line),"waffle_gpu=",92,94)) return 1;
+         line=end;
+     }
+     return 0;
+@@ -89,7 +89,7 @@
+ static inline int waffle_gpu_token_allowed(const char *word, size_t size)
+ {
+ #if defined(WAFFLE_USERLAND)
+-    return waffle_number(word, size, "waffle_gpu=", 1, 93);
++    return waffle_number(word, size, "waffle_gpu=", 1, 94);
+ #else
+     (void)word; (void)size;
+     return 0;
+--- 93/scripts/run_waffle_ios.py
++++ 94/scripts/run_waffle_ios.py
+@@ -34,7 +34,7 @@
+     parser.add_argument("--bootcpu", type=int, default=7, choices=range(1, 8))
+     parser.add_argument("--fbscale", type=int, default=2, choices=(1, 2, 3), help="Render scale: 1 is faster, 2 is sharper")
+     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
+-    parser.add_argument("--gpu-probe", type=int, choices=range(1, 94), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
++    parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
+     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
+     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
+     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
+@@ -88,7 +88,7 @@
+     deadline = time.monotonic() + args.seconds + 90
+     sequence = 0
+     while time.monotonic() < deadline:
+-        time.sleep(0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93) else 5)
++        time.sleep(0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
+         response = command("getvar", "result")
+         line = next((s for s in response.splitlines() if s.startswith("result: ")), "")
+         sequence += 1
+@@ -109,14 +109,14 @@
+             if re.search(r"(?:^|\n)(?:\[[^\n]*\]: )?panic\(cpu \d", final_text):
+                 (out / "result.txt").write_text(line + "\nKERNEL PANIC (see kernel-final.log)\n")
+                 raise RuntimeError(f"Kernel panicked before returning; logs: {out}")
+-            if args.gpu_probe == 93 and not all(marker in final_text for marker in (
++            if args.gpu_probe in (93,94) and not all(marker in final_text for marker in (
+                     "FW_HOLD verified CX=100 MX=100; dedicated clients retained until reset; no clock writes",
+-                    "PLL93 verified firmware CX/MX256 handoff",
+-                    "NATIVE93 startup GMU625 PLL1250 ready=1",
+-                    "NATIVE93 runtime GMU260 PLL520",
+-                    "NATIVE93 detached and PLL scalar restore=1 owned=0",
+-                    "NATIVE93 clock control passed=1; no CP RAW sent")):
+-                raise RuntimeError(f"NATIVE93 clock session did not pass; logs: {out}")
++                    f"PLL{args.gpu_probe} verified firmware CX/MX256 handoff",
++                    f"NATIVE{args.gpu_probe} startup GMU625 PLL1250 ready=1",
++                    f"NATIVE{args.gpu_probe} runtime GMU260 PLL520",
++                    f"NATIVE{args.gpu_probe} detached and PLL scalar restore=1 owned=0",
++                    f"NATIVE{args.gpu_probe} clock control passed=1")):
++                raise RuntimeError(f"NATIVE{args.gpu_probe} clock session did not pass; logs: {out}")
+             if args.gpu_probe == 92 and not all(marker in final_text for marker in (
+                     "FW_HOLD verified CX=100 MX=100; dedicated clients retained until reset; no clock writes",
+                     "PLL92 verified firmware CX/MX256 handoff",
+@@ -129,37 +129,37 @@
+                 return
+             if "waffle-gmu: REBOOT REQUIRED" in final_text:
+                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
+-            if args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and not all(marker in final_text for marker in (
++            if args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
+                     f"AOP channel{args.gpu_probe} result=0 channel=ffff0000 ack=ffff0000 link=0000ffff linkack=0000ffff",
+                     f"AOP channel{args.gpu_probe} cleanup complete")):
+                 raise RuntimeError(f"AOP channel roundtrip failed; logs: {out}")
+-            if args.gpu_probe in (48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and not all(marker in final_text for marker in (
++            if args.gpu_probe in (48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
+                     "ACD_ON ACK matched seq36 value=00000000 valid=1",
+                     "ACD_TABLE ACK matched seq37 value=00000000 valid=1")):
+                 raise RuntimeError(f"ACD HFI prerequisite not acknowledged; logs: {out}")
+-            if args.gpu_probe in (50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and "BAILOUT_TIMER_ON ACK matched seq38 value=00000000 valid=1" not in final_text:
++            if args.gpu_probe in (50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "BAILOUT_TIMER_ON ACK matched seq38 value=00000000 valid=1" not in final_text:
+                 raise RuntimeError(f"Bailout timer not acknowledged; logs: {out}")
+-            if args.gpu_probe in (56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and not all(marker in final_text for marker in (
++            if args.gpu_probe in (56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
+                     "protected pool ready VA=100000000", "native trusted window base=f0000000 size=fffff000")):
+                 raise RuntimeError(f"Native protected window not confirmed; logs: {out}")
+             if args.gpu_probe in (64,66) and "PRE_RAW_HOLD begin 5s; RAW not sent yet" not in final_text:
+                 raise RuntimeError(f"RAW64 live snapshot missing; logs: {out}")
+-            if args.gpu_probe in (90,91,93) and f"SEC_STALL{args.gpu_probe} CB2 SCTLR=000000a7; CFIE masked" not in final_text:
++            if args.gpu_probe in (90,91,93,94) and f"SEC_STALL{args.gpu_probe} CB2 SCTLR=000000a7; CFIE masked" not in final_text:
+                 raise RuntimeError(f"Protected CB2 stall policy not confirmed; logs: {out}")
+-            if args.gpu_probe in (88,89,90,91,93) and not re.search(r"GMU 200MHz GPLL0, hub 200MHz requested; GMU_CFG=[0-9a-f]+ valid=1",final_text):
++            if args.gpu_probe in (88,89,90,91,93,94) and not re.search(r"GMU 200MHz GPLL0, hub 200MHz requested; GMU_CFG=[0-9a-f]+ valid=1",final_text):
+                 raise RuntimeError(f"GMU 200MHz clock readback not confirmed; logs: {out}")
+             if args.gpu_probe == 87 and not all(f"PLL87_READY pll={i} MODE=" in final_text for i in range(2)):
+                 raise RuntimeError(f"Post-prepare GPU PLL snapshot incomplete; logs: {out}")
+             if args.gpu_probe == 87 and not all(f"PLL87 pll={i} CONFIG=" in final_text or
+                     re.search(rf"PLL87 pll={i} USER=.* CONFIG=",final_text) for i in range(2)):
+                 raise RuntimeError(f"GPU PLL snapshot incomplete; logs: {out}")
+-            if args.gpu_probe in (85,86,89,91) and f"HUPCF{args.gpu_probe} RAW fault readback armed; no fault clear/resume" not in final_text:
++            if args.gpu_probe in (85,86,89,91,94) and f"HUPCF{args.gpu_probe} RAW fault readback armed; no fault clear/resume" not in final_text:
+                 raise RuntimeError(f"RAW fault readback not armed; logs: {out}")
+-            if args.gpu_probe in (84,85,86,87,88,89,90,91,93) and not re.search(r"fault-continue CB0 SCTLR=[0-9a-f]+ ready=1; CFIE masked",final_text):
++            if args.gpu_probe in (84,85,86,87,88,89,90,91,93,94) and not re.search(r"fault-continue CB0 SCTLR=[0-9a-f]+ ready=1; CFIE masked",final_text):
+                 raise RuntimeError(f"Native HUPCF continuation policy was not confirmed; logs: {out}")
+             if args.gpu_probe in (83,84,85) and f"SMMU{args.gpu_probe} CB0 SCTLR=" not in final_text:
+                 raise RuntimeError(f"CB0 readback snapshot missing; logs: {out}")
+-            if args.gpu_probe in (81,82,83,84,85,86,87,88,89,90,91,93) and "GPU split TTBR1 enabled=1 TCR=b5193519" not in final_text:
++            if args.gpu_probe in (81,82,83,84,85,86,87,88,89,90,91,93,94) and "GPU split TTBR1 enabled=1 TCR=b5193519" not in final_text:
+                 raise RuntimeError(f"Native 4KB TG1 encoding was not confirmed; logs: {out}")
+             if args.gpu_probe in (79,81,83,84,87,88,90,93) and not all(marker in final_text for marker in (
+                     "POST_PREPARE_QUERY ACK matched seq42 value=00000001 valid=1",
+@@ -169,13 +169,13 @@
+                 raise RuntimeError(f"CP state snapshot absent; logs: {out}")
+             if args.gpu_probe == 77 and "TIMER77 after hold remaining_us=" not in final_text:
+                 raise RuntimeError(f"Timer hold control incomplete; logs: {out}")
+-            if args.gpu_probe in (75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and "NATIVE_DDR_AB ACK matched seq41 value=00000000 valid=1" not in final_text:
++            if args.gpu_probe in (75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "NATIVE_DDR_AB ACK matched seq41 value=00000000 valid=1" not in final_text:
+                 raise RuntimeError(f"Native DDR AB vote failed; logs: {out}")
+             if args.gpu_probe == 74 and "QUERY74 post-prepare query passed; no RAW sent" not in final_text:
+                 raise RuntimeError(f"Post-prepare HFI query failed; logs: {out}")
+             if args.gpu_probe in (72,73,74) and "allocation GPU permissions VA=1ff8000502000 size=4096 flags=339 applied" not in final_text:
+                 raise RuntimeError(f"GPU allocation permissions not confirmed; logs: {out}")
+-            if args.gpu_probe in (69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and "ACD_LOG_EVENT_ON ACK matched seq39 value=00000000 valid=1" not in final_text:
++            if args.gpu_probe in (69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "ACD_LOG_EVENT_ON ACK matched seq39 value=00000000 valid=1" not in final_text:
+                 raise RuntimeError(f"ACD log event ACK missing; logs: {out}")
+             if args.gpu_probe == 67 and not all(marker in final_text for marker in (
+                     "RAW_STAGE67 debug preflight passed", "RAW_STAGE67 staged/restored words=11",
+@@ -246,7 +246,7 @@
+                     raise RuntimeError(f"GPU HWSCHED feature preflight did not pass; logs: {out}")
+                 if args.gpu_probe == 25 and "valid_memalloc=1" not in final_text:
+                     raise RuntimeError(f"GPU HWSCHED START allocation request not captured; logs: {out}")
+-                if args.gpu_probe in (26,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and not re.search(r"HWSCHED START ACK status=00000000 allocations=[1-9][0-9]* bytes=[0-9]+ valid=1", final_text):
++                if args.gpu_probe in (26,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not re.search(r"HWSCHED START ACK status=00000000 allocations=[1-9][0-9]* bytes=[0-9]+ valid=1", final_text):
+                     raise RuntimeError(f"GPU HWSCHED memory handshake did not complete; logs: {out}")
+             if args.gpu_probe in (27,28) and not all(marker in final_text for marker in (
+                     f"SCM {'table' if args.gpu_probe==28 else 'protected'} page roundtrip=1", "waffle-iommu: GMU test passed",
+@@ -257,7 +257,7 @@
+                     "GPU context2 restored TLB=done faults=00000000",
+                     "GPU context0 restored TLB=done faults=00000000")):
+                 raise RuntimeError(f"Protected GPU context translation/cleanup did not pass; logs: {out}")
+-            if args.gpu_probe in (30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and not all(marker in final_text for marker in (
++            if args.gpu_probe in (30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
+                     "protected pool ready", "protected pool released, all pages HLOS-owned",
+                     "GPU context2 restored TLB=done faults=00000000")):
+                 raise RuntimeError(f"Persistent protected GPU pool did not clean up; logs: {out}")
+@@ -270,11 +270,11 @@
+                 raise RuntimeError(f"Native disabled Gen7 configuration/slumber did not pass; logs: {out}")
+             if args.gpu_probe == 32 and "Gen7 HWCG result=0 TXDONE=1" not in final_text:
+                 raise RuntimeError(f"Native Gen7 clock-gating handshake did not pass; logs: {out}")
+-            if args.gpu_probe in (33,38,40,42,44,49,51,53,55,57,59,64,66,68,70,86,89,91) and not all(marker in final_text for marker in (
++            if args.gpu_probe in (33,38,40,42,44,49,51,53,55,57,59,64,66,68,70,86,89,91,94) and not all(marker in final_text for marker in (
+                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
+-                    "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91) else 34}",
++                    "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
+                     "Gen7 polled CP start result=0 detail=0",
+-                    f"PREPARE_SLUMBER ACK matched seq{43 if args.gpu_probe in (86,89,91) else 35} value=00000000 valid=1",
++                    f"PREPARE_SLUMBER ACK matched seq{43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                     "RSC sleep complete=1",
+                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
+                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")
+@@ -296,14 +296,14 @@
+                 raise RuntimeError(f"CP thread-control-only or full cleanup did not pass; logs: {out}")
+             if args.gpu_probe == 36 and "stall diagnostics armed for CB0/CB1/CB2; CFIE masked" not in final_text:
+                 raise RuntimeError(f"Stalled-fault diagnostic contexts were not armed; logs: {out}")
+-            if args.gpu_probe in (37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and "SCM CP SMMU aperture CB0 status=0" not in final_text:
++            if args.gpu_probe in (37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "SCM CP SMMU aperture CB0 status=0" not in final_text:
+                 raise RuntimeError(f"CP SMMU aperture not configured; logs: {out}")
+-            if args.gpu_probe in (39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and not all(marker in final_text for marker in (
++            if args.gpu_probe in (39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
+                     "GPU split TTBR1 enabled=1", "native global GPU VA SQE="+("1ff8000410000" if args.gpu_probe>=54 else "1ff8080010000"))):
+                 raise RuntimeError(f"Native split GPU VA setup not confirmed; logs: {out}")
+-            if args.gpu_probe in (41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and "DMS_CAPABILITY_ON ACK matched seq8 value=00000000 valid=1" not in final_text:
++            if args.gpu_probe in (41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "DMS_CAPABILITY_ON ACK matched seq8 value=00000000 valid=1" not in final_text:
+                 raise RuntimeError(f"GMU DMS capability not enabled; logs: {out}")
+-            if args.gpu_probe in (43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93) and "BCL_ON ACK matched seq4 value=00000000 valid=1" not in final_text:
++            if args.gpu_probe in (43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "BCL_ON ACK matched seq4 value=00000000 valid=1" not in final_text:
+                 raise RuntimeError(f"Native BCL feature not enabled; logs: {out}")
+             if not line.startswith("result: returned "):
+                 raise RuntimeError(f"Unexpected kernel result: {line}")
+--- 93/tools/tests/waffle-gmu-clock-host.py
++++ 94/tools/tests/waffle-gmu-clock-host.py
+@@ -54,6 +54,7 @@
+  * clock-session header test. Entering it here is a regression. */
+ static struct {vm_offset_t cc;} native_clock_context;
+ static vm_offset_t native_clock_gmu;
++static unsigned native_clock_probe;
+ static struct {bool runtime;struct {bool owned;} pll;} native_clock_state;
+ static unsigned native_clock_io;
+ static bool waffle_gmu_clock_start(void *io,void *state){(void)io;(void)state;assert(0);return false;}
+--- 93/tools/tests/waffle-gpu-host.py
++++ 94/tools/tests/waffle-gpu-host.py
+@@ -101,6 +101,8 @@
+     assert(!gcc_maps && !cc_maps && !returned); unchanged();
+     reset(2,0,0); waffle_adreno_init();
+     assert(!gcc_maps && !cc_maps && !returned); unchanged();
++    reset(94,1,0); waffle_adreno_init();
++    assert(!gcc_maps && !cc_maps && returned==1); unchanged();
+     reset(93,1,0); waffle_adreno_init();
+     assert(!gcc_maps && !cc_maps && returned==1); unchanged();
+     reset(92,1,0); waffle_adreno_init();
+--- 93/tools/tests/waffle-policy.c
++++ 94/tools/tests/waffle-policy.c
+@@ -10,7 +10,8 @@
+     assert(waffle_pll_control_requested("bootcpu=7 waffle_gpu=092 epoch=1"));
+     assert(!waffle_pll_control_requested("waffle_gpu=91"));
+     assert(waffle_pll_control_requested("waffle_gpu=93"));
+-    assert(!waffle_pll_control_requested("waffle_gpu=94"));
++    assert(waffle_pll_control_requested("waffle_gpu=94"));
++    assert(!waffle_pll_control_requested("waffle_gpu=95"));
+     assert(!waffle_pll_control_requested("xwaffle_gpu=92"));
+     assert(!waffle_pll_control_requested("waffle_gpu=920"));
+     assert(!waffle_cmdline_allowed("waffle_fw_cxmx=256"));
+@@ -148,6 +149,7 @@
+     assert(waffle_cmdline_allowed("waffle_gpu=91"));
+     assert(waffle_cmdline_allowed("waffle_gpu=92"));
+     assert(waffle_cmdline_allowed("waffle_gpu=93"));
++    assert(waffle_cmdline_allowed("waffle_gpu=94"));
+ #else
+     assert(!waffle_cmdline_allowed("waffle_gpu=1"));
+     assert(!waffle_cmdline_allowed("waffle_gpu=2"));
+@@ -242,9 +244,10 @@
+     assert(!waffle_cmdline_allowed("waffle_gpu=91"));
+     assert(!waffle_cmdline_allowed("waffle_gpu=92"));
+     assert(!waffle_cmdline_allowed("waffle_gpu=93"));
++    assert(!waffle_cmdline_allowed("waffle_gpu=94"));
+ #endif
+     assert(!waffle_cmdline_allowed("waffle_gpu=0"));
+-    assert(!waffle_cmdline_allowed("waffle_gpu=94"));
++    assert(!waffle_cmdline_allowed("waffle_gpu=95"));
+     assert(!waffle_cmdline_allowed("waffle_gpu=4294967297"));
+     const char *bad[] = {
+         "macan=1", "macan_gpu=1", "battery=1", "haptic=1", "wifi=1",
+--- 93/tools/tests/waffle-post-prepare-query-host.py
++++ 94/tools/tests/waffle-post-prepare-query-host.py
+@@ -70,21 +70,22 @@
+ dispatch_harness=r'''
+ #include <assert.h>
+ #include <stdint.h>
+-static unsigned selected;
++static unsigned selected,expected_sequence;
+ static int choose(unsigned kind,unsigned sequence) {
+- assert(sequence==34 || sequence==42);selected=kind;return 0;
++ assert(sequence==expected_sequence);selected=kind;return 0;
+ }
+ #define waffle_gen7_boot_thread_start(a,b,c,d,e,f,g,s) choose(1,s)
+ #define waffle_gen7_boot_prepare(a,b,c,d,e,f,g,s) choose(2,s)
+ #define waffle_gen7_boot_start(a,b,c,d,e,f,g,s) choose(3,s)
+ int main(void) {
+- const unsigned cases[]={85,90,91,93};
+- for(unsigned i=0;i<4;i++) {
++ const unsigned cases[]={85,90,91,93,94};
++ for(unsigned i=0;i<5;i++) {
+   unsigned probe=cases[i];
++  expected_sequence=(probe==85 || probe==91 || probe==94)?42:34;
+ '''
+ dispatch_tests=r'''
+   assert(!result);
+-  assert(selected==(probe==85?1:probe==91?3:2));
++  assert(selected==(probe==85?1:(probe==91 || probe==94)?3:2));
+  }
+  return 0;
+ }
+@@ -94,4 +95,4 @@
+     (path/'dispatch.c').write_text(dispatch_harness+dispatch+dispatch_tests)
+     subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-g',str(path/'dispatch.c'),'-o',str(path/'dispatch')],check=True)
+     subprocess.run([str(path/'dispatch')],check=True)
+-print('Production dispatch:93/90 prepare only,91 full CP,85 thread path verified')
++print('Production dispatch:93/90 prepare only,91/94 full CP,85 thread path verified')
+--- 93/work/waffle/gpu/run-publish-test.py
++++ 94/work/waffle/gpu/run-publish-test.py
+@@ -2,7 +2,7 @@
+ import subprocess,json,time,datetime,sys
+ from pathlib import Path
+ fb='/home/qarzis/platform-tools/fastboot';adb='/home/qarzis/platform-tools/adb'
+-probe=int(sys.argv[1]);assert probe in (33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93)
++probe=int(sys.argv[1]);assert probe in (33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94)
+ artifact=Path(sys.argv[2] if len(sys.argv)>2 else 'work/waffle/diagnostic-gpu-raw-publish36')
+ before=set(Path('work/waffle/runs').iterdir())
+ report={'probe':probe,'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()}

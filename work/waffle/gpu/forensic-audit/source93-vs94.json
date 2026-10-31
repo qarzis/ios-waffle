@@ -1,0 +1,53 @@
+{
+  "differences": [
+    {
+      "file": "kernel/files/bsd/dev/waffle_adreno.c",
+      "status": "changed"
+    },
+    {
+      "file": "kernel/files/bsd/dev/waffle_gmu.c",
+      "status": "changed"
+    },
+    {
+      "file": "kernel/files/bsd/dev/waffle_smmu.c",
+      "status": "changed"
+    },
+    {
+      "file": "kernel/files/bsd/sys/waffle_gpu.h",
+      "status": "changed"
+    },
+    {
+      "file": "kernel/files/bsd/sys/waffle_gpu_pll.h",
+      "status": "changed"
+    },
+    {
+      "file": "loader/waffle.h",
+      "status": "changed"
+    },
+    {
+      "file": "scripts/run_waffle_ios.py",
+      "status": "changed"
+    },
+    {
+      "file": "tools/tests/waffle-gmu-clock-host.py",
+      "status": "changed"
+    },
+    {
+      "file": "tools/tests/waffle-gpu-host.py",
+      "status": "changed"
+    },
+    {
+      "file": "tools/tests/waffle-policy.c",
+      "status": "changed"
+    },
+    {
+      "file": "tools/tests/waffle-post-prepare-query-host.py",
+      "status": "changed"
+    },
+    {
+      "file": "work/waffle/gpu/run-publish-test.py",
+      "status": "changed"
+    }
+  ],
+  "limitation": "Source differences alone do not prove complete equivalence of run state."
+}

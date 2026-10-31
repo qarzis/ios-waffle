@@ -34,6 +34,7 @@ static inline void
 wr(vm_offset_t address, uint32_t value)
 {
  *(volatile uint32_t *)address = value;
+ __asm__ volatile("dsb sy");
 }
 #define ARB_CORE_PHYS 0x0c440000UL
 #define ARB_CORE_SIZE 0x1100UL
@@ -72,6 +73,8 @@ static vm_offset_t arb_core, arb_cnfg, arb_observer, arb_map;
 #define MACAN_ARB_VERSION_8 0x80000000u
 #define MACAN_ARB_MAX_CHANNELS (MACAN_ARB_MAP_SIZE / 4)
 static bool macan_arb;
+static bool waffle_arb;
+static volatile bool buttons_stopping;
 static LCK_GRP_DECLARE(spmi_lck_grp, "redwood-spmi");
 static LCK_SPIN_DECLARE(spmi_lock, &spmi_lck_grp);
 void
@@ -98,7 +101,7 @@ static struct {
 static const char *
 spmi_read(const struct peripheral *p, uint8_t reg, uint8_t *bytes, uint32_t count)
 {
- vm_offset_t channel = macan_arb ? arb_observer + 0x20UL * p->channel :
+ vm_offset_t channel = (macan_arb || waffle_arb) ? arb_observer + 0x20UL * p->channel :
      arb_observer + 0x10000UL * ARB_SYSTEM + 0x80UL * p->channel;
  uint64_t start = mach_absolute_time(), now, interval, taken;
  uint32_t status, data[2];
@@ -142,12 +145,13 @@ static void
 find_channel(struct peripheral *p, uint32_t channels)
 {
  for (uint32_t n = 0; n < channels; n++) {
-  uint32_t map = macan_arb ? rd(arb_map + 4 * n) : rd(arb_core + ARB_CHANNEL(n)), owner;
+  uint32_t map = macan_arb ? rd(arb_map + 4 * n) :
+      rd(arb_core + (waffle_arb ? 0x2000 + 4 * n : ARB_CHANNEL(n))), owner;
   uint32_t id = macan_arb ? (map & 0x1fff) : ((map >> 8) & 0xfff);
   if (map == 0 || id != p->id) {
    continue;
   }
-  owner = rd(arb_cnfg + (macan_arb ? 4 * n : ARB_OWNER(n))) & 7;
+  owner = rd(arb_cnfg + ((macan_arb || waffle_arb) ? 4 * n : ARB_OWNER(n))) & 7;
   printf("buttons: channel %u is %s (%#x); written by system %u%s\n", n, p->name, map, owner,
       (map & ARB_CHANNEL_INTERRUPTS) ? ", which also gets its interrupts" : "");
   if (!p->found || owner == ARB_SYSTEM) {
@@ -353,7 +357,24 @@ buttons_thread(void *parameter, __unused wait_result_t result)
 {
  uint32_t steps = (uint32_t)(uintptr_t)parameter, version, channels;
  bool pon_known, pin_known;
- if (macan_arb) {
+ if (waffle_arb) {
+  /* Captured PJD110 FDT: bus0, EE0. v7 APID map/ownership and observer
+   * strides match OnePlus's drivers/spmi/spmi-pmic-arb.c. No PMIC writes. */
+  arb_core = ml_io_map(0x0c400000, 0x3000);
+  arb_cnfg = ml_io_map(0x0c42d000, 0x4000);
+  arb_observer = ml_io_map(0x0c440000, 0x80000);
+  if (!arb_core || !arb_cnfg || !arb_observer) {
+   printf("waffle-buttons: cannot map SPMI bus0\n");
+   goto out;
+  }
+  version = rd(arb_core + ARB_VERSION);
+  channels = rd(arb_core + ARB_FEATURES) & 0x7ff;
+  printf("waffle-buttons: arbiter version=%x bus0 APIDs=%u\n", version, channels);
+  if (version < 0x70000000u || version >= 0x80000000u || !channels || channels > 1024) {
+   printf("waffle-buttons: unsupported arbiter layout; no transactions\n");
+   goto out;
+  }
+ } else if (macan_arb) {
   printf("buttons: step 1: map the PMIC arbiter of the Ace 6T (%#lx, %#lx, %#lx, %#lx) and read its version\n",
       MACAN_ARB_CORE_PHYS, MACAN_ARB_MAP_PHYS, MACAN_ARB_OWNER_PHYS, MACAN_ARB_OBSERVER_PHYS);
   arb_core = ml_io_map(MACAN_ARB_CORE_PHYS, MACAN_ARB_CORE_SIZE);
@@ -430,7 +451,7 @@ buttons_thread(void *parameter, __unused wait_result_t result)
  }
  printf("buttons: step 5: watching%s%s%s, every %u ms: power is the side button\n", power.usable ? " power" : "",
      volume_up.usable ? " volume-up" : "", volume_down.usable ? " volume-down" : "", POLL_MS);
- for (unsigned tick = 1;; tick++) {
+ for (unsigned tick = 1; !buttons_stopping; tick++) {
   buttons_poll();
   if (tick % MINUTE_TICKS == 0 || tick == 10 * 1000 / POLL_MS) {
    say_summary();
@@ -448,14 +469,26 @@ out:
  thread_terminate(current_thread());
 }
 static int buttons_on;
+void
+redwood_buttons_quiesce(void)
+{
+ buttons_stopping = true;
+}
 SYSCTL_DECL(_kern_redwood);
 SYSCTL_INT(_kern_redwood, OID_AUTO, buttons, CTLFLAG_RD | CTLFLAG_LOCKED, &buttons_on, 0,
     "1 if the power and volume keys' driver runs");
 void
 redwood_buttons_init(void)
 {
- uint32_t enabled = 0, steps = 5, macan = 0;
+ uint32_t enabled = 0, steps = 5, macan = 0, waffle = 0;
  thread_t thread;
+ if (PE_parse_boot_argn("waffle", &waffle, sizeof(waffle)) && waffle != 0) {
+  waffle_arb = true;
+  resin_key = &volume_up;
+  pin_key = &volume_down;
+  pon.name = "the PMK8550's power-on block";
+  pin.name = "GPIO6 of the PM8550";
+ }
  if (PE_parse_boot_argn("macan", &macan, sizeof(macan)) && macan != 0) {
   macan_arb = true;
   resin_key = &volume_up;
@@ -465,7 +498,7 @@ redwood_buttons_init(void)
  }
  if (!PE_parse_boot_argn("buttons", &enabled, sizeof(enabled))) {
   uint32_t touch_screen = 0;
-  enabled = macan_arb ||
+  enabled = macan_arb || waffle_arb ||
       (PE_parse_boot_argn("touchscreen", &touch_screen, sizeof(touch_screen)) && touch_screen != 0);
  }
  if (!enabled) {

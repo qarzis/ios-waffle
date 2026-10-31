@@ -1,0 +1,37 @@
+{
+  "kernel_log_files_scanned": 88,
+  "checkpoints": {
+    "waffle-gmu: RAW checkpoint 0-preflight-begin": {
+      "file": "work/waffle/runs/20261031T074659Z/kernel-10.log",
+      "line": 445
+    },
+    "waffle-gmu: RAW checkpoint 1-smmu-read-done": {
+      "file": "work/waffle/runs/20261031T074659Z/kernel-10.log",
+      "line": 446
+    },
+    "waffle-gmu: RAW checkpoint 2-debug-read-done": {
+      "file": "work/waffle/runs/20261031T074659Z/kernel-10.log",
+      "line": 447
+    },
+    "waffle-gmu: RAW checkpoint 3-packet-staged": {
+      "file": "work/waffle/runs/20261031T074659Z/kernel-10.log",
+      "line": 448
+    }
+  },
+  "saved_raw_acknowledgements": [],
+  "saved_fault_lines_matching_search": [],
+  "limitation": "Missing logs do not establish nonexecution, nor absence of faults.",
+  "port_packet": [
+    "02a00b83",
+    "70970001",
+    "08000000",
+    "70c80007",
+    "0000094b",
+    "00000003",
+    "20000000",
+    "00000002",
+    "00470000",
+    "0001ff80",
+    "80000000"
+  ]
+}

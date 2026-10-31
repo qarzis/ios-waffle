@@ -28,6 +28,15 @@ static const struct platform platform_macan = {
     .gic_redist_size=0x200000, .gic_redist_stride=0x40000,
     .cores=8, .mpidrs=macan_mpidrs,
 };
+/* PJD110 vendor_boot: SoC 557, revisions 0x10000 and 0x20000.
+ * CPU MPIDRs are 0x000..0x700; PSCI uses SMC, unlike qemu-virt.
+ */
+static const struct platform platform_waffle = {
+    .name="waffle", .io_base=0x00400000, .io_size=0x3fc00000,
+    .gic_dist=0x17100000, .gic_redist=0x17180000,
+    .gic_redist_size=0x200000, .gic_redist_stride=0x40000,
+    .cores=8, .core_shift=8,
+};
 static inline uint64_t platform_mpidr(const struct platform *p, int index)
 {
     if (index < 0 || index >= p->cores) return UINT64_MAX;

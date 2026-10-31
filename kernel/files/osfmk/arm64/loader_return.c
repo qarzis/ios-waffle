@@ -28,6 +28,8 @@ extern void redwood_adreno_minute(void);
 extern void redwood_wifi_stop(void);
 extern void redwood_wifi_quiesce(void);
 extern void macan_synaptics_quiesce(void);
+extern void waffle_synaptics_quiesce(void);
+extern void redwood_buttons_quiesce(void);
 extern void macan_adsp_quiesce(void);
 extern void macan_adsp_stop(void);
 extern void macan_haptic_quiesce(void);
@@ -252,6 +254,8 @@ loader_return(void)
  macan_haptic_quiesce();
  macan_torch_quiesce();
  macan_synaptics_quiesce();
+ waffle_synaptics_quiesce();
+ redwood_buttons_quiesce();
  redwood_adreno_quiesce();
  redwood_wifi_quiesce();
  loader_log_linearize();
@@ -281,6 +285,15 @@ loader_return_test(void *as_panic)
   panic("return_panic: the panic that was asked for, on cpu %d", cpu_number());
  }
  loader_return();
+}
+static uint64_t loader_return_deadline;
+uint64_t loader_return_remaining_us(void)
+{
+ uint64_t now=mach_absolute_time(),ns=0;
+ if(!loader_return_deadline) return ~0ULL;
+ if(now>=loader_return_deadline) return 0;
+ absolutetime_to_nanoseconds(loader_return_deadline-now,&ns);
+ return ns/1000;
 }
 static void
 loader_return_timer(__unused thread_call_param_t p0, __unused thread_call_param_t p1)
@@ -315,6 +328,7 @@ loader_return_timer_init(void)
  }
  thread_call_t call = thread_call_allocate(loader_return_timer, NULL);
  clock_interval_to_deadline(seconds, NSEC_PER_SEC, &deadline);
+ loader_return_deadline=deadline;
  thread_call_enter_delayed(call, deadline);
 }
 STARTUP(EARLY_BOOT, STARTUP_RANK_LAST, loader_return_timer_init);

@@ -50,7 +50,7 @@ exec /sbin/launchd.ios
 
 INJECT = [
     '/redwood/lib/libredwood-tweaks.dylib Preferences',
-    '/redwood/lib/libredwood-app.dylib Sileo NewTerm',
+    '/redwood/lib/libredwood-app.dylib Sileo NewTerm Preferences PosterBoard GradientPosterExtension CollectionsPoster',
 ]
 
 def fetch(name, url):

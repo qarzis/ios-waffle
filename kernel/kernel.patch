@@ -46,10 +46,10 @@ index 222158a93918..68bb0f3e56bf 100755
  ######################################################################
  # HISTORY
 diff --git a/bsd/conf/files b/bsd/conf/files
-index 44274016a4cf..b7436ddd36dd 100644
+index 44274016a4cf..cd551dd42a09 100644
 --- a/bsd/conf/files
 +++ b/bsd/conf/files
-@@ -109,6 +109,31 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
+@@ -109,6 +109,35 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
  bsd/dev/unix_startup.c			standard
  
  bsd/dev/monotonic.c optional monotonic
@@ -57,6 +57,10 @@ index 44274016a4cf..b7436ddd36dd 100644
 +bsd/dev/virtio_input.c	standard
 +bsd/dev/goodix_touch.c	standard
 +bsd/dev/macan_synaptics.c	standard
++bsd/dev/waffle_synaptics.c	standard
++bsd/dev/waffle_adreno.c	standard
++bsd/dev/waffle_smmu.c	standard
++bsd/dev/waffle_gmu.c	standard
 +bsd/dev/macan_adreno.c	standard
 +bsd/dev/macan_power.c	standard
 +bsd/dev/macan_battery.c	standard
@@ -81,7 +85,7 @@ index 44274016a4cf..b7436ddd36dd 100644
  bsd/dev/dev_perfmon.c optional config_perfmon
  
  bsd/libkern/crc32.c			standard
-@@ -155,6 +180,10 @@ bsd/miscfs/devfs/devfs_vfsops.c		optional devfs
+@@ -155,6 +181,10 @@ bsd/miscfs/devfs/devfs_vfsops.c		optional devfs
  bsd/miscfs/mockfs/mockfs_fsnode.c	optional mockfs
  bsd/miscfs/mockfs/mockfs_vfsops.c	optional mockfs
  bsd/miscfs/mockfs/mockfs_vnops.c	optional mockfs
@@ -92,7 +96,7 @@ index 44274016a4cf..b7436ddd36dd 100644
  
  bsd/miscfs/routefs/routefs_ops.c	optional routefs
  
-@@ -361,6 +388,7 @@ bsd/security/audit/audit_syscalls.c		standard
+@@ -361,6 +391,7 @@ bsd/security/audit/audit_syscalls.c		standard
  bsd/security/audit/audit_worker.c		optional config_audit
  
  bsd/pthread/pthread_shims.c		standard
@@ -100,7 +104,7 @@ index 44274016a4cf..b7436ddd36dd 100644
  bsd/pthread/pthread_priority.c		standard
  bsd/pthread/pthread_workqueue.c		standard
  
-@@ -383,6 +411,7 @@ bsd/kern/kern_debug.c			standard
+@@ -383,6 +414,7 @@ bsd/kern/kern_debug.c			standard
  bsd/kern/kern_symfile.c			standard
  bsd/kern/kern_descrip.c			standard
  bsd/kern/kern_guarded.c			standard
@@ -2079,10 +2083,31 @@ index 94e91306b143..0ec1323086b7 100644
  #endif
  
 diff --git a/osfmk/arm64/machine_routines.c b/osfmk/arm64/machine_routines.c
-index e76e7e70ab9c..31c82393e3d8 100644
+index e76e7e70ab9c..7b3bf062ee47 100644
 --- a/osfmk/arm64/machine_routines.c
 +++ b/osfmk/arm64/machine_routines.c
-@@ -734,6 +734,9 @@ ml_get_machine_mem(void)
+@@ -468,6 +468,10 @@ user_timebase_type(void)
+ void
+ machine_startup(__unused boot_args * args)
+ {
++#if defined(GENERIC_PSCI_SMP)
++	extern void loader_checkpoint(uint64_t);
++	loader_checkpoint(22);
++#endif
+ #if defined(HAS_IPI) && (DEVELOPMENT || DEBUG)
+ 	if (!PE_parse_boot_argn("fastipi", &gFastIPI, sizeof(gFastIPI))) {
+ 		gFastIPI = 1;
+@@ -476,6 +480,9 @@ machine_startup(__unused boot_args * args)
+ 
+ 
+ 	machine_conf();
++#if defined(GENERIC_PSCI_SMP)
++	loader_checkpoint(23);
++#endif
+ 
+ 
+ 	/*
+@@ -734,6 +741,9 @@ ml_get_machine_mem(void)
  	return machine_info.memory_size;
  }
  
@@ -2092,7 +2117,7 @@ index e76e7e70ab9c..31c82393e3d8 100644
  __attribute__((noreturn))
  void
  halt_all_cpus(boolean_t reboot)
-@@ -745,6 +748,9 @@ halt_all_cpus(boolean_t reboot)
+@@ -745,6 +755,9 @@ halt_all_cpus(boolean_t reboot)
  		printf("CPU halted\n");
  		PEHaltRestart(kPEHaltCPU);
  	}
@@ -2102,7 +2127,7 @@ index e76e7e70ab9c..31c82393e3d8 100644
  	while (1) {
  		;
  	}
-@@ -1183,7 +1189,12 @@ ml_get_boot_cluster_type(void)
+@@ -1183,7 +1196,12 @@ ml_get_boot_cluster_type(void)
  int
  ml_get_cpu_number(uint32_t phys_id)
  {
@@ -2115,7 +2140,7 @@ index e76e7e70ab9c..31c82393e3d8 100644
  
  	for (unsigned i = 0; i < topology_info.num_cpus; i++) {
  		if (topology_info.cpus[i].phys_id == phys_id) {
-@@ -2237,8 +2248,16 @@ _enable_virtual_timer(void)
+@@ -2237,8 +2255,16 @@ _enable_virtual_timer(void)
  	uint64_t cntvctl = CNTV_CTL_EL0_ENABLE; /* One wants to use 32 bits, but "mrs" prefers it this way */
  
  	__builtin_arm_wsr64("CNTV_CTL_EL0", cntvctl);
@@ -2631,10 +2656,23 @@ index 4fb223ee9788..df563bc04910 100644
  #pragma mark - implementation details
  
 diff --git a/osfmk/kern/startup.c b/osfmk/kern/startup.c
-index bec97fbf7243..203e1f48783f 100644
+index bec97fbf7243..369fc22a855f 100644
 --- a/osfmk/kern/startup.c
 +++ b/osfmk/kern/startup.c
-@@ -156,6 +156,7 @@
+@@ -74,6 +74,12 @@
+ #include <mach/thread_act.h>
+ #include <mach/task_special_ports.h>
+ #include <mach/vm_param.h>
++#if defined(__arm64__) && defined(ARM64_BOARD_CONFIG_BCM2837)
++extern void loader_checkpoint(uint64_t);
++#define GENERIC_BOOT_CHECKPOINT(n) loader_checkpoint(n)
++#else
++#define GENERIC_BOOT_CHECKPOINT(n) ((void)0)
++#endif
+ #include <kern/assert.h>
+ #include <kern/mach_param.h>
+ #include <kern/misc_protos.h>
+@@ -156,6 +162,7 @@
  #include <security/mac_mach_internal.h>
  #if CONFIG_VNGUARD
  extern void vnguard_policy_init(void);
@@ -2642,7 +2680,119 @@ index bec97fbf7243..203e1f48783f 100644
  #endif
  #endif
  
-@@ -721,6 +722,9 @@ kernel_bootstrap_thread(void)
+@@ -425,13 +432,16 @@ kernel_bootstrap(void)
+ 	kern_return_t   result;
+ 	thread_t        thread;
+ 	char            namep[16];
++	GENERIC_BOOT_CHECKPOINT(50);
+ 
+ 	printf("%s\n", version); /* log kernel version */
+ 
+ 	scale_setup();
++	GENERIC_BOOT_CHECKPOINT(51);
+ 
+ 	kernel_bootstrap_log("vm_mem_bootstrap");
+ 	vm_mem_bootstrap();
++	GENERIC_BOOT_CHECKPOINT(52);
+ 
+ 	machine_info.memory_size = (uint32_t)mem_size;
+ #if XNU_TARGET_OS_OSX
+@@ -448,6 +458,7 @@ kernel_bootstrap(void)
+ 	atm_init();
+ #endif
+ 	kernel_startup_initialize_upto(STARTUP_SUB_OSLOG);
++	GENERIC_BOOT_CHECKPOINT(53);
+ 
+ #if CONFIG_UBSAN_MINIMAL
+ 	kernel_bootstrap_log("UBSan minimal runtime init");
+@@ -482,6 +493,7 @@ kernel_bootstrap(void)
+ 
+ 	kernel_bootstrap_log("sched_init");
+ 	sched_init();
++	GENERIC_BOOT_CHECKPOINT(54);
+ 
+ #if CONFIG_MACF
+ 	kernel_bootstrap_log("mac_policy_init");
+@@ -489,6 +501,7 @@ kernel_bootstrap(void)
+ #endif
+ 
+ 	kernel_startup_initialize_upto(STARTUP_SUB_MACH_IPC);
++	GENERIC_BOOT_CHECKPOINT(55);
+ 
+ 	/*
+ 	 * As soon as the virtual memory system is up, we record
+@@ -502,12 +515,14 @@ kernel_bootstrap(void)
+ 
+ 	kernel_bootstrap_log("machine_init");
+ 	machine_init();
++	GENERIC_BOOT_CHECKPOINT(56);
+ 
+ 	kernel_bootstrap_log("thread_machine_init_template");
+ 	thread_machine_init_template();
+ 
+ 	kernel_bootstrap_log("clock_init");
+ 	clock_init();
++	GENERIC_BOOT_CHECKPOINT(57);
+ 
+ 	/*
+ 	 *	Initialize the IPC, task, and thread subsystems.
+@@ -531,6 +546,7 @@ kernel_bootstrap(void)
+ 
+ 	kernel_bootstrap_log("thread_init");
+ 	thread_init();
++	GENERIC_BOOT_CHECKPOINT(58);
+ 
+ 	kernel_bootstrap_log("restartable_init");
+ 	restartable_init();
+@@ -575,6 +591,7 @@ kernel_bootstrap(void)
+ 	thread_deallocate(thread);
+ 
+ 	kernel_bootstrap_log("load_context - done");
++	GENERIC_BOOT_CHECKPOINT(59);
+ 	load_context(thread);
+ 	/*NOTREACHED*/
+ }
+@@ -593,6 +610,7 @@ static void
+ kernel_bootstrap_thread(void)
+ {
+ 	processor_t processor = current_processor();
++	GENERIC_BOOT_CHECKPOINT(60);
+ 
+ #if (DEVELOPMENT || DEBUG)
+ 	platform_stall_panic_or_spin(PLATFORM_STALL_XNU_LOCATION_KERNEL_BOOTSTRAP);
+@@ -612,6 +630,7 @@ kernel_bootstrap_thread(void)
+ 	 */
+ 	kernel_bootstrap_thread_log("sched_startup");
+ 	sched_startup();
++	GENERIC_BOOT_CHECKPOINT(61);
+ 
+ 	/*
+ 	 * Thread lifecycle maintenance (teardown, stack allocation)
+@@ -642,6 +661,7 @@ kernel_bootstrap_thread(void)
+ 	 */
+ 	kernel_bootstrap_thread_log("clock_service_create");
+ 	clock_service_create();
++	GENERIC_BOOT_CHECKPOINT(62);
+ 
+ 	/*
+ 	 *	Create the device service.
+@@ -687,6 +707,7 @@ kernel_bootstrap_thread(void)
+ #ifdef  IOKIT
+ 	kernel_bootstrap_log("PE_init_iokit");
+ 	PE_init_iokit();
++	GENERIC_BOOT_CHECKPOINT(63);
+ #endif
+ 
+ 	assert(ml_get_interrupts_enabled() == FALSE);
+@@ -702,6 +723,7 @@ kernel_bootstrap_thread(void)
+ 	ml_spin_debug_clear_self();
+ #endif
+ 	(void) spllo();         /* Allow interruptions */
++	GENERIC_BOOT_CHECKPOINT(64);
+ 
+ 	/*
+ 	 * This will start displaying progress to the user, start as early as possible
+@@ -721,6 +743,9 @@ kernel_bootstrap_thread(void)
  	kernel_bootstrap_log("vnguard_policy_init");
  	vnguard_policy_init();
  #endif

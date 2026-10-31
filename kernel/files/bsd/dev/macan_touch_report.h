@@ -9,7 +9,9 @@ static inline int macan_parse_contacts(const uint8_t *p,unsigned n,unsigned maxx
     for(unsigned i=0;i<10;i++)out[i]=(struct macan_contact){0};
     for(unsigned i=0;i<10;i++,p+=5) {
         unsigned id=p[0]&15,classification=p[0]>>4;
-        if(id>=10 || (seen&(1u<<id)) || classification>3)return 0;
+        /* TCM classes: lift/finger/glove/stylus/eraser/small/palm/edge/hover.
+         * Non-finger objects release a previously active slot. */
+        if(id>=10 || (seen&(1u<<id)) || classification==7 || classification>9)return 0;
         seen|=1u<<id;
         unsigned x=macan_le16(p+1),y=macan_le16(p+3);
         if(classification==1 || classification==2) {
