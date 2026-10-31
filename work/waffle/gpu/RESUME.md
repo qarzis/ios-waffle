@@ -1,3 +1,20 @@
+# E06-r2 PASS; automatic HakiOS loader verified; QRisc analysis next
+
+Automatic BootiOS physical selection no longer required with newlybuilt
+autoUEFI. tools/run-waffle-auto.py completed entry/probe/recovery without user
+action. HakiOSauto sourceoverlay uefi/waffle-hakios; rawimages underwork only.
+LatestGPUrun20261031T094701Z with diagnostic-gpu-clock-measure-r2 passes
+physicalGFX231000200Hz/GMU260001136Hz and completeGMU/GX/PLL shutdown.
+Runnerexit0/independentAndroidboot_completed1. NoRAW, noCPexecution/frame.
+E06firstattemptfailed, retained; fixed newtemporaryMMIOmapping lifetime and
+completed-logretrieval truncatedto32KB. Fullr2log102404bytes.
+No arbitraryclockchanges justified. H1testedaccessmodes and H2frequencyabsence
+atpreparepoint rejected; H2otherprerequisites/H3failureboundary remain.
+BuildingnativeMesaQRiscdisassembler toinspect vendorSQE offline. No firmware
+patching planned. Neverboot E04Androidtracingimage again pendingtouchcause.
+PhoneordinaryAndroid. Userauthorizes autonomouswork whileaway; no confirmation
+needed for automatic loader. FailedUSB/recovery muststop beforeanotherprobe.
+
 # E04 cold HFI captured; touch recovered; analysis only
 
 E03 passed27access checks; H1 rejected for tested nonsecure edges/modes after

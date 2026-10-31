@@ -1,0 +1,26 @@
+{
+  "experiment": "E06-r2",
+  "run": "work/waffle/runs/20261031T094701Z",
+  "physical_clocks": {
+    "GFX": {
+      "hz": 231000200,
+      "short": 49319,
+      "full": 1577002,
+      "complete": 1,
+      "restored": 1
+    },
+    "GMU": {
+      "hz": 260001136,
+      "short": 55520,
+      "full": 1774987,
+      "complete": 1,
+      "restored": 1
+    }
+  },
+  "full_log_bytes": 102404,
+  "full_log_sha256": "c638f49bac797897793c7e0d7f4255498661b847d25f2671a97f572a5c797b4f",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "raw_sent": false,
+  "conclusion": "Preparation-point GFX and GMU physical clocks match native references. Does not establish DMA or CP execution."
+}
