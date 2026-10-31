@@ -1,0 +1,14 @@
+{
+  "probe": 94,
+  "started_at": "2026-10-31T10:28:38.188682+00:00",
+  "variant": "E11-indirect-command-buffer-fetch",
+  "runner_exit": 1,
+  "runs": [
+    "work/waffle/runs/20261031T102838Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true
+}

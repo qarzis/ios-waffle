@@ -24,6 +24,7 @@ code=r'''
 #include <string.h>
 #include <stdio.h>
 #include "waffle_gpu_va.h"
+#include "waffle_gpu_writeback.h"
 typedef uintptr_t vm_offset_t;
 #define PAGE_SIZE 16384
 #define KMA_KOBJECT 1
@@ -102,6 +103,20 @@ int main(void) {
  assert(arm_lpae_prot_to_pte(&pg,captured_prot)==0xec0);
  assert(map_page(&pool,0x80070000,0x12346000,false));
  assert(!(lookup(&pool,0x80070000)&((1ULL<<6)|(1ULL<<7))));
+ assert(waffle_diagnostic_unprivileged(0x80010000,true,true));
+ assert(waffle_diagnostic_unprivileged(WAFFLE_GPU_WRITEBACK_ADDRESS,true,false));
+ assert(!waffle_diagnostic_unprivileged(0x80070000,true,false));
+ assert(!waffle_diagnostic_unprivileged(0x61000000,false,false));
+ assert(!waffle_diagnostic_unprivileged(WAFFLE_GPU_WRITEBACK_ADDRESS,false,false));
+ for(unsigned off=0;off<16384;off+=4096) {
+  uint64_t va=WAFFLE_GPU_WRITEBACK_ADDRESS+off;
+  bool unpriv=waffle_diagnostic_unprivileged(WAFFLE_GPU_WRITEBACK_ADDRESS,true,false);
+  assert(map_page_access(&pool,va,0x15000000+off,false,unpriv));
+  uint64_t alias=waffle_gpu_compact_alias(va)-WAFFLE_GPU_GLOBAL_BASE;
+  assert(map_page_access(&pool,alias,0x15000000+off,false,unpriv));
+  assert((lookup(&pool,va)&(3ULL<<6))==(1ULL<<6));
+  assert(lookup(&pool,alias)==lookup(&pool,va));
+ }
  assert(!map_page(&pool,1ULL<<39,0x12345000,false));
  assert(!map_page(&pool,0x80070001,0x12345000,false));
  assert(!map_page(&pool,0x80080000,1ULL<<36,false));

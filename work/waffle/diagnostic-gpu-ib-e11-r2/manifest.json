@@ -1,0 +1,13 @@
+{
+  "target": "OnePlus 12 PJD110 / SM8650, 16 GB",
+  "status": "bounded RAM userland test enabled",
+  "hardware_tested": false,
+  "source_revision": "c0ec663890aed1e21ab7773c34aaf4f9d7540937",
+  "source_diff": "source.patch",
+  "kernel_sha256": "284bad83e35f78ec967d73cf9fa39481c69392cb084c5a4e0c0b5deb75957b4b",
+  "kernel_crc32": "c028ae16",
+  "boot_image_sha256": "ce835503b511f744e19b2d43b2e63ec5b70fcec33ea579107a6becacd3ead8b8",
+  "kernel_build_target": "build (DriverKit symbolsets excluded)",
+  "automatic_usb_loader": true,
+  "experiment": "E11-r2 scoped AP_UNPRIV fix for observed IB permission fault"
+}

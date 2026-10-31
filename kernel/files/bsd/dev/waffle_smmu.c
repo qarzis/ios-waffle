@@ -11,6 +11,7 @@
 #include <sys/waffle_gpu.h>
 #include <sys/waffle_gmu.h>
 #include <sys/waffle_scm.h>
+#include <sys/waffle_gpu_writeback.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern uint64_t kvtophys(vm_offset_t);
@@ -477,7 +478,7 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
              * KGSL_MEMDESC_PRIVILEGED: AP_UNPRIV is required as well as RDONLY.
              * Keep all other early diagnostic mappings privileged-only. */
             if (!map_page_access(&pool,(uint64_t)r->address+off,kvtophys(r->memory+off),
-                    r->readonly,r->gpu_only && r->readonly)) goto done;
+                    r->readonly,waffle_diagnostic_unprivileged(r->address,r->gpu_only,r->readonly))) goto done;
     }
     if (firmware.compact_gpu_va) {
         for (unsigned i=0;i<firmware.count;i++) {
@@ -486,7 +487,7 @@ void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
             for(uint32_t off=0;off<r->size;off+=4096) {
                 uint64_t alias=waffle_gpu_plan_alias(&firmware,(uint64_t)r->address+off);
                 if (!alias || !map_page_access(&pool,alias-WAFFLE_GPU_GLOBAL_BASE,
-                    kvtophys(r->memory+off),r->readonly,r->gpu_only && r->readonly)) goto done;
+                    kvtophys(r->memory+off),r->readonly,waffle_diagnostic_unprivileged(r->address,r->gpu_only,r->readonly))) goto done;
             }
         }
         log_line("waffle-iommu: compact GPU globals window=20MiB normal_pool=15MiB\n");
