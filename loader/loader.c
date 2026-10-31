@@ -231,6 +231,10 @@ find_log_partition(void)
 static char out_buf[2 * 1024 * 1024];
 static const char *staged_data = out_buf;
 static uint64_t staged_len;
+/* Kernel buffers remain in the owned XNU window until the next run. Preserve
+ * their full length for oem log instead of replaying the 32KB console copy. */
+static const char *completed_kernel_log;
+static uint64_t completed_kernel_log_len;
 static void
 compose_logs(const char *klog, uint64_t klog_len)
 {
@@ -255,6 +259,8 @@ compose_logs(const char *klog, uint64_t klog_len)
 static void
 write_logs(const char *klog, uint64_t klog_len)
 {
+ completed_kernel_log = klog;
+ completed_kernel_log_len = klog_len;
  #if defined(XNU_OWNED_RAM)
     efi_block_io *bio = NULL;
 #else
@@ -2317,7 +2323,7 @@ fb_command(char *cmd)
    if (busy) {
     compose_live_log(running_live, running_slide);
    } else {
-    compose_logs(NULL, 0);
+    compose_logs(completed_kernel_log, completed_kernel_log_len);
    }
    fb_reply("OKAY", "");
   } else if (starts_with(cmd, "reboot") || starts_with(cmd, "oem reboot")) {

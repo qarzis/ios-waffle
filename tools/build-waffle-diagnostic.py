@@ -90,6 +90,7 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-smmu-stall-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-ecats-access-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gpu-measure-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-log-retrieval-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-smmu-fault-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-hfi-publication-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-post-prepare-query-host.py"])
@@ -184,6 +185,7 @@ def main():
                      "tools/tests/waffle-hfi-raw-fault-host.py", "tools/tests/waffle-hfi-acd-host.py", "tools/tests/waffle-smmu-stall-host.py",
                      "tools/tests/waffle-ecats-access-host.py",
                      "tools/tests/waffle-gpu-measure-host.py", "kernel/files/bsd/sys/waffle_gpu_measure.h",
+                     "tools/tests/waffle-log-retrieval-host.py",
                      "tools/tests/waffle-smmu-fault-host.py", "tools/tests/waffle-hfi-publication-host.py", "tools/tests/waffle-post-prepare-query-host.py", "tools/tests/waffle-hfi-features-host.py", "tools/tests/waffle-pool-permissions-host.py", "tools/tests/waffle-dcvs-votes-host.py",
                      "tools/tests/waffle-scm-aperture-host.py",
                      "tools/tests/waffle-gen7-cp-lifecycle.c", "tools/tests/waffle-hwcg-host.py",

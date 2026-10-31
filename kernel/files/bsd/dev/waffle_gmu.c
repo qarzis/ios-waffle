@@ -1299,8 +1299,11 @@ static bool gen7_measure_clocks(unsigned probe)
     uint32_t requested=0;
     if(!PE_parse_boot_argn("waffle_gpu_measure",&requested,sizeof(requested)))return true;
     if(requested!=1 || probe!=93)return false;
-    struct clock_measure_context context={ml_io_map(WAFFLE_GCC_BASE,WAFFLE_GCC_SIZE),
-        ml_io_map(WAFFLE_GPUCC_BASE,WAFFLE_GPUCC_SIZE)};
+    /* ml_io_map uses permanent io_submap mappings. Only the unmappable
+     * variant allocates from kernel_map and may be paired with ml_io_unmap. */
+    struct clock_measure_context context={
+        ml_io_map_unmappable(WAFFLE_GCC_BASE,round_page(WAFFLE_GCC_SIZE),VM_WIMG_IO),
+        ml_io_map_unmappable(WAFFLE_GPUCC_BASE,round_page(WAFFLE_GPUCC_SIZE),VM_WIMG_IO)};
     if(!context.gcc || !context.gpucc)return false;
     const struct waffle_measure_io io={&context,clock_measure_read,clock_measure_write,gen7_clock_delay};
     struct waffle_measure_result gfx={0},gmu={0};
@@ -1313,7 +1316,8 @@ static bool gen7_measure_clocks(unsigned probe)
     say("waffle-gmu: CLOCK_MEASURE GMU hz=%llu short=%u full=%u complete=%u restored=%u\n",
         gmu.hz,gmu.short_count,gmu.full_count,gmu.complete,gmu.restored);
     say("waffle-gmu: CLOCK_MEASURE result=%u; no CP RAW\n",a&&b);
-    ml_io_unmap(context.gcc,WAFFLE_GCC_SIZE);ml_io_unmap(context.gpucc,WAFFLE_GPUCC_SIZE);
+    ml_io_unmap(context.gcc,round_page(WAFFLE_GCC_SIZE));
+    ml_io_unmap(context.gpucc,round_page(WAFFLE_GPUCC_SIZE));
     return a&&b;
 }
 static int gen7_hwcg_exercise(void *context)
