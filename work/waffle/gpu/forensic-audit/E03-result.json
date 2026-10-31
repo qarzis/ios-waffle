@@ -1,0 +1,279 @@
+{
+  "experiment": "E03",
+  "run": "work/waffle/runs/20261031T083550Z",
+  "log_sha256": "eff1e73053d06dc050931fc604130e65672e74ae32379cbd2de5e95d327e368c",
+  "checks": [
+    {
+      "sid": "0",
+      "va": "1ff8000410000",
+      "expected": "8d0690000",
+      "actual": "8d0690000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "0"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000410000",
+      "expected": "8d0690000",
+      "actual": "8d0690000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "2"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000424000",
+      "expected": "8d067c000",
+      "actual": "8d067c000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "0"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000424000",
+      "expected": "8d067c000",
+      "actual": "8d067c000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "2"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000430000",
+      "expected": "8d069c000",
+      "actual": "8d069c000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "0"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000430000",
+      "expected": "8d069c000",
+      "actual": "8d069c000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "2"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000438000",
+      "expected": "8d0694000",
+      "actual": "8d0694000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "0"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000438000",
+      "expected": "8d0694000",
+      "actual": "8d0694000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "2"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000470000",
+      "expected": "8d06ac000",
+      "actual": "8d06ac000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000470000",
+      "expected": "8d06ac000",
+      "actual": "8d06ac000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000500000",
+      "expected": "8d15ac000",
+      "actual": "8d15ac000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000500000",
+      "expected": "8d15ac000",
+      "actual": "8d15ac000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000501000",
+      "expected": "8d15ad000",
+      "actual": "8d15ad000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000501000",
+      "expected": "8d15ad000",
+      "actual": "8d15ad000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000502000",
+      "expected": "8d15ae000",
+      "actual": "8d15ae000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "0"
+    },
+    {
+      "sid": "0",
+      "va": "1ff800050b000",
+      "expected": "8d15a7000",
+      "actual": "8d15a7000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000512000",
+      "expected": "8d159e000",
+      "actual": "8d159e000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000513000",
+      "expected": "8d159f000",
+      "actual": "8d159f000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000513000",
+      "expected": "8d159f000",
+      "actual": "8d159f000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000514000",
+      "expected": "8d1598000",
+      "actual": "8d1598000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000514000",
+      "expected": "8d1598000",
+      "actual": "8d1598000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000890000",
+      "expected": "8d121c000",
+      "actual": "8d121c000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000890000",
+      "expected": "8d121c000",
+      "actual": "8d121c000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000891000",
+      "expected": "8d121d000",
+      "actual": "8d121d000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000891000",
+      "expected": "8d121d000",
+      "actual": "8d121d000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000892000",
+      "expected": "8d121e000",
+      "actual": "8d121e000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "1"
+    },
+    {
+      "sid": "0",
+      "va": "1ff8000892000",
+      "expected": "8d121e000",
+      "actual": "8d121e000",
+      "done": "1",
+      "fsr_raw": "00000400",
+      "faults": "00000000",
+      "access": "5"
+    }
+  ],
+  "result": "PASS: 27 access translations, 8 HFI allocations, no RAW",
+  "hypothesis_disposition": "H1 rejected for tested page edges and modes after GMU stop. Actual DMA and live/secure accesses remain unverified."
+}

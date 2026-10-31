@@ -1,3 +1,14 @@
+# E03 access matrix PASS — 2026-10-31, Android confirmed
+
+Latest run 20261031T083550Z, optional waffle_ecats_access=1 on prepare-only
+probe93. ACCESS_MATRIX result=1 checks=27 allocations=8, all PA match, no
+SMMU fault bits, no RAW. Full shutdown/root detach/PLL restore passed.
+Runner exit0 and independent ADB sys.boot_completed=1. Phone in Android.
+H1 rejected only for tested nonsecure edges/modes after GMU stop; actual
+DMA/coherency/secure transactions remain unverified. Do not repeat permissions
+fixes without new evidence. H2/H3 source review continues, no RAW queued.
+See GPU_DEBUG_LOG.md and forensic-audit/E03-result.json.
+
 # FORENSIC AUDIT ACTIVE — 2026-10-31; no hardware tests queued
 
 The user explicitly replaced iterative bring-up with forensic audit and
