@@ -1,3 +1,15 @@
+# E15 SMMU parent owner built — hardware controls pending
+
+Oldwaffle_smmu_probe splitintoowner/begin/complete/finish/wrapper. Parent
+holdsplan/tables/contexts/snapshots/protectedpool/callback/matrix/GMUchild;
+heapmodeexisting94session, defaultcallerstackowner. Actualhost42scenarios,
+fullhost/XNU/EFI/container/sourcebindingPASS diagnostic-gpu-smmu-owner-e15.
+NoE15hardwareyet. Next93+LPAC+accessmatrix noRAW; afterpass/Android1 full94
+session. Page/context/ECATS/TLB/securehelpers and GMUimplementationunchanged.
+E14working0bf40fc preserved. Boardclocks/CX/AOP remainnextrootlifetimeboundary.
+Useraskedpercentage: roughoverall40%, explicitlyestimate notmeasured;
+no newimplementationclaimfromthat estimate. ContinueautonomouslyRAMonly.
+
 # E14 PASS — live GMU/TCM component returned to SMMU parent
 
 Latestfullsession run20261031T105658Z auto20261031T105634Z,
