@@ -1,0 +1,10 @@
+{
+  "experiment": "E14-default-control",
+  "run": "work/waffle/runs/20261031T105523Z",
+  "no_raw": true,
+  "full_tcm_restore": true,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "142797915ce718e7e7904952d614f962d5a4891af14c47e71b0d63fd58260a44"
+}

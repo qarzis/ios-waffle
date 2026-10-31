@@ -1,0 +1,7 @@
+{
+  "unchanged_GMU_begin_finish_and_hardware_setup": true,
+  "unchanged_CP_ZAP_IB_submission_implementation": true,
+  "changed_GMU_scope": "TCM context/load/restore and begin/exercise/end component owner only",
+  "parent_change": "SMMU calls component begin, exercise, end in order for existing session flag",
+  "restoration_guard": "CM3 reset required; unknown stop/readback retains snapshot"
+}

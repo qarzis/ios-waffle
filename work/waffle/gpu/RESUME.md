@@ -1,3 +1,23 @@
+# E14 PASS — live GMU/TCM component returned to SMMU parent
+
+Latestfullsession run20261031T105658Z auto20261031T105634Z,
+artifactdiagnostic-gpu-component-owner-e14. Default93control105523Z alsoPASS.
+BeginreturnsheapGMUstate+32KiBTCMsnapshot/OOB/BO session toSMMUcaller;
+callerexercises3IB44/45/46 uniquemarkers/all4096wordswrong0 thenend.
+Slumber47/fullstop/32KiBTCMrestorereadback/heapfree/SMMU/PLLrestore,
+runner0/autosuccess/independentAndroid1. No900e. E12/E13workingartifacts intact.
+
+NextE15 NOTimplemented: explicitparentSMMUowner forplan/table/context/
+savedroutes/poolpermissionscallback storage; retainGMUchild untilend before
+TLBdetach/poolfree. Then boardclock/CX/AOPowner lifetime. CurrentAOPcallback
+holds macan_aop_mailbox_lock and sendsACDoffaftercallback, cannot keepthrough
+iOS viaflag. ExistingGMUownerAPIs requireparentplan/SMMU/clocks remainalive.
+SinglecoldsessionbetweenAndroidresets verified; reopenwithoutreset untested.
+No draw/shader/iOSGPUacceleration/dynamicBO/userfences/ISRbackend yet.
+No activehardwareprocess/testqueued; phoneordinaryAndroid. Userauthorizes
+continued RAM-only autodriverwork. Noagents/formalgoal. ExperimentslocalGit,
+notpushedtoGitHub. SeeGPU_DEBUG_LOG andforensic-audit E12/E13/E14results.
+
 # E14 GMU+TCM component owner built — hardware controls pending
 
 Opaquewaffle_gmu_owner_begin/exercise/end nowcalleddirectlybySMMUparent

@@ -9,9 +9,9 @@ are existing local source interfaces; no new user/kernel ABI is proposed here.
 | Authenticated ZAP/security transition | Implemented and hardware verified | E09 PAS13 auth0, native switch ACK0, TRUST0 |
 | GPU write / CPU observation | Implemented and hardware verified for NC diagnostic BO | E10 four-word result and all4096-word guard validation |
 | GPU fetch of indirect PM4 buffer | Implemented and hardware verified | E11-r2 reads8wordIB and verifies actual result/all4096words after scoped AP_UNPRIV fix |
-| Persistent power and firmware lifetime | Missing for waffle production | waffle_adreno_init always returns to loader; smmu_probe and GMU paths always stop/free |
+| Persistent power and firmware lifetime | Component ownership verified; production parent missing | E14 GMU/TCM begin returns live to SMMU parent, three IBs and end verified; SMMU/boardclock/AOP parents remain diagnostic-scoped |
 | Dynamic BO/VA/page-table lifetime | Missing waffle backend | Current tables are diagnostic local objects, not persistent per-service resources |
-| Submission completion / reclamation | Partial, bounded prototype verified | E12/E13 three unique IB sequences/results, heap session + GMU begin/finish owner, close/stop/free ordering verified; no user fence backend |
+| Submission completion / reclamation | Partial, bounded prototype verified | E12/E13/E14 three unique IB sequences/results, heap session + GMU/TCM component owner, close/stop/free ordering verified; no user fence backend |
 | GPU interrupts | Not verified for normal work | Current execution uses polled ACK/idle; no normal waffle IRQ recovery path |
 | IOKit service and IOUserClient | Existing shared implementation | kernel/files/iokit/Kernel/MacanGPU.cpp RedwoodGPUUserClient |
 | Darwin Mesa transport | Existing implementation | Mesa src/redwood-drm/drm_shim.c: msm ioctl selectors through IOConnectCallStructMethod |
@@ -41,3 +41,16 @@ Next implementation boundary after E11: an explicitly owned persistent waffle
 session, first exercised by a bounded multi-submit kernel test and a verified
 stop. No broad refactor of the passing diagnostics or userspace service is
 justified until its ownership/lifetime contract is specified and checked.
+
+E14 follow-up ownership boundary: the GMU component's begin/exercise/end API is
+implemented and hardware verified while its SMMU parent remains alive. The next
+parent object must capture table_pool, firmware plan, user/LPAC/GMU context
+snapshots, protected_pool and pool_permission_context. Callback pointers must
+refer to owner fields, not constructor stack locals. Detach and free only after
+child end and TLB sync. Board clock saved[]/CX collapse and the enclosing AOP
+transaction must then acquire independent lifetime: the current transaction
+holds its mutex around the whole callback and sends ACDoff on exit.
+
+No unrestricted userspace queue or actual draw was introduced by this work.
+Cold-open/end with Androidreset between attempts is verified; a second open
+after RSCsleep in the same boot remains untested.

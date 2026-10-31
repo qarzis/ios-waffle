@@ -1,0 +1,18 @@
+{
+  "experiment": "E14",
+  "run": "work/waffle/runs/20261031T105658Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T105634Z",
+  "gmu_component_returned_live_to_smmu_parent": true,
+  "heap_owned_tcm_snapshot_bytes": 32768,
+  "verified_distinct_gpu_submissions": 3,
+  "full_buffer_words_checked_each": 4096,
+  "wrong_words": 0,
+  "full_tcm_restore_after_stop": true,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_independently_confirmed": true,
+  "default_prepare93_control_also_passed": true,
+  "log_sha256": "81576d367cc96308b8ff739daf4f690e796156ff8d761c3c62e5f965d5174cf3",
+  "production_iOS_persistence": false,
+  "rasterization_tested": false
+}
