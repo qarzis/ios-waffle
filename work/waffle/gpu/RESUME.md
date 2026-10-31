@@ -1,3 +1,21 @@
+# E11-r2 PASS — GPU command fetch + result verified; Android restored
+
+Userresumed, activeGPUport. No pause. Latest hardware run20261031T103147Z,
+auto20261031T103122Z, diagnostic-gpu-ib-e11-r2: CP_INIT42/ZAP43/signedPAS13
+/TRUST0/IB44 allpassed. ActualGPUfetched8PM4wordsfrom1ff8000474400 andwrote
+fourwordmarker; CPUcheckedall4096wordsincludingIB/guards, wrong0. Slumber45,
+fullGX/CM3/TCM/context/PLLshutdown, runner0/autosuccess/independentAndroid1.
+No900e. OriginalE11 failedwithspecificFSR408/FARexactIB/PNU0permissionfault;
+onlydedicatedBOAP_UNPRIVfixnowconfirmed. Otherregionspermissionsunchanged.
+E08/E09/E10/E11artifacts immutable; latestworkingE11-r2. No queuedtest/process.
+Currentboundary: noactualdraw, no persistentwaffleBO/submit/fence/IRQbackend
+or iOSGPUintegration. Seeforensic-audit/IOS-GPU-INTEGRATION.md. Existing
+RedwoodGPU IOUserClient/DarwinDRMshim/FD750profile arepresent; wrongmacan/a6xx
+readyflagsmustnotbereusedasfakewafflebackend. NextpersistentownedGPU session
+withboundedmultisubmit+stop before exposing service or Mesa renderer switch.
+Userauthorizes RAM-only autoboot, standardcollector andAndroidverification.
+Noagents/formalgoal. NoGitHubpushofthisexperimentalbranchyet.
+
 # E10 PASS — GPU writes verified memory, Android restored
 
 20261031T102517Z artifactdiagnostic-gpu-writeback-e10: CP42/ZAP43ACK0,

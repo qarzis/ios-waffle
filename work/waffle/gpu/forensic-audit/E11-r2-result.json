@@ -1,0 +1,23 @@
+{
+  "experiment": "E11-r2",
+  "run": "work/waffle/runs/20261031T103147Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T103122Z",
+  "gpu_ib_fetch_and_writeback": true,
+  "ib_va": "1ff8000474400",
+  "command_words": 8,
+  "actual_cpu_readback": [
+    "57414646",
+    "4c454750",
+    "13579bdf",
+    "2468ace0"
+  ],
+  "wrong_words": 0,
+  "total_words_checked": 4096,
+  "smmu_faults_observed": false,
+  "full_shutdown_passed": true,
+  "runner_exit": 0,
+  "android_independently_confirmed": true,
+  "causal_change": "AP_UNPRIV only on dedicated writable command BO low/high aliases; identical packet/GMU source",
+  "log_sha256": "2f0c158a08ec7dab063ee3c3ac4d15cdd1d31e96219476a3fcffa9969f703a6e",
+  "draw_tested": false
+}

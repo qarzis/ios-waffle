@@ -8,7 +8,7 @@ are existing local source interfaces; no new user/kernel ABI is proposed here.
 | GMU/HFI/CP bootstrap | Implemented and hardware verified | E08 two CP_INIT ACK0/idle/full-collapse runs |
 | Authenticated ZAP/security transition | Implemented and hardware verified | E09 PAS13 auth0, native switch ACK0, TRUST0 |
 | GPU write / CPU observation | Implemented and hardware verified for NC diagnostic BO | E10 four-word result and all4096-word guard validation |
-| GPU fetch of indirect PM4 buffer | Hardware pending E11 | Same known memory-write stream staged separately in existingBO |
+| GPU fetch of indirect PM4 buffer | Implemented and hardware verified | E11-r2 reads8wordIB and verifies actual result/all4096words after scoped AP_UNPRIV fix |
 | Persistent power and firmware lifetime | Missing for waffle production | waffle_adreno_init always returns to loader; smmu_probe and GMU paths always stop/free |
 | Dynamic BO/VA/page-table lifetime | Missing waffle backend | Current tables are diagnostic local objects, not persistent per-service resources |
 | Submission completion / reclamation | Partial | RAW ACK plus bounded idle/readback works; no waffle user fence implementation |
