@@ -14,6 +14,7 @@ h=r'''
 #include <string.h>
 #include <setjmp.h>
 #include "waffle_gpu.h"
+#include "waffle_smmu.h"
 #include "waffle_gpu_va.h"
 #include "waffle_gpu_writeback.h"
 typedef uintptr_t vm_offset_t;
@@ -167,6 +168,26 @@ int main(void){
    assert(retain && !heap_frees && !data_frees && !fw_frees);
    if(mode==12 || mode==13 || mode==19)assert(child_live && !detaches);
   }
+ }
+ /* Call the public API directly: begin must return without exercising or
+  * releasing any state, with valid permission callbacks until end. */
+ for(unsigned early=0;early<2;++early){
+  mode=0;heap_mode=true;
+  allocs=heap_frees=data_frees=fw_frees=detaches=callbacks=child_ends=matrix_runs=mmio_maps=0;
+  child_live=false;active_plan=NULL;
+  memset(smmu,0,sizeof(smmu));memset(qtb,0,sizeof(qtb));memset(gmu,0,sizeof(gmu));memset(cc,0,sizeof(cc));
+  *(uint32_t *)(gmu+WAFFLE_GMU_SYSRESET)=1;*(uint32_t *)(cc+WAFFLE_GPU_GX_GDSCR)=1;
+  assert(!waffle_smmu_owner_begin((uintptr_t)smmu,4096,32,8,8,93) && !allocs && !mmio_maps);
+  assert(!waffle_smmu_owner_exercise(NULL) && !waffle_smmu_owner_end(NULL));
+  struct waffle_smmu_owner *live=waffle_smmu_owner_begin((uintptr_t)smmu,4096,32,8,8,94);
+  assert(live && child_live && callbacks==1 && !heap_frees && !child_ends && !detaches);
+  assert(active_plan==&live->state.firmware);
+  if(!early){
+   assert(waffle_smmu_owner_exercise(live) && callbacks==2 && child_live && !detaches);
+   assert(!waffle_smmu_owner_exercise(live) && callbacks==2);
+  }
+  assert(waffle_smmu_owner_end(live)==!early);
+  assert(!child_live && child_ends==1 && heap_frees==1 && data_frees==2 && fw_frees==1);
  }
  /* Even a caller attempting cleanup directly cannot detach a live child. */
  struct smmu_owner owner={.child=&child_object};

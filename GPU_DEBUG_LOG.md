@@ -271,3 +271,19 @@ E15 default93controlPASS run20261031T111053Z/auto20261031T111029Z: accessmatrix2
 ## E15 hardware PASS — SMMU parent owner and callback survive begin return
 
 Control93 run20261031T111053Z ACCESS27/alloc8/LPAC42 passed. Heap94session run20261031T111210Z/auto20261031T111146Z: SMMUbeginreturnedheap1/callback_owned1/livechild1, same3IB44/45/46 uniquemarkers/all4096wordswrong0, childGMU/TCMendedbeforecontextsdetach, rootownerreleased, PLLrestored. Runner0/autosuccess/independentAndroid1. No900e/fault. This removes constructorstack dependence for plan/table/context/callback storage within the bounded root wrapper; actual boardclock/AOP owners remain outside it. EvidenceE15-result.json. No shader/draw/iOS acceleration claim.
+
+Publication completed at explicituserrequest: forkdefaultwaffle/gpu-bringup commit2558c8e126ab2d92f854fcf2239f7b90778ba664 includesverifiedE15code/evidence andEnglishcurrentstatus/milestonetable. BothREADMEintroparagraphs shownbyuserremoved. RemoteSHA/defaultREADME contentsverifiedviaGitHubAPI. Publishedsource matches E15snapshot; fourownershiphosttests also passed inpublicationworktree. MainGPUworkcontinueslocally; noE16implementationyet.
+
+## E16 plan — live SMMU component returned to board clock caller
+
+E15 source checkpoint86a7909 preserved. Current blocker: heap SMMU parent is closed inside waffle_smmu_probe; board code has no live component handle to retain. Hypothesis: an opaque begin/exercise/end handoff can preserve the verified child-first stop with callback/table storage intact after probe_smmu returns. Minimal experiment: expose existing session94 owner to probe_clocks, execute unchanged three IBs there, end before any PLL/clock/CX/AOP restore. No new GPU commands, mappings, permissions or frequencies. Default93 control plus accessmatrix/LPAC first, then session94 after Android confirmation. Host tests must exercise actual public API and clock caller order, duplicate-exercise denial, early-close cleanup, constructor rollback and uncertainty retention. This is not persistent board ownership or iOS rendering. No hardware E16 result yet.
+
+E16 implementation scoped to public SMMU begin/exercise/end plus board caller handoff; internal SMMU begin/finish/mapper/context/permissions and entire GMU file byte-identical to E15 (scope audit). API returns live before exercise, denies repeated exercise, can close an unexercised owner; caller ends child before any PLL/clock restore. Existing42 parent scenarios plus direct public API and actual clock caller success/failure order checks pass with ASan/UBSan. Audit script initially matched the forward declaration instead of the function definition; corrected matcher confirms unchanged helper prefix. No hardware result yet. Full build running.
+
+E16 full host suite/XNU/EFI/container and compiled-source binding passed. Prepared diagnostic-gpu-smmu-api-e16; next default93 LPAC/accessmatrix control before session94. Compilation is not hardware proof.
+
+E16 default93 control PASS run20261031T200441Z/auto20261031T200417Z: ACCESS27/alloc8/LPAC42 noRAW/fullshutdown/PLL/AOP restore, runner0/autosuccess/Android1. Next publicAPI session94 on same artifact.
+
+## E16 hardware PASS — public SMMU owner returned live to board clock caller
+
+Control93 run20261031T200441Z ACCESS27/alloc8/LPAC42 passed. Session94 run20261031T200543Z/auto20261031T200519Z: publicbegin returnslive through probe_smmu to probe_clocks; sameIB44/45/46 each all4096wordswrong0/distincttokens, endstopsGMU/TCM thenSMMUdetach/free beforePLL/clocks/CX/AOPrestore. Runner0/autosuccess/independentAndroid1; no900e. Scope unchangedGMU/internalSMMUhelpers. EvidenceE16-result.json. Next unresolved boundary: saved boardclock changes remain local to probe_clocks; CX/GCC/AOP transaction remains caller-scoped. No persistent iOS backend or draw claim.

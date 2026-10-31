@@ -1,3 +1,25 @@
+# E16 PASS — public SMMU component handed live to clock caller
+
+Control93 run20261031T200441Z ACCESS27/alloc8/LPAC42 passed. Session94
+run20261031T200543Z auto20261031T200519Z diagnostic-gpu-smmu-api-e16:
+publicbegin returnslive throughprobe_smmu toprobe_clocks, 3IB44/45/46 each
+all4096wordswrong0, childstop/contextdetach beforePLL/clock/CX/AOPrestore.
+Runner0/autosuccess/independentAndroid1, no900e. Main taskcontinues useraway.
+Nextsavedclockchangesownership thenCX/GCC/AOP beforeiOSbackend. NoE17yet.
+GitHubdefault README simplified atuserrequest commite28bd88 (separateworktree).
+
+# E15 published; GPU work continues with board lifetime boundary
+
+Userexplicitlyrequestedpublishcode/updatetable andremovebothREADMEintro
+paragraphsfromscreenshot. Completed: forkdefaultwaffle/gpu-bringup commit
+2558c8e126ab2d92f854fcf2239f7b90778ba664 atgithub.com/qarzis/ios-waffle.
+PublishedverifiedE15source/evidence+Englishmilestonetable, removed2paragraphs.
+GitHubAPI/defaultbranch/remoteSHA verified, publicationworktreeclean.
+Mainexperimentalbranch86a7909 stillverifiedE15; noE16codeyet.
+NextpublicSMMUcomponentbegin/exercise/end handofftoboardclockcaller, then
+boardclock/CX/AOPownership. MainGPUtaskcontinues(userhasnotstoppedit).
+Noactivehardwaretest. PhoneordinaryAndroid. Noextrafirmware/iOSimagespublished.
+
 # E15 PASS — SMMU parent heap owner verified
 
 Control93 ACCESS27/alloc8/LPAC42 run20261031T111053Z PASS. Full94session

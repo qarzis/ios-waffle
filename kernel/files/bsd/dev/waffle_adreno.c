@@ -11,6 +11,7 @@
 #include <pexpert/pexpert.h>
 #include <sys/systm.h>
 #include <sys/waffle_gpu.h>
+#include <sys/waffle_smmu.h>
 #include <sys/waffle_aop.h>
 #include <sys/waffle_gpu_pll.h>
 #include <sys/waffle_gmu_clock.h>
@@ -182,10 +183,10 @@ static bool clock_change(struct clock_change *c, vm_offset_t base, uint32_t offs
     write_reg(base, cmd, read_reg(base, cmd) | 1);
     return wait_mask(base, cmd, 1, 0);
 }
-static void probe_smmu(uint32_t probe)
+static struct waffle_smmu_owner *probe_smmu(uint32_t probe)
 {
     vm_offset_t smmu = ml_io_map(WAFFLE_GPU_SMMU_BASE, WAFFLE_GPU_SMMU_SIZE);
-    if (!smmu) { gpu_log("waffle-gpu: SMMU map failed\n"); return; }
+    if (!smmu) { gpu_log("waffle-gpu: SMMU map failed\n"); return NULL; }
     show(smmu, WAFFLE_GPU_SMMU_BASE, "SMMU_IDR0", 0x20);
     show(smmu, WAFFLE_GPU_SMMU_BASE, "SMMU_IDR1", 0x24);
     show(smmu, WAFFLE_GPU_SMMU_BASE, "SMMU_IDR2", 0x28);
@@ -197,7 +198,7 @@ static void probe_smmu(uint32_t probe)
         matches < 6 || matches > 128 || contexts > (WAFFLE_GPU_SMMU_SIZE - context_base) / page) {
         gpu_log("waffle-gpu: SMMU layout outside DT range: page=%x pages=%u CB=%u SMR=%u; stop\n",
             page, pages, contexts, matches);
-        return;
+        return NULL;
     }
     gpu_log("waffle-gpu: SMMU layout page=%x pages=%u CB=%u SMR=%u; read only\n",
         page, pages, contexts, matches);
@@ -216,7 +217,11 @@ static void probe_smmu(uint32_t probe)
         show(smmu, WAFFLE_GPU_SMMU_BASE, "CB_FSR", cb + 0x58);
     }
     gpu_log("waffle-gpu: SMMU inspection complete; no translation registers written\n");
+    uint32_t session=0;
+    if(probe==94 && PE_parse_boot_argn("waffle_session",&session,sizeof(session)) && session==1)
+        return waffle_smmu_owner_begin(smmu,page,pages,contexts,matches,probe);
     if (probe >= 6) waffle_smmu_probe(smmu, page, pages, contexts, matches, probe);
+    return NULL;
 }
 /* GMU_FREQ_MIN in kgsl_gmu_core.h is 200MHz. Pineapple GMU parent map
  * selects existing GPLL0 (600MHz) with SRC_SEL5; HID divider3 encodes5.
@@ -406,7 +411,16 @@ static void probe_clocks(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
                 clock_change(&saved[count++], gcc, WAFFLE_GPU_SNOC, 1, 1, false);
                 delay_for_interval(10, NSEC_PER_USEC);
             }
-            if (wait_mask(cc, WAFFLE_GPU_SMMU_CLOCK, 1u << 31, 0)) probe_smmu(probe);
+            if (wait_mask(cc, WAFFLE_GPU_SMMU_CLOCK, 1u << 31, 0)) {
+                struct waffle_smmu_owner *owner=probe_smmu(probe);
+                if(owner) {
+                    gpu_log("waffle-gpu: SMMU component returned live to clock owner\n");
+                    bool exercised=waffle_smmu_owner_exercise(owner);
+                    bool stopped=waffle_smmu_owner_end(owner);
+                    ok=exercised && stopped;
+                    gpu_log("waffle-gpu: SMMU component ended before clock restore result=%u\n",ok);
+                }
+            }
             else gpu_log("waffle-gpu: SMMU clock halted; no SMMU reads\n");
         }
     }

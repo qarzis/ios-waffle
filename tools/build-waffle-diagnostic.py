@@ -134,7 +134,7 @@ def main():
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
     for relative in ("bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
-                     "bsd/dev/waffle_gmu.c", "bsd/sys/waffle_gpu_measure.h", "bsd/sys/waffle_hfi.h", "bsd/sys/waffle_hfi_tables.h", "bsd/sys/waffle_gmu.h", "bsd/sys/waffle_scm.h", "bsd/sys/waffle_zap.h", "bsd/sys/waffle_zap_load.h", "bsd/sys/waffle_gpu_writeback.h", "bsd/sys/waffle_gmu_firmware.h", "bsd/dev/macan_touch_report.h",
+                     "bsd/dev/waffle_gmu.c", "bsd/sys/waffle_gpu_measure.h", "bsd/sys/waffle_hfi.h", "bsd/sys/waffle_hfi_tables.h", "bsd/sys/waffle_gmu.h", "bsd/sys/waffle_smmu.h", "bsd/sys/waffle_scm.h", "bsd/sys/waffle_zap.h", "bsd/sys/waffle_zap_load.h", "bsd/sys/waffle_gpu_writeback.h", "bsd/sys/waffle_gmu_firmware.h", "bsd/dev/macan_touch_report.h",
                      "bsd/sys/waffle_gen7_config.h", "bsd/sys/waffle_gen7_tables.h",
                      "bsd/sys/waffle_gen7_hwcg.h", "bsd/sys/waffle_gen7_cp.h", "bsd/sys/waffle_gen7_boot.h",
                      "bsd/dev/macan_input.c", "bsd/dev/macan_audio.c", "bsd/dev/macan_buttons.c",
@@ -203,7 +203,7 @@ def main():
                      "kernel/files/bsd/dev/waffle_synaptics.c", "kernel/files/bsd/dev/macan_touch_report.h",
                      "kernel/files/bsd/dev/waffle_adreno.c", "kernel/files/bsd/sys/waffle_gpu.h", "kernel/files/bsd/sys/waffle_aop.h",
                      "kernel/files/bsd/dev/waffle_smmu.c",
-                     "kernel/files/bsd/dev/waffle_gmu.c", "kernel/files/bsd/sys/waffle_gmu.h",
+                     "kernel/files/bsd/dev/waffle_gmu.c", "kernel/files/bsd/sys/waffle_gmu.h", "kernel/files/bsd/sys/waffle_smmu.h",
                      "kernel/files/bsd/sys/waffle_gmu_firmware.h", "kernel/files/bsd/sys/waffle_scm.h", "tools/tests/waffle-scm-host.py", "tools/tests/waffle-secure-context-host.py", "tools/tests/waffle-protected-pool-host.py", "tools/tests/waffle-gmu-fw.c",
                      "kernel/files/bsd/sys/waffle_hfi.h", "tools/tests/waffle-hfi.c",
                      "kernel/files/bsd/sys/waffle_hfi_tables.h", "tools/build-waffle-gpu-tables.py",

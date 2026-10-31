@@ -10,6 +10,7 @@
 #include <sys/systm.h>
 #include <sys/waffle_gpu.h>
 #include <sys/waffle_gmu.h>
+#include <sys/waffle_smmu.h>
 #include <sys/waffle_scm.h>
 #include <sys/waffle_gpu_writeback.h>
 #include <vm/vm_kern.h>
@@ -709,36 +710,72 @@ static bool smmu_owner_finish(struct smmu_owner *s)
         waffle_gmu_free(&s->firmware);
     } else log_line("waffle-iommu: keep test pages allocated; reboot Android before retry\n");    return s->safe_free;
 }
-void waffle_smmu_probe(vm_offset_t smmu,uint32_t page,uint32_t pages,
-    uint32_t contexts,uint32_t matches,unsigned probe)
+struct waffle_smmu_owner {
+    struct smmu_owner state;
+    vm_offset_t allocation;
+    bool exercised;
+};
+struct waffle_smmu_owner *waffle_smmu_owner_begin(uintptr_t smmu,uint32_t page,
+    uint32_t pages,uint32_t contexts,uint32_t matches,unsigned probe)
 {
-    struct smmu_owner fallback={0},*s=&fallback;
     vm_offset_t allocation=0;uint32_t requested=0;
-    bool heap=PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) && requested==1;
-    if(heap) {
-        if(sizeof(*s)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
-            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return;
-        s=(struct smmu_owner *)allocation;
-    }
+    if(probe!=94 || !PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) || requested!=1)
+        return NULL;
+    if(sizeof(struct waffle_smmu_owner)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+        KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+    struct waffle_smmu_owner *owner=(struct waffle_smmu_owner *)allocation;
+    owner->allocation=allocation;
+    struct smmu_owner *s=&owner->state;
     *s=(struct smmu_owner){.smmu=smmu,.page=page,.pages=pages,.contexts=contexts,
         .matches=matches,.probe=probe,.safe_free=true};
     bool begun=smmu_owner_begin(s);
-    if(s->child) {
-        if(!begun || s->firmware.pool_permissions_context!=&s->permission_context)
-            smmu_owner_stop("invalid SMMU constructor or callback ownership");
-        log_line("waffle-iommu: SMMU_OWNER begin returned heap=%u callback_owned=1 child_live=1\n",heap);
-        bool exercised=waffle_gmu_owner_exercise(s->child);
-        if(!s->firmware.submit_session)smmu_owner_stop("GMU child state lost before parent end");
-        bool stopped=waffle_gmu_owner_end(s->child);
-        s->child=NULL;s->gmu_ok=exercised && stopped;
-    }
-    smmu_owner_complete(s);
-    bool released=smmu_owner_finish(s);
-    if(allocation) {
-        if(!released)smmu_owner_stop("SMMU detach incomplete; cannot free owner");
+    if(!begun || !s->child) {
+        if(!smmu_owner_finish(s))smmu_owner_stop("SMMU constructor detach incomplete");
         kmem_free(kernel_map,allocation,PAGE_SIZE);
-        log_line("waffle-iommu: SMMU_OWNER released after child stop and context detach\n");
+        return NULL;
     }
+    if(s->firmware.pool_permissions_context!=&s->permission_context || !s->firmware.submit_session)
+        smmu_owner_stop("invalid SMMU constructor or callback ownership");
+    log_line("waffle-iommu: SMMU_OWNER begin returned heap=1 callback_owned=1 child_live=1\n");
+    return owner;
+}
+bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *owner)
+{
+    if(!owner || !owner->state.child || owner->exercised)return false;
+    owner->exercised=true;
+    owner->state.gmu_ok=waffle_gmu_owner_exercise(owner->state.child);
+    return owner->state.gmu_ok;
+}
+bool waffle_smmu_owner_end(struct waffle_smmu_owner *owner)
+{
+    if(!owner)return false;
+    struct smmu_owner *s=&owner->state;
+    if(!s->child || !s->firmware.submit_session)
+        smmu_owner_stop("GMU child state lost before parent end");
+    bool stopped=waffle_gmu_owner_end(s->child);
+    s->child=NULL;s->gmu_ok=s->gmu_ok && stopped;
+    smmu_owner_complete(s);
+    if(!smmu_owner_finish(s))smmu_owner_stop("SMMU detach incomplete; cannot free owner");
+    bool ok=s->gmu_ok;
+    vm_offset_t allocation=owner->allocation;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    log_line("waffle-iommu: SMMU_OWNER released after child stop and context detach\n");
+    return ok;
+}
+void waffle_smmu_probe(vm_offset_t smmu,uint32_t page,uint32_t pages,
+    uint32_t contexts,uint32_t matches,unsigned probe)
+{
+    uint32_t requested=0;
+    if(PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) && requested==1) {
+        struct waffle_smmu_owner *owner=waffle_smmu_owner_begin(smmu,page,pages,contexts,matches,probe);
+        if(owner){(void)waffle_smmu_owner_exercise(owner);(void)waffle_smmu_owner_end(owner);}
+        return;
+    }
+    struct smmu_owner s={.smmu=smmu,.page=page,.pages=pages,.contexts=contexts,
+        .matches=matches,.probe=probe,.safe_free=true};
+    (void)smmu_owner_begin(&s);
+    smmu_owner_complete(&s);
+    (void)smmu_owner_finish(&s);
 }
 
 static void secure_context_stop(const char *reason)

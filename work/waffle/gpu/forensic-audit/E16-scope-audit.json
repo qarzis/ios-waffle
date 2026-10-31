@@ -1,0 +1,15 @@
+{
+  "experiment": "E16",
+  "base": "86a7909035e1d3b5e865a3e0d79853b46505ca34",
+  "smmu_internal_begin_finish_and_mapping_helpers_unchanged": true,
+  "secure_helpers_unchanged": true,
+  "entire_gmu_implementation_unchanged": true,
+  "hardware_tested": false,
+  "scope": "Public SMMU lifetime API and live handle returned to board clock caller",
+  "host_checks": [
+    "42 default/heap failure scenarios",
+    "direct public API begin/exercise/end and early close",
+    "duplicate exercise rejected",
+    "actual clock caller child ends before any clock/PLL restore"
+  ]
+}

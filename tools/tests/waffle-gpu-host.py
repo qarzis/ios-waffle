@@ -35,6 +35,7 @@ HARNESS = r"""
 #include "mock_xnu.h"
 #include <sys/waffle_gpu.h>
 #include <sys/waffle_aop.h>
+#include <sys/waffle_smmu.h>
 static uint32_t gcc[WAFFLE_GCC_SIZE / 4], cc[WAFFLE_GPUCC_SIZE / 4];
 static uint32_t aop[WAFFLE_AOP_QMP_MAP_SIZE / 4];
 static uint32_t saved_gcc[WAFFLE_GCC_SIZE / 4];
@@ -79,6 +80,11 @@ void waffle_smmu_probe(vm_offset_t base, uint32_t page, uint32_t pages,
     (void)base; (void)page; (void)pages; (void)contexts; (void)matches; (void)translate;
     assert(!"SMMU must remain inaccessible in the denied/busy host scenarios");
 }
+struct waffle_smmu_owner *waffle_smmu_owner_begin(uintptr_t b,uint32_t p,uint32_t ps,uint32_t c,uint32_t m,unsigned n) {
+    (void)b;(void)p;(void)ps;(void)c;(void)m;(void)n;assert(0);return NULL;
+}
+bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *o) {(void)o;assert(0);return false;}
+bool waffle_smmu_owner_end(struct waffle_smmu_owner *o) {(void)o;assert(0);return false;}
 void waffle_adreno_init(void);
 static void reset(unsigned mode, unsigned board, uint32_t cfg) {
     memset(gcc,0,sizeof(gcc)); memset(cc,0xa5,sizeof(cc));
