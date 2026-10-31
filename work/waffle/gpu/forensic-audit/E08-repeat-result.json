@@ -1,0 +1,14 @@
+{
+  "experiment": "E08-repeat",
+  "run": "work/waffle/runs/20261031T100701Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T100636Z",
+  "cp_init_ack": {
+    "seq": 42,
+    "value": 0,
+    "valid": 1
+  },
+  "runner_exit": 0,
+  "same_kernel_and_image": true,
+  "android_independently_confirmed": true,
+  "log_sha256": "58ef8b975c730e313d7c9add8b5b3b923db0ae0244bc05ec3c5fc1965aafbf4a"
+}

@@ -1,0 +1,18 @@
+{
+  "experiment": "E08",
+  "run": "work/waffle/runs/20261031T100500Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T100436Z",
+  "cp_init_ack": {
+    "seq": 42,
+    "value": 0,
+    "valid": 1
+  },
+  "cp_start_result": 0,
+  "lpac_translation_checks": 42,
+  "full_slumber_collapse_and_pll_restore": true,
+  "android_independently_confirmed": true,
+  "runner_exit": 0,
+  "frames_tested": false,
+  "log_sha256": "10b0532d11e4706ec2517f65e64d793795208899d55b08ea8954aefbf14f39a8",
+  "causal_scope": "LPAC mapping/aperture plus native GMU bank placement and dual-ASID TLBI resolves the previously failing CP_INIT in this run; individual contributors not isolated"
+}

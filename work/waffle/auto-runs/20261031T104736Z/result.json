@@ -1,0 +1,19 @@
+{
+  "started_utc": "20261031T104736Z",
+  "flash_operations": false,
+  "gpu_raw": true,
+  "prepare_gpu": false,
+  "access_matrix": false,
+  "measure_clocks": false,
+  "lpac_map": true,
+  "lpac_cp_init": true,
+  "zap": true,
+  "writeback": true,
+  "ib": true,
+  "session": true,
+  "physical_boot_selection": false,
+  "android_confirmed": true,
+  "automatic_loader_verified": true,
+  "runner_exit": 0,
+  "success": true
+}

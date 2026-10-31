@@ -1,3 +1,188 @@
+# E15 PASS — SMMU parent heap owner verified
+
+Control93 ACCESS27/alloc8/LPAC42 run20261031T111053Z PASS. Full94session
+run20261031T111210Z auto20261031T111146Z PASS; artifactdiagnostic-gpu-smmu-owner-e15.
+Rootplan/tables/contexts/callback nowheapowned, beginsurvivesreturnwithliveGMU;
+threeIB44/45/46 correctmarkers/all4096wordswrong0, childGMU/TCMstopbefore
+detach/TLB/poolfree/rootfree/PLLrestore, runner0/Android1. No900e.
+Next exposeSMMUcomponentbegin/exercise/end totheboardclockcaller, then
+boardclocks/CX/AOPlifetime, keepingexistingcommands. Noactualdraw/userqueueyet.
+Lastuserclarifiedstatusquestion concernedactiveGPUwork, nototherperipherals.
+Answer: currentlyresourceownershipfoundation, nextclock/AOP beforepersistentbackend.
+UsercontinuesGPUtask; noactivehardwareprocess/testqueued. NoGitHubpushyet.
+
+# E15 SMMU parent owner built — hardware controls pending
+
+Oldwaffle_smmu_probe splitintoowner/begin/complete/finish/wrapper. Parent
+holdsplan/tables/contexts/snapshots/protectedpool/callback/matrix/GMUchild;
+heapmodeexisting94session, defaultcallerstackowner. Actualhost42scenarios,
+fullhost/XNU/EFI/container/sourcebindingPASS diagnostic-gpu-smmu-owner-e15.
+NoE15hardwareyet. Next93+LPAC+accessmatrix noRAW; afterpass/Android1 full94
+session. Page/context/ECATS/TLB/securehelpers and GMUimplementationunchanged.
+E14working0bf40fc preserved. Boardclocks/CX/AOP remainnextrootlifetimeboundary.
+Useraskedpercentage: roughoverall40%, explicitlyestimate notmeasured;
+no newimplementationclaimfromthat estimate. ContinueautonomouslyRAMonly.
+
+# E14 PASS — live GMU/TCM component returned to SMMU parent
+
+Latestfullsession run20261031T105658Z auto20261031T105634Z,
+artifactdiagnostic-gpu-component-owner-e14. Default93control105523Z alsoPASS.
+BeginreturnsheapGMUstate+32KiBTCMsnapshot/OOB/BO session toSMMUcaller;
+callerexercises3IB44/45/46 uniquemarkers/all4096wordswrong0 thenend.
+Slumber47/fullstop/32KiBTCMrestorereadback/heapfree/SMMU/PLLrestore,
+runner0/autosuccess/independentAndroid1. No900e. E12/E13workingartifacts intact.
+
+NextE15 NOTimplemented: explicitparentSMMUowner forplan/table/context/
+savedroutes/poolpermissionscallback storage; retainGMUchild untilend before
+TLBdetach/poolfree. Then boardclock/CX/AOPowner lifetime. CurrentAOPcallback
+holds macan_aop_mailbox_lock and sendsACDoffaftercallback, cannot keepthrough
+iOS viaflag. ExistingGMUownerAPIs requireparentplan/SMMU/clocks remainalive.
+SinglecoldsessionbetweenAndroidresets verified; reopenwithoutreset untested.
+No draw/shader/iOSGPUacceleration/dynamicBO/userfences/ISRbackend yet.
+No activehardwareprocess/testqueued; phoneordinaryAndroid. Userauthorizes
+continued RAM-only autodriverwork. Noagents/formalgoal. ExperimentslocalGit,
+notpushedtoGitHub. SeeGPU_DEBUG_LOG andforensic-audit E12/E13/E14results.
+
+# E14 GMU+TCM component owner built — hardware controls pending
+
+Opaquewaffle_gmu_owner_begin/exercise/end nowcalleddirectlybySMMUparent
+inexisting--session94 path. OwnerholdsTCMsnapshot+GMUstate+submit child;
+beginreturnslive; endverifiedstop/TCMrestore/free. DefaultTCMwrapperuses
+extractedload/restore helpers, checksCM3resetbeforeTCMwrites. Fullhost/XNU/
+EFI/container/sourcebindingPASS diagnostic-gpu-component-owner-e14.
+Nextdefault93+LPACcontrol noRAW thensession94afterAndroid1. E13verified
+checkpoint632f330 preserved. NoE14hardwareyet. OuterSMMU/plan/clocks/AOP
+stillparent-owned; no productioniOSbackendclaim.
+
+# E13 PASS — GMU begin/finish heap owner verified
+
+Control93 run20261031T104701Z PASS; session94 run20261031T104800Z PASS.
+Artifactdiagnostic-gpu-gmu-owner-e13. GMUbeginreturnedwithheapstate,
+threeIB44/45/46 uniqueGPUresults/all4096wordswrong0; slumber47/fullstop,
+GMUownerfreeafterfinishresult1/TCMrestore/SMMU/PLLcleanup, runner0/Android1.
+No900e. NextTCMbackup plus rootplan/SMMU/clocks/AOP ownership needed before
+persistentiOSbackend. E12/E11artifacts unchanged. Userauthorizedcontinue.
+
+# E13 GMU owner built — prepare-only control pending
+
+Scopedoldboot_probe->gmu_boot_context/begin/finish/wrapper; no changesoutside
+thatfunctionregion, setupconstants exactsameasE12. SessionpathGMUownerheap,
+default93stackowner. Fullhost/XNU/EFI/container/sourcebindingPASS.
+Artifactdiagnostic-gpu-gmu-owner-e13. Nextautoprepare93+LPAC noRAW; afterpass
+andAndroid1 run94fullsession. E12workingartifact preserved.
+
+# E12 PASS — owned submission session, three independent results
+
+run20261031T104031Z auto20261031T104007Z diagnostic-gpu-session-e12.
+OOBheldaftergpu_power_probe returned; heapownedBOsession, IB44/45/46 ACK0,
+fences1/2/3 uniquemarker/all4096wordschecked wrong0 each. Slumber47,
+fullstopbeforealias/heapfree, runner0/Android1. No900e.
+NextE13 GMUbegin/finishcontext ownershiprefactor, no newcommands; current
+boot_probe savedstate/livecontext stillstack. PreserveE12artifact. Outer
+TCM/SMMU/AOPowner lifetime stillneededbeforeiOSbackend. Userauthorizedcontinue.
+
+# E12 owned session built — hardware pending
+
+User «дальше работай». Optionalwaffle_session=1 requires94/LPAC/ZAP/writeback/IB.
+Heapownedsubmit_session retainsOOB+BOalias aftergpu_power_probereturn,
+threeIBs44/45/46 uniquetokens/fences1/2/3, closeOOBthen slumber47,
+destroyafterallsixstopbits. Fullhost/XNU/EFI/container/sourcebindingPASS.
+Artifactdiagnostic-gpu-session-e12. Nextautotest--session withverifiedchain.
+OuterSMMUplan/tables still diagnosticstackowned: this isbounded prototype,
+NOT persistentiOSbackend. E11-r2originalartifact unchanged.
+
+# E11-r2 PASS — GPU command fetch + result verified; Android restored
+
+Userresumed, activeGPUport. No pause. Latest hardware run20261031T103147Z,
+auto20261031T103122Z, diagnostic-gpu-ib-e11-r2: CP_INIT42/ZAP43/signedPAS13
+/TRUST0/IB44 allpassed. ActualGPUfetched8PM4wordsfrom1ff8000474400 andwrote
+fourwordmarker; CPUcheckedall4096wordsincludingIB/guards, wrong0. Slumber45,
+fullGX/CM3/TCM/context/PLLshutdown, runner0/autosuccess/independentAndroid1.
+No900e. OriginalE11 failedwithspecificFSR408/FARexactIB/PNU0permissionfault;
+onlydedicatedBOAP_UNPRIVfixnowconfirmed. Otherregionspermissionsunchanged.
+E08/E09/E10/E11artifacts immutable; latestworkingE11-r2. No queuedtest/process.
+Currentboundary: noactualdraw, no persistentwaffleBO/submit/fence/IRQbackend
+or iOSGPUintegration. Seeforensic-audit/IOS-GPU-INTEGRATION.md. Existing
+RedwoodGPU IOUserClient/DarwinDRMshim/FD750profile arepresent; wrongmacan/a6xx
+readyflagsmustnotbereusedasfakewafflebackend. NextpersistentownedGPU session
+withboundedmultisubmit+stop before exposing service or Mesa renderer switch.
+Userauthorizes RAM-only autoboot, standardcollector andAndroidverification.
+Noagents/formalgoal. NoGitHubpushofthisexperimentalbranchyet.
+
+# E10 PASS — GPU writes verified memory, Android restored
+
+20261031T102517Z artifactdiagnostic-gpu-writeback-e10: CP42/ZAP43ACK0,
+GPU_WRITEBACK44ACK0 +actualCPU4wordmarker matched, all4096wordschecked wrong0.
+Slumber45/fullshutdown/PLLrestore, runner0/Android1. No900e/no drawyet.
+E09PAS13+TRUST0 passes; allworkingartifacts preserved. NextE11 IBfetch of
+knownmemorywrite stream beforepersistentIOKit backend. NoE11code/hardwareyet.
+
+# E09 PASS — authenticated ZAP, TRUST0, Android restored
+
+run20261031T102106Z automatic20261031T102042Z artifactdiagnostic-gpu-zap-e09.
+PAS13 init/mem/auth0, signedZAPauthenticated, secure-switch43ACK0/TRUST0,
+slumber44/fullcollapse/PLLrestorepass, runner0/Android1. E08untouched.
+NextE10 dedicatedBO GPUwriteback withnativeCP_MEM_WRITE+WAIT_MEM_WRITES;
+notimplemented/hardwaretested yet. Userresumed; RAMonly/autoloadpermitted.
+
+# USER RESUMED — E09 built, hardware pending
+
+Latest user «продолжай» revokes prior pause. E08 preserved/twoCP_INITpasses.
+E09 native PAS13+secure-switch implemented behind94+LPAC+waffle_zap=1;
+fullhost/XNU/EFI/container/sourcebindingpassed diagnostic-gpu-zap-e09.
+NoE09hardwareyet. Nextautobootwith--lpac-map --lpac-cp-init --zap;
+standardcollector, inspectPAStransport/service, switchseq43/TRUST0/slumber44,
+thenindependentAndroid1. NevermodifyoriginalE08artifact. SeeGPU_DEBUG_LOG.
+
+# USER PAUSED — do not resume without an explicit request
+
+User: «стопай пока что». Stop GPU/device work. No hardware test/build/process
+was started during the resumed ZAP review. Phone last independently confirmed
+ordinary Android boot_completed1. E08 working source/image unchanged; two
+successful CP_INIT runs remain preserved, latest Git4adf2cc onwaffle/hakios-uefi.
+E09 is a source-backed PLAN ONLY: runtime ZAP/PAS/secure-switch NOT implemented
+and NOT hardware tested. New records: GPU_DEBUG_LOG.md and
+forensic-audit/E09-zap-prerequisites.json (DTB reservation/SCM ABI/order review).
+No GPU writeback/draw yet. Resume only upon explicit user instruction.
+
+# E08 CP_INIT PASS — first successful XNU CP ACK, Android restored
+
+2026-10-31 run20261031T100500Z, auto20261031T100436Z, artifact
+work/waffle/diagnostic-gpu-lpac-cp-e08. CP_INIT_RAW seq42 ACK0 valid1,
+Gen7 result0 phase3 polls1. Full slumber/RSC/GX/CM3/TCM/LPAC/PLL cleanup.
+Runnerexit0, autocycle success, independent Android boot_completed1.
+No900e. No draw/frame/Metal/iOS GPU integration tested.
+New evidence: SQE bootstrap starts BV+LPAC before first PM4; port lacked
+SID1. Optional waffle_lpac_map=1 installs LPAC SID1/CB1 +native GMU SID5/CB3,
+splitTTBR1 and native LPAC SCM aperture. E07preparecontrol passed42SQE
+translations/fullGMUcycle. E08adds dual-ASID TLBI for sharedtable updates and
+runs existing94packet unchanged. This prerequisite set fixes CP_INIT in one
+run; individual contributions notisolated. No need to repeat failed PLL fixes.
+Userauthorizes autonomous RAM-only testing; autoUEFI selectsloader without
+physical BootiOS. Standard collector armed forRAW; returnAndroid verifyafter.
+Unchanged reproduction20261031T100701Z alsoPASS; runner0/Android1.
+Next: verify ZAP PAS13/native unsecure-transition ownership, then bounded
+GPU memorywriteback. Existing ZAP parser isofflineonly, no runtime loader.
+Keep exact successful artifact immutable. SeeGPU_DEBUG_LOG.md/E08-result.json.
+Phone ordinaryAndroid. No agents orformalgoal.
+
+# E06-r2 PASS; automatic HakiOS loader verified; QRisc analysis next
+
+Automatic BootiOS physical selection no longer required with newlybuilt
+autoUEFI. tools/run-waffle-auto.py completed entry/probe/recovery without user
+action. HakiOSauto sourceoverlay uefi/waffle-hakios; rawimages underwork only.
+LatestGPUrun20261031T094701Z with diagnostic-gpu-clock-measure-r2 passes
+physicalGFX231000200Hz/GMU260001136Hz and completeGMU/GX/PLL shutdown.
+Runnerexit0/independentAndroidboot_completed1. NoRAW, noCPexecution/frame.
+E06firstattemptfailed, retained; fixed newtemporaryMMIOmapping lifetime and
+completed-logretrieval truncatedto32KB. Fullr2log102404bytes.
+No arbitraryclockchanges justified. H1testedaccessmodes and H2frequencyabsence
+atpreparepoint rejected; H2otherprerequisites/H3failureboundary remain.
+BuildingnativeMesaQRiscdisassembler toinspect vendorSQE offline. No firmware
+patching planned. Neverboot E04Androidtracingimage again pendingtouchcause.
+PhoneordinaryAndroid. Userauthorizes autonomouswork whileaway; no confirmation
+needed for automatic loader. FailedUSB/recovery muststop beforeanotherprobe.
+
 # E04 cold HFI captured; touch recovered; analysis only
 
 E03 passed27access checks; H1 rejected for tested nonsecure edges/modes after

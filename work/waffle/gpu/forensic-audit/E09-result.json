@@ -1,0 +1,17 @@
+{
+  "experiment": "E09",
+  "run": "work/waffle/runs/20261031T102106Z",
+  "pas13_init_mem_auth_transport_and_service": 0,
+  "zap_signature_authenticated": true,
+  "cp_secure_switch_ack": {
+    "seq": 43,
+    "value": 0,
+    "valid": 1
+  },
+  "trust_readback": 0,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "5acad793fbc733ef1bf89745ba3c2c2c38fd598b9a809684a2310507f4b7f3b8",
+  "frames_tested": false
+}

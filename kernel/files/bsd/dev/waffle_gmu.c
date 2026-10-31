@@ -1,5 +1,6 @@
 /* GMU Gen7.9.1 firmware placement and bounded boot/stop diagnostics. */
 #include <kern/clock.h>
+#include <pexpert/pexpert.h>
 #include <vm/memory_types.h>
 #include <arm/memory_types.h>
 #include <libkern/libkern.h>
@@ -14,6 +15,9 @@
 #include <sys/waffle_gen7_config.h>
 #include <sys/waffle_gen7_hwcg.h>
 #include <sys/waffle_gen7_boot.h>
+#include <sys/waffle_gpu_measure.h>
+#include <sys/waffle_zap_load.h>
+#include <sys/waffle_gpu_writeback.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
@@ -36,6 +40,33 @@ struct gen7_live_probe {
 static bool gpu_gen7_live_start(struct gen7_live_probe *,vm_offset_t,vm_offset_t,
     vm_offset_t,struct waffle_gmu_plan *,unsigned);
 static void gpu_gen7_live_finish(struct gen7_live_probe *,unsigned);
+static bool gen7_zap_transition(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
+static bool gen7_memory_writeback(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
+static void stop_unsafe(const char *);
+static bool submit_session_open(vm_offset_t,vm_offset_t,vm_offset_t,struct waffle_gmu_plan *);
+static bool submit_session_run(struct waffle_gmu_plan *);
+static bool submit_session_close(struct waffle_gmu_plan *);
+static void submit_session_destroy(struct waffle_gmu_plan *,unsigned);
+static bool session_requested(void)
+{
+    uint32_t value=0;
+    return PE_parse_boot_argn("waffle_session",&value,sizeof(value)) && value==1;
+}
+static bool ib_requested(void)
+{
+    uint32_t value=0;
+    return PE_parse_boot_argn("waffle_ib",&value,sizeof(value)) && value==1;
+}
+static bool writeback_requested(void)
+{
+    uint32_t value=0;
+    return PE_parse_boot_argn("waffle_writeback",&value,sizeof(value)) && value==1;
+}
+static bool zap_requested(void)
+{
+    uint32_t value=0;
+    return PE_parse_boot_argn("waffle_zap",&value,sizeof(value)) && value==1;
+}
 
 static void say(const char *fmt, ...) __printflike(1, 2);
 static void say(const char *fmt, ...)
@@ -55,6 +86,7 @@ static struct waffle_gmu_region *region_at(struct waffle_gmu_plan *plan, uint32_
 }
 void waffle_gmu_free(struct waffle_gmu_plan *plan)
 {
+    if(plan->submit_session)stop_unsafe("live submit session still owns firmware buffers");
     for (unsigned i = 0; i < plan->count; ++i) {
         struct waffle_gmu_region *r = &plan->regions[i];
         if (r->memory) kmem_free(kernel_map, r->memory, round_page(r->size));
@@ -160,6 +192,13 @@ bool waffle_gmu_prepare(struct waffle_gmu_plan *plan, unsigned probe)
         r->size=plan->compact_gpu_va?WAFFLE_GPU_COMPACT_POOL_BYTES:WAFFLE_HWSCHED_POOL_SIZE;
         if (kmem_alloc(kernel_map,&r->memory,round_page(r->size),
                 KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS) goto failed;
+    }
+    if(probe==94 && writeback_requested()) {
+        if(plan->count==WAFFLE_GMU_REGIONS || region_at(plan,WAFFLE_GPU_WRITEBACK_ADDRESS,1))goto failed;
+        struct waffle_gmu_region *r=&plan->regions[plan->count++];
+        r->address=WAFFLE_GPU_WRITEBACK_ADDRESS;r->size=WAFFLE_GPU_WRITEBACK_BYTES;r->gpu_only=true;
+        if(kmem_alloc(kernel_map,&r->memory,round_page(r->size),
+            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)goto failed;
     }
     cursor = 0;
     while ((result = waffle_fw_next(plan->firmware, plan->length, &cursor, &b)) == 1) {
@@ -710,6 +749,10 @@ static bool gpu_power_probe(vm_offset_t gmu, vm_offset_t cc, struct waffle_gmu_p
             else if (probe >= 20) success = gpu_firmware_probe(gpu,plan);
         }
     }
+    if(success && plan && plan->submit_session) {
+        say("waffle-gmu: SESSION OOB ownership transferred; init returned with GX retained\n");
+        return true;
+    }
     wr(gmu,WAFFLE_GMU_REG(0x1f994),1u<<31);
     say("waffle-gmu: OOB_GPU released; notify slumber next\n");
     return success;
@@ -742,11 +785,166 @@ static int32_t scm_one(uint32_t function,uint64_t argument,uint64_t *answer)
     const uint64_t arguments[4]={argument,0,0,0};
     return scm_raw(function,1,arguments,answer);
 }
+/* E09: only reached after a verified CP_INIT, with live OOB/GX ownership. */
+struct zap_runtime {vm_offset_t payload;};
+static bool zap_pas_call(void *context,uint32_t function,uint32_t arginfo,
+    const uint64_t *args,uint64_t *answer)
+{
+    (void)context;
+    int32_t status=-1;
+    for(unsigned retry=0;retry<=20;++retry) {
+        status=scm_raw(function,arginfo,args,answer);
+        if(status!=-12)break;
+        delay_for_interval(30000,NSEC_PER_USEC);
+    }
+    say("waffle-gmu: ZAP_PAS function=%08x transport=%d service=%llx\n",function,status,*answer);
+    return status==0;
+}
+static bool zap_copy_payload(void *opaque,const uint8_t *data,unsigned bytes,unsigned memory_bytes)
+{
+    struct zap_runtime *c=opaque;
+    if(!c || !c->payload || bytes>memory_bytes || memory_bytes>8192)return false;
+    /* WC alias into the reserved no-map range, never a normal XNU allocation. */
+    volatile uint8_t *out=(volatile uint8_t *)(c->payload+0x2000);
+    for(unsigned i=0;i<memory_bytes;++i)out[i]=i<bytes?data[i]:0;
+    __asm__ volatile("dsb sy":::"memory");
+    for(unsigned i=0;i<memory_bytes;++i)if(out[i]!=(i<bytes?data[i]:0))return false;
+    say("waffle-gmu: ZAP_PAYLOAD copied=%u reserved=%llx readback=1\n",bytes,WAFFLE_ZAP_RESERVED_BASE);
+    return true;
+}
+static bool gen7_zap_transition(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi_alias,
+    struct waffle_gmu_plan *plan)
+{
+    uint32_t lpac=0;
+    if(!PE_parse_boot_argn("waffle_lpac_map",&lpac,sizeof(lpac)) || lpac!=1 ||
+        rd(gpu,0xf400*4)!=1) return false;
+    uint64_t length=0;
+    const uint8_t *image=macan_image_file("fw","gen70900_zap.mbn",&length);
+    struct waffle_zap_image p;
+    if(!waffle_zap_parse(image,length,&p) || PAGE_SIZE!=16384)return false;
+    /* Probe all PAS commands before allocating or submitting INIT_IMAGE. */
+    for(unsigned i=0;i<4;++i) {
+        const unsigned commands[]={7,1,2,5};
+        uint64_t answer=0;
+        if(scm_one(0x42000601,0x02000200|commands[i],&answer) || answer!=1) {
+            say("waffle-gmu: ZAP_PAS unavailable command=%u\n",commands[i]);return false;
+        }
+    }
+    vm_offset_t metadata=0,alias=0,payload=0;
+    if(kmem_alloc(kernel_map,&metadata,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
+        VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
+    uint64_t pa=kvtophys(metadata);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(metadata+PAGE_SIZE-1)!=pa+PAGE_SIZE-1)goto free_metadata;
+    for(vm_offset_t a=metadata;a<metadata+PAGE_SIZE;a+=64)
+        __asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    alias=ml_io_map_unmappable(pa,PAGE_SIZE,VM_WIMG_WCOMB);
+    payload=ml_io_map_unmappable(WAFFLE_ZAP_RESERVED_BASE&~16383ULL,PAGE_SIZE,VM_WIMG_WCOMB);
+    if(!alias || !payload)goto free_metadata;
+    volatile uint8_t *out=(volatile uint8_t *)alias;
+    for(unsigned i=0;i<p.header_bytes;++i)out[i]=image[i];
+    for(unsigned i=0;i<p.hash_bytes;++i)out[p.header_bytes+i]=image[p.hash_offset+i];
+    __asm__ volatile("dsb sy":::"memory");
+    struct zap_runtime runtime={payload};
+    const struct waffle_zap_io io={&runtime,zap_pas_call,zap_copy_payload};
+    struct waffle_zap_state state;
+    if(!waffle_zap_load(&io,image,length,pa,&state)) {
+        say("waffle-gmu: ZAP_LOAD result=0 stage=%u retained=%u\n",state.stage,state.retain);
+        if(state.retain)stop_unsafe("ZAP PAS state uncertain; retain metadata and reserved aliases");
+        goto free_metadata;
+    }
+    /* Native PAS metadata lifetime ends after MDT load, but retain this16KiB
+     * diagnostic allocation until Android reset to avoid speculative reuse. */
+    say("waffle-gmu: ZAP_LOAD authenticated=1 stage=%u metadata retained until reset\n",state.stage);
+    const uint32_t packet[]={(43u<<20)|(3u<<8)|131u,0x70e60001u,0};
+    if(!hfi_exchange_watch(gmu,hfi_alias,packet,3,"ZAP_UNSECURE",true,plan))
+        stop_unsafe("ZAP authenticated but CP secure switch ACK failed");
+    if(!wait_for(gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000))
+        stop_unsafe("ZAP secure switch idle timeout");
+    uint32_t trust=rd(gpu,0xf400*4);
+    if(trust)stop_unsafe("ZAP secure switch TRUST readback nonzero");
+    ml_io_unmap(payload,PAGE_SIZE);
+    say("waffle-gmu: ZAP_TRANSITION result=1 TRUST=%08x; no draw\n",trust);
+    if(session_requested())return submit_session_open(gpu,gmu,hfi_alias,plan);
+    if(writeback_requested())return gen7_memory_writeback(gpu,gmu,hfi_alias,plan);
+    return true;
+free_metadata:
+    if(payload)ml_io_unmap(payload,PAGE_SIZE);
+    if(alias)ml_io_unmap(alias,PAGE_SIZE);
+    kmem_free(kernel_map,metadata,PAGE_SIZE);
+    return false;
+}
+static bool gen7_memory_writeback(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi_alias,
+    struct waffle_gmu_plan *plan)
+{
+    struct waffle_gmu_region *r=region_at(plan,WAFFLE_GPU_WRITEBACK_ADDRESS,WAFFLE_GPU_WRITEBACK_BYTES);
+    if(!r || !r->gpu_only || r->readonly || r->size!=16384 || rd(gpu,0xf400*4)!=0)return false;
+    uint64_t pa=kvtophys(r->memory);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(r->memory+16383)!=pa+16383)return false;
+    /* No CPU access through the cached alias after clean+invalidate. */
+    for(vm_offset_t a=r->memory;a<r->memory+16384;a+=64)
+        __asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    vm_offset_t alias=ml_io_map_unmappable(pa,16384,VM_WIMG_WCOMB);
+    if(!alias)return false;
+    volatile uint32_t *out=(volatile uint32_t *)alias;
+    for(unsigned i=0;i<4096;++i)out[i]=waffle_writeback_initial(i);
+    __asm__ volatile("dsb sy":::"memory");
+    for(unsigned i=0;i<4096;++i)if(out[i]!=waffle_writeback_initial(i)) {
+        ml_io_unmap(alias,16384);return false;
+    }
+    uint64_t va=waffle_gpu_plan_alias(plan,r->address)+WAFFLE_GPU_WRITEBACK_OFFSET;
+    uint32_t packet[9];
+    if(waffle_writeback_packet(packet,9,44,va)!=9){ml_io_unmap(alias,16384);return false;}
+    uint32_t commands[9],indirect[5];unsigned command_words=0;
+    if(ib_requested()) {
+        for(unsigned i=0;i<9;++i)commands[i]=packet[i];
+        command_words=8;
+        for(unsigned i=0;i<8;++i)out[256+i]=commands[i+1];
+        __asm__ volatile("dsb sy":::"memory");
+        for(unsigned i=0;i<8;++i)if(out[256+i]!=commands[i+1]) {
+            ml_io_unmap(alias,16384);return false;
+        }
+        if(waffle_writeback_ib_packet(indirect,5,44,waffle_gpu_plan_alias(plan,r->address)+1024,8)!=5) {
+            ml_io_unmap(alias,16384);return false;
+        }
+        say("waffle-gmu: GPU_IB begin VA=%llx words=8 staged_readback=1\n",waffle_gpu_plan_alias(plan,r->address)+1024);
+    }
+    say("waffle-gmu: GPU_WRITEBACK begin VA=%llx PA=%llx initial_zero=1 guards=2\n",va,pa+256);
+    if(!hfi_exchange_watch(gmu,hfi_alias,ib_requested()?indirect:packet,ib_requested()?5:9,
+        "GPU_WRITEBACK",true,plan))
+        stop_unsafe("GPU writeback ACK failed; retain result alias");
+    if(!wait_for(gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000))
+        stop_unsafe("GPU writeback idle timeout; retain alias");
+    /* Bounded NC polling observes the actual GPU transfer, not its ACK. */
+    bool seen=false;
+    for(unsigned attempt=0;attempt<2000;++attempt) {
+        __asm__ volatile("dsb sy":::"memory");
+        seen=true;
+        for(unsigned i=0;i<4;++i)if(out[64+i]!=waffle_writeback_values[i])seen=false;
+        if(seen)break;
+        delay_for_interval(100,NSEC_PER_USEC);
+    }
+    unsigned wrong=0;
+    for(unsigned i=0;i<4096;++i) {
+        uint32_t expected=command_words && i>=256 && i<264 ? commands[i-255] : waffle_writeback_expected(i);
+        if(out[i]!=expected) {
+            if(!wrong)say("waffle-gmu: GPU_WRITEBACK mismatch index=%u got=%08x expected=%08x\n",i,out[i],expected);
+            ++wrong;
+        }
+    }
+    if(ib_requested())say("waffle-gmu: GPU_IB result=%u command_words=8; GPU fetch and writeback\n",seen&&!wrong);
+    say("waffle-gmu: GPU_WRITEBACK values=%08x/%08x/%08x/%08x\n",out[64],out[65],out[66],out[67]);
+    say("waffle-gmu: GPU_WRITEBACK result=%u wrong_words=%u checked=4096; no draw\n",seen&&!wrong,wrong);
+    ml_io_unmap(alias,16384);
+    return seen && !wrong;
+}
 /* Native kgsl_set_smmu_aperture: bind the CP SMMU register aperture to
  * the user context bank. Probe37/38 only, before CM3/GX start. Android reset
  * restores native policy; no guessed register offset or secure-mode change. */
-bool waffle_scm_gpu_aperture(void)
+static bool scm_gpu_aperture(unsigned selector,unsigned bank)
 {
+    if (selector>1 || bank>255) return false;
     uint64_t answer=0;
     int32_t status=scm_one(0x42000601,0x02000c1b,&answer);
     say("waffle-gmu: SCM CP SMMU aperture availability status=%d value=%llx\n",status,answer);
@@ -768,19 +966,22 @@ bool waffle_scm_gpu_aperture(void)
     for (unsigned i=0;i<56;++i) extended[i]=0;
     waffle_scm_put64(extended,0xffffffffu);
     __asm__ volatile("dsb sy":::"memory");
-    const uint64_t arguments[4]={0xffff0000u,0xffffffffu,0xffffffffu,pa};
+    const uint64_t arguments[4]={0xffff0000u|(selector<<8)|bank,0xffffffffu,0xffffffffu,pa};
     for (unsigned retry=0;;++retry) {
         status=scm_raw(0x42000c1b,4,arguments,&answer);
         if (status!=-12 || retry==20) break;
         delay_for_interval(30000,NSEC_PER_USEC);
     }
     ok=status==0; /* Native qcom_scm_call checks transport status, not a1. */
-    say("waffle-gmu: SCM CP SMMU aperture CB0 status=%d result=%llx ready=%u\n",status,answer,ok);
+    say("waffle-gmu: SCM CP SMMU aperture selector=%u CB%u status=%d result=%llx ready=%u\n",selector,bank,status,answer,ok);
 release:
     if (alias) ml_io_unmap(alias,PAGE_SIZE);
     kmem_free(kernel_map,metadata,PAGE_SIZE);
     return ok;
 }
+
+bool waffle_scm_gpu_aperture(void) { return scm_gpu_aperture(0,0); }
+bool waffle_scm_lpac_aperture(void) { return scm_gpu_aperture(1,1); }
 
 bool waffle_scm_assign_pages(const uint64_t *pages,unsigned count,unsigned mode)
 {
@@ -987,52 +1188,7 @@ static bool power_sequence_prepare(struct power_sequence *seq)
     say("waffle-gmu: RSC/PDC Gen7.9 sequence readback=%s; no sleep/wake trigger\n",ok ? "matches" : "FAILED");
     return ok;
 }
-static bool boot_probe(vm_offset_t gmu, vm_offset_t qtb, struct waffle_gmu_plan *plan, unsigned probe)
-{
-    if (probe == 27 || probe == 28) return secure_page_probe(probe==28);
-    vm_offset_t gbif = ml_io_map(WAFFLE_GPU_BASE + 0x3c00 * 4, 0x1000);
-    vm_offset_t cc = ml_io_map(WAFFLE_GPUCC_BASE, WAFFLE_GPUCC_SIZE);
-    if (!gbif || !cc) return false;
-    vm_offset_t hfi_alias = 0;
-    if (probe >= 11) {
-        struct waffle_gmu_region *hfi = region_at(plan, WAFFLE_GMU_HFI_ADDRESS, PAGE_SIZE);
-        if (!hfi) return false;
-        /* Only the first physical16KB page: table+cmd/msg/debug rings.
-         * The complete HFI allocation is not physically contiguous. */
-        hfi_alias = ml_io_map_unmappable(kvtophys(hfi->memory), PAGE_SIZE, VM_WIMG_WCOMB);
-        if (!hfi_alias) return false;
-    }
-    struct gen7_live_probe live = {0};
-    unsigned stop_evidence=0;
-    struct power_sequence powerseq = {0};
-    if (probe >= 15 && !power_sequence_prepare(&powerseq)) {
-        power_sequence_restore(&powerseq);
-        if (hfi_alias) ml_io_unmap(hfi_alias,PAGE_SIZE);
-        return false;
-    }
-    if (probe >= 17 && !secure_gpu_init()) {
-        power_sequence_restore(&powerseq);
-        if (hfi_alias) ml_io_unmap(hfi_alias,PAGE_SIZE);
-        return false;
-    }
-    if (probe >= 16 && rd(gmu,WAFFLE_GMU_REG(0x23b07)) != 0) {
-        say("waffle-gmu: existing RSC control request; refuse test\n");
-        power_sequence_restore(&powerseq);
-        if (hfi_alias) ml_io_unmap(hfi_alias,PAGE_SIZE);
-        return false;
-    }
-    bool slumber_attempted = false, slumber_ready = false, counter_changed = false;
-    bool minimum_attempted = false;
-    uint32_t saved_counter = 0;
-    uint32_t old_halt = rd(gbif, 0x45 * 4);
-    uint64_t old_fence = *(volatile uint64_t *)(qtb + 0x410);
-    bool running = false;
-    /* All indices below are Gen7, relative to GPU_BASE, from gen7_reg.h.
-     * Stage9 stops at FW_INIT_RESULT100; stage10 initializes HFI only.
-     * No GPU voltage request,
-     * SQE/AQE or TrustZone operation is issued.
-     */
-    const struct { uint32_t index, value; } setup[] = {
+static const struct { uint32_t index, value; } gmu_boot_setup[] = {
         {0x1f8f1,1}, {0x1f8f0,1}, {0x1f81c,0}, {0x1f801,2},
         {0x1f985,WAFFLE_GMU_HFI_ADDRESS}, {0x1f984,1}, {0x1f986,0},
         {0x23b11,(1u<<31)|(0x32u<<18)|0x8a0}, {0x1f82d,0x4052},
@@ -1041,25 +1197,81 @@ static bool boot_probe(vm_offset_t gmu, vm_offset_t qtb, struct waffle_gmu_plan 
         {0x1f40f,1}, {0x1f400,1}, {0x1f401,1},
         {0x1f993,0xffffffff}, {0x23b06,0xffffffff},
     };
-    uint32_t saved[sizeof(setup)/sizeof(setup[0])];
-    for (unsigned i = 0; i < sizeof(setup)/sizeof(setup[0]); ++i) {
-        saved[i] = rd(gmu, WAFFLE_GMU_REG(setup[i].index));
-        wr(gmu, WAFFLE_GMU_REG(setup[i].index), setup[i].value);
+
+/* State shared by begin/finish must outlive either callee's stack. */
+struct gmu_boot_context {
+    vm_offset_t gmu,qtb,gbif,cc,hfi_alias;
+    struct waffle_gmu_plan *plan;
+    unsigned probe,stop_evidence;
+    struct gen7_live_probe live;
+    struct power_sequence powerseq;
+    bool slumber_attempted,slumber_ready,counter_changed,minimum_attempted;
+    bool running,configured,cm3_released;
+    uint32_t saved_counter,old_halt;
+    uint64_t old_fence;
+    uint32_t saved[sizeof(gmu_boot_setup)/sizeof(gmu_boot_setup[0])];
+};
+static bool gmu_boot_begin(struct gmu_boot_context *s)
+{
+    vm_offset_t gmu=s->gmu,qtb=s->qtb;
+    struct waffle_gmu_plan *plan=s->plan;
+    unsigned probe=s->probe;
+
+    s->gbif = ml_io_map(WAFFLE_GPU_BASE + 0x3c00 * 4, 0x1000);
+    s->cc = ml_io_map(WAFFLE_GPUCC_BASE, WAFFLE_GPUCC_SIZE);
+    if (!s->gbif || !s->cc) return false;
+    if (probe >= 11) {
+        struct waffle_gmu_region *hfi = region_at(plan, WAFFLE_GMU_HFI_ADDRESS, PAGE_SIZE);
+        if (!hfi) return false;
+        /* Only the first physical16KB page: table+cmd/msg/debug rings.
+         * The complete HFI allocation is not physically contiguous. */
+        s->hfi_alias = ml_io_map_unmappable(kvtophys(hfi->memory), PAGE_SIZE, VM_WIMG_WCOMB);
+        if (!s->hfi_alias) return false;
     }
-    wr(gbif, 0x45 * 4, 0);
-    *(volatile uint64_t *)(qtb + 0x410) = old_fence & ~1ULL;
+    if (probe >= 15 && !power_sequence_prepare(&s->powerseq)) {
+        power_sequence_restore(&s->powerseq);
+        if (s->hfi_alias) ml_io_unmap(s->hfi_alias,PAGE_SIZE);
+        return false;
+    }
+    if (probe >= 17 && !secure_gpu_init()) {
+        power_sequence_restore(&s->powerseq);
+        if (s->hfi_alias) ml_io_unmap(s->hfi_alias,PAGE_SIZE);
+        return false;
+    }
+    if (probe >= 16 && rd(gmu,WAFFLE_GMU_REG(0x23b07)) != 0) {
+        say("waffle-gmu: existing RSC control request; refuse test\n");
+        power_sequence_restore(&s->powerseq);
+        if (s->hfi_alias) ml_io_unmap(s->hfi_alias,PAGE_SIZE);
+        return false;
+    }
+    s->old_halt = rd(s->gbif, 0x45 * 4);
+    s->old_fence = *(volatile uint64_t *)(qtb + 0x410);
+    /* All indices below are Gen7, relative to GPU_BASE, from gen7_reg.h.
+     * Stage9 stops at FW_INIT_RESULT100; stage10 initializes HFI only.
+     * No GPU voltage request,
+     * SQE/AQE or TrustZone operation is issued.
+     */
+
+    s->configured=true;
+    for (unsigned i = 0; i < sizeof(gmu_boot_setup)/sizeof(gmu_boot_setup[0]); ++i) {
+        s->saved[i] = rd(gmu, WAFFLE_GMU_REG(gmu_boot_setup[i].index));
+        wr(gmu, WAFFLE_GMU_REG(gmu_boot_setup[i].index), gmu_boot_setup[i].value);
+    }
+    wr(s->gbif, 0x45 * 4, 0);
+    *(volatile uint64_t *)(qtb + 0x410) = s->old_fence & ~1ULL;
     __asm__ volatile("dsb sy" ::: "memory");
     if (!wait_for(qtb, 0x418, 1, 0, 10)) {
         say("waffle-gmu: QTB did not resume; CM3 stays reset\n");
-        goto restore;
+        return false;
     }
     say("waffle-gmu: release CM3 reset, wait for firmware readiness (2s cap)\n");
+    s->cm3_released=true;
     wr(gmu, WAFFLE_GMU_SYSRESET, 0);
-    running = wait_for(gmu, WAFFLE_GMU_FW_INIT, 0x1ff, 0x100, 20000);
+    s->running = wait_for(gmu, WAFFLE_GMU_FW_INIT, 0x1ff, 0x100, 20000);
     say("waffle-gmu: FW_INIT=%08x ready=%u hostIRQ=%08x AOIRQ=%08x\n",
-        rd(gmu, WAFFLE_GMU_FW_INIT), running, rd(gmu, WAFFLE_GMU_REG(0x1f992)),
+        rd(gmu, WAFFLE_GMU_FW_INIT), s->running, rd(gmu, WAFFLE_GMU_REG(0x1f992)),
         rd(gmu, WAFFLE_GMU_REG(0x23b05)));
-    if (running && probe >= 10) {
+    if (s->running && probe >= 10) {
         /* Isolate queue initialization from START/DCVS commands and power
          * sequencer programming. This bounded probe does not enter idle. */
         wr(gmu, WAFFLE_GMU_REG(0x1f986), 1);
@@ -1067,87 +1279,96 @@ static bool boot_probe(vm_offset_t gmu, vm_offset_t qtb, struct waffle_gmu_plan 
         say("waffle-gmu: HFI init status=%08x ready=%u hostIRQ=%08x AOIRQ=%08x\n",
             rd(gmu, WAFFLE_GMU_REG(0x1f980)), hfi_ready,
             rd(gmu, WAFFLE_GMU_REG(0x1f992)), rd(gmu, WAFFLE_GMU_REG(0x23b05)));
-        running = hfi_ready;
-        if (running && probe >= 11) {
+        s->running = hfi_ready;
+        if (s->running && probe >= 11) {
             const uint32_t query[] = {(1u << 20) | (3u << 8) | 12u,122,0};
-            running = hfi_exchange(gmu, hfi_alias, query, 3, "GET_VALUE122", false);
+            s->running = hfi_exchange(gmu, s->hfi_alias, query, 3, "GET_VALUE122", false);
         }
-        if (running && probe >= 12) {
+        if (s->running && probe >= 12) {
             uint32_t version = rd(gmu, WAFFLE_GMU_DTCM + 0xffc * 4);
             say("waffle-gmu: HFI firmware version=%08x; PERF table only, no START/DCVS\n", version);
-            if (version < 0x20060001u) running = false;
-            else running = hfi_exchange(gmu, hfi_alias, waffle_hfi_perf_table,
+            if (version < 0x20060001u) s->running = false;
+            else s->running = hfi_exchange(gmu, s->hfi_alias, waffle_hfi_perf_table,
                 sizeof(waffle_hfi_perf_table)/sizeof(uint32_t), "PERF_TABLE", true);
         }
     }
-    if (running && probe >= 13)
-        running = hfi_exchange(gmu, hfi_alias, waffle_hfi_bw_table,
+    if (s->running && probe >= 13)
+        s->running = hfi_exchange(gmu, s->hfi_alias, waffle_hfi_bw_table,
             sizeof(waffle_hfi_bw_table)/sizeof(uint32_t), "BW_TABLE", true);
-    if (running && probe>=14) running=hfi_boot_features(gmu,hfi_alias,probe);
-    if (running && probe >= 25) running=hfi_start_capture(gmu,hfi_alias,plan,probe);
-    if (running && probe >= 17 && (probe < 25 || probe >= 31)) {
+    if (s->running && probe>=14) s->running=hfi_boot_features(gmu,s->hfi_alias,probe);
+    if (s->running && probe >= 25) s->running=hfi_start_capture(gmu,s->hfi_alias,plan,probe);
+    if (s->running && probe >= 17 && (probe < 25 || probe >= 31)) {
         /* Lowest captured stock level: GXindex1=231MHz, DDRindex1.
          * No OOB_GPU or CP/SQE/AQE start; always notify slumber afterwards. */
-        minimum_attempted = true;
-        running = hfi_boot_votes(gmu,hfi_alias,probe);
+        s->minimum_attempted = true;
+        s->running = hfi_boot_votes(gmu,s->hfi_alias,probe);
         say("waffle-gmu: after minimum vote GXstatus=%08x GDSCR=%08x DCVSreturn=%08x\n",
-            rd(gmu,WAFFLE_GMU_REG(0x1f8d0)),rd(cc,WAFFLE_GPU_GX_GDSCR),
+            rd(gmu,WAFFLE_GMU_REG(0x1f8d0)),rd(s->cc,WAFFLE_GPU_GX_GDSCR),
             rd(gmu,WAFFLE_GMU_REG(0x1cbff)));
     }
-    if(running && (probe==93 || probe==94) && !waffle_gpu_native_runtime_clock(probe))
+    if(s->running && (probe==93 || probe==94) && !waffle_gpu_native_runtime_clock(probe))
         stop_unsafe("native GMU260 transition failed; retain PLL and power");
-    if (running && probe >= 18 && (probe < 25 || probe >= 31)) running = gpu_power_probe(gmu,cc,plan,probe,hfi_alias,&live);
-    if ((running || minimum_attempted) && probe >= 16 && (probe < 25 || probe >= 31)) {
-        bool exercise_ok = running;
-        const uint32_t slumber[] = {((probe>=79 ? 43u : probe>=33 ? 35u : probe >= 31 ? 33u : probe >= 24 ? 14u : probe >= 17 ? 8u : 7u)<<20)|(3u<<8)|33u,1,1};
-        saved_counter = rd(gmu,WAFFLE_GMU_REG(0x1f840));
-        counter_changed = true;
+    if (s->running && probe >= 18 && (probe < 25 || probe >= 31)) s->running = gpu_power_probe(gmu,s->cc,plan,probe,s->hfi_alias,&s->live);
+    return s->running;
+}
+static bool gmu_boot_finish(struct gmu_boot_context *s)
+{
+    vm_offset_t gmu=s->gmu,qtb=s->qtb;
+    struct waffle_gmu_plan *plan=s->plan;
+    unsigned probe=s->probe;
+    if(!s->cm3_released)goto restore;
+    if ((s->running || s->minimum_attempted) && probe >= 16 && (probe < 25 || probe >= 31)) {
+        bool exercise_ok = s->running;
+        const uint32_t slumber[] = {((plan->session_slumber_sequence ? plan->session_slumber_sequence : probe==94 && writeback_requested() ? 45u : probe==94 && zap_requested() ? 44u : probe>=79 ? 43u : probe>=33 ? 35u : probe >= 31 ? 33u : probe >= 24 ? 14u : probe >= 17 ? 8u : 7u)<<20)|(3u<<8)|33u,1,1};
+        s->saved_counter = rd(gmu,WAFFLE_GMU_REG(0x1f840));
+        s->counter_changed = true;
         wr(gmu,WAFFLE_GMU_REG(0x1f840),0);
-        slumber_attempted = true;
-        running = hfi_exchange(gmu,hfi_alias,slumber,3,"PREPARE_SLUMBER",true);
-        slumber_ready = running && wait_for(gmu,WAFFLE_GMU_REG(0x23b0c),1u<<30,0,1000);
-        say("waffle-gmu: slumber idle=%u busy=%08x powerstate=%08x\n",slumber_ready,
+        s->slumber_attempted = true;
+        s->running = hfi_exchange(gmu,s->hfi_alias,slumber,3,"PREPARE_SLUMBER",true);
+        s->slumber_ready = s->running && wait_for(gmu,WAFFLE_GMU_REG(0x23b0c),1u<<30,0,1000);
+        say("waffle-gmu: slumber idle=%u busy=%08x powerstate=%08x\n",s->slumber_ready,
             rd(gmu,WAFFLE_GMU_REG(0x23b0c)),rd(gmu,WAFFLE_GMU_REG(0x1f8ec)));
-        if (slumber_ready) stop_evidence|=WAFFLE_GEN7_STOP_SLUMBER;
-        running = exercise_ok && slumber_ready;
+        if (s->slumber_ready) s->stop_evidence|=WAFFLE_GEN7_STOP_SLUMBER;
+        s->running = exercise_ok && s->slumber_ready;
     }
     wr(gmu, WAFFLE_GMU_REG(0x1f8f1), 1);
     wr(gmu, WAFFLE_GMU_REG(0x23b14), 7);
     wr(gmu, WAFFLE_GMU_REG(0x23b10), 0);
     wr(gmu, WAFFLE_GMU_SYSRESET, 1);
     if (!wait_for(gmu, WAFFLE_GMU_SYSRESET, 1, 1, 100)) stop_unsafe("CM3 reset readback failed");
-    stop_evidence|=WAFFLE_GEN7_STOP_CM3_RESET;
-    if (slumber_attempted) {
-        if (!slumber_ready) stop_unsafe("slumber command/idle failed after CM3 reset");
+    s->stop_evidence|=WAFFLE_GEN7_STOP_CM3_RESET;
+    if (s->slumber_attempted) {
+        if (!s->slumber_ready) stop_unsafe("slumber command/idle failed after CM3 reset");
         wr(gmu,WAFFLE_GMU_REG(0x23b07),1);
-        bool asleep = wait_for(powerseq.rsc,4*4,1u<<16,1u<<16,1000);
+        bool asleep = wait_for(s->powerseq.rsc,4*4,1u<<16,1u<<16,1000);
         wr(gmu,WAFFLE_GMU_REG(0x23b07),0);
         say("waffle-gmu: RSC sleep complete=%u busy=%08x status=%08x\n",
-            asleep,rd(powerseq.rsc,0x101*4),rd(powerseq.rsc,4*4));
+            asleep,rd(s->powerseq.rsc,0x101*4),rd(s->powerseq.rsc,4*4));
         if (!asleep) stop_unsafe("RSC sleep failed");
-        powerseq.native_sleep = true;
-        stop_evidence|=WAFFLE_GEN7_STOP_RSC_ASLEEP;
+        s->powerseq.native_sleep = true;
+        s->stop_evidence|=WAFFLE_GEN7_STOP_RSC_ASLEEP;
     }
     uint32_t gx_status = rd(gmu, WAFFLE_GMU_REG(0x1f8d0));
-    say("waffle-gmu: GX power/clock status=%08x GDSCR=%08x\n", gx_status, rd(cc, WAFFLE_GPU_GX_GDSCR));
-    if (!(gx_status & 1) || (rd(cc, WAFFLE_GPU_GX_GDSCR) & (1u << 31)))
+    say("waffle-gmu: GX power/clock status=%08x GDSCR=%08x\n", gx_status, rd(s->cc, WAFFLE_GPU_GX_GDSCR));
+    if (!(gx_status & 1) || (rd(s->cc, WAFFLE_GPU_GX_GDSCR) & (1u << 31)))
         stop_unsafe("GX unexpectedly powered");
-    stop_evidence|=WAFFLE_GEN7_STOP_GX_OFF;
-    wr(gbif, 0x45 * 4, 2);
-    if (!wait_for(gbif, 0x46 * 4, 2, 2, 100)) stop_unsafe("GBIF drain timeout");
-    stop_evidence|=WAFFLE_GEN7_STOP_GBIF_DRAINED;
-    *(volatile uint64_t *)(qtb + 0x410) = old_fence | 1;
+    s->stop_evidence|=WAFFLE_GEN7_STOP_GX_OFF;
+    wr(s->gbif, 0x45 * 4, 2);
+    if (!wait_for(s->gbif, 0x46 * 4, 2, 2, 100)) stop_unsafe("GBIF drain timeout");
+    s->stop_evidence|=WAFFLE_GEN7_STOP_GBIF_DRAINED;
+    *(volatile uint64_t *)(qtb + 0x410) = s->old_fence | 1;
     __asm__ volatile("dsb sy" ::: "memory");
     if (!wait_for(qtb, 0x418, 1, 1, 10)) stop_unsafe("QTB drain timeout");
-    stop_evidence|=WAFFLE_GEN7_STOP_QTB_DRAINED;
-    if (probe>=33) gpu_gen7_live_finish(&live,stop_evidence);
+    s->stop_evidence|=WAFFLE_GEN7_STOP_QTB_DRAINED;
+    if (probe>=33) gpu_gen7_live_finish(&s->live,s->stop_evidence);
+    if(plan->submit_session)submit_session_destroy(plan,s->stop_evidence);
     for (unsigned i = 0; i < plan->count; ++i) {
         struct waffle_gmu_region *r = &plan->regions[i];
         for (vm_offset_t a = r->memory; a < r->memory + r->size; a += 64)
             __asm__ volatile("dc ivac, %0" :: "r"(a) : "memory");
     }
     __asm__ volatile("dsb sy" ::: "memory");
-    say("waffle-gmu: CM3 held reset again; GBIF/QTB drained; FW readiness=%u\n", running);
+    say("waffle-gmu: CM3 held reset again; GBIF/QTB drained; FW readiness=%u\n", s->running);
     struct waffle_gmu_region *log = region_at(plan, WAFFLE_GMU_LOG_ADDRESS, 64);
     if (log) {
         uint32_t *words = (uint32_t *)log->memory;
@@ -1155,32 +1376,66 @@ static bool boot_probe(vm_offset_t gmu, vm_offset_t qtb, struct waffle_gmu_plan 
             words[0],words[1],words[2],words[3],words[4],words[5],words[6],words[7]);
     }
 restore:
-    if (counter_changed) wr(gmu,WAFFLE_GMU_REG(0x1f840),saved_counter);
-    power_sequence_restore(&powerseq);
-    if (hfi_alias) ml_io_unmap(hfi_alias, PAGE_SIZE);
-    for (unsigned i = sizeof(setup)/sizeof(setup[0]); i > 0; --i)
-        wr(gmu, WAFFLE_GMU_REG(setup[i-1].index), saved[i-1]);
-    wr(gbif, 0x45 * 4, old_halt);
-    *(volatile uint64_t *)(qtb + 0x410) = old_fence;
+    if (s->counter_changed) wr(gmu,WAFFLE_GMU_REG(0x1f840),s->saved_counter);
+    power_sequence_restore(&s->powerseq);
+    if (s->hfi_alias) ml_io_unmap(s->hfi_alias, PAGE_SIZE);
+    for (unsigned i = sizeof(gmu_boot_setup)/sizeof(gmu_boot_setup[0]); i > 0; --i)
+        wr(gmu, WAFFLE_GMU_REG(gmu_boot_setup[i-1].index), s->saved[i-1]);
+    wr(s->gbif, 0x45 * 4, s->old_halt);
+    *(volatile uint64_t *)(qtb + 0x410) = s->old_fence;
     __asm__ volatile("dsb sy" ::: "memory");
-    return (rd(gmu, WAFFLE_GMU_SYSRESET) & 1) && running;
+    return (rd(gmu, WAFFLE_GMU_SYSRESET) & 1) && s->running;
 }
-bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan, unsigned probe, vm_offset_t qtb)
+static bool boot_probe(vm_offset_t gmu,vm_offset_t qtb,struct waffle_gmu_plan *plan,unsigned probe)
 {
-    bool boot = probe >= 9;
-    vm_offset_t gmu = ml_io_map(WAFFLE_GMU_BASE, WAFFLE_GMU_SIZE);
-    if (!gmu || !(*(volatile uint32_t *)(gmu + WAFFLE_GMU_SYSRESET) & 1)) return false;
-    size_t cursor = 0, total = 0;
+    if(probe==27 || probe==28)return secure_page_probe(probe==28);
+    struct gmu_boot_context fallback={0},*s=&fallback;
+    vm_offset_t allocation=0;
+    if(session_requested()) {
+        if(sizeof(*s)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
+        s=(struct gmu_boot_context *)allocation;
+    }
+    *s=(struct gmu_boot_context){.gmu=gmu,.qtb=qtb,.plan=plan,.probe=probe};
+    bool begun=gmu_boot_begin(s),ok=false;
+    if(s->configured) {
+        if(plan->submit_session) {
+            say("waffle-gmu: GMU_OWNER begin returned heap=%u; state retained\n",allocation!=0);
+            bool submitted=begun && submit_session_run(plan);
+            if(!submit_session_close(plan))stop_unsafe("session cannot release OOB with uncertain completion");
+            s->running=submitted;
+        }
+        ok=gmu_boot_finish(s);
+    }
+    if(allocation) {
+        /* A live/unknown engine never reaches here: finish retains on failure. */
+        if(plan->submit_session)stop_unsafe("GMU owner cannot free an active submission session");
+        kmem_free(kernel_map,allocation,PAGE_SIZE);
+        say("waffle-gmu: GMU_OWNER released after finish result=%u\n",ok);
+    }
+    return ok;
+}
+struct waffle_tcm_context {
+    vm_offset_t gmu,backup;
+    size_t total;
+    bool boot,restore_ready;
+};
+static bool tcm_owner_load(struct waffle_tcm_context *c,struct waffle_gmu_plan *plan,unsigned probe)
+{
+
+    c->boot = probe >= 9;
+    c->gmu = ml_io_map(WAFFLE_GMU_BASE, WAFFLE_GMU_SIZE);
+    if (!c->gmu || !(*(volatile uint32_t *)(c->gmu + WAFFLE_GMU_SYSRESET) & 1)) return false;
+    size_t cursor = 0;
     struct waffle_fw_block b;
     int result;
     while ((result = waffle_fw_next(plan->firmware, plan->length, &cursor, &b)) == 1) {
         unsigned kind = waffle_fw_region(b.address, b.size);
-        if (b.size && kind && kind <= 2) total += b.size;
+        if (b.size && kind && kind <= 2) c->total += b.size;
     }
-    if (result < 0 || !total || total > 32768) return false;
-    if (boot) total = 32768;
-    vm_offset_t backup = 0;
-    if (kmem_alloc(kernel_map, &backup, round_page(total), KMA_KOBJECT | KMA_ZERO | KMA_DATA,
+    if (result < 0 || !c->total || c->total > 32768) return false;
+    if (c->boot) c->total = 32768;
+    if (kmem_alloc(kernel_map, &c->backup, round_page(c->total), KMA_KOBJECT | KMA_ZERO | KMA_DATA,
             VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) return false;
     cursor = 0;
     size_t saved = 0;
@@ -1193,12 +1448,12 @@ bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan, unsigned probe, vm_offse
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4)
-            *(uint32_t *)(backup + saved + n) = *(volatile uint32_t *)(gmu + offset + n);
+            *(uint32_t *)(c->backup + saved + n) = *(volatile uint32_t *)(c->gmu + offset + n);
         saved += b.size;
     }
-    if (boot) for (unsigned n = 0; n < 16384; n += 4) {
-        *(uint32_t *)(backup + n) = rd(gmu, WAFFLE_GMU_ITCM + n);
-        *(uint32_t *)(backup + 16384 + n) = rd(gmu, WAFFLE_GMU_DTCM + n);
+    if (c->boot) for (unsigned n = 0; n < 16384; n += 4) {
+        *(uint32_t *)(c->backup + n) = rd(c->gmu, WAFFLE_GMU_ITCM + n);
+        *(uint32_t *)(c->backup + 16384 + n) = rd(c->gmu, WAFFLE_GMU_DTCM + n);
     }
     cursor = 0;
     bool ok = true;
@@ -1208,49 +1463,118 @@ bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan, unsigned probe, vm_offse
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4)
-            *(volatile uint32_t *)(gmu + offset + n) = waffle_fw_u32(b.payload + n);
+            *(volatile uint32_t *)(c->gmu + offset + n) = waffle_fw_u32(b.payload + n);
         __asm__ volatile("dsb sy" ::: "memory");
         for (unsigned n = 0; n < b.size; n += 4)
-            if (*(volatile uint32_t *)(gmu + offset + n) != waffle_fw_u32(b.payload + n)) ok = false;
+            if (*(volatile uint32_t *)(c->gmu + offset + n) != waffle_fw_u32(b.payload + n)) ok = false;
         say("waffle-gmu: TCM %08x bytes=%u readback=%s\n", b.address, b.size, ok ? "matches" : "FAILED");
     }
-    if (ok && boot) ok = boot_probe(gmu, qtb, plan, probe);
-    cursor = 0; saved = 0;
+    c->restore_ready=true;
+    return ok;
+}
+static bool tcm_owner_restore(struct waffle_tcm_context *c,struct waffle_gmu_plan *plan)
+{
+    if(!c->restore_ready || !c->backup || !(rd(c->gmu,WAFFLE_GMU_SYSRESET)&1))
+        stop_unsafe("TCM snapshot cannot restore while CM3 state is unknown");
+    size_t cursor=0,saved=0;
+    struct waffle_fw_block b;
     while (waffle_fw_next(plan->firmware, plan->length, &cursor, &b) == 1) {
         unsigned kind = waffle_fw_region(b.address, b.size);
         if (!b.size || !kind || kind > 2) continue;
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4)
-            *(volatile uint32_t *)(gmu + offset + n) = boot ?
-                rd(backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
-                *(uint32_t *)(backup + saved + n);
+            *(volatile uint32_t *)(c->gmu + offset + n) = c->boot ?
+                rd(c->backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
+                *(uint32_t *)(c->backup + saved + n);
         saved += b.size;
     }
-    if (boot) for (unsigned n = 0; n < 16384; n += 4) {
-        wr(gmu, WAFFLE_GMU_ITCM + n, *(uint32_t *)(backup + n));
-        wr(gmu, WAFFLE_GMU_DTCM + n, *(uint32_t *)(backup + 16384 + n));
+    if (c->boot) for (unsigned n = 0; n < 16384; n += 4) {
+        wr(c->gmu, WAFFLE_GMU_ITCM + n, *(uint32_t *)(c->backup + n));
+        wr(c->gmu, WAFFLE_GMU_DTCM + n, *(uint32_t *)(c->backup + 16384 + n));
     }
     __asm__ volatile("dsb sy" ::: "memory");
     cursor = 0; saved = 0;
     bool restored = true;
-    if (boot) for (unsigned n = 0; n < 16384; n += 4)
-        if (rd(gmu, WAFFLE_GMU_ITCM + n) != rd(backup, n) ||
-            rd(gmu, WAFFLE_GMU_DTCM + n) != rd(backup, 16384 + n)) restored = false;
+    if (c->boot) for (unsigned n = 0; n < 16384; n += 4)
+        if (rd(c->gmu, WAFFLE_GMU_ITCM + n) != rd(c->backup, n) ||
+            rd(c->gmu, WAFFLE_GMU_DTCM + n) != rd(c->backup, 16384 + n)) restored = false;
     while (waffle_fw_next(plan->firmware, plan->length, &cursor, &b) == 1) {
         unsigned kind = waffle_fw_region(b.address, b.size);
         if (!b.size || !kind || kind > 2) continue;
         uint32_t offset = kind == 1 ? WAFFLE_GMU_ITCM + b.address :
             WAFFLE_GMU_DTCM + b.address - 0x10004000;
         for (unsigned n = 0; n < b.size; n += 4) {
-            uint32_t original = boot ? rd(backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
-                *(uint32_t *)(backup + saved + n);
-            if (*(volatile uint32_t *)(gmu + offset + n) != original) restored = false;
+            uint32_t original = c->boot ? rd(c->backup, (kind == 1 ? b.address : 16384 + b.address - 0x10004000) + n) :
+                *(uint32_t *)(c->backup + saved + n);
+            if (*(volatile uint32_t *)(c->gmu + offset + n) != original) restored = false;
         }
         saved += b.size;
     }
-    kmem_free(kernel_map, backup, round_page(total));
-    say("waffle-gmu: TCM restore readback=%s; boot_test=%u CM3 held reset\n", restored ? "matches" : "FAILED", boot);
+    if(!restored)stop_unsafe("TCM restoration readback failed; retain snapshot owner");
+    kmem_free(kernel_map, c->backup, round_page(c->total));
+    c->backup=0;c->restore_ready=false;
+    say("waffle-gmu: TCM restore readback=%s; boot_test=%u CM3 held reset\n", restored ? "matches" : "FAILED", c->boot);
+    return restored;}
+bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *plan,unsigned probe,vm_offset_t qtb)
+{
+    struct waffle_tcm_context tcm={0};
+    bool ok=tcm_owner_load(&tcm,plan,probe);
+    if(!tcm.restore_ready)return false;
+    if(ok && tcm.boot)ok=boot_probe(tcm.gmu,qtb,plan,probe);
+    bool restored=tcm_owner_restore(&tcm,plan);
+    return ok && restored;
+}
+/* This component owns all GMU/TCM state. Parent must retain plan and SMMU. */
+struct waffle_gmu_owner {
+    struct waffle_tcm_context tcm;
+    struct gmu_boot_context boot;
+    struct waffle_gmu_plan *plan;
+    vm_offset_t allocation;
+    bool exercise_ok;
+};
+struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *plan,unsigned probe,vm_offset_t qtb)
+{
+    if(!plan || probe!=94 || !session_requested() || plan->submit_session ||
+        sizeof(struct waffle_gmu_owner)>PAGE_SIZE)return NULL;
+    vm_offset_t allocation=0;
+    if(kmem_alloc(kernel_map,&allocation,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
+        VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+    struct waffle_gmu_owner *owner=(struct waffle_gmu_owner *)allocation;
+    owner->allocation=allocation;owner->plan=plan;owner->exercise_ok=true;
+    if(!tcm_owner_load(&owner->tcm,plan,probe))goto failed;
+    owner->boot=(struct gmu_boot_context){.gmu=owner->tcm.gmu,.qtb=qtb,.plan=plan,.probe=probe};
+    if(!gmu_boot_begin(&owner->boot) || !plan->submit_session)goto failed;
+    say("waffle-gmu: GMU_OWNER begin returned heap=1; state retained\n");
+    say("waffle-gmu: TCM_OWNER begin returned snapshot=32768 heap=1 OOB=1\n");
+    return owner;
+failed:
+    if(owner->boot.configured) {
+        if(plan->submit_session && !submit_session_close(plan))
+            stop_unsafe("GMU constructor cannot release active submission owner");
+        (void)gmu_boot_finish(&owner->boot);
+    }
+    if(owner->tcm.restore_ready)(void)tcm_owner_restore(&owner->tcm,plan);
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    return NULL;
+}
+bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *owner)
+{
+    if(!owner || !owner->plan->submit_session)return false;
+    owner->exercise_ok=submit_session_run(owner->plan);
+    return owner->exercise_ok;
+}
+bool waffle_gmu_owner_end(struct waffle_gmu_owner *owner)
+{
+    if(!owner || !owner->plan->submit_session)return false;
+    if(!submit_session_close(owner->plan))stop_unsafe("GMU owner cannot stop with uncertain completion");
+    owner->boot.running=owner->exercise_ok;
+    bool ok=gmu_boot_finish(&owner->boot);
+    bool restored=tcm_owner_restore(&owner->tcm,owner->plan);
+    if(owner->plan->submit_session)stop_unsafe("GMU owner still has an active child session");
+    vm_offset_t allocation=owner->allocation;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    say("waffle-gmu: TCM_OWNER released after GMU stop and snapshot restoration result=%u\n",ok&&restored);
     return ok && restored;
 }
 
@@ -1280,6 +1604,43 @@ static void gen7_clock_delay(void *context,unsigned usec)
 {
     (void)context;
     delay_for_interval(usec,NSEC_PER_USEC);
+}
+struct clock_measure_context {vm_offset_t gcc,gpucc;};
+static uint32_t clock_measure_read(void *opaque,unsigned bank,uint32_t off)
+{
+    struct clock_measure_context *c=opaque;
+    return rd(bank?c->gpucc:c->gcc,off);
+}
+static void clock_measure_write(void *opaque,unsigned bank,uint32_t off,uint32_t value)
+{
+    struct clock_measure_context *c=opaque;
+    wr(bank?c->gpucc:c->gcc,off,value);
+}
+static bool gen7_measure_clocks(unsigned probe)
+{
+    uint32_t requested=0;
+    if(!PE_parse_boot_argn("waffle_gpu_measure",&requested,sizeof(requested)))return true;
+    if(requested!=1 || probe!=93)return false;
+    /* ml_io_map uses permanent io_submap mappings. Only the unmappable
+     * variant allocates from kernel_map and may be paired with ml_io_unmap. */
+    struct clock_measure_context context={
+        ml_io_map_unmappable(WAFFLE_GCC_BASE,round_page(WAFFLE_GCC_SIZE),VM_WIMG_IO),
+        ml_io_map_unmappable(WAFFLE_GPUCC_BASE,round_page(WAFFLE_GPUCC_SIZE),VM_WIMG_IO)};
+    if(!context.gcc || !context.gpucc)return false;
+    const struct waffle_measure_io io={&context,clock_measure_read,clock_measure_write,gen7_clock_delay};
+    struct waffle_measure_result gfx={0},gmu={0};
+    bool a=waffle_measure_clock(&io,0xf,&gfx);
+    if(!gfx.restored)stop_unsafe("GFX debug mux restore unverified");
+    bool b=waffle_measure_clock(&io,0x1f,&gmu);
+    if(!gmu.restored)stop_unsafe("GMU debug mux restore unverified");
+    say("waffle-gmu: CLOCK_MEASURE GFX hz=%llu short=%u full=%u complete=%u restored=%u\n",
+        gfx.hz,gfx.short_count,gfx.full_count,gfx.complete,gfx.restored);
+    say("waffle-gmu: CLOCK_MEASURE GMU hz=%llu short=%u full=%u complete=%u restored=%u\n",
+        gmu.hz,gmu.short_count,gmu.full_count,gmu.complete,gmu.restored);
+    say("waffle-gmu: CLOCK_MEASURE result=%u; no CP RAW\n",a&&b);
+    ml_io_unmap(context.gcc,round_page(WAFFLE_GCC_SIZE));
+    ml_io_unmap(context.gpucc,round_page(WAFFLE_GPUCC_SIZE));
+    return a&&b;
 }
 static int gen7_hwcg_exercise(void *context)
 {
@@ -1440,6 +1801,7 @@ static bool gpu_gen7_live_start(struct gen7_live_probe *live,vm_offset_t gpu,vm_
                 !hfi_raw_stage_control(gmu,hfi_alias,packet,11,plan))
                 say("waffle-gmu: RAW_STAGE67 refused; RAW not sent\n");
         }
+        if(probe==93 && !gen7_measure_clocks(probe))stop_unsafe("clock measurement incomplete; no RAW sent");
         if (probe==62) {
             /* Gen7 GBIF SCACHE register DWORD indices from pinned gen7_reg.h.
              * Read while GX/OOB is owned, before collapse; no LLCC programming. */
@@ -1472,6 +1834,8 @@ static bool gpu_gen7_live_start(struct gen7_live_probe *live,vm_offset_t gpu,vm_
     if (live->state.config.phase!=WAFFLE_GEN7_SUBMITTED &&
         waffle_gen7_boot_finish(&registers,&live->state))
         stop_unsafe("pre-submission boot rollback failed");
+    if(!result && probe==94 && zap_requested())
+        return gen7_zap_transition(gpu,gmu,hfi_alias,plan);
     return result==0;
 }
 static void gpu_gen7_live_finish(struct gen7_live_probe *live,unsigned evidence)
@@ -1483,4 +1847,129 @@ static void gpu_gen7_live_finish(struct gen7_live_probe *live,unsigned evidence)
     const struct waffle_gen7_io io={&live->context,gen7_config_read,gen7_config_write,gen7_config_mismatch,NULL};
     if (waffle_gen7_boot_finish(&io,&live->state)) stop_unsafe("CP AO restoration failed after collapse");
     say("waffle-gmu: Gen7 CP lifecycle released after full collapse; no gated GX access\n");
+}
+
+/* Owned submission session: no borrowed callee stack, and no user queue yet.
+ * Outer diagnostic retains plan/tables/power until close and verified stop. */
+enum submit_phase { SUBMIT_READY=1,SUBMIT_BUSY,SUBMIT_POISONED,SUBMIT_CLOSED };
+struct waffle_submit_session {
+    enum submit_phase phase;
+    vm_offset_t gpu,gmu,hfi,alias,allocation;
+    struct waffle_gmu_plan *plan;
+    uint64_t result_va,ib_va;
+    unsigned next_sequence,submitted,completed;
+    bool owns_oob;
+};
+static bool submit_session_open(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi,
+    struct waffle_gmu_plan *plan)
+{
+    if(!plan || plan->submit_session || PAGE_SIZE!=16384 || !ib_requested() ||
+        rd(gpu,0xf400*4) || (rd(gmu,WAFFLE_GMU_REG(0x1f8d0))&3) ||
+        loader_return_remaining_us()<10000000)return false;
+    struct waffle_gmu_region *r=region_at(plan,WAFFLE_GPU_WRITEBACK_ADDRESS,16384);
+    if(!r || !r->gpu_only || r->readonly || r->size!=16384)return false;
+    uint64_t pa=kvtophys(r->memory);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(r->memory+16383)!=pa+16383)return false;
+    vm_offset_t allocation=0;
+    if(kmem_alloc(kernel_map,&allocation,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
+        VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
+    for(vm_offset_t a=r->memory;a<r->memory+16384;a+=64)
+        __asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    vm_offset_t alias=ml_io_map_unmappable(pa,16384,VM_WIMG_WCOMB);
+    if(!alias){kmem_free(kernel_map,allocation,PAGE_SIZE);return false;}
+    struct waffle_submit_session *s=(struct waffle_submit_session *)allocation;
+    *s=(struct waffle_submit_session){.phase=SUBMIT_READY,.gpu=gpu,.gmu=gmu,.hfi=hfi,
+        .alias=alias,.allocation=allocation,.plan=plan,.next_sequence=44,.owns_oob=true,
+        .result_va=waffle_gpu_plan_alias(plan,r->address)+256,
+        .ib_va=waffle_gpu_plan_alias(plan,r->address)+1024};
+    plan->submit_session=s;
+    say("waffle-gmu: SESSION opened heap=1 OOB=1 BO_alias=1 next_sequence=44\n");
+    return true;
+}
+static bool submit_session_submit(struct waffle_submit_session *s)
+{
+    if(!s || s->phase!=SUBMIT_READY || !s->owns_oob || s->submitted!=s->completed ||
+        s->next_sequence>=4095 || loader_return_remaining_us()<3000000)return false;
+    if(rd(s->gpu,0xf400*4) || (rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3)) {
+        s->phase=SUBMIT_POISONED;return false;
+    }
+    const unsigned fence=s->submitted+1,sequence=s->next_sequence;
+    uint32_t direct[9],ib[5],token[4];
+    if(waffle_writeback_packet(direct,9,sequence,s->result_va)!=9 ||
+        waffle_writeback_ib_packet(ib,5,sequence,s->ib_va,8)!=5)return false;
+    for(unsigned i=0;i<4;++i)direct[4+i]=token[i]=waffle_writeback_values[i]^(fence*0x01010101u);
+    volatile uint32_t *out=(volatile uint32_t *)s->alias;
+    for(unsigned i=0;i<4096;++i)out[i]=i>=256 && i<264 ? direct[i-255] : waffle_writeback_initial(i);
+    __asm__ volatile("dsb sy":::"memory");
+    for(unsigned i=0;i<4096;++i)if(out[i]!=(i>=256 && i<264 ? direct[i-255] : waffle_writeback_initial(i)))return false;
+    /* State and ownership are committed BEFORE the command can be observed. */
+    s->phase=SUBMIT_BUSY;s->submitted=fence;++s->next_sequence;
+    struct waffle_gmu_plan watch=*s->plan;
+    watch.raw_stage_pause=false; /* Native consecutive publication/polling. */
+    if(!hfi_exchange_watch(s->gmu,s->hfi,ib,5,"SESSION_IB",true,&watch) ||
+        !wait_for(s->gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000)) {
+        s->phase=SUBMIT_POISONED;return false;
+    }
+    for(unsigned attempt=0;attempt<2000;++attempt) {
+        __asm__ volatile("dsb sy":::"memory");
+        bool seen=true;
+        for(unsigned i=0;i<4;++i)if(out[64+i]!=token[i])seen=false;
+        if(seen)break;
+        delay_for_interval(100,NSEC_PER_USEC);
+    }
+    unsigned wrong=0;
+    for(unsigned i=0;i<4096;++i) {
+        uint32_t expected=i>=256 && i<264 ? direct[i-255] :
+            i>=64 && i<68 ? token[i-64] : waffle_writeback_initial(i);
+        if(out[i]!=expected) {
+            if(!wrong)say("waffle-gmu: SESSION mismatch fence=%u index=%u got=%08x expected=%08x\n",fence,i,out[i],expected);
+            ++wrong;
+        }
+    }
+    say("waffle-gmu: SESSION fence=%u seq=%u values=%08x/%08x/%08x/%08x wrong_words=%u\n",
+        fence,sequence,out[64],out[65],out[66],out[67],wrong);
+    if(wrong){s->phase=SUBMIT_POISONED;return false;}
+    s->completed=fence;s->phase=SUBMIT_READY;
+    return true;
+}
+static bool submit_session_run(struct waffle_gmu_plan *plan)
+{
+    struct waffle_submit_session *s=plan->submit_session;
+    for(unsigned i=0;i<3;++i) {
+        if(!submit_session_submit(s))return false;
+        if(i<2)delay_for_interval(1000000,NSEC_PER_USEC);
+    }
+    plan->session_slumber_sequence=s->next_sequence;
+    say("waffle-gmu: SESSION result=1 submitted=%u completed=%u next_sequence=%u OOB=1; bounded kernel session\n",
+        s->submitted,s->completed,s->next_sequence);
+    return true;
+}
+static bool submit_session_close(struct waffle_gmu_plan *plan)
+{
+    struct waffle_submit_session *s=plan->submit_session;
+    if(!s || s->phase!=SUBMIT_READY || !s->owns_oob || s->submitted!=s->completed)return false;
+    if(!wait_for(s->gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000)) {
+        s->phase=SUBMIT_POISONED;return false;
+    }
+    /* Use the consumed sequence on every exit, even a safe preflight refusal. */
+    plan->session_slumber_sequence=s->next_sequence;
+    wr(s->gmu,WAFFLE_GMU_REG(0x1f994),1u<<31);
+    s->owns_oob=false;s->phase=SUBMIT_CLOSED;
+    say("waffle-gmu: SESSION closed OOB_released=1 outstanding=0\n");
+    return true;
+}
+static void submit_session_destroy(struct waffle_gmu_plan *plan,unsigned evidence)
+{
+    struct waffle_submit_session *s=plan->submit_session;
+    const unsigned complete=WAFFLE_GEN7_STOP_SLUMBER|WAFFLE_GEN7_STOP_CM3_RESET|
+        WAFFLE_GEN7_STOP_RSC_ASLEEP|WAFFLE_GEN7_STOP_GX_OFF|
+        WAFFLE_GEN7_STOP_GBIF_DRAINED|WAFFLE_GEN7_STOP_QTB_DRAINED;
+    if(!s || s->phase!=SUBMIT_CLOSED || s->owns_oob || s->submitted!=s->completed ||
+        (evidence&complete)!=complete)stop_unsafe("session destroy requires full native stop evidence");
+    vm_offset_t allocation=s->allocation;
+    ml_io_unmap(s->alias,16384);
+    plan->submit_session=NULL;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    say("waffle-gmu: SESSION destroyed after full stop; aliases and heap released\n");
 }

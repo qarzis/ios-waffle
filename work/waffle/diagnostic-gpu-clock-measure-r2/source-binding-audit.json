@@ -1,0 +1,12 @@
+{
+  "kernel/files/bsd/dev/waffle_gmu.c": "5d5a731aa57df92782ec00d8ad90fa1c214e6b51f494559ed7fdc0685f859e0c",
+  "kernel/files/bsd/sys/waffle_gpu_measure.h": "53de433414bd58deb6487370c6e8a5e88420e16ae2e97ddc5e792914ae236a83",
+  "loader/loader.c": "108fe900d888e2d350c8ad8056d35998a51d63bc787aa81092b0259fbafafb4f",
+  "loader/waffle.h": "c787f6b65bc1835a68be6a731d3c7198b2092c3f3d4607f8997885fa75a752e3",
+  "tools/tests/waffle-gpu-measure-host.py": "a6b18b01b91891ccf72d74653dcf6c598e3eb888571ff36d78041cc9c49f81ca",
+  "tools/tests/waffle-log-retrieval-host.py": "69351044c86867f64199620e4e281daa497518303df31ac47ada33e9012f1aad",
+  "tools/build-waffle-diagnostic.py": "cbf1ffbfe9954bcae0e22691c9b6ad5e8a6a881b63202c89aa6c1471a2604e00",
+  "scripts/run_waffle_ios.py": "f00a4e776be5c77919ca5618223110688344e78b6075743df640c2852e37eb49",
+  "tools/run-waffle-auto.py": "1b5368436ca14d4a750240601c500130dbe66d299161d394f43968d59dba09d9",
+  "work/waffle/gpu/run-publish-test.py": "9cfc038f7a8a5f170559a7e765e13819307b7bfcb7cfdbd8e1ca1133449cc29b"
+}

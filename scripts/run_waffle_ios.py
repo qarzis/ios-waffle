@@ -36,6 +36,12 @@ def main():
     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
     parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
     parser.add_argument("--gpu-access-matrix",action="store_true",help="Probe93 only: access-type ECATS after GMU shutdown, no CP RAW")
+    parser.add_argument("--gpu-measure-clocks",action="store_true",help="Probe93 only: physically measure GFX/GMU clocks without RAW")
+    parser.add_argument("--gpu-lpac-map",action="store_true",help="Probe93/94 only: validated LPAC SID1 mappings (94 sends CP_INIT)")
+    parser.add_argument("--gpu-zap",action="store_true",help="E09: native PAS13 and secure transition after CP_INIT94; requires LPAC")
+    parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
+    parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
+    parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
@@ -43,6 +49,18 @@ def main():
     args = parser.parse_args()
     if args.gpu_access_matrix and args.gpu_probe!=93:
         parser.error("--gpu-access-matrix requires prepare-only --gpu-probe 93")
+    if args.gpu_measure_clocks and args.gpu_probe!=93:
+        parser.error("--gpu-measure-clocks requires prepare-only --gpu-probe 93")
+    if args.gpu_lpac_map and args.gpu_probe not in (93,94):
+        parser.error("--gpu-lpac-map requires controlled --gpu-probe 93/94")
+    if args.gpu_zap and (args.gpu_probe!=94 or not args.gpu_lpac_map):
+        parser.error("--gpu-zap requires --gpu-probe94 and --gpu-lpac-map")
+    if args.gpu_writeback and not args.gpu_zap:
+        parser.error("--gpu-writeback requires --gpu-zap")
+    if args.gpu_ib and not args.gpu_writeback:
+        parser.error("--gpu-ib requires --gpu-writeback")
+    if args.gpu_session and not args.gpu_ib:
+        parser.error("--gpu-session requires --gpu-ib")
     local_fastboot = next((path for path in (ROOT.parent / "platform-tools/fastboot",
                           ROOT.parent.parent / "platform-tools/fastboot") if path.is_file()), None)
     fastboot = args.fastboot or (str(local_fastboot) if local_fastboot else shutil.which("fastboot"))
@@ -74,6 +92,18 @@ def main():
         arguments += f" waffle_gpu={args.gpu_probe}"
     if args.gpu_access_matrix:
         arguments += " waffle_ecats_access=1"
+    if args.gpu_measure_clocks:
+        arguments += " waffle_gpu_measure=1"
+    if args.gpu_lpac_map:
+        arguments += " waffle_lpac_map=1"
+    if args.gpu_zap:
+        arguments += " waffle_zap=1"
+    if args.gpu_writeback:
+        arguments += " waffle_writeback=1"
+    if args.gpu_ib:
+        arguments += " waffle_ib=1"
+    if args.gpu_session:
+        arguments += " waffle_session=1"
     payload = out / "payload.xnup"
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
@@ -111,6 +141,31 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            if args.gpu_session and not all(marker in final_text for marker in (
+                    "SESSION OOB ownership transferred; init returned with GX retained",
+                    "SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session",
+                    "SESSION closed OOB_released=1 outstanding=0",
+                    "SESSION destroyed after full stop; aliases and heap released",
+                    *[f"SESSION_IB ACK matched seq{i} value=00000000 valid=1" for i in (44,45,46)])):
+                raise RuntimeError(f"Owned session/multiple GPU results/stop not confirmed; logs: {out}")
+            if args.gpu_ib and not args.gpu_session and "GPU_IB result=1 command_words=8; GPU fetch and writeback" not in final_text:
+                raise RuntimeError(f"GPU indirect-buffer fetch/writeback not confirmed; logs: {out}")
+            if args.gpu_writeback and not args.gpu_session and not all(marker in final_text for marker in (
+                    "GPU_WRITEBACK ACK matched seq44 value=00000000 valid=1",
+                    "GPU_WRITEBACK result=1 wrong_words=0 checked=4096; no draw")):
+                raise RuntimeError(f"GPU memory result/guards not confirmed; logs: {out}")
+            if args.gpu_zap and not all(marker in final_text for marker in (
+                    "ZAP_LOAD authenticated=1 stage=4", "ZAP_UNSECURE ACK matched seq43 value=00000000 valid=1",
+                    "ZAP_TRANSITION result=1 TRUST=00000000; no draw")):
+                raise RuntimeError(f"Authenticated ZAP/native secure transition not confirmed; logs: {out}")
+            if args.gpu_lpac_map and (not re.search(r"LPAC_MAP lifecycle=1 checks=[1-9][0-9]*; "+
+                    ("no CP RAW" if args.gpu_probe==93 else "CP control completed"),final_text) or
+                    "LPAC_MAP restored=1" not in final_text or
+                    (args.gpu_probe==93 and ("RAW checkpoint" in final_text or "CP_INIT_RAW" in final_text))):
+                raise RuntimeError(f"LPAC mapping/lifecycle incomplete or RAW appeared; logs: {out}")
+            if args.gpu_measure_clocks and ("CLOCK_MEASURE result=1; no CP RAW" not in final_text or
+                    "RAW checkpoint" in final_text or "CP_INIT_RAW" in final_text):
+                raise RuntimeError(f"Clock measurement incomplete or RAW appeared; logs: {out}")
             if args.gpu_access_matrix and (not re.search(
                     r"ACCESS_MATRIX result=1 checks=[1-9][0-9]* allocations=[1-9][0-9]*; translation only, no RAW",final_text) or
                     "RAW checkpoint" in final_text or "CP_INIT_RAW" in final_text):
@@ -283,7 +338,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")
@@ -305,7 +360,7 @@ def main():
                 raise RuntimeError(f"CP thread-control-only or full cleanup did not pass; logs: {out}")
             if args.gpu_probe == 36 and "stall diagnostics armed for CB0/CB1/CB2; CFIE masked" not in final_text:
                 raise RuntimeError(f"Stalled-fault diagnostic contexts were not armed; logs: {out}")
-            if args.gpu_probe in (37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and "SCM CP SMMU aperture CB0 status=0" not in final_text:
+            if args.gpu_probe in (37,38,39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not re.search(r"SCM CP SMMU aperture (?:selector=0 )?CB0 status=0(?: |$)",final_text):
                 raise RuntimeError(f"CP SMMU aperture not configured; logs: {out}")
             if args.gpu_probe in (39,40,41,42,43,44,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
                     "GPU split TTBR1 enabled=1", "native global GPU VA SQE="+("1ff8000410000" if args.gpu_probe>=54 else "1ff8080010000"))):

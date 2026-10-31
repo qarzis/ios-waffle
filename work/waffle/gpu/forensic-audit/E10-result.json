@@ -1,0 +1,24 @@
+{
+  "experiment": "E10",
+  "run": "work/waffle/runs/20261031T102517Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T102453Z",
+  "cp_init_and_zap_passed": true,
+  "gpu_writeback_ack_seq": 44,
+  "actual_cpu_readback": [
+    "57414646",
+    "4c454750",
+    "13579bdf",
+    "2468ace0"
+  ],
+  "wrong_words": 0,
+  "total_words_checked": 4096,
+  "gpu_destination_va": "1ff8000474100",
+  "destination_pa": "8d15ac100",
+  "initial_marker_zero": true,
+  "slumber_seq": 45,
+  "full_shutdown_passed": true,
+  "runner_exit": 0,
+  "android_independently_confirmed": true,
+  "log_sha256": "bc4307d73953ab24d0be21bb53bf56bb11da1813cb41f9c4ad635260c4c5ccdf",
+  "draw_tested": false
+}

@@ -1,0 +1,9 @@
+{
+  "mesa": "26.3.0-rc1",
+  "a7xx_reference_matches": true,
+  "vendor_firmware_sha256": "f756bafe5f69a87161c7c53385386374a791861a574c244e845baba677993842",
+  "disassembler_sha256": "f44277e4fdde792fe7895353387eb5bb0240a59fa58e000f9f820aab46ef2693",
+  "vendor_disasm_exit": 0,
+  "firmware_modified": false,
+  "device_execution": false
+}

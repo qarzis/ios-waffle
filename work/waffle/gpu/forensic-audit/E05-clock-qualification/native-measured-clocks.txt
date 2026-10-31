@@ -1,0 +1,5 @@
+CLOCK=gpu_cc_gx_gfx3d_clk
+FIELD=clk_rate
+0
+MEASURE
+cat: /data/local/tmp/waffle-clock-audit-debugfs/clk/gpu_cc_gx_gfx3d_clk/clk_measure: Invalid argument

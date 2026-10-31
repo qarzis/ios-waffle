@@ -1,0 +1,7 @@
+{
+  "changed_kernel_scope": "only old boot_probe replaced by explicit context/begin/finish/wrapper",
+  "unchanged_prefix": true,
+  "unchanged_suffix_from_tcm": true,
+  "unchanged_setup_values_sha256": "fd6c20fc8c5c049a49c676141c8e2fae587e9f632cc80fdbd43dc9444795bce3",
+  "cp_zap_ib_session_implementations_unchanged": true
+}

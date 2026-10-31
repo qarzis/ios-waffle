@@ -1,0 +1,10 @@
+{
+  "experiment": "E13-default-control",
+  "run": "work/waffle/runs/20261031T104701Z",
+  "gpu_raw": false,
+  "lpac_checks": 42,
+  "full_stop": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "d6ed126b09a28c1e4459dc1ef3822d9ce282e37f943759b0de9cbbeaae5825c5"
+}

@@ -8,10 +8,6 @@
 PJD110 · Snapdragon 8 Gen 3 / SM8650 · Adreno 750 · waffle<br>
 XNU and iOS boot through UEFI into RAM.</p>
 
-The port reaches the SpringBoard desktop. Display output, touch input and physical buttons have been tested on the OnePlus 12. The interface currently uses CPU rendering through Mesa softpipe. **GPU hardware acceleration is not working yet.**
-
-This project is based on [ios-macan](https://github.com/hxfuxyy/ios-macan). Adreno 829 and peripheral support in the original OnePlus Ace 6T project does not establish support for those features on the OnePlus 12.
-
 ## What works
 
 Status as of **October 31, 2026**, based on recorded tests on the PJD110.
@@ -30,7 +26,12 @@ Status as of **October 31, 2026**, based on recorded tests on the PJD110.
 | **USB loader and logs** | ✅ | Kernel and RAM image transfers from the PC, log retrieval and return to the loader |
 | **Return to Android** | ✅ | Checked after tests, including completed Android boot |
 | **All 8 cores / SMP / frequency scaling** | ⚪ | Boot on a selected CPU is verified; full operation of all cores is not claimed |
-| **Adreno 750 GPU** | ⚠️ | GMU/HFI/SMMU preparation tests work. Successful CP_INIT execution and GPU rendering under XNU remain unconfirmed |
+| **Adreno 750 GPU** | ⚠️ | CP initialization, authenticated ZAP, indirect command buffers and actual GPU memory writes pass under XNU; the iOS rendering backend is unfinished |
+| **GPU CP_INIT / ZAP** | ✅ | Native CP_INIT acknowledgement, PAS13 signature authentication and secure-mode transition with TRUST=0 |
+| **GPU command execution / memory** | ✅ | GPU fetches PM4 from an indirect buffer and writes a marker; CPU checks all 4,096 words, including commands and guards |
+| **GPU resource ownership** | ⚠️ | Three sequential IB submissions and heap-owned GMU/TCM/SMMU state pass; persistent board-clock/AOP ownership and the userspace backend remain unfinished |
+| **GPU-rendered iOS interface** | ❌ | No connected waffle Mesa/IOUserClient backend; the desktop still uses softpipe |
+| **Automatic UEFI loader entry** | ✅ | Adapted HakiOS UEFI enters the RAM/USB loader without a physical Boot iOS selection; automatic test/recovery cycles verified |
 | **Metal** | ❌ | No waffle backend |
 | **Wi-Fi / Internet** | ❌ | The donor network driver is not connected to waffle initialization |
 | **Sound** | ❌ | The donor ADSP/audio path is not connected for waffle |
@@ -58,23 +59,27 @@ Status as of **October 31, 2026**, based on recorded tests on the PJD110.
 - **Touchscreen.** Synaptics power, GPIO SPI, the TCM protocol, coordinate normalization and event delivery to iOS are implemented. The user confirmed taps and swipes.
 - **Physical buttons.** Power and both volume buttons are connected through SPMI; real events were confirmed in iOS.
 - **CPU-rendered interface.** Waffle selects Mesa softpipe so the interface can run while GPU driver development continues.
-- **GPU preparation.** Compact GPU mapping overlap and TG1 encoding for TTBR1 with 4 KB tables were fixed. These fixes did not resolve the current CP failure.
+- **GPU preparation.** Fixed compact GPU mapping overlap and the TG1 encoding required by 4 KB TTBR1 tables.
+- **CP execution.** Added the missing LPAC mapping/aperture, native GMU bank placement and invalidation of both ASIDs. The full native CP_INIT now acknowledges successfully; E08 reproduced the result across two Android resets. The individual contributions of this prerequisite set were not isolated.
 - **GMU power and clocks.** Preparation test 93 passed the GMU 625 → 260 MHz sequence, an HFI query, shutdown, GX power collapse and PLL restoration.
-- **SMMU access modes.** E03 passed all 27 translation checks for microcode, the restore buffer and eight HFI allocations without launching CP RAW.
+- **Physical clocks.** E06-r2 measured approximately 231 MHz GFX3D and 260 MHz GMU under XNU and verified complete shutdown and restoration.
+- **SMMU access modes.** The latest E15 control passed 27 access checks for microcode, restore and eight HFI allocations, plus 42 LPAC translations, without CP RAW.
+- **Authenticated ZAP.** E09 passed PAS13 initialization, memory setup and signature authentication, then the native CP secure-mode switch with TRUST=0.
+- **Actual GPU memory result.** E10 verified a four-word GPU write. E11-r2 then verified that the GPU fetched the same PM4 stream from memory and executed it. All 4,096 words were checked, including unchanged command words and guards. The initial E11 exposed an exact unprivileged IB permission fault; AP_UNPRIV was fixed only for that command buffer.
+- **Resource lifetime.** E12–E15 verified three sequential IB submissions with distinct results, GMU/TCM ownership across initialization return, SMMU-owned tables and callbacks, and child-first shutdown before context detachment and memory release.
+- **Automatic RAM boot and full logs.** Adapted HakiOS UEFI starts the existing waffle USB loader automatically. Completed kernel logs retain the full record instead of truncating to the 32 KB console buffer.
 
 Details and test references: [bring-up](docs/waffle-bringup.md), [GPU status](docs/waffle-gpu.md), [debug log](GPU_DEBUG_LOG.md), [forensic audit](work/waffle/gpu/forensic-audit/AUDIT.md).
 
-## Current GPU blocker
+## Current GPU work
 
-The stock Android driver runs the Adreno 750. Under XNU, GMU firmware boot, HFI communication, memory allocation and GPU preparation have been verified. Previous RAW CP_INIT experiments lost USB and entered Qualcomm 900e mode; no successful CP ACK under XNU has been recorded.
+The earlier CP_INIT failure has been passed. The verified chain is now GMU/HFI boot → native CP_INIT ACK → signed ZAP authentication → secure-mode transition → indirect PM4 fetch → actual GPU memory write → CPU readback → full shutdown and Android recovery.
 
-E03 verified the tested SMMU translation modes after GMU shutdown. It **does not prove actual GPU memory reads**, microcode execution or frame rendering. A successful build or matching register values also does not establish working hardware execution.
+The latest **E15** session passed three sequential IB submissions with different result markers. Each checked all 4,096 words of its buffer. GMU/TCM and SMMU state now have explicit ownership across constructor returns; the SMMU parent retains tables, saved contexts and callback storage until its GMU child has stopped. The default control also passed the access matrix and LPAC translations. The recorded E15 runs completed without 900e and returned to a fully booted Android.
 
-The cause of 900e remains unknown. The remaining investigation covers CP startup prerequisites and the RAW publication/firmware handling boundary. A cold stock Android HFI trace captured a successful first CP_INIT; TrustZone/reset logs available through Android are encrypted.
+**This remains a bounded kernel diagnostic, not a persistent iOS GPU driver.** The next work is board-clock, CX and AOP lifetime, dynamic buffer mappings, a userspace submission/fence backend, and connection to the existing RedwoodGPU, Mesa and IOSurface stack. Shader execution, a verified offscreen frame and hardware composition of the iOS interface have not been tested. Metal is a separate task. Reopening a GPU session after shutdown in the same boot is also unverified; current tests reset through Android between cold sessions.
 
-The user reported nonworking touch after the temporary E04 Android tracing image. A normal reboot restored touch. That image will not be reused until the cause is understood.
-
-Next milestones: measurable command execution and GPU data transfer → fence/timestamp → one verified frame → a waffle backend connected to IOUserClient, Mesa and IOSurface → an accelerated iOS interface. Metal is a separate task.
+See the [milestone and evidence table](docs/waffle-gpu-milestones.md) for successful and failed experiments, exact results and limitations. Historical 900e failures and the E11 permission fault remain in the debug log; they are not current pass results.
 
 ## Device and requirements
 
@@ -87,7 +92,7 @@ Development requires:
 - Linux, `adb`, `fastboot` and a prepared XNU toolchain;
 - your own iOS 16.5 images, phone firmware, recorded stock/live DTBs, and a separate Mu tree with the PJD110 platform.
 
-**There is no ready-to-use universal OnePlus 12 installer here yet.** The `hackios` / `hackios.bat` scripts and original build workflow are inherited from the donor. Their Ace 6T instructions and release kit are not a verified waffle boot guide. Complete local build artifacts, RAM images and firmware used in the experiments are not included in this publication.
+**There is no ready-to-use universal OnePlus 12 installer here yet.** The `hackios` / `hackios.bat` scripts and original build workflow are inherited from the donor. Their Ace 6T instructions and release kit are not a verified waffle boot guide. Complete local build artifacts, RAM images and firmware used in the experiments are not included in this publication. Host tests that compare vendor behavior require the pinned OnePlus reference sources under `work/waffle/gpu/vendor/`; firmware parsing tests also require your local captured firmware.
 
 ## Source and building
 
@@ -103,13 +108,16 @@ Preparation and tested diagnostic build steps are documented in [docs/waffle-bri
 | `tools/build-waffle-diagnostic.py` | Host checks, XNU/EFI builds and diagnostic image packaging |
 | `tools/validate-waffle-diagnostic.py` | Boot container, EFI, kernel and payload validation |
 | `scripts/run_waffle_ios.py` | Kernel/RAM image transfers, bounded sessions and log collection |
+| `tools/run-waffle-auto.py` | Verified automatic RAM boot, bounded diagnostics and Android recovery |
+| `uefi/waffle-hakios/` | Source overlay for the adapted automatic HakiOS loader |
 | `tools/tests/waffle-ecats-access-host.py` | Checks actual ECATS code against native encoding and fault models |
 
 RAM boot sequence:
 
 ```text
-Android → fastboot boot → PJD110 UEFI → Boot iOS
-        → USB loader → XNU + root/system images in RAM → SpringBoard
+Android → fastboot boot → PJD110 UEFI → USB loader
+        (automatic entry on the adapted HakiOS build; Boot iOS on older builds)
+        → XNU + root/system images in RAM → SpringBoard
 ```
 
 An ordinary iOS session and minimal GPU diagnostics use different RAM image sets. A successful diagnostic test does not mean its image can boot the desktop. Do not run historical RAW tests from the log as a step-by-step guide: the log preserves failed experiments.

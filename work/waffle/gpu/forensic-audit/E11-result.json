@@ -1,0 +1,18 @@
+{
+  "experiment": "E11",
+  "run": "work/waffle/runs/20261031T102838Z",
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "fault": {
+    "bank": 0,
+    "FSR": "00000408",
+    "FAR": "1ff8000474400",
+    "FSYNR0": "00190003",
+    "permission_fault": true,
+    "write": false,
+    "privileged": false
+  },
+  "gpu_ib_passed": false,
+  "no_900e": true,
+  "log_sha256": "668ebb02a8814a2270f8466a157a05f1a882306c5275ac592494a9d244c8c8e4"
+}

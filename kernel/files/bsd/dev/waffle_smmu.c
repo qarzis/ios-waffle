@@ -11,6 +11,7 @@
 #include <sys/waffle_gpu.h>
 #include <sys/waffle_gmu.h>
 #include <sys/waffle_scm.h>
+#include <sys/waffle_gpu_writeback.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern uint64_t kvtophys(vm_offset_t);
@@ -99,12 +100,18 @@ static bool map_page(struct table_pool *pool,uint64_t iova,uint64_t pa,bool read
 }
 /* Change only the high GPU alias, before replying to the allocation request.
  * GMU's low alias retains its independent read/write permissions. */
-struct pool_permission_context {struct table_pool *tables;vm_offset_t cb;};
+struct pool_permission_context {struct table_pool *tables;vm_offset_t cb,lpac_cb;};
 static uint64_t *permission_table(struct table_pool *pool,uint64_t entry)
 {
     if((entry&3)!=3) return NULL;
     for(unsigned i=0;i<pool->count;i++) if(pool->phys[i]==(entry&PTE_ADDRESS)) return (uint64_t *)pool->memory[i];
     return NULL;
+}
+static bool pool_permission_sync(struct pool_permission_context *c)
+{
+    bool user_ok=tlb_sync(c->cb);
+    bool lpac_ok=!c->lpac_cb || tlb_sync(c->lpac_cb);
+    return user_ok && lpac_ok;
 }
 static bool pool_permissions(void *opaque,uint64_t va,uint32_t size,uint32_t flags)
 {
@@ -125,9 +132,9 @@ static bool pool_permissions(void *opaque,uint64_t va,uint32_t size,uint32_t fla
         uint64_t value=(old&~(3ULL<<6))|((flags&4)?0:1ULL<<7)|((flags&2)?0:1ULL<<6);
         if(value==old) continue;
         *entry=0;clean((vm_offset_t)entry&~4095ULL);
-        if(!tlb_sync(c->cb)) return false;
+        if(!pool_permission_sync(c)) return false;
         *entry=value;clean((vm_offset_t)entry&~4095ULL);
-        if(!tlb_sync(c->cb)) return false;
+        if(!pool_permission_sync(c)) return false;
     }
     log_line("waffle-iommu: allocation GPU permissions VA=%llx size=%u flags=%x applied\n",va,size,flags);
     return true;
@@ -320,7 +327,8 @@ static bool gpu_context_begin(struct gpu_context *g, vm_offset_t smmu,
  * TTBR0 (A1 clear), then set_ttbr0_cfg enables both halves. */
 static inline bool gpu_context_split(struct gpu_context *g)
 {
-    if (!g || !g->changed || g->bank || g->sid) return false;
+    if (!g || !g->changed || !((g->bank==0 && g->sid==0) ||
+            (g->bank==1 && g->sid==1))) return false;
     uint32_t ctl=r32(g->cb,0),tcr=r32(g->cb,0x30);
     uint64_t ttbr=r64(g->cb,0x20);
     if (!(ctl&1) || (r32(g->cb,0x58)&FSR_FAULT_MASK) ||
@@ -380,242 +388,357 @@ struct protected_gpu_pool {
 static struct protected_gpu_pool *protected_pool_prepare(vm_offset_t,unsigned,unsigned,unsigned,unsigned,vm_offset_t,uint64_t);
 static void protected_pool_release(struct protected_gpu_pool *);
 
-void waffle_smmu_probe(vm_offset_t smmu, uint32_t page, uint32_t pages,
-    uint32_t contexts, uint32_t matches, unsigned probe)
+static const uint32_t smmu_gmu_offsets[]={0x4,0x10,0x20,0x24,0x28,0x2c,0x30,0x38,0x3c};
+struct smmu_owner {
+    vm_offset_t smmu,qtb,gmu,cc,cb,target;
+    unsigned page,pages,contexts,matches,probe,index,lpac_checks;
+    uint32_t lpac_map,zap,writeback,ib,session,access_matrix;
+    uint32_t saved_ctl,saved_smr,saved_s2cr,old_cbar,old_cba2r,old[9];
+    uint64_t old_fence,old_inputs[3],target_pa;
+    struct gpu_context gpu_context,lpac_context;
+    struct table_pool pool;
+    struct waffle_gmu_plan firmware;
+    struct protected_gpu_pool *protected_pool;
+    struct pool_permission_context permission_context;
+    struct access_matrix_context matrix;
+    struct waffle_gmu_owner *child;
+    bool context_changed,stream_changed,safe_free,snapshot_ready,gmu_ok;
+};
+static void smmu_owner_stop(const char *reason)
 {
-    uint32_t access_matrix=0;
-    if(PE_parse_boot_argn("waffle_ecats_access",&access_matrix,sizeof(access_matrix)) &&
-        (access_matrix!=1 || probe!=93)) {
-        log_line("waffle-iommu: access matrix requires prepare-only probe93; refused\n");return;
+    log_line("waffle-gmu: REBOOT REQUIRED: %s; retain SMMU owner and all child pages\n",reason);
+    loader_return();
+    for(;;)__asm__ volatile("wfi");
+}
+static bool smmu_owner_begin(struct smmu_owner *s)
+{
+    vm_offset_t smmu=s->smmu;
+    unsigned page=s->page,pages=s->pages,contexts=s->contexts,matches=s->matches,probe=s->probe;
+
+    if(PE_parse_boot_argn("waffle_lpac_map",&s->lpac_map,sizeof(s->lpac_map)) &&
+        (s->lpac_map!=1 || (probe!=93 && probe!=94))) {
+        log_line("waffle-iommu: LPAC mapping requires controlled probe93/94; refused\n");return false;
+    }
+    if(PE_parse_boot_argn("waffle_zap",&s->zap,sizeof(s->zap)) &&
+        (s->zap!=1 || probe!=94 || s->lpac_map!=1)) {
+        log_line("waffle-iommu: ZAP requires controlled94 with LPAC; refused\n");return false;
+    }
+    if(PE_parse_boot_argn("waffle_writeback",&s->writeback,sizeof(s->writeback)) &&
+        (s->writeback!=1 || probe!=94 || s->lpac_map!=1 || s->zap!=1)) {
+        log_line("waffle-iommu: writeback requires controlled94 LPAC/ZAP; refused\n");return false;
+    }
+    if(PE_parse_boot_argn("waffle_ib",&s->ib,sizeof(s->ib)) &&
+        (s->ib!=1 || probe!=94 || s->lpac_map!=1 || s->zap!=1 || s->writeback!=1)) {
+        log_line("waffle-iommu: IB requires controlled94 LPAC/ZAP/writeback; refused\n");return false;
+    }
+    if(PE_parse_boot_argn("waffle_session",&s->session,sizeof(s->session)) &&
+        (s->session!=1 || probe!=94 || s->lpac_map!=1 || s->zap!=1 || s->writeback!=1 || s->ib!=1)) {
+        log_line("waffle-iommu: session requires controlled94 LPAC/ZAP/writeback/IB; refused\n");return false;
+    }
+    if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&
+        (s->access_matrix!=1 || probe!=93)) {
+        log_line("waffle-iommu: access matrix requires prepare-only probe93; refused\n");return false;
     }
     log_line("waffle-iommu: map QTB500 @%08x\n", WAFFLE_GPU_QTB_BASE);
-    vm_offset_t qtb = ml_io_map(WAFFLE_GPU_QTB_BASE, WAFFLE_GPU_QTB_SIZE);
-    if (!qtb) { log_line("waffle-iommu: QTB map failed\n"); return; }
+    s->qtb = ml_io_map(WAFFLE_GPU_QTB_BASE, WAFFLE_GPU_QTB_SIZE);
+    if (!s->qtb) { log_line("waffle-iommu: QTB map failed\n"); return false; }
     log_line("waffle-iommu: SWID=%08x fence=%llx ack=%llx trigger=%llx status=%llx\n",
-        r32(qtb, 0), r64(qtb, 0x410), r64(qtb, 0x418), r64(qtb, 0x448), r64(qtb, 0x450));
-    if (probe < 7) return;
-    vm_offset_t gmu = ml_io_map(WAFFLE_GMU_BASE, WAFFLE_GMU_SIZE);
-    vm_offset_t cc = ml_io_map(WAFFLE_GPUCC_BASE, WAFFLE_GPUCC_SIZE);
-    if (!gmu || !cc || !(r32(gmu, WAFFLE_GMU_SYSRESET) & 1) ||
-        (r32(cc, WAFFLE_GPU_GX_GDSCR) & ((1u << 31) | 1)) != 1) {
-        log_line("waffle-iommu: GMU not held in reset or GX not collapsed; no writes\n"); return;
+        r32(s->qtb, 0), r64(s->qtb, 0x410), r64(s->qtb, 0x418), r64(s->qtb, 0x448), r64(s->qtb, 0x450));
+    if (probe < 7) return false;
+    s->gmu = ml_io_map(WAFFLE_GMU_BASE, WAFFLE_GMU_SIZE);
+    s->cc = ml_io_map(WAFFLE_GPUCC_BASE, WAFFLE_GPUCC_SIZE);
+    if (!s->gmu || !s->cc || !(r32(s->gmu, WAFFLE_GMU_SYSRESET) & 1) ||
+        (r32(s->cc, WAFFLE_GPU_GX_GDSCR) & ((1u << 31) | 1)) != 1) {
+        log_line("waffle-iommu: GMU not held in reset or GX not collapsed; no writes\n"); return false;
     }
-    const unsigned index = 1, sid = 5;
-    if (contexts <= index || matches <= index || (r64(qtb, 0x410) & 1) || r64(qtb, 0x448)) {
-        log_line("waffle-iommu: QTB/context not idle; no writes\n"); return;
+    s->index=s->lpac_map?3:1;
+    const unsigned sid=5;
+    if (contexts <= s->index || matches <= s->index || (r64(s->qtb, 0x410) & 1) || r64(s->qtb, 0x448)) {
+        log_line("waffle-iommu: QTB/context not idle; no writes\n"); return false;
     }
-    vm_offset_t cb = smmu + (pages + index) * page;
-    uint32_t saved_ctl = r32(cb, 0);
-    if ((saved_ctl & 1) || (r32(cb, 0x58) & FSR_FAULT_MASK)) {
-        log_line("waffle-iommu: context1 enabled or faulted; no writes\n"); return;
+    s->cb = smmu + (pages + s->index) * page;
+    s->saved_ctl = r32(s->cb, 0);
+    if ((s->saved_ctl & 1) || (r32(s->cb, 0x58) & FSR_FAULT_MASK)) {
+        log_line("waffle-iommu: context%u enabled or faulted; no writes\n",s->index); return false;
     }
     for (unsigned i = 0; i < matches; ++i) {
         uint32_t smr = r32(smmu, 0x800 + i * 4), s2cr = r32(smmu, 0xc00 + i * 4);
         uint32_t mask = (smr >> 16) & 0x7fff;
         if ((smr >> 31) && (((sid ^ smr) & 0x7fff & ~mask) == 0 ||
-            ((s2cr & 0x30000) == 0 && (s2cr & 255) == index))) {
-            log_line("waffle-iommu: stream/context in use at entry%u; no writes\n", i); return;
+            ((s2cr & 0x30000) == 0 && (s2cr & 255) == s->index))) {
+            log_line("waffle-iommu: stream/context in use at entry%u; no writes\n", i); return false;
         }
     }
-    uint32_t saved_smr = r32(smmu, 0x800 + index * 4), saved_s2cr = r32(smmu, 0xc00 + index * 4);
-    if (saved_smr >> 31) { log_line("waffle-iommu: entry1 occupied; no writes\n"); return; }
-    const uint32_t offsets[] = {0x4, 0x10, 0x20, 0x24, 0x28, 0x2c, 0x30, 0x38, 0x3c};
-    uint32_t old[sizeof(offsets)/sizeof(offsets[0])];
-    for (unsigned i = 0; i < sizeof(offsets)/sizeof(offsets[0]); ++i) old[i] = r32(cb, offsets[i]);
-    uint32_t old_cbar = r32(smmu, page + index * 4);
-    uint32_t old_cba2r = r32(smmu, page + 0x800 + index * 4);
-    uint64_t old_fence = r64(qtb, 0x410), old_inputs[3];
-    for (unsigned i = 0; i < 3; ++i) old_inputs[i] = r64(qtb, 0x430 + 8 * i);
-    struct gpu_context gpu_context = {0};
-    struct table_pool pool = {0};
-    struct waffle_gmu_plan firmware = {0};
-    struct protected_gpu_pool *protected_pool=NULL;
-    vm_offset_t target = 0;
-    uint64_t target_pa = 0;
-    bool context_changed = false, stream_changed = false, safe_free = true;
-    if (probe >= 8 && !waffle_gmu_prepare(&firmware, probe)) goto done;
-    if (!new_table(&pool) || kmem_alloc(kernel_map, &target, PAGE_SIZE,
-            KMA_KOBJECT | KMA_ZERO | KMA_DATA, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) goto done;
-    target_pa = kvtophys(target);
+    s->saved_smr=r32(smmu,0x800+s->index*4);s->saved_s2cr=r32(smmu,0xc00+s->index*4);
+    if (s->saved_smr >> 31) { log_line("waffle-iommu: entry%u occupied; no writes\n",s->index); return false; }
+    for (unsigned i = 0; i < sizeof(smmu_gmu_offsets)/sizeof(smmu_gmu_offsets[0]); ++i) s->old[i] = r32(s->cb, smmu_gmu_offsets[i]);
+    s->old_cbar = r32(smmu, page + s->index * 4);
+    s->old_cba2r = r32(smmu, page + 0x800 + s->index * 4);
+    s->old_fence=r64(s->qtb,0x410);
+    for (unsigned i = 0; i < 3; ++i) s->old_inputs[i] = r64(s->qtb, 0x430 + 8 * i);
+    s->snapshot_ready=true;
+    if (probe >= 8 && !waffle_gmu_prepare(&s->firmware, probe)) return false;
+    if (!new_table(&s->pool) || kmem_alloc(kernel_map, &s->target, PAGE_SIZE,
+            KMA_KOBJECT | KMA_ZERO | KMA_DATA, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) return false;
+    s->target_pa = kvtophys(s->target);
     const uint64_t iova = probe >= 9 ? 0x7ff00000 : 0x60010000;
-    if (!map_page(&pool, iova, target_pa, false)) goto done;
-    if (probe >= 19 && !map_page(&pool,0x80000000,target_pa,false)) goto done;
-    if (firmware.compact_gpu_va && !map_page(&pool,
-            waffle_gpu_plan_alias(&firmware,0x80000000)-WAFFLE_GPU_GLOBAL_BASE,target_pa,false)) goto done;
-    for (unsigned i = 0; i < firmware.count; ++i) {
-        struct waffle_gmu_region *r = &firmware.regions[i];
+    if (!map_page(&s->pool, iova, s->target_pa, false)) return false;
+    if (probe >= 19 && !map_page(&s->pool,0x80000000,s->target_pa,false)) return false;
+    if (s->firmware.compact_gpu_va && !map_page(&s->pool,
+            waffle_gpu_plan_alias(&s->firmware,0x80000000)-WAFFLE_GPU_GLOBAL_BASE,s->target_pa,false)) return false;
+    for (unsigned i = 0; i < s->firmware.count; ++i) {
+        struct waffle_gmu_region *r = &s->firmware.regions[i];
         for (uint32_t off = 0; off < r->size; off += 4096)
             /* Native adreno_get_firmware allocates GPUREADONLY|UCODE WITHOUT
              * KGSL_MEMDESC_PRIVILEGED: AP_UNPRIV is required as well as RDONLY.
-             * Keep all other early diagnostic mappings privileged-only. */
-            if (!map_page_access(&pool,(uint64_t)r->address+off,kvtophys(r->memory+off),
-                    r->readonly,r->gpu_only && r->readonly)) goto done;
+             * The dedicated command BO also needs AP_UNPRIV; other writable
+             * firmware/restore mappings retain privileged-only access. */
+            if (!map_page_access(&s->pool,(uint64_t)r->address+off,kvtophys(r->memory+off),
+                    r->readonly,waffle_diagnostic_unprivileged(r->address,r->gpu_only,r->readonly))) return false;
     }
-    if (firmware.compact_gpu_va) {
-        for (unsigned i=0;i<firmware.count;i++) {
-            struct waffle_gmu_region *r=&firmware.regions[i];
+    if (s->firmware.compact_gpu_va) {
+        for (unsigned i=0;i<s->firmware.count;i++) {
+            struct waffle_gmu_region *r=&s->firmware.regions[i];
             if (!r->gpu_only && r->address!=WAFFLE_HWSCHED_POOL_ADDRESS) continue;
             for(uint32_t off=0;off<r->size;off+=4096) {
-                uint64_t alias=waffle_gpu_plan_alias(&firmware,(uint64_t)r->address+off);
-                if (!alias || !map_page_access(&pool,alias-WAFFLE_GPU_GLOBAL_BASE,
-                    kvtophys(r->memory+off),r->readonly,r->gpu_only && r->readonly)) goto done;
+                uint64_t alias=waffle_gpu_plan_alias(&s->firmware,(uint64_t)r->address+off);
+                if (!alias || !map_page_access(&s->pool,alias-WAFFLE_GPU_GLOBAL_BASE,
+                    kvtophys(r->memory+off),r->readonly,waffle_diagnostic_unprivileged(r->address,r->gpu_only,r->readonly))) return false;
             }
         }
         log_line("waffle-iommu: compact GPU globals window=20MiB normal_pool=15MiB\n");
     }
-    for (unsigned i = 0; i < pool.count; ++i) clean(pool.memory[i]);
-    clean(target);
+    for (unsigned i = 0; i < s->pool.count; ++i) clean(s->pool.memory[i]);
+    clean(s->target);
     log_line("waffle-iommu: test IOVA=%llx expected PA=%llx root=%llx tables=%u; halt QTB\n",
-        iova, target_pa, pool.phys[0], pool.count);
-    w64(qtb, 0x410, old_fence | 1);
-    if (!poll(qtb, 0x418, 1, 1, 1000)) {
-        log_line("waffle-iommu: QTB halt timeout; no context writes\n"); goto done;
+        iova, s->target_pa, s->pool.phys[0], s->pool.count);
+    w64(s->qtb, 0x410, s->old_fence | 1);
+    if (!poll(s->qtb, 0x418, 1, 1, 1000)) {
+        log_line("waffle-iommu: QTB halt timeout; no context writes\n"); return false;
     }
-    context_changed = true;
-    w32(cb, 0, 0);
-    w32(smmu, page + 0x800 + index * 4, 1); /* CBA2R VA64 */
-    w32(smmu, page + index * 4, 0x1f300); /* stage1, stage2 bypass */
-    w32(cb, 4, 0x32b); /* PJD110 qcom,actlr for SID0..3ff */
-    w32(cb, 0x10, 1 | (1u << 4) | (7u << 15)); /* PA36, ASID16, SEP upstream */
-    w32(cb, 0x30, 25 | (1u << 8) | (1u << 10) | (3u << 12) | (1u << 23));
-    w64(cb, 0x20, pool.phys[0] | (1ULL << 48));
-    w64(cb, 0x28, 0);
+    s->context_changed = true;
+    w32(s->cb, 0, 0);
+    w32(smmu, page + 0x800 + s->index * 4, 1); /* CBA2R VA64 */
+    w32(smmu, page + s->index * 4, 0x1f300); /* stage1, stage2 bypass */
+    w32(s->cb, 4, 0x32b); /* PJD110 qcom,actlr for SID0..3ff */
+    w32(s->cb, 0x10, 1 | (1u << 4) | (7u << 15)); /* PA36, ASID16, SEP upstream */
+    w32(s->cb, 0x30, 25 | (1u << 8) | (1u << 10) | (3u << 12) | (1u << 23));
+    w64(s->cb, 0x20, s->pool.phys[0] | (1ULL << 48));
+    w64(s->cb, 0x28, 0);
     /* Vendor GMU allocations use READ|WRITE|PRIV without IOMMU_CACHE.
      * Use normal NC for the live HFI test, matching io-pgtable-arm.c. */
-    w32(cb, 0x38, probe >= 11 ? 0x44 : 0xff);
-    w32(cb, 0x3c, 0);
-    if (!tlb_sync(cb)) { log_line("waffle-iommu: initial TLB sync timeout\n"); goto done; }
-    w32(cb, 0, 1 | 2 | 4 | (1u << 5) | (1u << 12)); /* CFIE/CFCFG remain off */
-    if (!(r32(cb, 0) & 1) || r64(cb, 0x20) != (pool.phys[0] | (1ULL << 48)) ||
-        !(r32(smmu, page + 0x800 + index * 4) & 1)) {
-        log_line("waffle-iommu: context register readback refused; stop\n"); goto done;
+    w32(s->cb, 0x38, probe >= 11 ? 0x44 : 0xff);
+    w32(s->cb, 0x3c, 0);
+    if (!tlb_sync(s->cb)) { log_line("waffle-iommu: initial TLB sync timeout\n"); return false; }
+    w32(s->cb, 0, 1 | 2 | 4 | (1u << 5) | (1u << 12)); /* CFIE/CFCFG remain off */
+    if (!(r32(s->cb, 0) & 1) || r64(s->cb, 0x20) != (s->pool.phys[0] | (1ULL << 48)) ||
+        !(r32(smmu, page + 0x800 + s->index * 4) & 1)) {
+        log_line("waffle-iommu: context register readback refused; stop\n"); return false;
     }
-    stream_changed = true;
-    w32(smmu, 0xc00 + index * 4, index);
-    w32(smmu, 0x800 + index * 4, (1u << 31) | sid);
-    if (r32(smmu, 0x800 + index * 4) != ((1u << 31) | sid) ||
-        (r32(smmu, 0xc00 + index * 4) & 0x300ff) != index) {
-        log_line("waffle-iommu: stream register readback refused; stop\n"); goto done;
+    s->stream_changed = true;
+    w32(smmu, 0xc00 + s->index * 4, s->index);
+    w32(smmu, 0x800 + s->index * 4, (1u << 31) | sid);
+    if (r32(smmu, 0x800 + s->index * 4) != ((1u << 31) | sid) ||
+        (r32(smmu, 0xc00 + s->index * 4) & 0x300ff) != s->index) {
+        log_line("waffle-iommu: stream register readback refused; stop\n"); return false;
     }
     if (probe >= 19) {
-        if (!gpu_context_begin(&gpu_context,smmu,page,pages,contexts,matches,pool.phys[0])) goto done;
+        if (!gpu_context_begin(&s->gpu_context,smmu,page,pages,contexts,matches,s->pool.phys[0])) return false;
         if (probe>=39) {
-            if (!gpu_context_split(&gpu_context) ||
-                !translate_page(qtb,gpu_context.cb,waffle_gpu_plan_alias(&firmware,0x80000000),target_pa,0)) goto done;
+            if (!gpu_context_split(&s->gpu_context) ||
+                !translate_page(s->qtb,s->gpu_context.cb,waffle_gpu_plan_alias(&s->firmware,0x80000000),s->target_pa,0)) return false;
         }
-        if (!translate_page(qtb,gpu_context.cb,0x80000000,target_pa,0)) goto done;
+        if (!translate_page(s->qtb,s->gpu_context.cb,0x80000000,s->target_pa,0)) return false;
         log_line("waffle-iommu: GPU SID0 translation matches allocated PA\n");
     }
-    bool matches_pa = translate_page(qtb, cb, iova, target_pa, 5);
+    if (s->lpac_map) {
+        if (!gpu_context_begin_at(&s->lpac_context,smmu,page,pages,contexts,matches,s->pool.phys[0],1,1,1) ||
+            !gpu_context_split(&s->lpac_context)) return false;
+        /* Check every mapped SQE page, including BR/BV/LPAC bootstrap and
+         * jump tables. No HFI pool translations: permissions change later. */
+        bool found=false;
+        for (unsigned i=0;i<s->firmware.count;++i) {
+            struct waffle_gmu_region *r=&s->firmware.regions[i];
+            if (r->address!=WAFFLE_GPU_SQE_ADDRESS) continue;
+            if (!r->readonly || !r->gpu_only || !r->size || r->size>0x20000) return false;
+            found=true;
+            for (uint32_t off=0;off<r->size;off+=4096) {
+                for (unsigned instruction=0;instruction<2;++instruction) {
+                    ++s->lpac_checks;
+                    if (!translate_page_access(s->qtb,s->lpac_context.cb,
+                        waffle_gpu_plan_alias(&s->firmware,(uint64_t)r->address+off),
+                        kvtophys(r->memory+off),1,instruction?ECATS_INST:0,1)) return false;
+                }
+            }
+        }
+        if (!found || !waffle_scm_lpac_aperture()) return false;
+        log_line("waffle-iommu: LPAC_MAP routing=1 checks=%u SID1/CB1 GMU_SID5/CB3; translation only\n",s->lpac_checks);
+    }
+    bool matches_pa = translate_page(s->qtb, s->cb, iova, s->target_pa, 5);
     if (matches_pa) log_line("waffle-iommu: HARDWARE TRANSLATION MATCHES allocated PA\n");
     if (matches_pa && probe>=30) {
-        protected_pool=protected_pool_prepare(smmu,page,pages,contexts,matches,qtb,probe>=56?0x100000000ULL:PROTECTED_POOL_ADDRESS);
-        if (!protected_pool) matches_pa=false;
-        else {firmware.protected_address=protected_pool->address;firmware.protected_size=PROTECTED_POOL_BYTES;}
+        s->protected_pool=protected_pool_prepare(smmu,page,pages,contexts,matches,s->qtb,probe>=56?0x100000000ULL:PROTECTED_POOL_ADDRESS);
+        if (!s->protected_pool) matches_pa=false;
+        else {s->firmware.protected_address=s->protected_pool->address;s->firmware.protected_size=PROTECTED_POOL_BYTES;}
     }
-    if (matches_pa && probe>=37 && !waffle_scm_gpu_aperture()) goto done;
+    if (matches_pa && probe>=37 && !waffle_scm_gpu_aperture()) return false;
     if (matches_pa && (probe==90 || probe==93 || probe==91 || probe==94)) {
-        if (!protected_pool || !diagnostic_context_stall(protected_pool->context.cb)) goto done;
-        log_line("waffle-iommu: SEC_STALL%u CB2 SCTLR=%08x; CFIE masked\n",probe,r32(protected_pool->context.cb,0));
+        if (!s->protected_pool || !diagnostic_context_stall(s->protected_pool->context.cb)) return false;
+        log_line("waffle-iommu: SEC_STALL%u CB2 SCTLR=%08x; CFIE masked\n",probe,r32(s->protected_pool->context.cb,0));
     }
     if (matches_pa && probe==36) {
         /* Only this probe changes fault policy, after translation validation,
          * before CM3/CP start. Normal context teardown disables these banks. */
-        if (!protected_pool || !diagnostic_context_stall(gpu_context.cb) ||
-            !diagnostic_context_stall(cb) || !diagnostic_context_stall(protected_pool->context.cb)) goto done;
-        firmware.fault_smmu=smmu;firmware.fault_page=page;firmware.fault_pages=pages;
+        if (!s->protected_pool || !diagnostic_context_stall(s->gpu_context.cb) ||
+            !diagnostic_context_stall(s->cb) || !diagnostic_context_stall(s->protected_pool->context.cb)) return false;
+        s->firmware.fault_smmu=smmu;s->firmware.fault_page=page;s->firmware.fault_pages=pages;
         log_line("waffle-iommu: stall diagnostics armed for CB0/CB1/CB2; CFIE masked\n");
     }
     if (matches_pa && probe == 29) {
-        if (gpu_secure_context_probe(smmu,page,pages,contexts,matches,qtb))
+        if (gpu_secure_context_probe(smmu,page,pages,contexts,matches,s->qtb))
             log_line("waffle-iommu: protected context test passed\n");
     } else if (matches_pa && probe >= 8) {
-        for (unsigned i = 0; i < firmware.count; ++i) {
-            struct waffle_gmu_region *r = &firmware.regions[i];
+        for (unsigned i = 0; i < s->firmware.count; ++i) {
+            struct waffle_gmu_region *r = &s->firmware.regions[i];
             uint32_t last = r->size - 4096;
-            vm_offset_t region_cb = r->gpu_only ? gpu_context.cb : cb;
+            vm_offset_t region_cb = r->gpu_only ? s->gpu_context.cb : s->cb;
             unsigned region_sid = r->gpu_only ? 0 : 5;
-            if (firmware.split_gpu_va && (r->gpu_only || r->address==WAFFLE_HWSCHED_POOL_ADDRESS) &&
-                (!translate_page(qtb,gpu_context.cb,waffle_gpu_plan_alias(&firmware,r->address),kvtophys(r->memory),0) ||
-                 (last && !translate_page(qtb,gpu_context.cb,waffle_gpu_plan_alias(&firmware,(uint64_t)r->address+last),kvtophys(r->memory+last),0)))) {
+            if (s->firmware.split_gpu_va && (r->gpu_only || r->address==WAFFLE_HWSCHED_POOL_ADDRESS) &&
+                (!translate_page(s->qtb,s->gpu_context.cb,waffle_gpu_plan_alias(&s->firmware,r->address),kvtophys(r->memory),0) ||
+                 (last && !translate_page(s->qtb,s->gpu_context.cb,waffle_gpu_plan_alias(&s->firmware,(uint64_t)r->address+last),kvtophys(r->memory+last),0)))) {
                 matches_pa=false;break;
             }
-            if (!translate_page(qtb, region_cb, r->address, kvtophys(r->memory), region_sid) ||
-                (last && !translate_page(qtb, region_cb, (uint64_t)r->address + last, kvtophys(r->memory + last), region_sid))) {
+            if (!translate_page(s->qtb, region_cb, r->address, kvtophys(r->memory), region_sid) ||
+                (last && !translate_page(s->qtb, region_cb, (uint64_t)r->address + last, kvtophys(r->memory + last), region_sid))) {
                 matches_pa = false; break;
             }
         }
-        if (matches_pa && (probe==84 || probe==85 || probe==86 || probe==87 || probe==88 || probe==89 || probe==91 || probe==94 || probe==90 || probe==93) && !gpu_context_fault_continue(gpu_context.cb)) goto done;
+        if (matches_pa && (probe==84 || probe==85 || probe==86 || probe==87 || probe==88 || probe==89 || probe==91 || probe==94 || probe==90 || probe==93) && !gpu_context_fault_continue(s->gpu_context.cb)) return false;
         if (matches_pa && (probe==83 || probe==84 || probe==85 || probe==86 || probe==87 || probe==88 || probe==89 || probe==91 || probe==94 || probe==90 || probe==93)) {
             /* Read-only CB0 snapshot while its clocks and mappings are owned.
              * Compare actual readback, including architectural RES1/RAZ bits,
              * with Android; source write constants alone are insufficient. */
             log_line("waffle-iommu: SMMU%u CB0 SCTLR=%08x ACTLR=%08x TCR2=%08x TCR=%08x CONTEXTIDR=%08x\n",
-                probe,r32(gpu_context.cb,0),r32(gpu_context.cb,4),r32(gpu_context.cb,0x10),
-                r32(gpu_context.cb,0x30),r32(gpu_context.cb,0x34));
+                probe,r32(s->gpu_context.cb,0),r32(s->gpu_context.cb,4),r32(s->gpu_context.cb,0x10),
+                r32(s->gpu_context.cb,0x30),r32(s->gpu_context.cb,0x34));
             log_line("waffle-iommu: SMMU%u TTBR0=%llx TTBR1=%llx MAIR0=%08x MAIR1=%08x CBAR=%08x CBA2R=%08x S2CR=%08x\n",
-                probe,r64(gpu_context.cb,0x20),r64(gpu_context.cb,0x28),r32(gpu_context.cb,0x38),r32(gpu_context.cb,0x3c),
+                probe,r64(s->gpu_context.cb,0x20),r64(s->gpu_context.cb,0x28),r32(s->gpu_context.cb,0x38),r32(s->gpu_context.cb,0x3c),
                 r32(smmu,page),r32(smmu,page+0x800),r32(smmu,0xc00));
         }
         if (matches_pa && (probe==85 || probe==86 || probe==89 || probe==91 || probe==94)) {
-            firmware.fault_smmu=smmu;firmware.fault_page=page;firmware.fault_pages=pages;
+            s->firmware.fault_smmu=smmu;s->firmware.fault_page=page;s->firmware.fault_pages=pages;
             log_line("waffle-iommu: HUPCF%u RAW fault readback armed; no fault clear/resume\n",probe);
         }
-        struct pool_permission_context permission_context={.tables=&pool,.cb=gpu_context.cb};
-        if(probe>=72){firmware.pool_permissions=pool_permissions;firmware.pool_permissions_context=&permission_context;}
-        struct access_matrix_context matrix={.permissions=permission_context};
-        if(access_matrix){firmware.pool_permissions=access_matrix_capture;firmware.pool_permissions_context=&matrix;}
-        if (matches_pa && waffle_gmu_probe_tcm(&firmware, probe, qtb)) {
+        s->permission_context=(struct pool_permission_context){.tables=&s->pool,.cb=s->gpu_context.cb,
+            .lpac_cb=s->lpac_map?s->lpac_context.cb:0};
+        if(probe>=72){s->firmware.pool_permissions=pool_permissions;s->firmware.pool_permissions_context=&s->permission_context;}
+        s->matrix=(struct access_matrix_context){.permissions=s->permission_context};
+        if(s->access_matrix){s->firmware.pool_permissions=access_matrix_capture;s->firmware.pool_permissions_context=&s->matrix;}
+        if(matches_pa && s->session) {
+            s->child=waffle_gmu_owner_begin(&s->firmware,probe,s->qtb);
+            if(s->child)log_line("waffle-iommu: GMU component returned live; parent owns SMMU and firmware\n");
+            return s->child!=NULL;
+        } else if(matches_pa)s->gmu_ok=waffle_gmu_probe_tcm(&s->firmware,probe,s->qtb);
+    }
+    return s->gmu_ok;
+}
+static void smmu_owner_complete(struct smmu_owner *s)
+{
+    unsigned probe=s->probe;
+        if (s->gmu_ok) {
             log_line("waffle-iommu: GMU test passed, boot_test=%u; CM3 held reset again\n", probe >= 9);
-            if(access_matrix) (void)access_matrix_run(&matrix,&firmware,qtb,gpu_context.cb,gmu,cc);
+            if(s->lpac_map && !(r32(s->lpac_context.cb,0x58)&FSR_FAULT_MASK)) {
+                if(probe==93) log_line("waffle-iommu: LPAC_MAP lifecycle=1 checks=%u; no CP RAW\n",s->lpac_checks);
+                else log_line("waffle-iommu: LPAC_MAP lifecycle=1 checks=%u; CP control completed\n",s->lpac_checks);
+            }
+            if(s->access_matrix) (void)access_matrix_run(&s->matrix,&s->firmware,s->qtb,s->gpu_context.cb,s->gmu,s->cc);
         }
+}
+static bool smmu_owner_finish(struct smmu_owner *s)
+{
+    if(s->child || s->firmware.submit_session)smmu_owner_stop("live GMU child prevents SMMU detach");
+    if(!s->snapshot_ready)return true;
+    vm_offset_t smmu=s->smmu;
+    unsigned page=s->page;
+
+    if (s->protected_pool) protected_pool_release(s->protected_pool);
+    bool lpac_restored=gpu_context_end(&s->lpac_context);
+    s->safe_free = gpu_context_end(&s->gpu_context) && lpac_restored;
+    if(s->lpac_map) log_line("waffle-iommu: LPAC_MAP restored=%u\n",lpac_restored);
+    w64(s->qtb, 0x448, 0);
+    if (s->stream_changed) {
+        w32(smmu, 0x800 + s->index * 4, 0);
+        w32(smmu, 0xc00 + s->index * 4, s->saved_s2cr);
+        w32(smmu, 0x800 + s->index * 4, s->saved_smr);
     }
-done:
-    if (protected_pool) protected_pool_release(protected_pool);
-    safe_free = gpu_context_end(&gpu_context);
-    w64(qtb, 0x448, 0);
-    if (stream_changed) {
-        w32(smmu, 0x800 + index * 4, 0);
-        w32(smmu, 0xc00 + index * 4, saved_s2cr);
-        w32(smmu, 0x800 + index * 4, saved_smr);
-    }
-    if (context_changed) {
-        uint32_t faults = r32(cb, 0x58) & FSR_FAULT_MASK;
+    if (s->context_changed) {
+        uint32_t faults = r32(s->cb, 0x58) & FSR_FAULT_MASK;
         if (faults) {
-            log_line("waffle-iommu: cleanup fault=%08x FAR=%llx\n", faults, r64(cb, 0x60));
-            w32(cb, 0x58, faults);
-            if (faults & (1u << 30)) w32(cb, 8, 1);
+            log_line("waffle-iommu: cleanup fault=%08x FAR=%llx\n", faults, r64(s->cb, 0x60));
+            w32(s->cb, 0x58, faults);
+            if (faults & (1u << 30)) w32(s->cb, 8, 1);
         }
-        w32(cb, 0, 0);
-        safe_free = tlb_sync(cb) && safe_free;
+        w32(s->cb, 0, 0);
+        s->safe_free = tlb_sync(s->cb) && s->safe_free;
         /* Restore TCR before TTBR, with translation disabled throughout. */
-        w32(cb, 0x10, old[1]); w32(cb, 0x30, old[6]);
-        for (unsigned i = 0; i < sizeof(offsets)/sizeof(offsets[0]); ++i)
-            if (i != 1 && i != 6) w32(cb, offsets[i], old[i]);
+        w32(s->cb, 0x10, s->old[1]); w32(s->cb, 0x30, s->old[6]);
+        for (unsigned i = 0; i < sizeof(smmu_gmu_offsets)/sizeof(smmu_gmu_offsets[0]); ++i)
+            if (i != 1 && i != 6) w32(s->cb, smmu_gmu_offsets[i], s->old[i]);
         /* A reset/unassigned CBAR reads zero (stage2), although IDR0.S2TS
          * says this unit has NO stage2. Writing that reset encoding back
          * caused an external abort at 03da1004 on the first hardware test.
          * Leave this disabled, unassigned bank in a supported stage1 mode,
          * as the vendor driver does when releasing a context bank.
          */
-        uint32_t restore_cbar = old_cbar;
-        if (((old_cbar >> 16) & 3) == 0 && !(r32(smmu, 0x20) & (1u << 29))) {
-            restore_cbar = (old_cbar & ~0x30000u) | (1u << 16);
+        uint32_t restore_cbar = s->old_cbar;
+        if (((s->old_cbar >> 16) & 3) == 0 && !(r32(smmu, 0x20) & (1u << 29))) {
+            restore_cbar = (s->old_cbar & ~0x30000u) | (1u << 16);
             log_line("waffle-iommu: inactive CBAR reset type0 is not writable; keep supported stage1 type\n");
         }
-        w32(smmu, page + index * 4, restore_cbar);
-        w32(smmu, page + 0x800 + index * 4, old_cba2r);
-        w32(cb, 0, saved_ctl);
-        log_line("waffle-iommu: context/stream restored, TLB sync=%s\n", safe_free ? "done" : "TIMEOUT");
+        w32(smmu, page + s->index * 4, restore_cbar);
+        w32(smmu, page + 0x800 + s->index * 4, s->old_cba2r);
+        w32(s->cb, 0, s->saved_ctl);
+        log_line("waffle-iommu: context/stream restored, TLB sync=%s\n", s->safe_free ? "done" : "TIMEOUT");
     }
-    for (unsigned i = 0; i < 3; ++i) w64(qtb, 0x430 + 8 * i, old_inputs[i]);
-    w64(qtb, 0x410, old_fence);
-    (void)r32(qtb, 0); barrier();
-    if (safe_free) {
-        for (unsigned i = 0; i < pool.count; ++i) kmem_free(kernel_map, pool.memory[i], PAGE_SIZE);
-        if (target) kmem_free(kernel_map, target, PAGE_SIZE);
-        waffle_gmu_free(&firmware);
-    } else log_line("waffle-iommu: keep test pages allocated; reboot Android before retry\n");
+    for (unsigned i = 0; i < 3; ++i) w64(s->qtb, 0x430 + 8 * i, s->old_inputs[i]);
+    w64(s->qtb, 0x410, s->old_fence);
+    (void)r32(s->qtb, 0); barrier();
+    if (s->safe_free) {
+        for (unsigned i = 0; i < s->pool.count; ++i) kmem_free(kernel_map, s->pool.memory[i], PAGE_SIZE);
+        if (s->target) kmem_free(kernel_map, s->target, PAGE_SIZE);
+        waffle_gmu_free(&s->firmware);
+    } else log_line("waffle-iommu: keep test pages allocated; reboot Android before retry\n");    return s->safe_free;
+}
+void waffle_smmu_probe(vm_offset_t smmu,uint32_t page,uint32_t pages,
+    uint32_t contexts,uint32_t matches,unsigned probe)
+{
+    struct smmu_owner fallback={0},*s=&fallback;
+    vm_offset_t allocation=0;uint32_t requested=0;
+    bool heap=PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) && requested==1;
+    if(heap) {
+        if(sizeof(*s)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return;
+        s=(struct smmu_owner *)allocation;
+    }
+    *s=(struct smmu_owner){.smmu=smmu,.page=page,.pages=pages,.contexts=contexts,
+        .matches=matches,.probe=probe,.safe_free=true};
+    bool begun=smmu_owner_begin(s);
+    if(s->child) {
+        if(!begun || s->firmware.pool_permissions_context!=&s->permission_context)
+            smmu_owner_stop("invalid SMMU constructor or callback ownership");
+        log_line("waffle-iommu: SMMU_OWNER begin returned heap=%u callback_owned=1 child_live=1\n",heap);
+        bool exercised=waffle_gmu_owner_exercise(s->child);
+        if(!s->firmware.submit_session)smmu_owner_stop("GMU child state lost before parent end");
+        bool stopped=waffle_gmu_owner_end(s->child);
+        s->child=NULL;s->gmu_ok=exercised && stopped;
+    }
+    smmu_owner_complete(s);
+    bool released=smmu_owner_finish(s);
+    if(allocation) {
+        if(!released)smmu_owner_stop("SMMU detach incomplete; cannot free owner");
+        kmem_free(kernel_map,allocation,PAGE_SIZE);
+        log_line("waffle-iommu: SMMU_OWNER released after child stop and context detach\n");
+    }
 }
 
 static void secure_context_stop(const char *reason)

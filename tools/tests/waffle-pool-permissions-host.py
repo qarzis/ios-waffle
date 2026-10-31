@@ -13,15 +13,15 @@ typedef uintptr_t vm_offset_t;
 #define WAFFLE_HWSCHED_POOL_ADDRESS 0x61000000u
 struct table_pool {unsigned count;uintptr_t memory[32];uint64_t phys[32];};
 static uint64_t root[512],second[512],leaf[512];
-static unsigned cleans,syncs,fail;
+static unsigned cleans,syncs,fail,user_syncs,lpac_syncs;
 static void clean(uintptr_t p){assert(p);cleans++;}
-static bool tlb_sync(uintptr_t cb){assert(cb==1);return ++syncs!=fail;}
+static bool tlb_sync(uintptr_t cb){assert(cb==1 || cb==2);if(cb==1)++user_syncs;else ++lpac_syncs;return ++syncs!=fail;}
 static void log_line(const char *fmt,...){(void)fmt;}
 '''
 t=r'''
 int main(void){
  struct table_pool p={.count=3,.memory={(uintptr_t)root,(uintptr_t)second,(uintptr_t)leaf},.phys={0x1000,0x2000,0x3000}};
- struct pool_permission_context c={&p,1};
+ struct pool_permission_context c={.tables=&p,.cb=1};
  uint64_t va=waffle_gpu_compact_alias(WAFFLE_HWSCHED_POOL_ADDRESS),v=va-WAFFLE_GPU_GLOBAL_BASE;
  root[(v>>30)&511]=0x2003;second[(v>>21)&511]=0x3003;
  uint64_t *e=&leaf[(v>>12)&511];*e=0x80000403ULL;
@@ -37,6 +37,16 @@ int main(void){
  *e=0x80000403ULL;fail=syncs+1;
  assert(!pool_permissions(&c,va,4096,0x339)&&!*e);
  assert(p.count==3);
+ c.lpac_cb=2;*e=0x80000403ULL;fail=0;
+ unsigned u=user_syncs,l=lpac_syncs;
+ assert(pool_permissions(&c,va,4096,0x339));
+ assert(user_syncs==u+2 && lpac_syncs==l+2);
+ for(unsigned step=1;step<=2;++step) {
+  *e=0x80000403ULL;fail=syncs+step;u=user_syncs;l=lpac_syncs;
+  assert(!pool_permissions(&c,va,4096,0x339) && !*e);
+  assert(user_syncs==u+1 && lpac_syncs==l+1);
+ }
+
  p.count=0;assert(!pool_permissions(&c,va,4096,0x339));
  assert(!pool_permissions(NULL,va,4096,0x339));
  return 0;

@@ -30,8 +30,8 @@ static uint64_t r64(vm_offset_t base,unsigned off) {return *(uint64_t *)(base+of
 static void w32(vm_offset_t base,unsigned off,uint32_t value) {
     uintptr_t absolute=base+off-(uintptr_t)memory;
     assert(absolute<sizeof(memory));writes++;
-    if (absolute==0x1000 || absolute==0x1008) assert(((value>>16)&3)!=0); /* never restore unsupported stage2 */
-    if ((absolute==0x800 || absolute==0x808) && (value>>31) && drop_route) {drop_route=0;return;}
+    if (absolute==0x1000 || absolute==0x1004 || absolute==0x1008) assert(((value>>16)&3)!=0); /* never restore unsupported stage2 */
+    if ((absolute==0x800 || absolute==0x804 || absolute==0x808) && (value>>31) && drop_route) {drop_route=0;return;}
     if (absolute==0x20058) *(uint32_t *)(base+off)&=~value;
     else *(uint32_t *)(base+off)=value;
 }
@@ -39,7 +39,7 @@ static void w64(vm_offset_t base,unsigned off,uint64_t value) {
     assert(base+off-(uintptr_t)memory<sizeof(memory)-7);writes++;
     *(uint64_t *)(base+off)=value;
 }
-static bool tlb_sync(vm_offset_t cb) {assert(cb==(uintptr_t)memory+0x20000 || cb==(uintptr_t)memory+0x22000);sync_calls++;return sync_calls!=fail_sync;}
+static bool tlb_sync(vm_offset_t cb) {assert(cb==(uintptr_t)memory+0x20000 || cb==(uintptr_t)memory+0x21000 || cb==(uintptr_t)memory+0x22000);sync_calls++;return sync_calls!=fail_sync;}
 static void log_line(const char *fmt,...) {(void)fmt;}
 '''
 native_header=(ROOT/'work/waffle/gpu/vendor/arm-smmu.h').read_text()
@@ -107,6 +107,18 @@ int main(void) {
     memory[0x20058/4]=8;assert(!gpu_context_split(&g) && writes==before);memory[0x20058/4]=0;
     memory[0x20028/4]=1;assert(!gpu_context_split(&g) && writes==before);memory[0x20028/4]=0;
     assert(gpu_context_end(&g));restored();
+    /* Native SID1/CB1 is refused while the legacy GMU route owns CB1. */
+    reset();assert(!gpu_context_begin_at(&g,(uintptr_t)memory,4096,32,22,24,0x12345000,1,1,1) && !writes);
+    reset();memory[0x804/4]=0;memory[0xc04/4]=0x20000;
+    memory[0x80c/4]=(1u<<31)|5;memory[0xc0c/4]=3;
+    assert(gpu_context_begin_at(&g,(uintptr_t)memory,4096,32,22,24,0x12345000,1,1,1));
+    assert(r64(g.cb,0x20)==(0x12345000|(2ULL<<48)));
+    assert(gpu_context_split(&g));assert(r32(g.cb,0x30)==native_split);
+    assert(r64(g.cb,0x28)==r64(g.cb,0x20));
+    assert(gpu_context_end(&g));
+    assert(memory[0x804/4]==0 && memory[0xc04/4]==0x20000 && memory[0x21000/4]==0);
+    assert(memory[0x1004/4]==0x10000 && memory[0x1804/4]==0);
+    assert(memory[0x80c/4]==((1u<<31)|5) && memory[0xc0c/4]==3);
     puts("GPU context ownership/setup/rollback/TLB-timeout/SID2-isolation and actual native split TCR checks passed");return 0;
 }
 '''

@@ -46,8 +46,8 @@ static inline int waffle_number(const char *word, size_t size, const char *key,
 
 static inline int waffle_cmdline_allowed(const char *line)
 {
-    unsigned matrix=0,gpu_count=0;
-    int prepare93=0;
+    unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,gpu_count=0;
+    int prepare93=0,native94=0;
     while (*line) {
         while (*line == ' ') line++;
         const char *end = line;
@@ -55,8 +55,15 @@ static inline int waffle_cmdline_allowed(const char *line)
         size_t size = (size_t)(end - line);
         if (!size) break;
         matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
+        measure+=waffle_token_equal(line,size,"waffle_gpu_measure=1");
+        lpac+=waffle_token_equal(line,size,"waffle_lpac_map=1");
+        zap+=waffle_token_equal(line,size,"waffle_zap=1");
+        writeback+=waffle_token_equal(line,size,"waffle_writeback=1");
+        ib+=waffle_token_equal(line,size,"waffle_ib=1");
+        session+=waffle_token_equal(line,size,"waffle_session=1");
         gpu_count+=waffle_number(line,size,"waffle_gpu=",1,94);
         prepare93|=waffle_number(line,size,"waffle_gpu=",93,93);
+        native94|=waffle_number(line,size,"waffle_gpu=",94,94);
         if (!waffle_token_equal(line, size, "-v") &&
             !waffle_number(line, size, "bootcpu=", 0, 7) &&
             !waffle_number(line, size, "epoch=", 0, UINT32_MAX) &&
@@ -65,7 +72,13 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
     }
-    return !matrix || (matrix==1 && gpu_count==1 && prepare93);
+    return ((!matrix && !measure) ||
+        (matrix<=1 && measure<=1 && gpu_count==1 && prepare93)) &&
+        (!lpac || (lpac==1 && gpu_count==1 && (prepare93 || native94))) &&
+        (!zap || (zap==1 && lpac==1 && gpu_count==1 && native94)) &&
+        (!writeback || (writeback==1 && zap==1 && lpac==1 && gpu_count==1 && native94)) &&
+        (!ib || (ib==1 && writeback==1 && zap==1 && lpac==1 && gpu_count==1 && native94)) &&
+        (!session || (session==1 && ib==1 && writeback==1 && zap==1 && lpac==1 && gpu_count==1 && native94));
 }
 static inline int waffle_pll_control_requested(const char *line)
 {
@@ -95,7 +108,13 @@ static inline int waffle_gpu_token_allowed(const char *word, size_t size)
 {
 #if defined(WAFFLE_USERLAND)
     return waffle_number(word, size, "waffle_gpu=", 1, 94) ||
-        waffle_token_equal(word,size,"waffle_ecats_access=1");
+        waffle_token_equal(word,size,"waffle_ecats_access=1") ||
+        waffle_token_equal(word,size,"waffle_gpu_measure=1") ||
+        waffle_token_equal(word,size,"waffle_lpac_map=1") ||
+        waffle_token_equal(word,size,"waffle_zap=1") ||
+        waffle_token_equal(word,size,"waffle_writeback=1") ||
+        waffle_token_equal(word,size,"waffle_ib=1") ||
+        waffle_token_equal(word,size,"waffle_session=1");
 #else
     (void)word; (void)size;
     return 0;

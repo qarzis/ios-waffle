@@ -1,0 +1,7 @@
+{
+  "changed_kernel_scope": "old waffle_smmu_probe only, split into explicit parent owner/begin/complete/finish/wrapper",
+  "unchanged_page_mapper_context_TLB_ECATS_and_secure_helpers": true,
+  "unchanged_GMU_TCM_CP_ZAP_IB_session_implementation_sha256": "0932e03f6753c9ed7a42ecbf9937d6b2d60f295e5b881d5dbc241a73b98bb004",
+  "callback_storage": "owner fields, never constructor locals",
+  "heap_mode": "existing session option only; default caller-owned stack object"
+}

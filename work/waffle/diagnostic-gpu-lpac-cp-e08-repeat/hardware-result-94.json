@@ -1,0 +1,14 @@
+{
+  "probe": 94,
+  "started_at": "2026-10-31T10:07:01.138826+00:00",
+  "variant": "E08-LPAC-map-CP_INIT",
+  "runner_exit": 0,
+  "runs": [
+    "work/waffle/runs/20261031T100701Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true
+}

@@ -1,40 +1,10 @@
 # OnePlus 12 GPU port
 
-This is an unfinished hardware port of the macan graphics stack to SM8650.
-The current build boots GMU firmware and initializes HFI, **not GPU acceleration**.
-The working CPU-rendered iOS, touchscreen, buttons and serial package is preserved.
+The Adreno 750 now executes verified commands under XNU. CP_INIT, authenticated ZAP, native secure-mode transition, indirect PM4 fetch and actual GPU writeback have passed on the PJD110. E15 passed three sequential IBs with distinct results, explicit GMU/TCM/SMMU ownership and full shutdown. Android recovery was independently confirmed.
 
-The latest completed control is NATIVE93 (2026-10-31): verified UEFI NPA
-clients held CX/MX256, GMU booted using PLL1 at1250MHz /2 (625MHz), then changed
-toPLL1 520MHz /2 (260MHz) before GPU preparation. The post-prepare HFI query
-passed; GMU slumber, GX collapse, CM3 reset, root detachment, PLL scalar restore
-and clock rollback passed. Android boot completion was independently verified.
-No CP RAW command was submitted in93. Isolated PLL92 had already passed both
-rates and restoration. Full CP_INIT94 was hardware tested and failed with
-USB/900e and no saved CP ACK. Standard diagnostic collection/reset completed
-and Android recovery was confirmed. All 88 saved kernel logs stop at RAW
-checkpoints 0–3; the missing next marker does not prove publication never ran.
+The iOS interface still renders through Mesa softpipe. The remaining work includes persistent board-clock/CX/AOP lifetime, dynamic BO mappings, userspace submission/fences, a first verified draw and Mesa/IOSurface integration. No shader-rendered frame, CoreAnimation acceleration or Metal support is claimed. The existing tests are cold bounded sessions with Android resets between attempts.
 
-The current workflow is forensic audit, with production source changes and
-further RAW probes paused. See `GPU_DEBUG_LOG.md` and
-`work/waffle/gpu/forensic-audit/AUDIT.md` for evidence, architecture gaps,
-rejected explanations and the proposed first discriminating no-RAW experiment.
-
-SEC_STALL91 previously failed with USB/900e and no CP ACK or captured SMMU
-fault atGMU200MHz. Native captures established the625->260 sequence now
-validated by93; this does not yet establish CP execution or acceleration.
-See `work/waffle/gpu/RESUME.md` for the current test and recovery record.
-
-Earlier control TG81 passed GPU preparation, HFI query,
-full collapse and return to Android passed with the native TCR `0xb5193519`.
-Live Android CB0 capture exposed a port bug: copying the lower TCR half left
-TG1=0, while 4KB TTBR1 tables require TG1=2. The native allocator selects a
-different granule code for TTBR1; the port and its previous host test both
-missed that step. The corrected test fails against the old port code and
-passes after the fix. THREAD82, the isolated thread-control test with corrected TG1, still failed
-with USB/900e and no CP ACK; the correction alone does not resolve the failure.
-The phone returned to Android after the standard diagnostic collection/reset.
-See `work/waffle/gpu/RESUME.md` for the current hardware and recovery record.
+See [the milestone/evidence table](waffle-gpu-milestones.md), [the current debug log](../GPU_DEBUG_LOG.md), and [the integration gap inventory](../work/waffle/gpu/forensic-audit/IOS-GPU-INTEGRATION.md). Historical sections below retain the earlier bring-up details and failed tests; current E08–E15 results supersede their old CP_INIT blocker descriptions.
 
 ## Hardware and source evidence
 

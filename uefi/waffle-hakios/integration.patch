@@ -1,0 +1,171 @@
+--- a/BootShim/BootShim.S
++++ b/BootShim/BootShim.S
+@@ -28,6 +28,27 @@
+   stp   x2, x3, [x5], #16
+   subs  x6, x6, #16
+   b.ne  _CopyLoop
++
++#ifdef PAYLOAD_BASE
++  /* x4 now points just past the FD: an optional "XNUP" payload may follow */
++  ldr   w2, [x4]
++  movz  w3, #0x4E58
++  movk  w3, #0x5055, lsl #16
++  cmp   w2, w3
++  b.ne  _NoPayload
++  ldr   w6, [x4, #4]    /* Payload Size */
++  add   x6, x6, #23     /* Header + Round Up to 16 */
++  and   x6, x6, #~15
++  movz  x5, #(PAYLOAD_BASE >> 16), lsl #16
++
++_PayloadLoop:
++  ldp   x2, x3, [x4], #16
++  stp   x2, x3, [x5], #16
++  subs  x6, x6, #16
++  b.ne  _PayloadLoop
++
++_NoPayload:
++#endif
+   ldr   x5, =FD_BASE
+ 
+ _Entry:
+--- a/Silicon/Silicium/SiliciumPkg/Library/BootManagerLib/BootManager.c
++++ b/Silicon/Silicium/SiliciumPkg/Library/BootManagerLib/BootManager.c
+@@ -22,6 +22,7 @@
+ #include <Configuration/BootDevices.h>
+ 
+ #include "BootManager.h"
++#include "XnuLoader.h"
+ 
+ //
+ // Global Variables
+@@ -153,10 +154,15 @@
+   UnregisterKeyCallback ();
+ 
+   // Get Boot Manager Flag
+-#if defined(MU_SILICIUM_AUTO_MENU)
+-  BootManagerFlag = TRUE; // Open the standard menu for platform validation.
+-#elif defined(VEUX_HACKIOS_MENU)
+-  BootManagerFlag = TRUE; // Open the HackIOS menu automatically in the veux RAM image.
++  #if defined(HACKIOS_ONEPLUS12)
++  // Volume Up enters the menu. Loader return (oem menu) falls through
++  // to the menu once, without immediately launching the loader again.
++  BootManagerFlag = EnterBootManager ();
++  if (!BootManagerFlag) {
++    Print (L"HakiOS waffle: starting RAM/USB loader...\n");
++    XnuLoaderMain ();
++  }
++  BootManagerFlag = TRUE;
+ #else
+   BootManagerFlag = EnterBootManager ();
+ #endif
+@@ -208,6 +214,9 @@
+ PlatformBootManagerUnableToBoot ()
+ {
+   EFI_STATUS Status;
++
++  // Nothing else to boot: hand over to the XNU loader (does not return)
++  XnuLoaderMain ();
+ 
+   // Execute Secondary Unable To Boot
+   DeviceBootManagerUnableToBoot ();
+--- a/Silicon/Silicium/SiliciumPkg/Library/BootManagerLib/BootManagerLib.inf
++++ b/Silicon/Silicium/SiliciumPkg/Library/BootManagerLib/BootManagerLib.inf
+@@ -14,6 +14,7 @@
+ 
+ [Sources]
+   BootManager.c
++  XnuLoader.c
+   KeyCallback.c
+ 
+ [Packages]
+@@ -32,11 +33,14 @@
+   UefiRuntimeServicesTableLib
+   UefiBootServicesTableLib
+   SecureBootHandlerLib
++  DxeServicesLib
+   MemoryAllocationLib
+   MsBootOptionsLib
+   BootGraphicsLib
+   DevicePathLib
+   PrintLib
++  BaseLib
++  BaseMemoryLib
+ 
+ [Pcd]
+   gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
+@@ -48,3 +52,5 @@
+   gKeypadDeviceProtocolGuid
+   gEfiGraphicsOutputProtocolGuid
+   gEfiSimpleTextInputExProtocolGuid
++  gEfiBlockIoProtocolGuid
++  gEfiPartitionInfoProtocolGuid
+--- /dev/null
++++ b/Silicon/Silicium/SiliciumPkg/Library/BootManagerLib/XnuLoader.c
+@@ -0,0 +1,26 @@
++/** HakiOS waffle adapter: invoke the verified RAM/USB loader from FV.
++ * No fixed payload address and no partition writes.
++ * SPDX-License-Identifier: BSD-2-Clause-Patent
++ */
++#include <Uefi.h>
++#include <Pi/PiFirmwareFile.h>
++#include <Library/DxeServicesLib.h>
++#include <Library/MemoryAllocationLib.h>
++#include <Library/UefiBootServicesTableLib.h>
++#include <Library/DebugLib.h>
++#include "XnuLoader.h"
++VOID XnuLoaderMain (VOID)
++{
++  EFI_GUID Guid = {0x8148efc2,0xc15b,0x4518,{0x94,0x78,0xc9,0x8f,0x6d,0x3c,0x72,0x15}};
++  VOID *Buffer = NULL;
++  UINTN Size = 0;
++  EFI_HANDLE Image = NULL;
++  EFI_STATUS Status = GetSectionFromAnyFv (&Guid, EFI_SECTION_PE32, 0, &Buffer, &Size);
++  if (EFI_ERROR (Status)) { DEBUG ((DEBUG_ERROR,"waffle RAM loader missing: %r\n",Status)); return; }
++  Status = gBS->LoadImage (FALSE, gImageHandle, NULL, Buffer, Size, &Image);
++  FreePool (Buffer);
++  if (EFI_ERROR (Status)) { DEBUG ((DEBUG_ERROR,"waffle LoadImage: %r\n",Status)); return; }
++  Status = gBS->StartImage (Image, NULL, NULL);
++  DEBUG ((DEBUG_INFO,"waffle RAM loader returned: %r\n",Status));
++  gBS->UnloadImage (Image);
++}
+--- /dev/null
++++ b/Silicon/Silicium/SiliciumPkg/Library/BootManagerLib/XnuLoader.h
+@@ -0,0 +1,5 @@
++// SPDX-License-Identifier: BSD-2-Clause-Patent
++#ifndef WAFFLE_HAKIOS_XNU_LOADER_H
++#define WAFFLE_HAKIOS_XNU_LOADER_H
++VOID XnuLoaderMain (VOID);
++#endif
+--- a/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
++++ b/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
+@@ -44,7 +44,7 @@
+ 
+   // Print UEFI Version Message
+   DEBUG ((EFI_D_WARN, "\n"));
+-  DEBUG ((EFI_D_WARN, "Project Silicium for %a %a\n",            FixedPcdGetPtr (PcdSmbiosSystemManufacturer), FixedPcdGetPtr (PcdSmbiosSystemModel)));
++  DEBUG ((EFI_D_WARN, "HakiOS UEFI (Mu-Silicium) for %a %a\n",            FixedPcdGetPtr (PcdSmbiosSystemManufacturer), FixedPcdGetPtr (PcdSmbiosSystemModel)));
+   DEBUG ((EFI_D_WARN, "Firmware Version %s Build at %a on %a\n", PcdGetPtr (PcdFirmwareVersionString), __TIME__, __DATE__));
+   DEBUG ((EFI_D_WARN, "\n"));
+ }
+--- a/Silicon/Silicium/SiliciumPkg/SiliciumPkg.dsc.inc
++++ b/Silicon/Silicium/SiliciumPkg/SiliciumPkg.dsc.inc
+@@ -36,7 +36,7 @@
+   # Firmware Details
+   #
+   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"4.0"
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Project Silicium"
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"HakiOS"
+ 
+   #
+   # Memory
+--- a/Platforms/OnePlus/wafflePkg/waffle.dsc
++++ b/Platforms/OnePlus/wafflePkg/waffle.dsc
+@@ -42,7 +42,7 @@
+   *_*_AARCH64_CC_FLAGS = -DMU_SILICIUM_AUTO_MENU -DHACKIOS_ONEPLUS12
+ 
+ [PcdsFixedAtBuild]
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"HackIOS UEFI"
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"HakiOS waffle"
+   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"1.0"
+ 
+   #

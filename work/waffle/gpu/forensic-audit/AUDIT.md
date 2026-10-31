@@ -1,3 +1,57 @@
+## Current published state — E15
+
+CP_INIT, authenticated ZAP, indirect command fetch and actual GPU writeback are verified. E15 additionally verified heap ownership of the SMMU parent: tables, firmware plan, context snapshots and callback storage survive constructor return, with the GMU child stopped before parent detach and release. The three-IB session and the default ACCESS27/LPAC42 control both passed and returned to Android. See [the English milestone table](../../../../docs/waffle-gpu-milestones.md) and E15-result.json.
+
+Persistent board-clock/CX/AOP lifetime, dynamic userspace BO/submit/fences, shader drawing and iOS GPU composition remain unfinished. The earlier audit sections below are chronological records, not current pass/fail declarations.
+
+## Обновление после E09–E11-r2: CP, ZAP, DMA и IB подтверждены
+
+E09 аппаратно подтвердил signed ZAP/PAS13 authentication, native secure-switch
+ACK0 и TRUST0. E10 подтвердил прямую запись GPU с фактическим чтением CPU.
+E11-r2 подтвердил чтение PM4 из GPU-памяти через IB и выполнение записи;
+все4096слов (включая команды и guards) проверены, wrong0. Полная остановка и
+Android подтверждены после каждого теста; 900e не было.
+
+Первый E11 завершился точным permission fault FSR408, FAR=адресIB,
+непривилегированное чтение. Он выявил ошибку нового диагностического BO:
+не был установлен AP_UNPRIV. Исправление только этого BO устранило отказ;
+пакеты и GMU код сохранены неизменными. Это не новый вывод о старом CP94
+до исправления LPAC, а отдельный доказанный дефект вновь добавленного IB-теста.
+
+Следующий блокер — отсутствие постоянного waffle backend с владением ресурсами,
+BO/VA/submit/fence и проверенным остановом. Существующий RedwoodGPU/Mesa
+транспорт применим, но ещё не подключён к работающему waffle backend.
+Рисование, shader execution, кадры и GPU-композиция iOS пока не проверены.
+См. IOS-GPU-INTEGRATION.md, E09-result/E10-result/E11-result/E11-r2-result.json.
+Ниже сохранены исторические этапы аудита.
+
+## Обновление после E08: прежний блокер CP_INIT пройден
+
+31 октября 2026: два запуска неизменного образа — 20261031T100500Z и
+20261031T100701Z — получили CP_INIT_RAW seq42 ACK0 valid1, Gen7result0,
+полный shutdown/PLL restore и подтверждённый Android. E07 предварительно
+проверил42 перевода SQE через отсутствовавший SID1. Добавлены LPAC SID1/CB1,
+его native SCM aperture, native GMU SID5/CB3 и TLBI обоих ASID при общих
+изменениях таблиц. Эти предпосылки вместе устраняют прежний сбой CP_INIT;
+отдельный вклад каждого изменения и конкретный исторический fault не декодированы.
+Нет900e в этих двух запусках. Это подтверждает инициализацию CP, но не кадры.
+
+| Компонент | Текущее подтверждение |
+|---|---|
+| Питание, clocks, GMU/HFI | Проверены запуск и полный останов; физические GFX~231/GMU~260МГц |
+| IOMMU user/protected/LPAC/GMU | Проверены diagnostic translations и teardown; произвольный DMA пока не проверен |
+| Command submission | Частично: полная штатная CP_INIT аппаратно подтверждена дважды |
+| Synchronization | ACK/idle поллятся; пользовательские fences и GPU writeback не проверены |
+| ZAP/PAS13 и unsecure transition | Отсутствует runtime implementation; есть firmware и offline parser |
+| Рисование и Mesa backend waffle | GPU draw не проверен; полноценный backend не реализован |
+| Графический стек iOS | Существующий программный вывод работает; GPU integration не подтверждена |
+
+Текущая следующая граница: native authenticated ZAP load/unsecure transition
+и независимый результат GPU memorywriteback. До записи в reserved ZAP region
+нужно подтвердить владение RAM, PAS ABI и map/cache lifetime по исходникам.
+GPU_DEBUG_LOG.md и E08-result.json/E08-repeat-result.json содержат результаты.
+Ниже сохранён исходный аудит до этих экспериментов.
+
 # Аудит GPU OnePlus 12, 31 октября 2026
 
 ## Блокер и границы доказанного

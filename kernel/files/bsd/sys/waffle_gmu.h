@@ -20,12 +20,15 @@ struct waffle_gmu_region {
     vm_offset_t memory;
     bool gpu_only, readonly;
 };
+struct waffle_submit_session;
 struct waffle_gmu_plan {
     const uint8_t *firmware;
     size_t length;
     unsigned count;
     bool split_gpu_va,compact_gpu_va;
     bool raw_stage_pause;
+    struct waffle_submit_session *submit_session;
+    unsigned session_slumber_sequence;
     bool (*pool_permissions)(void *,uint64_t,uint32_t,uint32_t);
     void *pool_permissions_context;
     vm_offset_t fault_smmu;
@@ -41,4 +44,9 @@ static inline uint64_t waffle_gpu_plan_alias(const struct waffle_gmu_plan *plan,
 bool waffle_gmu_prepare(struct waffle_gmu_plan *, unsigned);
 bool waffle_gmu_probe_tcm(struct waffle_gmu_plan *, unsigned, vm_offset_t);
 void waffle_gmu_free(struct waffle_gmu_plan *);
+/* Parent retains SMMU/plan/clock ownership across these calls. */
+struct waffle_gmu_owner;
+struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *,unsigned,vm_offset_t);
+bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_end(struct waffle_gmu_owner *);
 #endif
