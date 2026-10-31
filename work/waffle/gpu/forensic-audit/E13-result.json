@@ -1,0 +1,14 @@
+{
+  "experiment": "E13",
+  "run": "work/waffle/runs/20261031T104800Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T104736Z",
+  "gmu_begin_returned_with_heap_owner": true,
+  "three_gpu_results_verified": true,
+  "owner_released_after_finish": true,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "default_prepare93_control_also_passed": true,
+  "log_sha256": "fc783159633301a732098c0e02934ec76fcd5ee32948e09a582d4f76bcdbbcf8",
+  "iOS_persistence": false
+}

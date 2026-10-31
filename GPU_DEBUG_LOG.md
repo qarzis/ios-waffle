@@ -229,3 +229,9 @@ E13 implementation scoped to oldboot_probe only: explicitcontext captures savedr
 Actual begin/finish/wrapper host test covers19 startup/cleanup/failure scenarios each in stack93 and heap94 modes, with snapshot read in a separate finishcall, partial failurecleanup, sessionreturn sequencing, and unsafe-stop ownership retention. Harness corrections were prototype linkage and the expected pre-session slumbersequence45 vs post-session47; no production workaround. RSC/session/previoushosttests passed. Fullbuild pending diagnostic-gpu-gmu-owner-e13, noE13hardwareyet.
 
 E13 fullhost/XNU/EFI/container/current-source-binding passed. First hardware control: stack/default prepare93+LPAC (noRAW), then only after Android recovery heap/session94 with unchanged threeIBs. This covers both affected lifetimes of the scoped refactor. No E13hardware outcome yet.
+
+E13 defaultstack93 controlPASS run20261031T104701Z/auto20261031T104637Z: LPAC42/noRAW/fullGMUstop/context/PLLrestore, runner0/autosuccess/Android1. No regression seen in default prepare-only path. Next heapowner94sessioncontrol, sameartifact/IBsequence; no resultyet.
+
+## E13 hardware PASS — explicit GMU begin/finish owner
+
+Default93control run20261031T104701Z passed. Heap94session run20261031T104800Z/auto20261031T104736Z: gmu_boot_begin returnedwithheapowner retained, sameIB44/45/46 uniquefences/markers all4096wordswrong0, slumber47/fullstop, ownerreleasedafterfinishresult1, TCM/context/PLLrestore. Runner0/autosuccess/independentAndroid1. No900e. Confirms relocated GMU state survives beginreturn without breaking stop or defaults. EvidenceE13-result.json; no new commands/clockchanges. Next unresolved owner boundary: TCMbackup/lifetime and outerplan/SMMU/clock/AOP roots, so no productionready claim.

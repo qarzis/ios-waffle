@@ -1,3 +1,12 @@
+# E13 PASS — GMU begin/finish heap owner verified
+
+Control93 run20261031T104701Z PASS; session94 run20261031T104800Z PASS.
+Artifactdiagnostic-gpu-gmu-owner-e13. GMUbeginreturnedwithheapstate,
+threeIB44/45/46 uniqueGPUresults/all4096wordswrong0; slumber47/fullstop,
+GMUownerfreeafterfinishresult1/TCMrestore/SMMU/PLLcleanup, runner0/Android1.
+No900e. NextTCMbackup plus rootplan/SMMU/clocks/AOP ownership needed before
+persistentiOSbackend. E12/E11artifacts unchanged. Userauthorizedcontinue.
+
 # E13 GMU owner built — prepare-only control pending
 
 Scopedoldboot_probe->gmu_boot_context/begin/finish/wrapper; no changesoutside

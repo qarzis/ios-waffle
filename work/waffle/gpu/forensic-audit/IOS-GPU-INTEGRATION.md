@@ -11,7 +11,7 @@ are existing local source interfaces; no new user/kernel ABI is proposed here.
 | GPU fetch of indirect PM4 buffer | Implemented and hardware verified | E11-r2 reads8wordIB and verifies actual result/all4096words after scoped AP_UNPRIV fix |
 | Persistent power and firmware lifetime | Missing for waffle production | waffle_adreno_init always returns to loader; smmu_probe and GMU paths always stop/free |
 | Dynamic BO/VA/page-table lifetime | Missing waffle backend | Current tables are diagnostic local objects, not persistent per-service resources |
-| Submission completion / reclamation | Partial | RAW ACK plus bounded idle/readback works; no waffle user fence implementation |
+| Submission completion / reclamation | Partial, bounded prototype verified | E12/E13 three unique IB sequences/results, heap session + GMU begin/finish owner, close/stop/free ordering verified; no user fence backend |
 | GPU interrupts | Not verified for normal work | Current execution uses polled ACK/idle; no normal waffle IRQ recovery path |
 | IOKit service and IOUserClient | Existing shared implementation | kernel/files/iokit/Kernel/MacanGPU.cpp RedwoodGPUUserClient |
 | Darwin Mesa transport | Existing implementation | Mesa src/redwood-drm/drm_shim.c: msm ioctl selectors through IOConnectCallStructMethod |
