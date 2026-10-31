@@ -1,3 +1,36 @@
+# E19 PASS — owned full GPU lifetime, AOP mutex released
+
+Control93 run20261031T204228Z auto204204Z ACCESS27/alloc8/LPAC42 PASS.
+Session94 run20261031T204325Z auto204301Z diagnostic-gpu-aop-owner-e19:
+heapAOPowner returnedlive toinitcaller, mutexreleased beforeGPUboot/work,
+3IB44/45/46 eachall4096wordswrong0, fullchild-firstshutdown thenACDoff/
+channelrestore/unmap/free result1transport0. Newrunnerstrictvalues/orderPASS,
+runner0/autosuccess/independentAndroid1, no900e. Noactivehardwaretest.
+LastverifiedE18eaed2c9 preserved; E19checkpointupdatedinwaffle/hakios-uefi.
+NextE20dynamicBO allocated/mapped AFTERGPUstartup and reboundonlyidle/READY;
+thenactualGPUfetch/write tothatnewmemory beforeownedshutdown. Notimplementedyet.
+AvoidECATSwhileGPUlive (priorECATScontrolsgatedGMUstopped); publishpagetables/
+dualASIDTLB anduseactualGPUresultsasproof. ExistingwritebackBOstaysallocated.
+No productionuserspacebackend/shader/draw/iOSacceleration. Usercontinues task.
+Rough4–6successfulstages tooffscreenpixels tolduser asuncertainestimate.
+
+# E19 built; control PASS, top AOP owner hardware session running
+
+Userresumedafterbriefpause; noE19hardwarebeforethisturn. QMPsplitbegin/end
+andheapAOPowner implemented; lockreleased beforepower/GPUbegin/exercise/end,
+callbackstorageheapowned, ownerreturnslive towaffle_adreno_init. Endpowerchild
+beforelock/channelidentity+emptybox/off/restore/unmap/free. Unknownstate retains.
+Defaultprotocol actual22pinnedE18IO/resulttraces match, 19ownerhostscenariospass,
+runnerstrictnewpathvalidationtests+fullsuite/XNU/EFI/container/sourcebindingPASS.
+Artifactdiagnostic-gpu-aop-owner-e19. Control93 run20261031T204228Z
+ auto20261031T204204Z ACCESS27/alloc8/LPAC42/fullshutdown/Android1 PASS.
+Full94 currentlyactiveexecsession13034, logwork/waffle/gpu/auto-aop-owner-e19-session.log.
+Do notstartnewhardwaretestuntilrunner/Androidconfirmation. LastverifiedGitE18
+eaed2c9. NoE19hardwareoutcomeyet. Useraskedteststowardfirstimage: rough4–6
+successfulhardwarestages tooffscreenpixels, uncertain; onscreen/iOSlater.
+NextafterAOP: separate/dynamicBO+genericboundedsubmit thenactualrender/shader;
+avoidunnecessaryextraownershipexperiments. No iOSGPUready/rendererchange.
+
 # E18 PASS — owned board CX/CFG parent returned live to AOP caller
 
 Control93 run20261031T201618Z ACCESS27/alloc8/LPAC42 passed. Session94

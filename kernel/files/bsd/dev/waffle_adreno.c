@@ -166,6 +166,104 @@ static void probe_aop_channel(unsigned probe)
     lck_mtx_unlock(&macan_aop_mailbox_lock);
     gpu_log("waffle-gpu: AOP channel%u cleanup complete\n", probe);
 }
+/* Heap top-level owner for the bounded session. The shared mutex is held
+ * only for QMP transport, never across GMU boot, GPU execution or shutdown. */
+struct aop_gpu_owner {
+    vm_offset_t allocation,ipcc_mapping;
+    struct aop_channel_context channel;
+    struct waffle_aop_qmp_session transport;
+    struct board_power_owner *child;
+    bool locked,exercised,exercise_ok;
+};
+static struct aop_gpu_owner *active_aop_gpu;
+static void aop_owner_stop(const char *reason)
+{
+    gpu_log("waffle-gpu: AOP_OWNER REBOOT REQUIRED: %s; retain owner and mappings\n",reason);
+    loader_return();
+    for(;;)delay_for_interval(1000,NSEC_PER_USEC);
+}
+static bool aop_owner_channel_valid(struct aop_gpu_owner *s)
+{
+    vm_offset_t q=s->channel.qmp;
+    struct waffle_aop_qmp_snapshot v={
+        .magic=read_reg(q,0),.version=read_reg(q,4),
+        .our_box=read_reg(q,0x38),.our_box_size=read_reg(q,0x34),
+        .our_link=read_reg(q,0x24),.our_link_ack=read_reg(q,0x28),
+        .our_channel=read_reg(q,0x2c),.our_channel_ack=read_reg(q,0x30),
+        .their_channel=read_reg(q,0x14),
+    };
+    return waffle_aop_qmp_channel_open(&v) &&
+        v.our_box==s->transport.our_box && v.our_box_size==s->transport.our_box_size &&
+        read_reg(q,0x0c)==WAFFLE_AOP_QMP_UP && read_reg(q,0x10)==WAFFLE_AOP_QMP_UP &&
+        read_reg(q,0x18)==WAFFLE_AOP_QMP_UP && !read_reg(q,v.our_box);
+}
+static bool aop_gpu_owner_end(struct aop_gpu_owner *s)
+{
+    if(!s || active_aop_gpu!=s)return false;
+    bool ok=false;
+    if(s->child) {
+        if(s->locked)aop_owner_stop("shared mutex held during child stop");
+        ok=board_power_end(s->child) && s->exercise_ok;
+        s->child=NULL;
+    }
+    if(!s->locked) {
+        if(!lck_mtx_try_lock(&macan_aop_mailbox_lock))aop_owner_stop("shared transport busy at end");
+        s->locked=true;
+    }
+    enum waffle_aop_qmp_result result=s->transport.result;
+    if(s->transport.changed) {
+        if(s->transport.opened && !aop_owner_channel_valid(s))
+            aop_owner_stop("channel changed or foreign message pending");
+        result=waffle_aop_qmp_session_end(&s->transport);
+        if(!s->transport.restored || s->transport.changed)
+            aop_owner_stop("ACD or channel restoration unconfirmed");
+    }
+    lck_mtx_unlock(&macan_aop_mailbox_lock);s->locked=false;
+    if(s->ipcc_mapping)ml_io_unmap(s->ipcc_mapping,0x4000);
+    if(s->channel.qmp)ml_io_unmap(s->channel.qmp,WAFFLE_AOP_QMP_MAP_SIZE);
+    vm_offset_t allocation=s->allocation;
+    active_aop_gpu=NULL;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    gpu_log("waffle-gpu: AOP_OWNER released after power child and channel restore result=%u transport=%u\n",
+        ok && result==WAFFLE_AOP_QMP_OK,result);
+    return ok && result==WAFFLE_AOP_QMP_OK;
+}
+static struct aop_gpu_owner *aop_gpu_owner_begin(unsigned probe)
+{
+    uint32_t requested=0;
+    if(active_aop_gpu || probe!=94 ||
+        !PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) || requested!=1)return NULL;
+    vm_offset_t allocation=0;
+    if(sizeof(struct aop_gpu_owner)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+        KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+    struct aop_gpu_owner *s=(struct aop_gpu_owner *)allocation;
+    *s=(struct aop_gpu_owner){.allocation=allocation};active_aop_gpu=s;
+    if(!lck_mtx_try_lock(&macan_aop_mailbox_lock)) {
+        active_aop_gpu=NULL;kmem_free(kernel_map,allocation,PAGE_SIZE);return NULL;
+    }
+    s->locked=true;
+    s->channel.qmp=ml_io_map_unmappable(WAFFLE_AOP_QMP_BASE,WAFFLE_AOP_QMP_MAP_SIZE,VM_WIMG_IO);
+    s->ipcc_mapping=ml_io_map_unmappable(0x00404000,0x4000,VM_WIMG_IO);
+    if(s->ipcc_mapping)s->channel.ipcc=s->ipcc_mapping+0x2000;
+    if(!s->channel.qmp || !s->channel.ipcc)goto failed;
+    const struct waffle_aop_qmp_io io={&s->channel,
+        aop_channel_read,aop_channel_write,aop_channel_kick,aop_channel_wait};
+    if(waffle_aop_qmp_session_begin(&io,&s->transport,true)!=WAFFLE_AOP_QMP_OK)goto failed;
+    lck_mtx_unlock(&macan_aop_mailbox_lock);s->locked=false;
+    s->child=probe_gpu_body(probe);
+    if(!s->child)goto failed;
+    gpu_log("waffle-gpu: AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1\n");
+    return s;
+failed:
+    (void)aop_gpu_owner_end(s);
+    return NULL;
+}
+static bool aop_gpu_owner_exercise(struct aop_gpu_owner *s)
+{
+    if(!s || active_aop_gpu!=s || !s->child || s->locked || s->exercised)return false;
+    s->exercised=true;s->exercise_ok=board_power_exercise(s->child);
+    return s->exercise_ok;
+}
 static void show(vm_offset_t base, uint32_t physical, const char *name, uint32_t off)
 {
     /* Log BEFORE access as well: a synchronous external abort must be locatable. */
@@ -640,8 +738,16 @@ void waffle_adreno_init(void)
             loader_return();return;
         }
         gpu_log("waffle-gpu: PLL%u verified firmware CX/MX256 handoff\n",probe);
+        uint32_t session=0;
         if(probe==92)probe_gpu_body(probe);
-        else probe_aop_channel(probe);
+        else if(probe==94 && PE_parse_boot_argn("waffle_session",&session,sizeof(session)) && session==1) {
+            struct aop_gpu_owner *owner=aop_gpu_owner_begin(probe);
+            if(owner) {
+                gpu_log("waffle-gpu: full GPU owner returned live to init caller; no mutex held\n");
+                (void)aop_gpu_owner_exercise(owner);
+                (void)aop_gpu_owner_end(owner);
+            }
+        } else probe_aop_channel(probe);
         loader_return();return;
     }
     if (probe >= 45 && probe <= 91) {

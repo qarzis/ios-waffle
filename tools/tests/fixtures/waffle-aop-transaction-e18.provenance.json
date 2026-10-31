@@ -1,0 +1,7 @@
+{
+  "source_commit": "eaed2c9bd6ae175275d264203aa097bbe940c1cc",
+  "source_file": "kernel/files/bsd/sys/waffle_aop.h",
+  "source_function": "waffle_aop_qmp_transaction_run",
+  "test_only_change": "rename to legacy_transaction_run",
+  "sha256": "edd4da2de647dcbb35aeb23287c284ee95f0e94136f1e44343ad47513044ee5b"
+}

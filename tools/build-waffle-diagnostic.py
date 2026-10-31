@@ -62,6 +62,9 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-firmware-power-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-pll1-native-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-aop-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-aop-session-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-aop-owner-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-aop-owner-log-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-llcc-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-ramlog-export-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-ramlog-raw-host.py"])
@@ -209,7 +212,7 @@ def main():
                      "kernel/files/bsd/sys/waffle_hfi.h", "tools/tests/waffle-hfi.c",
                      "kernel/files/bsd/sys/waffle_hfi_tables.h", "tools/build-waffle-gpu-tables.py",
                      "tools/tests/waffle-gpu-tables.py", "tools/tests/waffle-powerseq-host.py", "tools/tests/waffle-gx-host.py", "tools/tests/waffle-context-host.py", "work/waffle/gpu/vendor/kernel-drivers-iommu-io-pgtable-arm.h", "work/waffle/gpu/vendor/kernel-drivers-iommu-io-pgtable-arm.provenance.json", "tools/tests/waffle-ucode-host.py", "tools/tests/waffle-cp-host.py",
-                     "tools/tests/waffle-gpu-host.py", "tools/tests/waffle-gmu-clock-host.py", "tools/tests/waffle-aop-host.py", "tools/tests/waffle-llcc-host.py", "tools/tests/waffle-ramlog-export-host.py", "tools/tests/waffle-ramlog-raw-host.py", "tools/tests/waffle-ramlog-run.py", "tools/waffle_ramlogs.py", "tools/tests/waffle-compact-va.c",
+                     "tools/tests/waffle-gpu-host.py", "tools/tests/waffle-gmu-clock-host.py", "tools/tests/waffle-aop-host.py", "tools/tests/waffle-aop-session-host.py", "tools/tests/waffle-aop-owner-host.py", "tools/tests/waffle-aop-owner-log-host.py", "tools/tests/fixtures/waffle-aop-transaction-e18.inc", "tools/tests/fixtures/waffle-aop-transaction-e18.provenance.json", "tools/tests/waffle-llcc-host.py", "tools/tests/waffle-ramlog-export-host.py", "tools/tests/waffle-ramlog-raw-host.py", "tools/tests/waffle-ramlog-run.py", "tools/waffle_ramlogs.py", "tools/tests/waffle-compact-va.c",
                      "kernel/files/osfmk/arm64/loader_return.c", "tools/tests/waffle-touch.c",
                      "kernel/files/bsd/dev/macan_buttons.c",
                      "tools/check-waffle-dtb.py", "tools/build-waffle-diagnostic.py", "tools/tests/waffle-policy.c", "tools/tests/waffle-hwsched-host.py", "tools/tests/fixtures/waffle-hfi-start-allocations.json",

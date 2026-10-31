@@ -28,6 +28,27 @@ def result_from_log(data):
     return f"result: returned {match[1]} 0" if match else ""
 
 
+def validate_aop_owner_log(text):
+    """Require actual GPU results and child-first teardown for the owned path."""
+    markers=[
+        "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
+        "full GPU owner returned live to init caller; no mutex held",
+    ]
+    for fence in (1,2,3):
+        values="/".join(f"{word ^ (fence * 0x01010101):08x}" for word in
+                        (0x57414646,0x4c454750,0x13579bdf,0x2468ace0))
+        markers.append(f"SESSION fence={fence} seq={43+fence} values={values} wrong_words=0")
+    markers += [
+        "SMMU_OWNER released after child stop and context detach",
+        "CLOCK_OWNER released before CX restore result=1",
+        "POWER_OWNER released after clock child, CX and CFG restore result=1",
+        "AOP_OWNER released after power child and channel restore result=1 transport=0",
+    ]
+    positions=[text.find(marker) for marker in markers]
+    if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
+        raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seconds", type=int, default=60, choices=range(1, 301), metavar="1..300")
@@ -193,7 +214,9 @@ def main():
                 return
             if "waffle-gmu: REBOOT REQUIRED" in final_text:
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
-            if args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
+            if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
+                validate_aop_owner_log(final_text)
+            elif args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
                     f"AOP channel{args.gpu_probe} result=0 channel=ffff0000 ack=ffff0000 link=0000ffff linkack=0000ffff",
                     f"AOP channel{args.gpu_probe} cleanup complete")):
                 raise RuntimeError(f"AOP channel roundtrip failed; logs: {out}")

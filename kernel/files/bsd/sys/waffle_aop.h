@@ -102,12 +102,24 @@ waffle_aop_qmp_send_acd(const struct waffle_aop_qmp_io *io, bool enabled)
     return WAFFLE_AOP_QMP_TIMEOUT;
 }
 
+/* Caller holds the shared mailbox mutex only while invoking begin/end.
+ * IO callback storage must remain alive between calls. No GPU lifetime is
+ * inferred from a transport acknowledgement. Zero initialize before begin. */
+struct waffle_aop_qmp_session {
+    struct waffle_aop_qmp_io io;
+    uint32_t our_box,our_box_size;
+    bool changed,opened,acd_attempted,restored;
+    enum waffle_aop_qmp_result result;
+};
 static inline enum waffle_aop_qmp_result
-waffle_aop_qmp_transaction_run(const struct waffle_aop_qmp_io *io, bool acd,
-    void (*task)(void *), void *task_context)
+waffle_aop_qmp_session_begin(const struct waffle_aop_qmp_io *io,
+    struct waffle_aop_qmp_session *session,bool acd)
 {
+    if(!session || session->changed)return WAFFLE_AOP_QMP_REFUSED;
+    *session=(struct waffle_aop_qmp_session){.result=WAFFLE_AOP_QMP_REFUSED};
     if (!io || !io->read || !io->write || !io->kick || !io->wait)
         return WAFFLE_AOP_QMP_REFUSED;
+    session->io=*io;
     void *c = io->context;
     struct waffle_aop_qmp_snapshot s = {
         .magic = io->read(c, 0), .version = io->read(c, 4),
@@ -125,6 +137,8 @@ waffle_aop_qmp_transaction_run(const struct waffle_aop_qmp_io *io, bool acd,
         io->read(c, 0x30) != WAFFLE_AOP_QMP_DOWN ||
         io->read(c, s.our_box) != 0) return WAFFLE_AOP_QMP_REFUSED;
 
+    session->our_box=s.our_box;session->our_box_size=s.our_box_size;
+    session->changed=true;
     io->write(c, 0x2c, WAFFLE_AOP_QMP_UP);
     io->kick(c);
     bool opened = io->wait(c, 0x14, WAFFLE_AOP_QMP_UP);
@@ -135,23 +149,41 @@ waffle_aop_qmp_transaction_run(const struct waffle_aop_qmp_io *io, bool acd,
         io->kick(c);
         opened = io->wait(c, 0x30, WAFFLE_AOP_QMP_UP);
     }
-    enum waffle_aop_qmp_result payload = WAFFLE_AOP_QMP_OK;
-    bool off_failed = false;
-    if (opened && acd) {
-        payload = waffle_aop_qmp_send_acd(io, true);
-        if (payload == WAFFLE_AOP_QMP_OK && task) task(task_context);
-        /* Even an unacknowledged on may have been consumed. Always send off. */
-        off_failed = waffle_aop_qmp_send_acd(io, false) != WAFFLE_AOP_QMP_OK;
+    session->opened=opened;
+    session->result=opened?WAFFLE_AOP_QMP_OK:WAFFLE_AOP_QMP_TIMEOUT;
+    if(opened && acd) {
+        session->acd_attempted=true;
+        session->result=waffle_aop_qmp_send_acd(io,true);
     }
-    io->write(c, 0x2c, WAFFLE_AOP_QMP_DOWN);
+    return session->result;
+}
+static inline enum waffle_aop_qmp_result
+waffle_aop_qmp_session_end(struct waffle_aop_qmp_session *session)
+{
+    if(!session || !session->changed)return WAFFLE_AOP_QMP_REFUSED;
+    const struct waffle_aop_qmp_io *io=&session->io;
+    void *c=io->context;
+    /* An unacknowledged on may have been consumed: always attempt off. */
+    bool off_failed=session->acd_attempted &&
+        waffle_aop_qmp_send_acd(io,false)!=WAFFLE_AOP_QMP_OK;
+    io->write(c,0x2c,WAFFLE_AOP_QMP_DOWN);
     io->kick(c);
-    if (!io->wait(c, 0x30, WAFFLE_AOP_QMP_DOWN) ||
-        io->read(c, 0x2c) != WAFFLE_AOP_QMP_DOWN ||
-        io->read(c, 0x24) != WAFFLE_AOP_QMP_UP ||
-        io->read(c, 0x28) != WAFFLE_AOP_QMP_UP)
+    if(!io->wait(c,0x30,WAFFLE_AOP_QMP_DOWN) ||
+        io->read(c,0x2c)!=WAFFLE_AOP_QMP_DOWN ||
+        io->read(c,0x24)!=WAFFLE_AOP_QMP_UP ||
+        io->read(c,0x28)!=WAFFLE_AOP_QMP_UP || off_failed)
         return WAFFLE_AOP_QMP_RESTORE_FAILED;
-    if (off_failed) return WAFFLE_AOP_QMP_RESTORE_FAILED;
-    return opened ? payload : WAFFLE_AOP_QMP_TIMEOUT;
+    session->restored=true;session->changed=false;
+    return session->result;
+}
+static inline enum waffle_aop_qmp_result
+waffle_aop_qmp_transaction_run(const struct waffle_aop_qmp_io *io,bool acd,
+    void (*task)(void *),void *task_context)
+{
+    struct waffle_aop_qmp_session session={0};
+    enum waffle_aop_qmp_result result=waffle_aop_qmp_session_begin(io,&session,acd);
+    if(result==WAFFLE_AOP_QMP_OK && acd && task)task(task_context);
+    return session.changed?waffle_aop_qmp_session_end(&session):result;
 }
 
 static inline enum waffle_aop_qmp_result

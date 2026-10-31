@@ -1,0 +1,11 @@
+{
+  "experiment": "E19",
+  "base": "eaed2c9bd6ae175275d264203aa097bbe940c1cc",
+  "scope": "QMP begin/end and heap AOP owner with mutex released during child lifetime",
+  "entire_gmu_smmu_power_clock_and_mmio_helpers_unchanged": true,
+  "legacy_aop_wrapper_unchanged": true,
+  "legacy_protocol_result_and_io_trace_parity_cases": 22,
+  "top_owner_host_scenarios": 19,
+  "new_pm4_hfi_or_power_constants": false,
+  "hardware_tested": false
+}
