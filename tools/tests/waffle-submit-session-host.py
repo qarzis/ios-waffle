@@ -15,6 +15,7 @@ h=r'''
 #include "waffle_gpu_writeback.h"
 #include "waffle_gpu_compute.h"
 #include "waffle_gpu_image.h"
+#include "waffle_gpu_copy.h"
 typedef uintptr_t vm_offset_t;
 #define PAGE_SIZE 16384
 #define KMA_KOBJECT 1
@@ -83,11 +84,12 @@ static bool hfi_exchange_watch(uintptr_t gmu,uintptr_t hfi,const uint32_t *p,uns
   assert(watch->compute_mode==1 || watch->compute_mode==2);
   assert(p[4]==WAFFLE_COMPUTE_WORDS && ((uint64_t)p[3]<<32|p[2])==waffle_gpu_compact_alias(0x80078400));
   assert(session->submitted==1 && session->completed==0 && session->next_sequence==45);
-  for(unsigned i=0;i<4096;i++)assert(active_arena[i]==(watch->compute_image?waffle_image_initial:waffle_compute_initial)(watch->compute_mode,i));
+  for(unsigned i=0;i<4096;i++)assert(active_arena[i]==(watch->compute_image==2?waffle_copy_initial:watch->compute_image?waffle_image_initial:waffle_compute_initial)(watch->compute_mode,i));
   sends++;
   if(mode!=20)active_arena[2048]=1;
-  if(watch->compute_mode==2 && mode!=21)for(unsigned i=0;i<(watch->compute_image?256u:8u);i++)active_arena[(watch->compute_image?3072:64)+i]=watch->compute_image?(0xff000000u|i):i;
+  if(watch->compute_mode==2 && mode!=21)for(unsigned i=0;i<(watch->compute_image?256u:8u);i++)active_arena[(watch->compute_image?3072:64)+i]=watch->compute_image==2?active_arena[3328+i]:watch->compute_image?(0xff000000u|i):i;
   if(mode==22)active_arena[4095]^=1;
+  if(mode==26)active_arena[3328]^=1;
   return mode!=23;
  }
  unsigned fence=++sends;
@@ -170,7 +172,7 @@ int main(void){
   assert(frees==1 && unmaps==(failure?1u:2u));
  }
  compute_case=true;
- for(unsigned image=0;image<2;image++)for(unsigned dispatch=1;dispatch<=2;dispatch++)for(unsigned failure=0;failure<7;failure++){
+ for(unsigned image=0;image<3;image++)for(unsigned dispatch=1;dispatch<=2;dispatch++)for(unsigned failure=0;failure<8;failure++){
   mode=0;sends=allocs=frees=maps=unmaps=releases=waits=delays=0;after_open=false;
   struct waffle_gmu_plan plan={.raw_stage_pause=true,.compute_mode=dispatch,.compute_image=image};
   assert(submit_session_open(1,2,3,&plan));after_open=true;

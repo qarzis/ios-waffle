@@ -1,0 +1,12 @@
+{
+  "experiment": "E23 default93 LPAC/access control",
+  "run": "work/waffle/runs/20261101T071431Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T071407Z",
+  "post_prepare_query_sequence": 42,
+  "access_checks": 27,
+  "allocations": 8,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb_before_prepare": "1",
+  "log_sha256": "5399a76fb47bbf58a9faf3fbdeb4e3614ea001823665a8c573c43fd168fc6ea9"
+}

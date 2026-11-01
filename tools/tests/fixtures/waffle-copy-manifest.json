@@ -1,0 +1,11 @@
+{
+  "chip_id": "0x43051401", "generation": 7,
+  "gpu_base": "0x1ff8000478000", "command_offset": 1024, "command_dwords": 184,
+  "bo_records": [
+    {"name": "control", "offset": 8192, "bytes": 4096, "iova": "0x1ff800047a000"},
+    {"name": "CL", "offset": 4096, "bytes": 128, "iova": "0x1ff8000479000"},
+    {"name": "output", "offset": 12288, "bytes": 2048, "iova": "0x1ff800047b000"},
+    {"name": "tex_desc", "offset": 4352, "bytes": 64, "iova": "0x1ff8000479100"}
+  ],
+  "device_opened": false, "gpu_executed": false
+}

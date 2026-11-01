@@ -63,7 +63,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         session+=waffle_token_equal(line,size,"waffle_session=1");
         dynamic_bo+=waffle_token_equal(line,size,"waffle_dynamic_bo=1");
         compute+=waffle_token_equal(line,size,"waffle_compute=1") || waffle_token_equal(line,size,"waffle_compute=2");
-        image+=waffle_token_equal(line,size,"waffle_image=1");
+        image+=waffle_token_equal(line,size,"waffle_image=1") || waffle_token_equal(line,size,"waffle_image=2");
         gpu_count+=waffle_number(line,size,"waffle_gpu=",1,94);
         prepare93|=waffle_number(line,size,"waffle_gpu=",93,93);
         native94|=waffle_number(line,size,"waffle_gpu=",94,94);
@@ -123,7 +123,7 @@ static inline int waffle_gpu_token_allowed(const char *word, size_t size)
         waffle_token_equal(word,size,"waffle_session=1") ||
         waffle_token_equal(word,size,"waffle_dynamic_bo=1") ||
         waffle_token_equal(word,size,"waffle_compute=1") || waffle_token_equal(word,size,"waffle_compute=2") ||
-        waffle_token_equal(word,size,"waffle_image=1");
+        (waffle_token_equal(word,size,"waffle_image=1") || waffle_token_equal(word,size,"waffle_image=2"));
 #else
     (void)word; (void)size;
     return 0;

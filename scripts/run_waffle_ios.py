@@ -31,7 +31,13 @@ def result_from_log(data):
     return f"result: returned {match[1]} 0" if match else ""
 
 
-def extract_gpu_image(text, compute_mode):
+def uploaded_image_pixels():
+    data=(ROOT/'tools/tests/fixtures/waffle-input16.ppm').read_bytes()
+    if len(data)!=781 or data[:13]!=b'P6\n16 16\n255\n':raise RuntimeError("Invalid uploaded image fixture")
+    return [int.from_bytes(data[i:i+3]+b'\xff','little') for i in range(13,len(data),3)]
+
+
+def extract_gpu_image(text, compute_mode, image=1):
     blocks={}
     for offset,values in re.findall(r"waffle-gmu: IMAGE pixels offset=(\d+) values=([0-9a-f]{8}(?:/[0-9a-f]{8}){7})",text):
         offset=int(offset);pixels=[int(x,16) for x in values.split('/')]
@@ -41,7 +47,7 @@ def extract_gpu_image(text, compute_mode):
     if set(blocks)!=set(range(0,256,8)):
         raise RuntimeError("Incomplete GPU pixel readback")
     pixels=[v for offset in range(0,256,8) for v in blocks[offset]]
-    expected=[(0xff000000|i) if compute_mode==2 else 0xdead0000+i for i in range(256)]
+    expected=(uploaded_image_pixels() if image==2 else [0xff000000|i for i in range(256)]) if compute_mode==2 else [0xdead0000+i for i in range(256)]
     if pixels!=expected:raise RuntimeError("GPU pixel pattern did not match")
     return pixels
 
@@ -63,7 +69,9 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         "full GPU owner returned live to init caller; no mutex held",
     ]
     if compute_mode:
-        values="/".join(f"{(0xff000000|i) if image and compute_mode==2 else i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
+        expected_pixels=uploaded_image_pixels() if image==2 else [0xff000000|i for i in range(256)]
+        if image==2:markers += ["IMAGE_COPY input_word=3328 output_word=3072 pixels=256"]
+        values="/".join(f"{expected_pixels[i] if image and compute_mode==2 else i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
         if image:markers += [f"IMAGE begin width=16 height=16 pixels=256 dispatch={int(compute_mode==2)}"]
         markers += [f"COMPUTE begin mode={compute_mode} dispatch={int(compute_mode==2)} words=184 output_poison=1",
             "COMPUTE_IB ACK matched seq44 value=00000000 valid=1",
@@ -83,7 +91,7 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
     positions=[text.find(marker) for marker in markers]
     if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
         raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
-    return extract_gpu_image(text,compute_mode) if image else None
+    return extract_gpu_image(text,compute_mode,image) if image else None
 
 
 def main():
@@ -100,6 +108,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-image-copy",action="store_true",help="E23 uploaded16x16 image copy; requires compute")
     parser.add_argument("--gpu-image",action="store_true",help="E22: compute-generated16x16 offscreen pixels; requires compute")
     parser.add_argument("--gpu-compute",type=int,choices=(1,2),help="E21: 1=state/control without dispatch; 2=eight-thread compute shader")
     parser.add_argument("--gpu-dynamic-bo",action="store_true",help="E20: allocate/map/bind test BO after GPU startup; requires session")
@@ -108,6 +117,9 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.gpu_image_copy and args.gpu_image:parser.error("Choose image ramp or uploaded image copy")
+    image_kind=2 if args.gpu_image_copy else int(args.gpu_image)
+    args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
         parser.error("--gpu-access-matrix requires prepare-only --gpu-probe 93")
     if args.gpu_measure_clocks and args.gpu_probe!=93:
@@ -176,7 +188,7 @@ def main():
     if args.gpu_compute:
         arguments += f" waffle_compute={args.gpu_compute}"
     if args.gpu_image:
-        arguments += " waffle_image=1"
+        arguments += f" waffle_image={image_kind}"
     payload = out / "payload.xnup"
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
@@ -276,7 +288,7 @@ def main():
             if "waffle-gmu: REBOOT REQUIRED" in final_text:
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
-                image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, args.gpu_image)
+                image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)
             elif args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
                     f"AOP channel{args.gpu_probe} result=0 channel=ffff0000 ack=ffff0000 link=0000ffff linkack=0000ffff",
                     f"AOP channel{args.gpu_probe} cleanup complete")):

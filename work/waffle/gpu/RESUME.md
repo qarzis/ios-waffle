@@ -1,3 +1,29 @@
+# Current: E23 hardware PASS — uploaded image copied by Adreno750
+
+Control93 run20261101T071431Z/auto071407Z PASS. Image2prepare94 run071533Z/
+auto071509Z kept256outputpoison/inputunchanged. Image2dispatch94 run071657Z/
+auto071633Z LDIBinput->STIBoutput exact256pixels/all768sourceRGBbytes, control1,
+all4096wordswrong0/fullstop/runner0/autosuccess/independentAndroid1.
+Artifact diagnostic-gpu-copy-e23; strict source binding/host/XNU/EFI/containerPASS.
+Actual PNG and GPU pixel JSON under runs/20261101T071657Z; result/hashes in
+gpu/forensic-audit/E23-result.json. No active hardware worker; phoneAndroid.
+New exact waffle_image=2 requires compute1/2+dynamic94 fullchain; oldimage1
+ramp payload preserved. Shader fixture waffle-copy256.asm; actualinput fixture
+waffle-input16.ppm. Single2048byteSSBO at3000..3800 within same16KiB allocation;
+outputfirst256words, inputnext256words. Allpower/security/mapper/stop unchanged.
+
+Next blocker: presentation, not shader arithmetic or input fetch. Existing real
+MiniIOMobileFramebufferShow interface at iokit/Kernel/MiniIOMobileFramebuffer.cpp
+1328 copies CPU bytes to vinfo framebuffer; it returns void and does not verify
+writeback or color format. Need scoped presentation test with bounded geometry,
+known color convention and actual framebuffer readback before panel claim.
+GPU memory image is not onscreen/IOSurface/Mesa/iOS acceleration. No production
+userspace submission/fences yet. Preserve E22 a6fd780. RAM-only/no flash/erase;
+returnAndroid + independentADB1 after each test. No need physical Boot iOS.
+GitHub task complete at b4fe8be (E21); no new push requested.
+
+Older chronological notes below are historical and superseded by this entry.
+
 # Current: E22 hardware PASS — first offscreen GPU image
 
 GPU produced a 16×16 RGBA red ramp under XNU on Adreno750. Dispatch run

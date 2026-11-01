@@ -1,0 +1,15 @@
+{
+  "experiment": "E23 uploaded image copy",
+  "base": "a6fd7804ea68a42be95005dc7040f1a4665da555",
+  "gmu_changes_limited_to_compute_selector_and_copy_payload_include": true,
+  "smmu_change_only_accept_image_kind2": true,
+  "all_board_power_clock_aop_boot_security_stop_and_dynamic_mapping_unchanged": true,
+  "old_compute_and_ramp_payloads_unchanged": true,
+  "one_ssbo_bytes": 2048,
+  "output_offset": 12288,
+  "input_offset": 13312,
+  "command_dwords": 184,
+  "register_writes": 73,
+  "protected_conflicts": 0,
+  "hardware_tested": false
+}

@@ -446,7 +446,7 @@ static bool smmu_owner_begin(struct smmu_owner *s)
         log_line("waffle-iommu: compute requires controlled94 dynamic BO session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_image",&s->compute_image,sizeof(s->compute_image)) &&
-        (s->compute_image!=1 || !s->compute_mode || probe!=94 || s->dynamic_bo!=1)) {
+        ((s->compute_image!=1 && s->compute_image!=2) || !s->compute_mode || probe!=94 || s->dynamic_bo!=1)) {
         log_line("waffle-iommu: image requires controlled compute/dynamic session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&

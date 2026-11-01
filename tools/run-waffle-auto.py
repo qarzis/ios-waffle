@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
     parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--image-copy',action='store_true',help='E23 uploaded image read/copy; requires --compute')
     parser.add_argument('--image',action='store_true',help='E22 compute-generated16x16 pixels; requires --compute')
     parser.add_argument('--compute',choices=('prepare','dispatch'),help='E21 bounded shader state/control or dispatch; requires --dynamic-bo')
     parser.add_argument('--dynamic-bo',action='store_true',help='E20: post-bootstrap test BO; requires --session')
@@ -34,6 +35,8 @@ def main():
     parser.add_argument('--fastboot', default=str(ROOT.parent / 'platform-tools/fastboot'))
     parser.add_argument('--adb', default=str(ROOT.parent / 'platform-tools/adb'))
     args = parser.parse_args()
+    if args.image_copy and args.image:parser.error('Choose image ramp or uploaded image copy')
+    args.image=args.image or args.image_copy
     artifact = args.artifact.resolve()
     image = artifact / 'HakiOS-waffle-PJD110-AUTO-RAM.img'
     if args.access_matrix and not args.prepare_gpu:
@@ -78,7 +81,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image, 'image_copy':args.image_copy,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -146,7 +149,7 @@ def main():
             if args.compute:
                 items.append('--compute-'+args.compute)
             if args.image:
-                items.append('--image')
+                items.append('--image-copy' if args.image_copy else '--image')
             result = command(items, timeout=240)
             report['runner_exit'] = result.returncode
             if result.returncode:

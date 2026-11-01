@@ -1,0 +1,15 @@
+{
+  "experiment": "E23 uploaded image prepare without EXEC",
+  "run": "work/waffle/runs/20261101T071533Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T071509Z",
+  "dispatch_sent": false,
+  "all256_output_words_still_poisoned": true,
+  "all256_uploaded_input_words_unchanged": true,
+  "control_fence": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "711ca5cb6e67e78f4be752a3958d17b66b20d1f11d239d73b315c74f0b8aea93"
+}

@@ -215,7 +215,7 @@
     "-Wl,--wrap=fd_bo_size",
     "-Wl,--wrap=fd_submit_new_ringbuffer"
   ],
-  "source_sha256": "0e391eabd0348d85731532a89dffec8d2e6efe15cd0d657d1f6e160e1bf80a62",
-  "binary_sha256": "22d2f2157447947aed50dfad48321c2cbc772bdd202cfce45e738246698eb669",
+  "source_sha256": "eb09a05e13067b82f464f695ab4180561431fd73fe2faaee423e1fd30f2d53e0",
+  "binary_sha256": "472b65e94fb904a4d9e7b5a641369d11c570f8bec7e059f33cdf8e3e2c00a9ac",
   "device_execution": false
 }

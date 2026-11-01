@@ -9,7 +9,7 @@ import struct
 root = Path(__file__).resolve().parents[1]
 
 
-def audit(payload, manifest, enum_header, protect_header, image=False):
+def audit(payload, manifest, enum_header, protect_header, image=False, copy=False):
     assert len(payload) == 16384 and manifest['generation'] == 7
     assert manifest['chip_id'] == '0x43051401' and not manifest['gpu_executed']
     base = int(manifest['gpu_base'], 16)
@@ -28,7 +28,7 @@ def audit(payload, manifest, enum_header, protect_header, image=False):
         ranges.append((lo, lo + size))
     assert records['control']['offset'] == 8192 and records['control']['bytes'] == 4096
     assert records['CL']['offset'] == 4096 and records['CL']['bytes'] == 128
-    output_offset, output_words = (12288,256) if image else (256,8)
+    output_offset, output_words = (12288,512 if copy else 256) if image else (256,8)
     assert records['output']['offset'] == output_offset and records['output']['bytes'] == output_words*4
     assert records['tex_desc']['offset'] == 4352 and records['tex_desc']['bytes'] == 64
     spans = []
@@ -83,7 +83,7 @@ def audit(payload, manifest, enum_header, protect_header, image=False):
     assert cursor == count and exec_offset is not None and loads == [base + 4096, base + 4352]
     descriptor = struct.unpack_from('<16I', payload, 4352)
     assert descriptor[1] == output_words and (descriptor[4] | (descriptor[5] << 32)) == base + output_offset
-    assert struct.unpack_from('<'+str(output_words)+'I', payload, output_offset) == tuple(0xdead0000 + i for i in range(output_words))
+    assert struct.unpack_from('<'+str(256 if copy else output_words)+'I', payload, output_offset) == tuple(0xdead0000 + i for i in range(256 if copy else output_words))
     assert payload[8192:12288] == bytes(4096)
     return {'packets': packets, 'register_writes': [{'index': hex(r), 'value': hex(v)} for r, v in registers],
             'protected_spans_checked': len(spans), 'protected_register_writes': 0,
@@ -99,11 +99,13 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--header', type=Path)
     parser.add_argument('--image',action='store_true')
+    parser.add_argument('--copy',action='store_true',help='512-word image input/output SSBO')
     args = parser.parse_args()
+    if args.copy and not args.image:parser.error('--copy requires --image')
     data = args.payload.read_bytes()
     enums = args.build / 'src/freedreno/registers/adreno/adreno_pm4.xml.h'
     report = audit(data, json.loads(args.manifest.read_text()), enums.read_text(),
-                   (root / 'kernel/files/bsd/sys/waffle_gen7_tables.h').read_text(), args.image)
+                   (root / 'kernel/files/bsd/sys/waffle_gen7_tables.h').read_text(), args.image, args.copy)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     if args.header:
         words = struct.unpack('<4096I', data)
@@ -123,6 +125,8 @@ def main():
         if args.image:
             lines=[line.replace('WAFFLE_GPU_COMPUTE_H','WAFFLE_GPU_IMAGE_H').replace('WAFFLE_COMPUTE','WAFFLE_IMAGE').replace('waffle_compute','waffle_image') for line in lines]
             lines=[line.replace('if(mode==2 && word>=64 && word<72)return word-64;', 'if(mode==2 && word>=3072 && word<3328)return 0xff000000u|(word-3072);') for line in lines]
+        if args.copy:
+            lines=[line.replace('WAFFLE_GPU_IMAGE_H','WAFFLE_GPU_COPY_H').replace('WAFFLE_IMAGE','WAFFLE_COPY').replace('waffle_image','waffle_copy').replace('return 0xff000000u|(word-3072);','return waffle_copy_payload[word+256];') for line in lines]
         args.header.write_text('\n'.join(lines))
     print(json.dumps({'packet_audit': 'passed', 'register_writes': len(report['register_writes']),
                       'protected_conflicts': 0, 'gpu_executed': False}))

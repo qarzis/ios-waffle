@@ -1,0 +1,29 @@
+{
+  "experiment": "E23 uploaded image GPU LDIB/STIB copy",
+  "run": "work/waffle/runs/20261101T071657Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T071633Z",
+  "dimensions": [
+    16,
+    16
+  ],
+  "actual_pixels_verified": 256,
+  "source_file": "tools/tests/fixtures/waffle-input16.ppm",
+  "source_rgb_bytes_compared": 768,
+  "input_unchanged": true,
+  "control_fence": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb_boot_completed": "1",
+  "png_matches_actual_readback": true,
+  "onscreen_tested": false,
+  "ios_acceleration": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T071657Z/kernel-final.log": "63ccd0bc5219cd544f0ecf5870acb35d4fdc18e3f7bd1917a7dfe76b9376571c",
+    "work/waffle/runs/20261101T071657Z/gpu-pixels.json": "354cf49a91f7a7d1ec7bf5062318803b3a7211e0ad59e65abb9581708c0ce8f5",
+    "work/waffle/runs/20261101T071657Z/first-gpu-frame.png": "fef18baab29ca409712227d50a8806e3d6f7c8000e96bc4cdbdd4cc1e95d449d",
+    "tools/tests/fixtures/waffle-input16.ppm": "f08a3cc482aa7449f517b58e088156a6945a8794aad3cabf693ab90410ac7b95"
+  }
+}
