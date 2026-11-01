@@ -15,6 +15,11 @@
 #include <mach-o/dyld.h>
 #include <mach/arm/thread_status.h>
 #include <stdarg.h>
+#ifdef WAFFLE_GL_PRESENT
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOSurface/IOSurfaceRef.h>
+#include <IOKit/IOKitLib.h>
+#endif
 extern int reboot(int);
 #define RB_HALT 8
 /* Direct console writes remain visible without stdio/launchd initialization. */
@@ -44,6 +49,76 @@ static void crash_log(int sig,siginfo_t *info,void *context)
 }
 #define printf direct_log
 static uint32_t pixels[256];
+#ifdef WAFFLE_GL_PRESENT
+/* Same readback bridge used by eagl.c, through the existing display client.
+ * This tests presentation with CPU readback, not direct GPU surface import. */
+static bool present_triangle(void)
+{
+ bool ok=false,locked=false;IOSurfaceRef surface=NULL;io_connect_t display=0;
+ printf("waffle-gl-present: begin CPU_readback=1 IOSurface_import=0\n");
+ CFMutableDictionaryRef props=CFDictionaryCreateMutable(NULL,0,&kCFTypeDictionaryKeyCallBacks,&kCFTypeDictionaryValueCallBacks);
+ if(!props)return false;
+ const CFStringRef keys[]={kIOSurfaceWidth,kIOSurfaceHeight,kIOSurfacePixelFormat,kIOSurfaceBytesPerElement};
+ const int values[]={16,16,0x42475241,4};
+ for(unsigned i=0;i<4;i++){
+  CFNumberRef n=CFNumberCreate(NULL,kCFNumberIntType,&values[i]);
+  if(!n){CFRelease(props);return false;}CFDictionarySetValue(props,keys[i],n);CFRelease(n);
+ }
+ surface=IOSurfaceCreate(props);CFRelease(props);
+ if(!surface){printf("waffle-gl-present: IOSurfaceCreate failed\n");goto done;}
+ size_t row=IOSurfaceGetBytesPerRow(surface),size=IOSurfaceGetAllocSize(surface);
+ uint32_t sid=IOSurfaceGetID(surface);
+ printf("waffle-gl-present: surface=%u width=%zu height=%zu stride=%zu bytes=%zu\n",sid,IOSurfaceGetWidth(surface),IOSurfaceGetHeight(surface),row,size);
+ if(!sid || IOSurfaceGetWidth(surface)!=16 || IOSurfaceGetHeight(surface)!=16 ||
+    IOSurfaceGetPixelFormat(surface)!=0x42475241 || IOSurfaceGetPlaneCount(surface) ||
+    row<64 || row>4096 || (row&3) || size<row*16)goto done;
+ if(IOSurfaceLock(surface,0,NULL)!=KERN_SUCCESS)goto done;
+ locked=true;uint8_t *base=IOSurfaceGetBaseAddress(surface);if(!base)goto done;
+ memset(base,0xa5,row*16);
+ glPixelStorei(GL_PACK_ALIGNMENT,4);
+ for(unsigned y=0;y<16;y++)glReadPixels(0,15-y,16,1,GL_BGRA,GL_UNSIGNED_BYTE,base+y*row);
+ GLenum error=glGetError();unsigned wrong=0,padding=0;
+ for(unsigned y=0;y<16;y++){
+  uint32_t *words=(uint32_t *)(base+y*row);
+  for(unsigned x=0;x<16;x++){
+   uint32_t p=pixels[(15-y)*16+x];
+   uint32_t bgra=(p&0xff00ff00u)|((p&0xffu)<<16)|((p>>16)&0xffu);
+   wrong+=words[x]!=bgra;
+  }
+  for(size_t x=64;x<row;x++)padding+=base[y*row+x]!=0xa5;
+ }
+ printf("waffle-gl-present: checked=256 wrong=%u padding_wrong=%u GL_error=%x top_down=1\n",wrong,padding,error);
+ if(wrong || padding || error)goto done;
+ if(IOSurfaceUnlock(surface,0,NULL)!=KERN_SUCCESS)goto done;
+ locked=false;
+ io_service_t service=IOServiceGetMatchingService(0,IOServiceMatching("IOMobileFramebuffer"));
+ if(!service){printf("waffle-gl-present: display service missing\n");goto done;}
+ kern_return_t kr=IOServiceOpen(service,mach_task_self(),0,&display);IOObjectRelease(service);
+ if(kr){printf("waffle-gl-present: display open error=%x\n",kr);goto done;}
+ uint64_t dimensions[2]={0},swapid=0;uint32_t count=2;
+ kr=IOConnectCallScalarMethod(display,8,NULL,0,dimensions,&count);
+ if(kr || count!=2 || dimensions[0]<256 || dimensions[1]<256 || dimensions[0]>4096 || dimensions[1]>8192)goto done;
+ count=1;kr=IOConnectCallScalarMethod(display,4,NULL,0,&swapid,&count);
+ if(kr || count!=1 || !swapid || swapid>UINT32_MAX)goto done;
+ /* MiniIOMobileFramebuffer.cpp's existing swap packet, not an inferred ABI. */
+ uint32_t swap[0x46c/4]={0};
+ swap[0x50/4]=(uint32_t)swapid;swap[0x54/4]=sid;
+ swap[0x64/4+2]=16;swap[0x64/4+3]=16;swap[0xa4/4]=1;
+ swap[0xc4/4]=(uint32_t)(dimensions[0]-256)/2;swap[0xc4/4+1]=(uint32_t)(dimensions[1]-256)/2;
+ swap[0xc4/4+2]=256;swap[0xc4/4+3]=256;swap[0x104/4]=1;
+ printf("waffle-gl-present: swap=%u surface=%u display=%llux%llu destination=%u,%u,256,256\n",(unsigned)swapid,sid,(unsigned long long)dimensions[0],(unsigned long long)dimensions[1],swap[0xc4/4],swap[0xc4/4+1]);
+ kr=IOConnectCallStructMethod(display,5,swap,sizeof(swap),NULL,NULL);
+ printf("waffle-gl-present: swap_accepted=%u error=%x hold_seconds=5\n",kr==KERN_SUCCESS,kr);
+ if(kr)goto done;
+ sleep(5);ok=true;
+done:
+ if(display)IOServiceClose(display);
+ if(locked)IOSurfaceUnlock(surface,0,NULL);
+ if(surface)CFRelease(surface);
+ printf("waffle-gl-present: result=%u CPU_readback=1\n",ok);
+ return ok;
+}
+#endif
 static GLuint compile(GLenum type,const char *text)
 {
  GLuint s=glCreateShader(type);glShaderSource(s,1,&text,NULL);glCompileShader(s);GLint ok=0;glGetShaderiv(s,GL_COMPILE_STATUS,&ok);
@@ -82,9 +157,12 @@ int main(void)
   uint32_t expected=filled?0xff0040ffu:0xff000000u;
   if(filled)inside++;if(pixels[y*16+x]!=expected)wrong++;
  }
- printf("waffle-gl-user: checked=256 wrong=%u filled=%u GL_error=%x\n",wrong,inside,error);
- for(unsigned i=0;i<256;i+=8)printf("waffle-gl-user: pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,pixels[i],pixels[i+1],pixels[i+2],pixels[i+3],pixels[i+4],pixels[i+5],pixels[i+6],pixels[i+7]);
  ok=!wrong && !error && inside==128;
+#ifdef WAFFLE_GL_PRESENT
+ if(ok)ok=present_triangle();
+#endif
+ printf("waffle-gl-user: checked=256 wrong=%u filled=%u GL_error=%x\n",wrong,inside,error);
+ for(unsigned i=0;i<256;i+=8)printf("waffle-gl-user: pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,pixels[i],pixels[i+1],pixels[i+2],pixels[i+3],pixels[i+4],pixels[i+5],pixels[i+6],pixels[i+7]);
  glDeleteVertexArrays(1,&vao);glDeleteProgram(program);glDeleteShader(vs);glDeleteShader(fs);
 finish:
  if(ctx)OSMesaDestroyContext(ctx);

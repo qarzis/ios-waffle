@@ -1,0 +1,15 @@
+{
+  "run": "work/waffle/runs/20261101T122920Z",
+  "auto": "work/waffle/auto-runs/20261101T122856Z",
+  "GPU_fences": 5,
+  "pixels_checked": 256,
+  "pixels_wrong": 0,
+  "actual_IOSurface": true,
+  "actual_display_worker": true,
+  "CPU_readback": true,
+  "optical_visibility_verified": false,
+  "kernel_unchanged_from_E39": true,
+  "independent_android": "1",
+  "runner_exit": 0,
+  "log_sha256": "c8f60a023a5d3ddd4aeadbbb1ee4c1fb7c857d366adc35d2f5dfa908b7b83a22"
+}
