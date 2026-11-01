@@ -102,3 +102,14 @@ for before in [1024,4051,8145]:
  except RuntimeError:pass
  else:raise AssertionError('Wrong wrapped HFI sequence accepted')
 print('GL fences:10000 monotonic32bit tokens with bounded HFI tags; corrupted former1024/tag-wrap boundaries refused; synthetic fixtures only')
+split=reuse.replace('BO_limit=32','BO_limit=8192').replace('heap_bytes=33554432','heap_bytes=134217728 VA_bytes=268435456')
+split=split.replace(pub2,pub2.replace('VA=100000000','VA=108000000'))
+assert m.validate_gl_log(split)==pixels
+for bad in [split.replace('VA_bytes=268435456','VA_bytes=134217728'),
+            split.replace('VA_bytes=268435456','VA_bytes=536870912'),
+            split.replace('VA_bytes=268435456','VA_bytes=oops'),
+            split.replace('index=2 VA=108000000','index=2 VA=110000000')]:
+ try:m.validate_gl_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Invalid split physical/virtual budget proof accepted')
+print('GL separated budgets:128MiB residency/256MiB virtual placement accepted; wrong/malformed/unqualified VA declaration and out-of-range placements refused; synthetic fixtures only')

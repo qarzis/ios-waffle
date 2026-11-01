@@ -57,7 +57,7 @@ static bool tlb_sync(vm_offset_t cb)
     w32(cb, 0x7f0, 0); /* TLBSYNC */
     return poll(cb, 0x7f4, 1, 0, 10000);
 }
-#define TABLE_LIMIT 128
+#define TABLE_LIMIT 160
 #define PTE_ADDRESS 0x0000fffffffff000ULL
 struct table_pool {
     unsigned count;

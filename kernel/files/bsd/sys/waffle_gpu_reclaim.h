@@ -19,8 +19,8 @@ static inline bool waffle_gpu_registry_reclaim(struct waffle_gpu_registry *r,
  if(!owned || !bo->object || !bo->published || !bo->allocation_bytes ||
     (bo->allocation_bytes&16383) || bo->allocation_bytes>r->used ||
     (bo->gpu_va&16383) || bo->gpu_va<WAFFLE_GPU_BO_VA_BASE ||
-    bo->gpu_va>WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_HEAP_BYTES ||
-    bo->allocation_bytes>WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_HEAP_BYTES-bo->gpu_va ||
+    bo->gpu_va>WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_VA_BYTES ||
+    bo->allocation_bytes>WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_VA_BYTES-bo->gpu_va ||
     !base->idle(base->context))return false;
  uint32_t bytes=bo->allocation_bytes;
  bool readonly=(bo->flags&WAFFLE_GPU_BO_READONLY)!=0;

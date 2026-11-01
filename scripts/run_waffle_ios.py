@@ -162,7 +162,20 @@ def gl_completed_fences(text):
     return max(fences)
 
 
-def validate_gl_bo_lifetimes(text,capacity,budget):
+def gl_va_budget(text,pid,capacity,budget):
+    declaration=re.search(rf"GENERAL open pid={pid} BO_limit={capacity} heap_bytes={budget}([^\n]*)",text)
+    if not declaration:raise RuntimeError("Missing GPU physical/virtual budget declaration")
+    tail=declaration[1]
+    if "VA_bytes" not in tail:return budget # Historical shared budget.
+    value=re.search(r"\bVA_bytes=(\d+)\b",tail)
+    if not value:raise RuntimeError("Malformed GPU VA budget")
+    span=int(value[1])
+    if span!=budget and (budget,span)!=(134217728,268435456):
+        raise RuntimeError("Unqualified GPU virtual/physical budget pair")
+    return span
+
+
+def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     """Track unique publications/revocations across console replay duplicates."""
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"
@@ -171,6 +184,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget):
     if not releases:raise RuntimeError("Missing complete GL backing release")
     release=releases[0]
     if any(m.groups()!=release.groups() for m in releases):raise RuntimeError("Conflicting GL release counts")
+    if va_budget is None:va_budget=budget
     buffers={};active={};seen={};used=0;retired=0;append_end=0x100000000
     for event in re.finditer(f"(?P<publication>{publication})|(?P<reclaim>{reclaim})",text):
         kind='publication' if event.group('publication') else 'reclaim'
@@ -186,7 +200,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget):
             if index!=len(buffers)+1 or index>capacity:raise RuntimeError("Missing GL BO publication")
             if (not 0<logical<=8*1024*1024 or allocated!=((logical+16383)&~16383) or
                 flags not in (0x20000,0x20002) or pages!=allocated//4096 or va&16383 or
-                va<0x100000000 or va+allocated>0x100000000+budget):
+                va<0x100000000 or va+allocated>0x100000000+va_budget):
                 raise RuntimeError("Invalid GL BO range/permission publication")
             if not retired and va!=append_end:raise RuntimeError("Unexpected GL VA reuse without revocation")
             if any(va<a[0]+a[2] and a[0]<va+allocated for a in active.values()):
@@ -244,7 +258,7 @@ def validate_gl_log(text):
             at=text.find(marker,cursor)
             if at<0:raise RuntimeError("GL GPU fence not confirmed: "+marker)
             cursor=at+len(marker)
-    buffers,release_marker=validate_gl_bo_lifetimes(text,capacity,budget)
+    buffers,release_marker=validate_gl_bo_lifetimes(text,capacity,budget,gl_va_budget(text,1,capacity,budget))
     markers=["waffle-gl-user: checked=256 wrong=0 filled=128 GL_error=0",
        release_marker,
        "SMMU_OWNER released after child stop and context detach","CLOCK_OWNER released before CX restore result=1",
@@ -390,7 +404,7 @@ def validate_ui_workload_log(text):
             raise RuntimeError("UI workload GPU ACK missing")
     close=re.search(rf"GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1",text)
     if not close or not 1<=int(close[1])<=capacity:raise RuntimeError("UI workload context teardown missing")
-    buffers,_=validate_gl_bo_lifetimes(text,capacity,budget)
+    buffers,_=validate_gl_bo_lifetimes(text,capacity,budget,gl_va_budget(text,pid,capacity,budget))
     if len(buffers)!=int(close[1]):raise RuntimeError("UI workload backing release count mismatch")
     if not re.search(r"redwood-gl: frame [1-9]\d*: \d+ GL calls, [1-9]\d* draws",text):
         raise RuntimeError("Actual CoreAnimation frame drawing missing")

@@ -37,7 +37,7 @@ static inline bool waffle_gpu_registry_vacant_range(const struct waffle_gpu_regi
 static inline uint64_t waffle_gpu_registry_find_hole(const struct waffle_gpu_registry *r,
  const struct waffle_gpu_registry_ops *ops,uint32_t allocated)
 {
- uint64_t end=WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_HEAP_BYTES-allocated;
+ uint64_t end=WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_VA_BYTES-allocated;
  uint64_t hint=WAFFLE_GPU_BO_VA_BASE+r->used;
  if(hint<=end && waffle_gpu_registry_vacant_range(ops,hint,allocated))return hint;
  for(uint64_t address=WAFFLE_GPU_BO_VA_BASE;address<=end;address+=16384)

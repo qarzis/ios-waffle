@@ -166,6 +166,10 @@ struct eagl {
  GLuint colour;
  GLuint reader;
  GLuint writer;
+#ifdef WAFFLE_GL_BATCH_READBACK
+ uint8_t *readback;
+ size_t readback_bytes;
+#endif
  GLuint program;
  GLuint plain, lookup;
  GLint plain_matrix, plain_textured, lookup_matrix;
@@ -576,6 +580,11 @@ surface_to_texture(struct eagl *e, struct image *image)
 static void
 target_to_surface(struct eagl *e, struct image *image)
 {
+#ifdef WAFFLE_GL_PROFILE_READBACK
+ uint64_t readback_began = now_us();
+ unsigned read_calls = 0;
+ const char *readback_mode = "rows";
+#endif
  IOSurfaceRef surface = image->surface;
  size_t row = IOSurfaceGetBytesPerRow(surface);
  uint8_t *base;
@@ -620,15 +629,59 @@ target_to_surface(struct eagl *e, struct image *image)
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
   if (!image->invert) {
    glReadPixels(0, 0, image->width, image->height, GL_BGRA, GL_UNSIGNED_BYTE, base);
+#ifdef WAFFLE_GL_PROFILE_READBACK
+   read_calls++;
+#endif
   } else {
+#ifdef WAFFLE_GL_BATCH_READBACK
+   bool batched = false;
+   if (image->width > 0 && image->height > 0 &&
+       (size_t)image->width <= SIZE_MAX / 4 &&
+       (size_t)image->height <= SIZE_MAX / ((size_t)image->width * 4)) {
+    size_t packed_row = (size_t)image->width * 4;
+    size_t bytes = packed_row * (size_t)image->height;
+    /* Bounded CPU scratch storage, independent of GPU BO residency. Keep
+     * the existing row path when scratch allocation cannot be satisfied. */
+    if (packed_row <= row && bytes <= 8u * 1024u * 1024u) {
+     if (e->readback_bytes < bytes) {
+      void *memory = realloc(e->readback, bytes);
+      if (memory != NULL) {
+       e->readback = memory;
+       e->readback_bytes = bytes;
+      }
+     }
+     if (e->readback_bytes >= bytes) {
+      glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+      glReadPixels(0, 0, image->width, image->height, GL_BGRA, GL_UNSIGNED_BYTE, e->readback);
+      for (GLsizei y = 0; y < image->height; y++) {
+       memcpy(base + row * (size_t)(image->height - 1 - y),
+           e->readback + packed_row * (size_t)y, packed_row);
+      }
+      batched = true;
+#ifdef WAFFLE_GL_PROFILE_READBACK
+      read_calls++;
+      readback_mode = "batch";
+#endif
+     }
+    }
+   }
+   if (!batched)
+#endif
    for (GLsizei y = 0; y < image->height; y++) {
     glReadPixels(0, y, image->width, 1, GL_BGRA, GL_UNSIGNED_BYTE, base + row * (size_t)(image->height - 1 - y));
+#ifdef WAFFLE_GL_PROFILE_READBACK
+    read_calls++;
+#endif
    }
   }
   glPixelStorei(GL_PACK_ROW_LENGTH, 0);
   IOSurfaceUnlock(surface, 0, NULL);
  }
  glBindFramebuffer(GL_FRAMEBUFFER, e->framebuffer);
+#ifdef WAFFLE_GL_PROFILE_READBACK
+ say("waffle-gl-readback: pid=%d mode=%s width=%d height=%d row=%zu reads=%u elapsed_us=%llu\n",
+     getpid(), readback_mode, image->width, image->height, row, read_calls, now_us() - readback_began);
+#endif
 }
 #define GL_TEXTURE_WIDTH 0x1000
 #define GL_TEXTURE_HEIGHT 0x1001
@@ -3231,6 +3284,9 @@ my_dealloc(id self, SEL selector)
    current = NULL;
   }
   redwood_gl_destroy(e->gl);
+#ifdef WAFFLE_GL_BATCH_READBACK
+  free(e->readback);
+#endif
   free(e);
  }
  ((void (*)(struct objc_super *, SEL))objc_msgSendSuper)(&super, selector);

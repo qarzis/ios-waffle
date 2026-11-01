@@ -1,13 +1,13 @@
 # OnePlus 12 GPU progress
 
 Adreno 750 runs actual CoreAnimation/backboardd composition through Darwin Mesa.
-The latest RAM-only test ran for **240 seconds**, completing **16,351 GPU
-submissions**, four HFI tag wraps, and a clean GPU shutdown. Desktop and Sileo
-screens were captured while the GPU compositor was active.
+The latest RAM-only UI test ran for **240 seconds**, completing **17,525 GPU
+submissions** and a clean GPU shutdown. Earlier captures show desktop and Sileo
+while the GPU compositor was active.
 
 This remains a bounded test. Indefinite operation, FPS, and Metal are not qualified.
-Some widgets have rendering defects, and large allocations can encounter virtual
-address fragmentation. The normal image still selects softpipe unless the isolated
+Some widgets have rendering defects. VA fragmentation and descriptor lifetime
+remain under investigation. The normal image still selects softpipe unless the isolated
 GPU test is enabled.
 
 | Verified test | Result | Evidence |
@@ -25,12 +25,22 @@ GPU test is enabled.
 | E55: BO reclamation | CPU mapping revoke, owned PTE removal, both ASIDs synchronized before release; actual GPU VA reuse and 256 reference pixels pass | [Control](../work/waffle/gpu/forensic-audit/E55-control-result.json) |
 | E57: UI compositor | Desktop captured during GPU composition; planned 60-second stop and complete GPU cleanup | [Report](../work/waffle/gpu/forensic-audit/E57-result.json) |
 | E58: sustained UI | 240 seconds, all 16,351 completion tokens verified; 2,682 early BO releases plus 1,697 at shutdown | [Report](../work/waffle/gpu/forensic-audit/E58-result.json), [GPU event journal](../work/waffle/runs/20261101T210014Z/ui-gpu-events.log) |
+| E59: separate VA budget | 256 MiB virtual placement, unchanged 128 MiB physical budget; small GL control and 240-second UI test pass component checks | [Report](../work/waffle/gpu/forensic-audit/E59-result.json) |
+| E61: inverted readback A/B | Same 750 × 1624 scene, all 1,218,000 pixels correct; readback 68,126 → 5,408 µs, 1,624 → 1 GL reads | [Comparison](../work/waffle/gpu/forensic-audit/E61-comparison.json) |
+| E61: UI with qualified readback hook | 240 seconds, 17,525 GPU completions, clean stop; backboardd used the existing one-read path, so no UI FPS gain is established | [Report](../work/waffle/gpu/forensic-audit/E61-UI-result.json) |
+
+The readback timing is one controlled frame per policy, not an FPS benchmark.
+E61 also logged GEM_NEW EINVAL without enough request details to establish why;
+no allocation-budget or submission failure was logged. Original outer runner
+failures due to lost rolling-console startup evidence remain recorded.
 
 ## Current implementation
 
 One owning backboardd process uses synchronous GPU submissions. Large requests
 are partitioned in order into complete-root windows. The physical BO budget is
 128 MiB, the per-BO bound is 8 MiB, and 8,192 descriptor records are available.
+Virtual placement spans 256 MiB;
+physical residency remains limited to 128 MiB.
 Closed BOs are revoked before release. GPU fences remain monotonic; serialized
 HFI tags cycle independently of them. The former 1,024-submission diagnostic cap
 has been removed and crossed on hardware.
@@ -41,8 +51,9 @@ softpipe. A composite UI capture is not a pixel-reference test of every app.
 
 ## Remaining work
 
-- Separate GPU VA placement from the resident physical budget: E58 proves
-  fragmentation can reject 3 MiB with 16 MiB free. Work continued after these refusals.
+- Qualify GPU access beyond the old 128 MiB VA boundary. E59 separates VA from
+  physical residency and passes the measured fragmentation host model, but its
+  hardware workload did not allocate above that boundary.
 - Reuse descriptor records with stale-handle protection before indefinite sessions.
 - Remove diagnostic process/loader timers only after persistent-mode validation.
 - Measure and improve readback, submission and logging costs; no measured FPS claim yet.
