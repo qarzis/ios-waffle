@@ -46,7 +46,7 @@ static inline int waffle_number(const char *word, size_t size, const char *key,
 
 static inline int waffle_cmdline_allowed(const char *line)
 {
-    unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,present=0,dispatch=0,gpu_count=0;
+    unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
     while (*line) {
         while (*line == ' ') line++;
@@ -63,8 +63,9 @@ static inline int waffle_cmdline_allowed(const char *line)
         session+=waffle_token_equal(line,size,"waffle_session=1");
         dynamic_bo+=waffle_token_equal(line,size,"waffle_dynamic_bo=1");
         compute+=waffle_token_equal(line,size,"waffle_compute=1") || waffle_token_equal(line,size,"waffle_compute=2");
-        image+=waffle_token_equal(line,size,"waffle_image=1") || waffle_token_equal(line,size,"waffle_image=2") || waffle_token_equal(line,size,"waffle_image=3");
+        image+=waffle_token_equal(line,size,"waffle_image=1") || waffle_token_equal(line,size,"waffle_image=2") || waffle_token_equal(line,size,"waffle_image=3") || waffle_token_equal(line,size,"waffle_image=4");
         present+=waffle_token_equal(line,size,"waffle_image=3");
+        repeated+=waffle_token_equal(line,size,"waffle_image=4");
         dispatch+=waffle_token_equal(line,size,"waffle_compute=2");
         gpu_count+=waffle_number(line,size,"waffle_gpu=",1,94);
         prepare93|=waffle_number(line,size,"waffle_gpu=",93,93);
@@ -86,6 +87,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         (!session || (session==1 && ib==1 && writeback==1 && zap==1 && lpac==1 && gpu_count==1 && native94)) &&
         (!dynamic_bo || (dynamic_bo==1 && session==1 && gpu_count==1 && native94)) &&
         (!compute || (compute==1 && dynamic_bo==1 && session==1 && gpu_count==1 && native94)) &&
+        (!repeated || (repeated==1 && dispatch==1)) &&
         (!present || (present==1 && dispatch==1)) &&
         (!image || (image==1 && compute==1 && dynamic_bo==1 && session==1 && gpu_count==1 && native94));
 }
@@ -126,7 +128,7 @@ static inline int waffle_gpu_token_allowed(const char *word, size_t size)
         waffle_token_equal(word,size,"waffle_session=1") ||
         waffle_token_equal(word,size,"waffle_dynamic_bo=1") ||
         waffle_token_equal(word,size,"waffle_compute=1") || waffle_token_equal(word,size,"waffle_compute=2") ||
-        (waffle_token_equal(word,size,"waffle_image=1") || waffle_token_equal(word,size,"waffle_image=2") || waffle_token_equal(word,size,"waffle_image=3"));
+        (waffle_token_equal(word,size,"waffle_image=1") || waffle_token_equal(word,size,"waffle_image=2") || waffle_token_equal(word,size,"waffle_image=3") || waffle_token_equal(word,size,"waffle_image=4"));
 #else
     (void)word; (void)size;
     return 0;

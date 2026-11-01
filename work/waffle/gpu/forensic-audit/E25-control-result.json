@@ -1,0 +1,11 @@
+{
+  "experiment": "E25 default93 control",
+  "run": "work/waffle/runs/20261101T073826Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T073803Z",
+  "access_checks": 27,
+  "allocations": 8,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "c73508634a5af4975dc89830bebab6686310fa5b20b3b81da160e7d96c3e0ec7"
+}

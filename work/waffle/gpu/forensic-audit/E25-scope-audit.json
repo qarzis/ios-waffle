@@ -1,0 +1,41 @@
+{
+  "experiment": "E25 reusable blocking kernel copy jobs",
+  "base": "3b6afb559a0ed518b74f145e55ff6897139cd8ac",
+  "unchanged_files": [
+    "kernel/files/bsd/dev/waffle_adreno.c",
+    "kernel/files/bsd/sys/waffle_aop.h",
+    "kernel/files/bsd/sys/waffle_gen7_boot.h",
+    "kernel/files/bsd/sys/waffle_gpu_compute.h",
+    "kernel/files/bsd/sys/waffle_gpu_image.h",
+    "kernel/files/bsd/sys/waffle_gpu_copy.h",
+    "kernel/files/bsd/sys/waffle_gpu_present.h",
+    "loader/loader.c",
+    "kernel/files/iokit/Kernel/MacanGPU.cpp"
+  ],
+  "gmu_boot_power_security_tcm_and_stop_unchanged": true,
+  "smmu_dynamic_mapping_teardown_unchanged": true,
+  "shader_descriptor_and_16kib_bo_layout_unchanged": true,
+  "command_patch_word_offsets": [
+    430,
+    435
+  ],
+  "patch_semantics": [
+    "existing CP_EVENT_WRITE7 data",
+    "existing CP_WAIT_REG_MEM reference"
+  ],
+  "no_new_register_writes": true,
+  "fixed_input_output_words": 256,
+  "blocking_serialized_kernel_only": true,
+  "gpu_written_fences": [
+    1,
+    2,
+    3
+  ],
+  "expected_ib_sequences": [
+    44,
+    45,
+    46
+  ],
+  "expected_stop_sequence": 47,
+  "hardware_tested": false
+}

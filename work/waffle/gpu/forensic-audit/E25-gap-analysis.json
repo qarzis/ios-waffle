@@ -1,0 +1,25 @@
+{
+  "experiment": "E25 architecture gap audit",
+  "verified_base": "3b6afb559a0ed518b74f145e55ff6897139cd8ac",
+  "components": {
+    "hardware_boot_power_firmware_smmu": "implemented and hardware-verified diagnostic path",
+    "dynamic_bo": "one owned post-bootstrap16KiB BO verified; arbitrary user BO mapping absent",
+    "compute_submission": "single fixed shader dispatch only; function refuses existing submitted/completed or sequence !=44",
+    "repeated_compute": "not verified; E12 multiIB only CP_MEM_WRITE, not shaders",
+    "completion": "single compute controlword1; per-job GPU-written token absent",
+    "iosurface_iokit": "existing MacanGPU.cpp UserClient/BO/submit/wait ABI, wired to redwood_gpu_* A6xx/A829 backend only",
+    "waffle_userspace_bridge": "absent; waffle_init returns toloader beforepersistentservice",
+    "ios_gpu_composition": "absent; framebufferpresentation CPUonly"
+  },
+  "first_current_blocker": "no reusable caller-supplied compute-copy job / per-job GPU completion / repeated shader jobs in same owned session",
+  "hypotheses": [
+    {
+      "id": "E25-H1",
+      "claim": "same live owned session can execute3 caller-suppliedcopyjobs with distinctGPUwrittenfences and actualreadback",
+      "evidence": "E23 shader LDIB/STIB works once; E12 session/HFI supports3 IBs; sameMesaeventwrite+wait contains known immediate1",
+      "test": "new kernel-only blocking copyjob(input256/output256/fence), snapshot callerinput, patch only existingEVENT_WRITE/WAIT reference immediates to1/2/3, submit44/45/46, verify4096words each/output256 distinct; stop47",
+      "expected": "actualGPUfences1/2/3 and3independent copied outputs/fullstop/Android1",
+      "not_proven": "asyncproductionfences/IOKit/Mesa/iOS acceleration"
+    }
+  ]
+}

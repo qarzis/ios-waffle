@@ -1,3 +1,65 @@
+# Current: E25 hardware PASS — reusable kernel copy-job API, 3 shaders/session
+
+Safe E24visible checkpoint3b6afb5 preserved. E25 new blocking kernel-only
+waffle_gmu_owner_copy(owner,job) passed realhardware run20261101T074105Z/
+auto074041Z. Three caller-owned input/output256pixel jobs, distinctpatterns;
+GPU-writtenfences1/2/3, HFI44/45/46, noGPUrestart. Each256pixelscorrect,
+all4096BOwordswrong0 perjob (12288checks), kernelcaller256checkswrong0each.
+Stop47/fullGMU/SMMU/PLL/clock/CX/AOPshutdown/runner0/autosuccess/independent
+ADBAndroid1. Noactivehardwareworker. PhoneordinaryAndroid.
+
+Artifact diagnostic-gpu-copy-jobs-e25 fullhost/XNU/EFI/container/sourcebinding
+PASS. Control93 run073826Z/auto073803Z andoldimage2copy run073940Z/auto073916Z
+passed. Newimage4requirescompute2; 3callerrequests throughAPI. Actualall768
+pixels stored runs/20261101T074105Z/gpu-copy-jobs.json and3gpu-copy-job-N.png;
+mainPNG/oldgpu-pixels.json refer actualthirdjob. E25-result.json hashes/evidence.
+Samefixedshader/16KiBBO; onlyEVENT_WRITE/WAIT refword430/435 patchedtoGPU
+fence. API snapshotscallerinput, poisonoutput/control0, all4096readback and
+returnoutput/fenceonlyaftersuccess. Invalidrequest leavesREADY/fence0;
+uncertainpublishedjob poisons/retains. Caller mustserialize andretainparent.
+This is fixed256pixelblockingkernelcopy, notarbitraryPM4/userpointers, async
+userspacefences, IOKit/Mesa/IOSurface integration or iOS GPU acceleration.
+
+Nextblocker: parent-owned persistentGPUservice and BO/submit/completion
+connection to existing graphicsABI. ExistingMacanGPU.cpp UserClient boundto
+redwood_gpu_* otherbackends; Waffle still diagnosticreturnloader, nofake
+readyflag. Do notregisterunusableaccelerator or reuseotherGPUregister/API
+semantics blindly. E25-gap-analysis.json andscopeaudit preserved. Allboot/
+power/security/mapper/stop unchanged; no ownership-onlyloops needed.
+RAM-only/no flash/erase; independentAndroid1 aftereachtest. AutoUEFI no
+physical Boot iOS choice needed. GitHub b4fe8be publication complete(E21);
+no new push requested. Save E25 archive+verifiedrefs usingexplicitpaths only.
+
+Older chronology below is superseded by latest entry.
+
+# Active: E25 reusable blocking kernel copy jobs, hardware qualification pending
+
+Safe E24 checkpoint3b6afb5 preserved (visibleGPUoutput/Android1). E25artifact
+diagnostic-gpu-copy-jobs-e25 fullhost/XNU/EFI/container/sourcebindingPASS.
+New kernel-only structwaffle_gpu_copy_job + waffle_gmu_owner_copy: serialized
+callerinput/output256words, snapshotinput, samefixedshader/BO, perjobGPUfence.
+OnlyMesaEVENT_WRITE/WAIT referenceimmediates atpayloadword430/435 patched
+tocurrentfence. Poisonoutput/control0beforeeachpublish, verifyall4096words,
+returncalleroutput/fenceonlyaftersuccess. Invalidrequest leavesREADY/fence0,
+uncertainpublishedjob poisons/retains. Newexactimage4requirescompute2; calls
+newAPI3timeswithdistinctRGBmasks, expectsGPUfences1/2/3, IB44/45/46, stop47.
+No IOKit/Mesa/iOS integration or asynchronous production fence claim.
+Allboot/power/security/mapper/stop and shader/payloadheaders unchanged.
+
+93control run20261101T073826Z/auto073803Z PASS access27/alloc8/query42/
+fullstop/runner0/independentAndroid1. Currentautomaticworker exec66681 is
+oldimage2copycontrol, log auto-copy-jobs-e25-copy-control.log. AfterPASS and
+independentADB1 preserve94copyreport before new --copy-jobs replaces it.
+Then one --fullchain --compute dispatch --copy-jobs withsameartifact.
+Strictparser validates all3groups/768actualGPUwords, uniqueGPUcontroltokens
+andcallerreadbacks; finalPNGfromactualthirdjob only. No presentation.
+Preservepartialfailure/report; do notrerunfailedhypothesis withoutnewfacts.
+GPU_DEBUG_LOG recordsaudit+E25-H1; E25-gap-analysis.json andscopeaudit.
+RAM-only/no flash/erase; returnAndroid+independentADB1 aftereach. AutoUEFI
+requiresno physical Boot iOS. E25source uncommittedpendinghardware.
+
+Older chronology below is superseded by latest result above.
+
 # Current: E24 PASS — GPU output visibly presented on phone
 
 User confirmed «да появился» during explicit repeat run20261101T072750Z /

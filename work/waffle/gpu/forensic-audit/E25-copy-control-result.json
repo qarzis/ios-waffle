@@ -1,0 +1,14 @@
+{
+  "experiment": "E25 legacy image2 copy control",
+  "run": "work/waffle/runs/20261101T073940Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T073916Z",
+  "actual_pixels_verified": 256,
+  "gpu_control": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "a716f1534351eb3d57a1a046186fdb37ff4e1a3c1273ca34997d3da2ea86ad40"
+}
