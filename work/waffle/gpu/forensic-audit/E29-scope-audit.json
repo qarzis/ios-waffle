@@ -1,0 +1,30 @@
+{
+  "experiment": "E29 Mesa GLSL compiler shader",
+  "base": "e6a09e2ad211286335d268d30439cf5068cf0ff0",
+  "unchanged_files": [
+    "kernel/files/bsd/dev/waffle_gpu_service.c",
+    "kernel/files/bsd/dev/waffle_gpu_user.c",
+    "userland/src/waffle_gpu_probe.c",
+    "kernel/files/bsd/sys/waffle_gpu_user.h",
+    "kernel/files/bsd/sys/waffle_gpu_copy.h",
+    "kernel/files/bsd/sys/waffle_gpu_job.h",
+    "kernel/files/bsd/sys/waffle_aop.h",
+    "kernel/files/bsd/sys/waffle_gen7_boot.h",
+    "loader/loader.c"
+  ],
+  "low_level_boot_power_security_mapper_native_stop_unchanged": true,
+  "new_shader_source": "tools/tests/fixtures/waffle-glsl-copy.comp",
+  "compiler_path": "GLSL450 -> MesaGLSL/link -> NIR -> GalliumSSBOlowering -> actualFD750IR3",
+  "no_mesa_source_edits": true,
+  "compiler_initial_setup_and_disasm_failures_preserved": true,
+  "shader_binary_bytes": 128,
+  "command_words": 191,
+  "register_writes": 76,
+  "protected_conflicts": 0,
+  "bindless_register_setup_source": "Mesa a6xx/fd6_image.cc compute path",
+  "prepare_image_kind": 9,
+  "dispatch_image_kind": 8,
+  "fixed_command_data_bos_unchanged_from_e28": true,
+  "real_user_program_unchanged": true,
+  "gpu_execution_tested": false
+}

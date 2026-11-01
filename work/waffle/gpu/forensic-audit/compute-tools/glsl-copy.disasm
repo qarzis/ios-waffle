@@ -1,0 +1,33 @@
+Native code for unnamed CL shader (null) with blake3 21eca3504ae34de3cd1f8a3c4710dac3e26e4ff157e6669bb3536c981a3f38e6:
+; num_ubos:           0
+; num_driver_params:  0
+; offsets:
+; ubo_state:
+;   num_enabled:      0
+@in(r0.x)	in0 (wrmask=0x7)
+shps #l4
+getone #l4
+resinfo.b.untyped.1d.u32.1.imm.base0 r63.x, 0
+(sy)(ss)shpe
+l4:
+(jp)(nop3) add.u r0.w, 256, r0.x
+(rpt1)nop
+ldib.b.untyped.1d.u32.1.imm.base0 r1.x, r0.w, 0
+(sy)stib.b.untyped.1d.u32.1.imm.base0 r1.x, r0.x, 0
+end
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+; CL: outputs:
+; CL: inputs: r0.x (SYSTEM_VALUE_LOCAL_INVOCATION_ID slot=42 cm=7,il=0,b=0)
+; CL prog 1/1: 9 instr, 5 nops, 4 non-nops, 0 mov, 0 cov, 32 dwords
+; CL prog 1/1: 0 last-baryf, 0 last-helper, 0 half, 2 full, 0 constlen
+; CL prog 1/1: 6 cat0, 0 cat1, 1 cat2, 0 cat3, 0 cat4, 0 cat5, 2 cat6, 0 cat7
+; CL prog 1/1: 0 sstall, 0 (ss), 86 systall, 1 (sy), 0 loops
+; CL prog 1/1: 16 max_waves, 1 double_threadsize
+; 4 preamble-instr, 1 early-preamble
+

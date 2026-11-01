@@ -1,0 +1,1 @@
+waffle-glsl-compile: ../../../../xnu-deps/build/mesa/mesa-26.3.0-rc1/src/compiler/glsl/gl_nir_linker.c:1431: prelink_lowering: Assertion `consts->GLSLTessLevelsAsInputs || !options->compact_arrays || !exts->ARB_tessellation_shader' failed.

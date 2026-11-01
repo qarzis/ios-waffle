@@ -1566,10 +1566,11 @@ failed:
     return NULL;
 }
 static bool owner_copy_sequence(struct waffle_gmu_owner *);
+static bool owner_glsl_prepare(struct waffle_gmu_owner *);
 bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *owner)
 {
     if(!owner || !owner->plan->submit_session)return false;
-    owner->exercise_ok=owner->plan->compute_image==4?owner_copy_sequence(owner):submit_session_run(owner->plan);
+    owner->exercise_ok=owner->plan->compute_image==9?owner_glsl_prepare(owner):owner->plan->compute_image==4?owner_copy_sequence(owner):submit_session_run(owner->plan);
     return owner->exercise_ok;
 }
 bool waffle_gmu_owner_end(struct waffle_gmu_owner *owner)
@@ -1981,6 +1982,10 @@ static bool submit_session_compute_job(struct waffle_submit_session *s,unsigned 
         (job?(mode!=2 || image!=2 || s->submitted!=s->completed || s->next_sequence!=44+s->submitted || s->submitted>=1024):(s->submitted || s->completed || s->next_sequence!=44)) ||
         s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024 ||
         rd(s->gpu,0xf400*4) || (rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3))return false;
+    bool glsl=job && (s->plan->compute_image==8 || s->plan->compute_image==9);
+    bool prepare=glsl && s->plan->compute_image==9;
+    unsigned command_words=glsl?WAFFLE_GLSL_WORDS:WAFFLE_COMPUTE_WORDS;
+    if(glsl && !s->data_alias)return false;
     uint32_t input[256];
     unsigned fence=s->submitted+1,sequence=s->next_sequence;
     if(job){
@@ -2003,24 +2008,25 @@ static bool submit_session_compute_job(struct waffle_submit_session *s,unsigned 
         for(unsigned i=0;i<4096;i++)if(data[i]!=waffle_data_word(input,i,false))return false;
     }
     volatile uint32_t *out=(volatile uint32_t *)s->alias;
-    for(unsigned i=0;i<4096;i++)out[i]=separate?waffle_data_command_word(input,fence,i,s->data_va,false):job?waffle_job_word(input,fence,i,false):initial(mode,i);
+    for(unsigned i=0;i<4096;i++)out[i]=glsl?waffle_glsl_command_word(fence,i,s->data_va,false,prepare):separate?waffle_data_command_word(input,fence,i,s->data_va,false):job?waffle_job_word(input,fence,i,false):initial(mode,i);
     __asm__ volatile("dsb sy":::"memory");
-    for(unsigned i=0;i<4096;i++)if(out[i]!=(separate?waffle_data_command_word(input,fence,i,s->data_va,false):job?waffle_job_word(input,fence,i,false):initial(mode,i)))return false;
+    for(unsigned i=0;i<4096;i++)if(out[i]!=(glsl?waffle_glsl_command_word(fence,i,s->data_va,false,prepare):separate?waffle_data_command_word(input,fence,i,s->data_va,false):job?waffle_job_word(input,fence,i,false):initial(mode,i)))return false;
+    if(glsl)say("waffle-gmu: GLSL_JOB mode=%s command_words=191 bindless=1 source=GLSL450\n",prepare?"prepare":"dispatch");
     if(job)say("waffle-gmu: COPY_JOB begin fence=%u seq=%u pixels=256\n",fence,sequence);
     if(image>=2)say("waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256\n");
     if(image)say("waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=%u\n",mode==2);
-    say("waffle-gmu: COMPUTE begin mode=%u dispatch=%u words=%u output_poison=1\n",mode,mode==2,WAFFLE_COMPUTE_WORDS);
-    if(!submit_session_exchange(s,WAFFLE_COMPUTE_WORDS,"COMPUTE_IB"))return false;
+    say("waffle-gmu: COMPUTE begin mode=%u dispatch=%u words=%u output_poison=1\n",prepare?1:mode,mode==2 && !prepare,command_words);
+    if(!submit_session_exchange(s,command_words,"COMPUTE_IB"))return false;
     for(unsigned attempt=0;attempt<2000;attempt++) {
         __asm__ volatile("dsb sy":::"memory");
         bool seen=out[2048]==(job?fence:1);
-        if(mode==2)for(unsigned i=0;i<pixels;i++)if((separate?data[i]:out[first+i])!=(job?input[i]:expected(mode,first+i)))seen=false;
+        if(mode==2 && !prepare)for(unsigned i=0;i<pixels;i++)if((separate?data[i]:out[first+i])!=(job?input[i]:expected(mode,first+i)))seen=false;
         if(seen)break;
         delay_for_interval(100,NSEC_PER_USEC);
     }
     unsigned wrong=0;
-    for(unsigned i=0;i<4096;i++)if(out[i]!=(separate?waffle_data_command_word(input,fence,i,s->data_va,true):job?waffle_job_word(input,fence,i,true):expected(mode,i))) {
-        if(!wrong)say("waffle-gmu: COMPUTE mismatch mode=%u index=%u got=%08x expected=%08x\n",mode,i,out[i],separate?waffle_data_command_word(input,fence,i,s->data_va,true):job?waffle_job_word(input,fence,i,true):expected(mode,i));
+    for(unsigned i=0;i<4096;i++)if(out[i]!=(glsl?waffle_glsl_command_word(fence,i,s->data_va,true,prepare):separate?waffle_data_command_word(input,fence,i,s->data_va,true):job?waffle_job_word(input,fence,i,true):expected(mode,i))) {
+        if(!wrong)say("waffle-gmu: COMPUTE mismatch mode=%u index=%u got=%08x expected=%08x\n",mode,i,out[i],glsl?waffle_glsl_command_word(fence,i,s->data_va,true,prepare):separate?waffle_data_command_word(input,fence,i,s->data_va,true):job?waffle_job_word(input,fence,i,true):expected(mode,i));
         ++wrong;
     }
     say("waffle-gmu: COMPUTE values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x control=%08x checked=4096 wrong_words=%u mode=%u\n",
@@ -2030,8 +2036,8 @@ static bool submit_session_compute_job(struct waffle_submit_session *s,unsigned 
             out[first+i],out[first+i+1],out[first+i+2],out[first+i+3],out[first+i+4],out[first+i+5],out[first+i+6],out[first+i+7]);
     if(separate){
         unsigned data_wrong=0;
-        for(unsigned i=0;i<4096;i++)if(data[i]!=waffle_data_word(input,i,true)){
-            if(!data_wrong)say("waffle-gmu: DATA_BO mismatch fence=%u word=%u got=%08x expected=%08x\n",fence,i,data[i],waffle_data_word(input,i,true));
+        for(unsigned i=0;i<4096;i++)if(data[i]!=waffle_data_word(input,i,!prepare)){
+            if(!data_wrong)say("waffle-gmu: DATA_BO mismatch fence=%u word=%u got=%08x expected=%08x\n",fence,i,data[i],waffle_data_word(input,i,!prepare));
             ++data_wrong;
         }
         say("waffle-gmu: DATA_BO checked=4096 wrong_words=%u fence=%u independent=1\n",data_wrong,fence);
@@ -2171,4 +2177,18 @@ static bool owner_copy_sequence(struct waffle_gmu_owner *owner)
     owner->plan->session_slumber_sequence=s->next_sequence;
     say("waffle-gmu: SESSION result=1 submitted=%u completed=%u next_sequence=%u OOB=1; bounded kernel session\n",s->submitted,s->completed,s->next_sequence);
     return s->submitted==3 && s->completed==3 && s->next_sequence==47;
+}
+
+static bool owner_glsl_prepare(struct waffle_gmu_owner *owner)
+{
+    uint32_t input[256],output[256];
+    for(unsigned i=0;i<256;i++)input[i]=waffle_job_test_pixel(1,i);
+    struct waffle_gpu_copy_job job={input,output,256,0};
+    if(!waffle_gmu_owner_copy(owner,&job) || job.fence!=1)return false;
+    unsigned wrong=0;for(unsigned i=0;i<256;i++)if(output[i]!=0xdead0000u+i)++wrong;
+    say("waffle-gmu: GLSL_PREPARE output_poison=256 wrong=%u dispatch=0\n",wrong);
+    struct waffle_submit_session *s=owner->plan->submit_session;
+    owner->plan->session_slumber_sequence=s->next_sequence;
+    say("waffle-gmu: SESSION result=1 submitted=%u completed=%u next_sequence=%u OOB=1; bounded kernel session\n",s->submitted,s->completed,s->next_sequence);
+    return !wrong;
 }

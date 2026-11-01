@@ -1,0 +1,39 @@
+{
+  "phase": "E29compiler provenance; runtime qualified separately in E29-result.json",
+  "hardware_tested": false,
+  "compiler_metadata": {
+    "source": "GLSL450 -> Mesa linkedNIR -> FD750 IR3",
+    "chip_id": "0x43051401",
+    "binary_bytes": 128,
+    "constlen": 0,
+    "private_bytes": 0,
+    "shared_bytes": 0,
+    "local_size": [
+      256,
+      1,
+      1
+    ],
+    "device_opened": false,
+    "gpu_executed": false
+  },
+  "command_audit": {
+    "words": 191,
+    "protected_conflicts": 0,
+    "register_writes": 76
+  },
+  "source_sha256": {
+    "tools/waffle-glsl-compile.cc": "587410839cac71af6c5785fdb621a1a3794f90ae254acaa7863cf5ef53c590b0",
+    "tools/build-waffle-glsl-tools.py": "29c7062c24e7cca55c88489a4dd5370d6ebf715283282c66c4b90dc0a8a6000f",
+    "tools/waffle-compute-export.cc": "4b927f211250cf17cfa2fe6df03a71b9c946171d3e2bf6225ac88d04828b2986",
+    "tools/tests/fixtures/waffle-glsl-copy.comp": "8b1f577f2481f6574988b14c4cdeba15580d80758a18a0eea97498f56ab35ba2",
+    "kernel/files/bsd/sys/waffle_gpu_glsl.h": "ad084d0b86e51e51f401f9861d2d171ea32a5742c37ff9785c6ca6e556634c7a"
+  },
+  "binary_sha256": "ebf721106f2b40936f25b9cbffd44b82cbd239572d0e25a4efa1f3f06afe27a3",
+  "pinned_mesa_sources": {
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/gallium/drivers/freedreno/a6xx/fd6_image.cc": "30eb103d5cac5d6c95387a45b7260bafa221d7280f1a19b60b27bf3c338fad88",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/gallium/drivers/freedreno/ir3/ir3_descriptor.c": "838dc1dcce0d11b159ec04d332b57260ac9cb4eda5e847bbec7dc36440694c48",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/computerator/a6xx.cc": "976df8534a104a95d2b635fc238a2c353ff5d7102d1f1c48c6a30f9628573d05",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/ir3/ir3_shader.c": "90837d06e484505ebeb94ba9cc7d9130d6baa217e15fbe5cfc92658843630799",
+    "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/mesa/state_tracker/st_extensions.c": "089d8c09d3e4968ae1c24eeba57cef2477511c8cd22d5a51e9551da32282196f"
+  }
+}

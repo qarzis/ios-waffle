@@ -1,3 +1,70 @@
+# Current E29 hardware PASS — GLSL -> Mesa NIR -> FD750 -> GPU -> user
+
+Userauthorizedautonomousworkwhileaway. E28 e6a09e2 independentlymappeddata
+BOqualified. E29actualhighlevelGLSL450copy source compiledbyMesaGLSL/link/
+NIR/GalliumSSBOlowering/FD750IR3 andexecutedrun20261101T085112Z/auto085048Z.
+3realPID1ioctls/GPUfences1..3/768correctactualpixels, command+data24576word
+checkswrong0, user768checkswrong0/negative5, fullstop47/parentrestore/context
+null/runner0/autosuccess/independentADBAndroid1. PhoneordinaryAndroid; no
+activeworker. Actual3pixelgroups/PNGs runs/20261101T085112Z/gpu-glsl-jobs.json.
+
+93control084833Z/auto084810Z passed. Newstateprepare9run084939Z/auto084916Z
+191wordswithEXECNOP: output256poison/bothBOguards/control1, fullstop45/
+Android1. Mode8samekernelactualEXECdispatchpassed. Artifactdiagnostic-gpu-
+glsl-e29 allhost/XNU/EFI/container/sourcebindingPASS, unchangeduserprogram
+SHA/4firmwarehashes. Shader128bytes/256threads/const0/private0/shared0;
+includespreamble/bindless.base0. StockComputeratorbindfulstate aloneinsufficient;
+externalexport addedexactfd6_image.cc A7xxSP_UPDATE_CNTL.cs_bindlessff +
+SP_CS_BINDLESS_BASE_DESCRIPTORset0/64B viageneratedtypedpackhelpers.
+Stream191words/76regs/zeroCPprotectconflicts. Compiler/exportdeterministic
+andheaderbinaryidentityverified. NoMesa sourceedits. Compilerexternalwrapper
+fixesstandaloneCScapsfromactualFreedreno; initialfailurespreserved/logged.
+Afterthreeofflinefailurespaused+gdbproveddisasmofdestroyedIR; usecaptured
+stockdisasm. NoGPUfailurefromthosehosttools. Sourceproof/scope/results in
+forensic-audit/E29-*.json. E29kernelglslheader andprepare/dispatchmodegated.
+
+ThisisfixedcompiledcomputeSSBOcopy throughdiagnosticBSDioctl; noMesa GL
+context/genericuserPM4/generalGEM/IOSurface/acceleratedSpringBoard yet.
+Nextrealgap: existingIOKit/Mesa graphicsABI + bufferobject/command stream
+integration. Do notspendmorepower/owner-onlyloops orclaimGPUUIacceleration.
+RAM-only/no flash/erase; Android+independentADB1aftereach. AutoUEFI no
+BootiOSconfirmation. NoGitHubpushrequested. Useraskedstatusandreceived
+conciseconcreteprogress; continueoriginalGPUobjectiveunlessstoprequested.
+
+Older chronology below is superseded by latest entry.
+
+# Active E29 — GLSL -> Mesa linked NIR -> FD750 IR3, qualification pending
+
+Userauthorizedautonomousworkwhileaway; safeE28 e6a09e2 retained. E29
+newGLSLcopy.comp compiledofflinebyactualMesaGLSL/link/NIR/IR3 backend,
+128bytes/256threads/const0/private0/shared0. StockstandaloneCSconfiguration
+gapsfixedinexternalwrapperusingactualFreedrenocaps; Mesa sourceunchanged.
+Threeofflinefailedexecutionspreserved, paused+gdbprovedlastfailurewas
+disasmofalreadydestroyedIRaftercompile; fixedusingcapturedstockdisasm.
+GLSLusesbindless.base0/preamble, unlikeoldhandIR3; addedexactfd6_image.cc
+SP_UPDATE_CNTL.cs_bindlessff + SP_CS_BINDLESS_BASE_DESCRIPTORset0/64B
+throughMesageneratedtypedpack helpers tostockComputerator variantemission.
+Stream191words/76regs/zeroCPprotectconflicts; compiler/exportdeterministic
+andshaderheaderbinaryidentitychecked. No guessedregisterfields.
+
+Allhost/XNU/EFI/container/sourcebindingPASS artifactdiagnostic-gpu-glsl-e29.
+Kernelmode9compute1: sameGLSLstate191words butEXECNOP, output256poison,
+data+command4096wordchecks, onejob/stop45. Mode8compute2: sameGLSLbinary
+andstate withactualEXEC, unchangeduserPID1program3jobs/fences1..3/stop47,
+separatedataBOE28 unchanged. Allpower/security/mapper/stop unchanged.
+Currentexec36246 isdefault93control, logauto-glsl-e29-control.log. After
+PASS/independentAndroid1 runfullchain --compute prepare --glsl, thenONLY
+afterPASS/Android1 --compute dispatch --glsl. Saveprepare94report before
+dispatchoverwrite. Strictmode9requiresGLSL_PREPAREpoison256+noEXECproof;
+mode8requiresGLSL_JOBbindless191 +realUSERDEVpid1roundtrip+3dataguards.
+NoE29hardwareoutcome yet; sourceuncommittedpendingqualification.
+SourceauditE29-scope-audit.json, compilerproofjson, tools/build-waffle-glsl-
+tools.py andwaffle-glsl-compile.cc externalonly. Original8thread/copyheaders
+preserved. RAM-only/no flash/erase; Android+independentADB1aftereachtest.
+AutoUEFI no physicalBootiOS. NoGitHubpushrequested.
+
+Older chronology below is superseded by latest entry.
+
 # Current E28 hardware PASS — independent GPU data BO
 
 User resumed andauthorizedautonomousworkwhileaway. E28 run20261101T083504Z/

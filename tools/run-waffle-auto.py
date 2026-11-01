@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
     parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--glsl',action='store_true',help='E29 GLSL compiled shader; prepare or dispatch')
     parser.add_argument('--data-bo',action='store_true',help='E28 separate GPU data allocation; requires dispatch')
     parser.add_argument('--user-copy',action='store_true',help='E27 real Darwin user-process ioctl boundary; requires dispatch')
     parser.add_argument('--worker',action='store_true',help='E26 serialized top-level context with kernel worker; requires dispatch')
@@ -40,9 +41,9 @@ def main():
     parser.add_argument('--fastboot', default=str(ROOT.parent / 'platform-tools/fastboot'))
     parser.add_argument('--adb', default=str(ROOT.parent / 'platform-tools/adb'))
     args = parser.parse_args()
-    if sum((args.data_bo,args.user_copy,args.worker,args.copy_jobs,args.image_present,args.image_copy,args.image))>1:parser.error('Choose image ramp or uploaded image copy')
+    if sum((args.glsl,args.data_bo,args.user_copy,args.worker,args.copy_jobs,args.image_present,args.image_copy,args.image))>1:parser.error('Choose image ramp or uploaded image copy')
     if (args.image_present or args.copy_jobs or args.worker or args.user_copy or args.data_bo) and args.compute!='dispatch':parser.error('--image-present requires --compute dispatch')
-    args.image=args.image or args.image_copy or args.image_present or args.copy_jobs or args.worker or args.user_copy or args.data_bo
+    args.image=args.image or args.image_copy or args.image_present or args.copy_jobs or args.worker or args.user_copy or args.data_bo or args.glsl
     artifact = args.artifact.resolve()
     image = artifact / 'HakiOS-waffle-PJD110-AUTO-RAM.img'
     if args.access_matrix and not args.prepare_gpu:
@@ -72,7 +73,7 @@ def main():
         parser.error('Artifact does not declare automatic loader entry')
     if hashlib.sha256(image.read_bytes()).hexdigest() != manifest['boot_image_sha256']:
         parser.error('Boot image does not match manifest')
-    if args.user_copy or args.data_bo:
+    if args.user_copy or args.data_bo or (args.glsl and args.compute=="dispatch"):
         root_image=artifact/'user-probe/user-probe.packfs'
         if not root_image.is_file() or hashlib.sha256(root_image.read_bytes()).hexdigest()!=manifest.get('user_probe_root_sha256'):
             parser.error('User probe root does not match manifest')
@@ -91,7 +92,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image, 'image_copy':args.image_copy,'image_present':args.image_present,'copy_jobs':args.copy_jobs,'worker':args.worker,'user_copy':args.user_copy,'data_bo':args.data_bo,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image, 'image_copy':args.image_copy,'image_present':args.image_present,'copy_jobs':args.copy_jobs,'worker':args.worker,'user_copy':args.user_copy,'data_bo':args.data_bo,'glsl':args.glsl,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -159,7 +160,7 @@ def main():
             if args.compute:
                 items.append('--compute-'+args.compute)
             if args.image:
-                items.append('--data-bo' if args.data_bo else '--user-copy' if args.user_copy else '--worker' if args.worker else '--copy-jobs' if args.copy_jobs else '--image-present' if args.image_present else '--image-copy' if args.image_copy else '--image')
+                items.append('--glsl' if args.glsl else '--data-bo' if args.data_bo else '--user-copy' if args.user_copy else '--worker' if args.worker else '--copy-jobs' if args.copy_jobs else '--image-present' if args.image_present else '--image-copy' if args.image_copy else '--image')
             result = command(items, timeout=240)
             report['runner_exit'] = result.returncode
             if result.returncode:

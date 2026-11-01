@@ -4,7 +4,7 @@ import struct,subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 s=(root/'kernel/files/bsd/dev/waffle_gmu.c').read_text()
 code=s[s.index('struct waffle_tcm_context {'):s.index('static uint32_t gen7_config_read(')]
-code+='\nstatic bool owner_copy_sequence(struct waffle_gmu_owner *owner){return submit_session_run(owner->plan);}\n'
+code+='\nstatic bool owner_copy_sequence(struct waffle_gmu_owner *owner){return submit_session_run(owner->plan);}\nstatic bool owner_glsl_prepare(struct waffle_gmu_owner *owner){return submit_session_run(owner->plan);}\n'
 code=code.replace('__asm__ volatile("dsb sy" ::: "memory");','barrier();')
 fw=b''.join(struct.pack('<4I',addr,len(data),0,0)+data for addr,data in ((0,struct.pack('<4I',1,2,3,4)),(4,struct.pack('<I',9)),(0x10004008,struct.pack('<2I',6,7))))
 h=r'''

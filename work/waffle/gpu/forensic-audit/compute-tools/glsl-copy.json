@@ -1,0 +1,6 @@
+{
+  "source": "GLSL450 -> Mesa linkedNIR -> FD750 IR3",
+  "chip_id": "0x43051401",
+  "binary_bytes": 128, "constlen": 0, "private_bytes": 0, "shared_bytes": 0,
+  "local_size": [256,1,1], "device_opened": false, "gpu_executed": false
+}
