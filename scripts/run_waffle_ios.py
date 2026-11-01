@@ -321,8 +321,10 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
 
 def validate_ui_workload_log(text):
     """Require real backboardd GPU work and teardown, not triangle/pixel proof."""
-    selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1",text)
+    selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1(?: stop_seconds=(\d+))?",text)
     if not selected or int(selected[1])<=1:raise RuntimeError("Actual mobile backboardd GPU selection missing")
+    seconds=int(selected[2]) if selected[2] else 30
+    if seconds not in (30,60):raise RuntimeError("Unsupported bounded UI observation window")
     pid=int(selected[1]);count=gl_completed_fences(text)
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096)\b",text)
     if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
@@ -335,7 +337,7 @@ def validate_ui_workload_log(text):
         "waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1",
         f"GENERAL open pid={pid} BO_limit={capacity} heap_bytes={budget}",
         "FD750; shaders OpenGL ES GLSL ES",
-        f"waffle-ui-gpu: bounded process stop pid={pid} seconds=30",
+        f"waffle-ui-gpu: bounded process stop pid={pid} seconds={seconds}",
         "SMMU_OWNER released after child stop and context detach",
         "CLOCK_OWNER released before CX restore result=1",
         "POWER_OWNER released after clock child, CX and CFG restore result=1",

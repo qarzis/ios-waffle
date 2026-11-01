@@ -1,0 +1,32 @@
+{
+  "run": "work/waffle/runs/20261101T191753Z",
+  "auto": "work/waffle/auto-runs/20261101T191729Z",
+  "actual_backboardd_pid": 83,
+  "UID": 501,
+  "GPU_fences": 121,
+  "BO_count": 640,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "runner_exit": 1,
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "UI_GPU_success": false,
+  "pixel_correctness_verified": false,
+  "optical_visibility_verified": false,
+  "first_frame_snapshot": "kernel-117.log",
+  "planned_stop_snapshot": "kernel-133.log",
+  "selected_first_observed_UTC": "19:19:14.322067",
+  "first_frame_observed_UTC": "19:19:39.991763",
+  "stop_observed_UTC": "19:19:44.633154",
+  "observation": "30-second pre-initialization timer leaves about 4.64 seconds after first GL frame; GPU-active screenshot30 is Apple logo; no display-worker swap in GPU window; final rolling log loses startup markers",
+  "raw_proof_sha256": {
+    "kernel-11.log": "1846d7ae9bd30f508fde6d15892daef555effc0c0fb1d217e69111b541d6174f",
+    "kernel-95.log": "0f5d6c316187de1311412a8a99fb63141b88991ef3c45d718a1ecc99fc5503d9",
+    "kernel-117.log": "f30974d9eed9a83c21c18aade4e647155033ca38e37169c2bbd7c6f5e33a737d",
+    "kernel-125.log": "814ce12c6c6d923363232a905f7668901ead7fb42932a379203e7017f1c1bc14",
+    "kernel-133.log": "08f3ba5c6e472f7c5c864bae7221c156945c5ca208e7cd82c618b6db26b49ceb",
+    "ui-gpu-events.log": "e7fab3f536589d0fa8a963955ac0ee02d59e45ada2c50bdc23203fa8624c361d",
+    "ui-screen-30.raw": "040e77ee49167ec773608f89775827f712a26e9042acbd651ff4df85c3700a48",
+    "kernel-final.log": "07f0a02aee26928e4535e498d625862b45b165a4acf628b1d5d70f1f83d7fa7f"
+  }
+}

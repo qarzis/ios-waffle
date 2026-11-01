@@ -41,3 +41,25 @@ assert m.validate_gl_log(updated)==pixels
 try:m.validate_gl_log(updated.replace('heap_bytes=67108864','heap_bytes=33554432'))
 except RuntimeError:pass
 else:raise AssertionError('Inconsistent capacity/physical budget accepted')
+
+# UI acceptance remains independent of off-screen GL pixel proofs. A declared
+# observation window must match the actual stop, with real presentation markers.
+ui=updated.replace('GENERAL open pid=1', 'GENERAL open pid=83')+'''
+waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1
+waffle-ui-gpu: selected process=backboardd pid=83 uid=501 bounded=1
+FD750; shaders OpenGL ES GLSL ES 3.20
+waffle-ui-gpu: bounded process stop pid=83 seconds=30
+redwood-gl: frame 1: 136 GL calls, 4 draws
+MiniIOMobileFramebuffer: swap 1 layer 0: surface 7 (
+'''
+assert m.validate_ui_workload_log(ui)['actual_backboardd_pid']==83
+ui60=ui.replace('bounded=1\n','bounded=1 stop_seconds=60\n').replace('seconds=30','seconds=60')
+assert m.validate_ui_workload_log(ui60)['GPU_fences']==1
+for bad in [ui60.replace('stop_seconds=60','stop_seconds=90'),
+            ui60.replace('pid=83 seconds=60','pid=83 seconds=30'),
+            ui60.replace('MiniIOMobileFramebuffer: swap','missing swap'),
+            ui60.replace('context_null=1','context_null=0')]:
+ try:m.validate_ui_workload_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Incomplete or mismatched bounded UI proof accepted')
+print('UI observation-window proof: legacy30/declared60 accepted; unknown/mismatched window, missing presentation and failed teardown refused; synthetic host fixtures only')

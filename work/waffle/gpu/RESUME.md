@@ -1,3 +1,11 @@
+# E53 prepared — longer observation window; E52 GPU workload, UI unqualified
+
+User resumed work. Phone independently Android boot_completed=1; no active hardware worker. E52 actual UI run20261101T191753Z/auto191729Z:121 GPU fences,640 BOs, full parentclose passed/contextnull; no allocation failure before planned stop. GPU-active screenshot30 shows Apple logo; no display-worker swap observed in GPU window. Original runner1 retained (rolling final log loses startup); strict validator also rejects kernel133 alone missing selection. E52-result.json binds early raw snapshots. Do not claim GPU SpringBoard working.
+
+E53 selected hypothesis:30s timer includes GPU initialization; selected firstseen19:19:14.322, first frame19:19:39.992, stop19:19:44.633: only4.64s drawing. Isolated UI root rebuilt with explicit60s timer; exact same E52 kernel/autoRAM image, Mesa/EAGL/firmware pinned hashes. All GPU bounds unchanged (4096 budget-derived records/64MiB/perjob64/root1536/jobs1024/queues32). Legacy30 and declared60 strict parser tests pass; unknown/mismatched window/missing display/failed teardown rejected. Artifact diagnostic-gpu-ui-window-e53, build log build-ui-window-e53.log. Finish container validation before ONE actual UI boot; auto returnAndroid and independently confirm1. If new failure preserve first cause; no blindlimitgrowth. CPU metadata ownership/fullbudget models passed before E52; mandatory E51 architecture review retained.
+
+GitHub3644994 already published; no additional push requested. Verified branch remains E45a14b658 until new complete qualification. RAM only/no flash/erase/manualBootiOS. Keep working; user status questions do not stop task.
+
 # Active E52 UI test running — budget-derived registry/metadata ownership
 
 Userresumedwork; noSTOP. E52fullkernelbuild/sourcebinding/containerPASS. Dedicatedstorageownership+4096minBO/64MiB/allPTE models PASS, oldGLproofregressions PASS inclcapacity4096matchingphysicalbudget. Actualdrm_submitframe2496B/owner6320Bcombined8816B/default16KiB, CPUmetadata160KiBoffstack. Runtimecapderived64MiB/min16KiB=4096, stableallocatedmetadata/releasecallback afterallBOs+GPUsafe detach, emptycount0cleanup. Cdevstaticlookup4096/512Bduplicatebitmap; perjob64/root1536/heap64MiB/perBO8MiB/queue32/jobs1024/TABLE64/init/retainuntilstop unchanged.

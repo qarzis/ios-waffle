@@ -1,0 +1,30 @@
+{
+  "experiment": "E46 first actual backboardd GPU workload; no UI success claim",
+  "hardware_tested": false,
+  "RAM_only": true,
+  "normal_image_mutated": false,
+  "GPU_process": "backboardd",
+  "GPU_process_uid": 501,
+  "device_mode": "0600",
+  "process_stop_seconds": 60,
+  "job_KeepAlive": false,
+  "other_processes_softpipe": true,
+  "root_sha256": "3dcc51a60b9a8eb1b020aa3bcd58e2f9188bbc192511c9a984583065bcb62484",
+  "root_bytes": 42319872,
+  "inject_sha256": "de0fc50952062b0dba48f5090db00aad32d2846f1c001a6d9ddf74ccd83e0c2e",
+  "hook_sha256": "e35e2969f9d1c37a148e506450e70f8ae39c079f67fbfbf74c3406e2787223f7",
+  "mesa_sha256": "7e02650d1a5b7402e7b4db7bf84aba6aa3a7afd528e84a3a284e781caf2c5a47",
+  "firmware": {
+    "gen70900_aqe.fw": "25237c161d727b8ea92b4beb837a31651b44ea78bfc34d95672af8f346a45825",
+    "gen70900_sqe.fw": "f756bafe5f69a87161c7c53385386374a791861a574c244e845baba677993842",
+    "gen70900_zap.mbn": "8e454000fd86f74818917d34d46baa70a31360d81d9617015a02de4e00c0e397",
+    "gmu_gen70900.bin": "9685f62c42543befcaee68d25355e16bf55cdb0d573bddcc9f6633f59eec3f72"
+  },
+  "source_sha256": {
+    "userland/src/inject.c": "70abcb4b5346968fdb508177c2e01e22056e5b42250a142c29f56d4d84d2db83",
+    "userland/src/waffle_ui_init.c": "a9cfb8da78ecce0ead96fe1c9e311e685d2df39ebc9c97ef4da1f1f3106d3856",
+    "tools/build-waffle-ui-probe.py": "df374d1c3dac8dc0fba059663f1364f9f90ac60f2aabfe2e49ec25b28956afc5",
+    "userland/mkjobs.py": "dcad67ea8452e9de4233d15d226e3368c6e109f4676d8da0189fc61ce2b85ed4",
+    "tools/assemble.py": "9c3045ad4b011b3425e7f363e0ea43264f7b31b1ec9d4b8d646c10e212917403"
+  }
+}

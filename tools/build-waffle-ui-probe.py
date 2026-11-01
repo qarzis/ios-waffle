@@ -20,6 +20,7 @@ import assemble
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--output',type=Path,required=True)
+ parser.add_argument('--stop-seconds',type=int,choices=(30,60),default=30)
  parser.add_argument('--base-kit',type=Path,default=ROOT/'work/waffle/posterboard/client-gl-kit')
  args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)
  sdk=ROOT/'work/theos/sdks/iPhoneOS16.5.sdk'
@@ -34,7 +35,7 @@ def main():
  init=out/'waffle-ui-init'
  run(flags+['-Wl,-e,_start','-Wl,-pagezero_size,0x100000000',str(ROOT/'userland/src/waffle_ui_init.c'),str(out/'mini.o'),str(out/'start.o'),'-o',str(init)])
  inject=out/'libredwood.dylib'
- run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-DWAFFLE_UI_GPU_PROBE','-dynamiclib','-install_name','/redwood/lib/libredwood.dylib','-framework','CoreFoundation','-framework','IOKit','-lobjc',str(ROOT/'userland/src/inject.c'),'-o',str(inject)])
+ run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-DWAFFLE_UI_GPU_PROBE',f'-DWAFFLE_UI_GPU_STOP_SECONDS={args.stop_seconds}','-dynamiclib','-install_name','/redwood/lib/libredwood.dylib','-framework','CoreFoundation','-framework','IOKit','-lobjc',str(ROOT/'userland/src/inject.c'),'-o',str(inject)])
  scratch=out/'scratch';scratch.mkdir(exist_ok=True)
  tree=pf.scan_tar(str(args.base_kit/'root-base.tar'),str(scratch/'base'))
  normal=pf.node_at(tree,'sbin/init');assert normal and normal.source
@@ -65,6 +66,7 @@ def main():
  assert root.stat().st_size+16*1024*1024<0x03f00000,'UI payload exceeds RAM loader limit'
  sources=['userland/src/inject.c','userland/src/waffle_ui_init.c','tools/build-waffle-ui-probe.py','userland/mkjobs.py','tools/assemble.py']
  manifest=dict(experiment='E46 first actual backboardd GPU workload; no UI success claim',hardware_tested=False,RAM_only=True,normal_image_mutated=False,GPU_process='backboardd',GPU_process_uid=501,device_mode='0600',process_stop_seconds=30,job_KeepAlive=False,other_processes_softpipe=True,root_sha256=hashlib.sha256(root.read_bytes()).hexdigest(),root_bytes=root.stat().st_size,inject_sha256=hashlib.sha256(inject.read_bytes()).hexdigest(),hook_sha256=hashlib.sha256(hook.read_bytes()).hexdigest(),mesa_sha256=hashlib.sha256(mesa.read_bytes()).hexdigest(),firmware=firmware,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources})
+ manifest['process_stop_seconds']=args.stop_seconds
  (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
  print(json.dumps(manifest,indent=2))
 
