@@ -887,6 +887,13 @@ struct waffle_gpu_memory *waffle_gpu_parent_memory_new(struct waffle_gpu_parent 
        !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child)return NULL;
     return waffle_smmu_owner_memory_new(s->child->child->child,bytes,flags);
 }
+bool waffle_gpu_parent_memory_reclaim(struct waffle_gpu_parent *parent,struct waffle_gpu_memory *bo,bool cpu_unmapped)
+{
+    struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;
+    if(!s || active_aop_gpu!=s || s->locked || !s->child || s->child!=active_board_power ||
+       !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child)return false;
+    return waffle_smmu_owner_memory_reclaim(s->child->child->child,bo,cpu_unmapped);
+}
 bool waffle_gpu_parent_submit(struct waffle_gpu_parent *parent,struct waffle_gpu_submit_job *job)
 {
     struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;

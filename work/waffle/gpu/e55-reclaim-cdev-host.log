@@ -1,0 +1,1 @@
+HOST actual cdev:CPU mappings revoked before owner reclaim; owner refusal retains live backing; successful close invalidates INFO/MAP/SUBMIT/double-close handles; failed CPU revoke traps fatal reset before any reclamation. Physical/SMMU reclaim mocked.

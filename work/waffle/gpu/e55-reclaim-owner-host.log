@@ -1,0 +1,4 @@
+waffle-gpu: full GPU owner returned live to init caller; no mutex held
+waffle-gpu: SERVICE begin root_live=1 serialized=1
+waffle-gpu: SERVICE end consumed=1 result=1
+HOST actual service/parent:CPU-mapped/foreign-context/busy mutex/locked owner/wrong power-clock topology/stale context refusals; SMMU refusal retains backing, success forwarded under lock, full context teardown balanced. Actual SMMU tested separately; no hardware claim.

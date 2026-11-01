@@ -1,0 +1,7271 @@
+{
+  "run": "work/waffle/runs/20261101T194508Z",
+  "capture": "first-observed original raw snapshots through first failure138; complete ordered new handles1..800 and10closes",
+  "physical_backing_captured": false,
+  "events": [
+    {
+      "kind": "new",
+      "handle": 1,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4294967296,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "close",
+      "handle": 1,
+      "allocated": 16384,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 2,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4294983680,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 3,
+      "bytes": 4194304,
+      "allocated": 4194304,
+      "flags": 131072,
+      "VA": 4295000064,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 4,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4299194368,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 5,
+      "bytes": 4194304,
+      "allocated": 4194304,
+      "flags": 131074,
+      "VA": 4299210752,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 6,
+      "bytes": 4194304,
+      "allocated": 4194304,
+      "flags": 131072,
+      "VA": 4303405056,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 7,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307599360,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 8,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307615744,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 9,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307632128,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 10,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307648512,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 11,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307664896,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 12,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307681280,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 13,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307697664,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 14,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307714048,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 15,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4307730432,
+      "snapshot": "kernel-95.log"
+    },
+    {
+      "kind": "new",
+      "handle": 16,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072,
+      "VA": 4307746816,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 17,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072,
+      "VA": 4312989696,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 18,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318232576,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 19,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318248960,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 20,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318265344,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 21,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4318281728,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 22,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4318298112,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 23,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4318314496,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 24,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4318330880,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 25,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4318347264,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 26,
+      "bytes": 131072,
+      "allocated": 131072,
+      "flags": 131072,
+      "VA": 4318363648,
+      "snapshot": "kernel-116.log"
+    },
+    {
+      "kind": "new",
+      "handle": 27,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318494720,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 28,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318511104,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 29,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318527488,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 30,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4318543872,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 31,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4318560256,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 32,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318576640,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 33,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318593024,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 34,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4318609408,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 35,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072,
+      "VA": 4318625792,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 36,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072,
+      "VA": 4323868672,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 37,
+      "bytes": 131072,
+      "allocated": 131072,
+      "flags": 131072,
+      "VA": 4329111552,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 38,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4329242624,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 39,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4329259008,
+      "snapshot": "kernel-117.log"
+    },
+    {
+      "kind": "new",
+      "handle": 40,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072,
+      "VA": 4329275392,
+      "snapshot": "kernel-123.log"
+    },
+    {
+      "kind": "new",
+      "handle": 41,
+      "bytes": 49152,
+      "allocated": 49152,
+      "flags": 131072,
+      "VA": 4334518272,
+      "snapshot": "kernel-123.log"
+    },
+    {
+      "kind": "new",
+      "handle": 42,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4334567424,
+      "snapshot": "kernel-123.log"
+    },
+    {
+      "kind": "new",
+      "handle": 43,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334731264,
+      "snapshot": "kernel-124.log"
+    },
+    {
+      "kind": "new",
+      "handle": 44,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334747648,
+      "snapshot": "kernel-124.log"
+    },
+    {
+      "kind": "new",
+      "handle": 45,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334764032,
+      "snapshot": "kernel-124.log"
+    },
+    {
+      "kind": "new",
+      "handle": 46,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334780416,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 47,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334796800,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 48,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334813184,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 49,
+      "bytes": 49152,
+      "allocated": 49152,
+      "flags": 131072,
+      "VA": 4334829568,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 50,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334878720,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 51,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334895104,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 52,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334911488,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 53,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4334927872,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 54,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4334944256,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 55,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334960640,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 56,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334977024,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 57,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4334993408,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 58,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335009792,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 59,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335026176,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 60,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335042560,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 61,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335058944,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 62,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4335075328,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 63,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335108096,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 64,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335124480,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 65,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335140864,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 66,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335157248,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 67,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335173632,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 68,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335190016,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 69,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335206400,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 70,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335222784,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 71,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335239168,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 72,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335255552,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 73,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335271936,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 74,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335288320,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 75,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4335304704,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 76,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335468544,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 77,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335484928,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 78,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335501312,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 79,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335517696,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 80,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335534080,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 81,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335550464,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 82,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4335566848,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 83,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335730688,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 84,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335747072,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 85,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335763456,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 86,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335779840,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 87,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335796224,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 88,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335812608,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 89,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335828992,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 90,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335845376,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 91,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335861760,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 92,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335878144,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 93,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335894528,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 94,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335910912,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 95,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335927296,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 96,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335943680,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 97,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335960064,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 98,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4335976448,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 99,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4335992832,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 100,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336009216,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 101,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336025600,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 102,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336041984,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 103,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4336058368,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 104,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336074752,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 105,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336091136,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 106,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4336107520,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 107,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336271360,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 108,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336287744,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 109,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336304128,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 110,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4336320512,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 111,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336336896,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 112,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336353280,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 113,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4336369664,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 114,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336533504,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 115,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336549888,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 116,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336566272,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 117,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4336582656,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 118,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336599040,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 119,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336615424,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 120,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4336631808,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 121,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336795648,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 122,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336812032,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 123,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4336828416,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 124,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4336861184,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 125,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4336877568,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 126,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4336893952,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 127,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336910336,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 128,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336926720,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 129,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4336943104,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 130,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336975872,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 131,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4336992256,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 132,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4337008640,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 133,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337025024,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 134,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337041408,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 135,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337057792,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 136,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337074176,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 137,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337090560,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 138,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337106944,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 139,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337123328,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 140,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4337139712,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 141,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337156096,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 142,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337172480,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 143,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4337188864,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 144,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337352704,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 145,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337369088,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 146,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337385472,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 147,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4337401856,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 148,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337418240,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 149,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337434624,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 150,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4337451008,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 151,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337614848,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 152,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337631232,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 153,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337647616,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 154,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4337664000,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 155,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337680384,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 156,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337696768,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 157,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4337713152,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 158,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337876992,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 159,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337893376,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 160,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337909760,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 161,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4337926144,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 162,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337942528,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 163,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4337958912,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 164,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4337975296,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 165,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338139136,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 166,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338155520,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 167,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338171904,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 168,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4338188288,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 169,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338204672,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 170,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338221056,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 171,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4338237440,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 172,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338401280,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 173,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338417664,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 174,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338434048,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 175,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4338450432,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 176,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338466816,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 177,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338483200,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 178,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4338499584,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 179,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338663424,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 180,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338679808,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 181,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338696192,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 182,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4338712576,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 183,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338728960,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 184,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338745344,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 185,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4338761728,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 186,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338925568,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 187,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338941952,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 188,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338958336,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 189,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4338974720,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 190,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4338991104,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 191,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339007488,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 192,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4339023872,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 193,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339187712,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 194,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339204096,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 195,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339220480,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 196,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339236864,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 197,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339253248,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 198,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339269632,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 199,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4339286016,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 200,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339449856,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 201,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339466240,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 202,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339482624,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 203,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339499008,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 204,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339515392,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 205,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339531776,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 206,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4339548160,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 207,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339712000,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 208,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4339728384,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 209,
+      "bytes": 65536,
+      "allocated": 65536,
+      "flags": 131072,
+      "VA": 4339744768,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "close",
+      "handle": 37,
+      "allocated": 131072,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 210,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339810304,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 211,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339826688,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 212,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339843072,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 213,
+      "bytes": 65536,
+      "allocated": 65536,
+      "flags": 131072,
+      "VA": 4339859456,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 214,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339924992,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 215,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339941376,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 216,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339957760,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 217,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339974144,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 218,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4339990528,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 219,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340006912,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 220,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340023296,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 221,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340039680,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 222,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340056064,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 223,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340072448,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 224,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340088832,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 225,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340105216,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 226,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340121600,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 227,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340137984,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 228,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340154368,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 229,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340170752,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 230,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340187136,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 231,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340203520,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 232,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340219904,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 233,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340236288,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 234,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340252672,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 235,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340269056,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 236,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340285440,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 237,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340301824,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 238,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340318208,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 239,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4340334592,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 240,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340350976,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 241,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340367360,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 242,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4340383744,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 243,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340547584,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 244,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340563968,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 245,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4340580352,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 246,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340744192,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 247,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340760576,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 248,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4340776960,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 249,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340940800,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 250,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4340957184,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 251,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4340973568,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 252,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4341137408,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 253,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4341153792,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 254,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4341170176,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 255,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4341186560,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 256,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4341202944,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 257,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4341219328,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 258,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4341235712,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 259,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4341252096,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 260,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4341268480,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 261,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4341284864,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 262,
+      "bytes": 1310720,
+      "allocated": 1310720,
+      "flags": 131072,
+      "VA": 4341301248,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 263,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4342611968,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 264,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4342628352,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 265,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4342644736,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 266,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4342661120,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 267,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4342677504,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 268,
+      "bytes": 1310720,
+      "allocated": 1310720,
+      "flags": 131072,
+      "VA": 4342693888,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 269,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344004608,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 270,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344020992,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 271,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344037376,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 272,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344053760,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 273,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344070144,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 274,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344086528,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 275,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344102912,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 276,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344119296,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 277,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344135680,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 278,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344152064,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 279,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344168448,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 280,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344184832,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 281,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344201216,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 282,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344217600,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 283,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344233984,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 284,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344250368,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 285,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344266752,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 286,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344283136,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 287,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344299520,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 288,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344315904,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 289,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344348672,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 290,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344365056,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 291,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344381440,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 292,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344414208,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 293,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344430592,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 294,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344446976,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 295,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344479744,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 296,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344496128,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 297,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344512512,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 298,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344545280,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 299,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344561664,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 300,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344578048,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 301,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344594432,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 302,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344610816,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 303,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344627200,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 304,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344659968,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 305,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344676352,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 306,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344692736,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 307,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344725504,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 308,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344741888,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 309,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344758272,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 310,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344791040,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 311,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344807424,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 312,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344823808,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 313,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344856576,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 314,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344872960,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 315,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4344889344,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 316,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344922112,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 317,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344938496,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 318,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4344954880,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 319,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344971264,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 320,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4344987648,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 321,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4345004032,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 322,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345036800,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 323,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345053184,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 324,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4345069568,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 325,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345102336,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 326,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345118720,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 327,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4345135104,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 328,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345167872,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 329,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345184256,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 330,
+      "bytes": 114688,
+      "allocated": 114688,
+      "flags": 131072,
+      "VA": 4345200640,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 331,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345315328,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 332,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345331712,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 333,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4345348096,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 334,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4345364480,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 335,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4345380864,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 336,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4345397248,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 337,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4345413632,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 338,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4345430016,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 339,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345446400,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 340,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345462784,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 341,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345479168,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 342,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345495552,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 343,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4345511936,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 344,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345544704,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 345,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345561088,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 346,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345577472,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 347,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345593856,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 348,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345610240,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 349,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345626624,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 350,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4345643008,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 351,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345675776,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 352,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345692160,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 353,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345708544,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 354,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345724928,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 355,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345741312,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 356,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345757696,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 357,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4345774080,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 358,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345806848,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 359,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345823232,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 360,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345839616,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 361,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345856000,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 362,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345872384,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 363,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345888768,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 364,
+      "bytes": 65536,
+      "allocated": 65536,
+      "flags": 131072,
+      "VA": 4345905152,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 365,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345970688,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 366,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4345987072,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 367,
+      "bytes": 65536,
+      "allocated": 65536,
+      "flags": 131072,
+      "VA": 4346003456,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 368,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4346068992,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 369,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4346085376,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 370,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4346101760,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 371,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346118144,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 372,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346134528,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 373,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346150912,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 374,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346167296,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 375,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346183680,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 376,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346200064,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 377,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346216448,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 378,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346232832,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 379,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346249216,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 380,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346265600,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 381,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346281984,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 382,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346298368,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 383,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346314752,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 384,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346331136,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 385,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346347520,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 386,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346363904,
+      "snapshot": "kernel-125.log"
+    },
+    {
+      "kind": "new",
+      "handle": 387,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346380288,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 388,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346396672,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 389,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346413056,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 390,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346429440,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 391,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346445824,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 392,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346462208,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 393,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346478592,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 394,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346494976,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 395,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346511360,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 396,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346527744,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 397,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346544128,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 398,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346560512,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 399,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346576896,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 400,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346593280,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 401,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346609664,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 402,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346626048,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 403,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346642432,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 404,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346658816,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 405,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346675200,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 406,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346691584,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 407,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346707968,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 408,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346724352,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 409,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346740736,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 410,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346757120,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 411,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346773504,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 412,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346789888,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 413,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346806272,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 414,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346822656,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 415,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346839040,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 416,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346855424,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 417,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346871808,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 418,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346888192,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 419,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346904576,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 420,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346920960,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 421,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346937344,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 422,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346953728,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 423,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346970112,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 424,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4346986496,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 425,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347002880,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 426,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347019264,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 427,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347035648,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 428,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347052032,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 429,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347068416,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 430,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347084800,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 431,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347101184,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 432,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347117568,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 433,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347133952,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 434,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347150336,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 435,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347166720,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 436,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347183104,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 437,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347199488,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 438,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347215872,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 439,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347232256,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 440,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347248640,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 441,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347265024,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 442,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347281408,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 443,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347297792,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 444,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347314176,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 445,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347330560,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 446,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347346944,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 447,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347363328,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 448,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347379712,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 449,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347396096,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 450,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347412480,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 451,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347428864,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 452,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347445248,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 453,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347461632,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 454,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347478016,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 455,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347494400,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 456,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347510784,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 457,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347527168,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 458,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347543552,
+      "snapshot": "kernel-126.log"
+    },
+    {
+      "kind": "new",
+      "handle": 459,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4347559936,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 460,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4347576320,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 461,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4347592704,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 462,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347609088,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 463,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347625472,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 464,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347641856,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 465,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347658240,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 466,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347674624,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 467,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347691008,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 468,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347707392,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 469,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347723776,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 470,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347740160,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 471,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347756544,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 472,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347772928,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 473,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347789312,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 474,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347805696,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 475,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347822080,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 476,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347838464,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 477,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347854848,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 478,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347871232,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 479,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347887616,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 480,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347904000,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 481,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347920384,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 482,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347936768,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 483,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347953152,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 484,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347969536,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 485,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4347985920,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 486,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348002304,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 487,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348018688,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 488,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348035072,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 489,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348051456,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 490,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348067840,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 491,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348084224,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 492,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348100608,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 493,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348116992,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 494,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348133376,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 495,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348149760,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 496,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348166144,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 497,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348182528,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 498,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348198912,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 499,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348215296,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 500,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348231680,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 501,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348248064,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 502,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348264448,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 503,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348280832,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 504,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348297216,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 505,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348313600,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 506,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348329984,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 507,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348346368,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 508,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348362752,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 509,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348379136,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 510,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348395520,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 511,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348411904,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 512,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348428288,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 513,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348444672,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 514,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348461056,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 515,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348477440,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 516,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348493824,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 517,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348510208,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 518,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348526592,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 519,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348542976,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 520,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348559360,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 521,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348575744,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 522,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348592128,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 523,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348608512,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 524,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348624896,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 525,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348641280,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 526,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348657664,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 527,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348674048,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 528,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348690432,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 529,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348706816,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 530,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348723200,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 531,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348739584,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 532,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348755968,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 533,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348772352,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 534,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348788736,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 535,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348805120,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 536,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348821504,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 537,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348837888,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 538,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348854272,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 539,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348870656,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 540,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348887040,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 541,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348903424,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 542,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348919808,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 543,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348936192,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 544,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348952576,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 545,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348968960,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 546,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4348985344,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 547,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349001728,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 548,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349018112,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 549,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349034496,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 550,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349050880,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 551,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349067264,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 552,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349083648,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 553,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349100032,
+      "snapshot": "kernel-129.log"
+    },
+    {
+      "kind": "new",
+      "handle": 554,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349116416,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 555,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349132800,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 556,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349149184,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 557,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349165568,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 558,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349181952,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 559,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349198336,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 560,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349214720,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 561,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349231104,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 562,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349247488,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 563,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349263872,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 564,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349280256,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 565,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349296640,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 566,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349313024,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 567,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349329408,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 568,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349345792,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 569,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349362176,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 570,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349378560,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 571,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349394944,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 572,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349411328,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 573,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349427712,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 574,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349444096,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 575,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349460480,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 576,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349476864,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 577,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349493248,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 578,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349509632,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 579,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349526016,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 580,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349542400,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 581,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349558784,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 582,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349575168,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 583,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349591552,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 584,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349607936,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 585,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349624320,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 586,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349640704,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 587,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349657088,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 588,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349673472,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 589,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349689856,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 590,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349706240,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 591,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349722624,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 592,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349739008,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 593,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349755392,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 594,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349771776,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 595,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349788160,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 596,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349804544,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 597,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349820928,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 598,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349837312,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 599,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349853696,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 600,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349870080,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 601,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349886464,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 602,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349902848,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 603,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349919232,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 604,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349935616,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 605,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349952000,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 606,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349968384,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 607,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4349984768,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 608,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350001152,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 609,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350017536,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 610,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350033920,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 611,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350050304,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 612,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350066688,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 613,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350083072,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 614,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350099456,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 615,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350115840,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 616,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350132224,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 617,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350148608,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 618,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350164992,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 619,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350181376,
+      "snapshot": "kernel-130.log"
+    },
+    {
+      "kind": "new",
+      "handle": 620,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350197760,
+      "snapshot": "kernel-131.log"
+    },
+    {
+      "kind": "new",
+      "handle": 621,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350214144,
+      "snapshot": "kernel-131.log"
+    },
+    {
+      "kind": "new",
+      "handle": 622,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350230528,
+      "snapshot": "kernel-131.log"
+    },
+    {
+      "kind": "new",
+      "handle": 623,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350246912,
+      "snapshot": "kernel-131.log"
+    },
+    {
+      "kind": "new",
+      "handle": 624,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350263296,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "new",
+      "handle": 625,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350279680,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 220,
+      "allocated": 16384,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 223,
+      "allocated": 16384,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 62,
+      "allocated": 32768,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 209,
+      "allocated": 65536,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 213,
+      "allocated": 65536,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 26,
+      "allocated": 131072,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 268,
+      "allocated": 1310720,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "close",
+      "handle": 40,
+      "allocated": 5242880,
+      "snapshot": "kernel-132.log"
+    },
+    {
+      "kind": "new",
+      "handle": 626,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350296064,
+      "snapshot": "kernel-135.log"
+    },
+    {
+      "kind": "new",
+      "handle": 627,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4350312448,
+      "snapshot": "kernel-135.log"
+    },
+    {
+      "kind": "new",
+      "handle": 628,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072,
+      "VA": 4350328832,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 629,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355571712,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 630,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355588096,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 631,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355604480,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 632,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355620864,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 633,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355637248,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 634,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355653632,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 635,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355670016,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 636,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355686400,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 637,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355702784,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 638,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4355719168,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 639,
+      "bytes": 1310720,
+      "allocated": 1310720,
+      "flags": 131072,
+      "VA": 4355735552,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 640,
+      "bytes": 1310720,
+      "allocated": 1310720,
+      "flags": 131072,
+      "VA": 4357046272,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 641,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358356992,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 642,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358373376,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 643,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358389760,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 644,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358406144,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 645,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358422528,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 646,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358438912,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 647,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358455296,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 648,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358471680,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 649,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358488064,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 650,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358504448,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 651,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358520832,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 652,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358537216,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 653,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358553600,
+      "snapshot": "kernel-136.log"
+    },
+    {
+      "kind": "new",
+      "handle": 654,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358569984,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 655,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358586368,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 656,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358602752,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 657,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358619136,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 658,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358635520,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 659,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358651904,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 660,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358668288,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 661,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358684672,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 662,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358701056,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 663,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358717440,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 664,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358733824,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 665,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358750208,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 666,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358766592,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 667,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358782976,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 668,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358799360,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 669,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358815744,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 670,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358832128,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 671,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358848512,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 672,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358864896,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 673,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4358881280,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 674,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358897664,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 675,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358914048,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 676,
+      "bytes": 65536,
+      "allocated": 65536,
+      "flags": 131072,
+      "VA": 4358930432,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 677,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4358995968,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 678,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359012352,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 679,
+      "bytes": 163840,
+      "allocated": 163840,
+      "flags": 131072,
+      "VA": 4359028736,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 680,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359192576,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 681,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359208960,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 682,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359225344,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 683,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359241728,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 684,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359258112,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 685,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359274496,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 686,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359290880,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 687,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359307264,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 688,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359323648,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 689,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359340032,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 690,
+      "bytes": 81920,
+      "allocated": 81920,
+      "flags": 131072,
+      "VA": 4359356416,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 691,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359438336,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 692,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359454720,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 693,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359471104,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 694,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359487488,
+      "snapshot": "kernel-137.log"
+    },
+    {
+      "kind": "new",
+      "handle": 695,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4359503872,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 696,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4359520256,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 697,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4359536640,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 698,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359553024,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 699,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359569408,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 700,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359585792,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 701,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359602176,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 702,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359618560,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 703,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359634944,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 704,
+      "bytes": 114688,
+      "allocated": 114688,
+      "flags": 131072,
+      "VA": 4359651328,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 705,
+      "bytes": 131072,
+      "allocated": 131072,
+      "flags": 131072,
+      "VA": 4359766016,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 706,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4359897088,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 707,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4359913472,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 708,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4359929856,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 709,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359946240,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 710,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359962624,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 711,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359979008,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 712,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4359995392,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 713,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4360011776,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 714,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4360028160,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 715,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4360044544,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 716,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360060928,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 717,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360077312,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 718,
+      "bytes": 327680,
+      "allocated": 327680,
+      "flags": 131072,
+      "VA": 4360093696,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 719,
+      "bytes": 81920,
+      "allocated": 81920,
+      "flags": 131072,
+      "VA": 4360421376,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 720,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360503296,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 721,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360519680,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 722,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4360536064,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 723,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360568832,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 724,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360585216,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 725,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4360601600,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 726,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360634368,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 727,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360650752,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 728,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4360667136,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 729,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360699904,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 730,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360716288,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 731,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4360732672,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 732,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360765440,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 733,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360781824,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 734,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4360798208,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 735,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360814592,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 736,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360830976,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 737,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360847360,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 738,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360863744,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 739,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4360880128,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 740,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360912896,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 741,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360929280,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 742,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4360945664,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 743,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360978432,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 744,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4360994816,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 745,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361011200,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 746,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361027584,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 747,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361043968,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 748,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361060352,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 749,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361093120,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 750,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361109504,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 751,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361125888,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 752,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361142272,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 753,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361158656,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 754,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361175040,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 755,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361207808,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 756,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361224192,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 757,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361240576,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 758,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361256960,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 759,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361273344,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 760,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361289728,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 761,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361322496,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 762,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361338880,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 763,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361355264,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 764,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361371648,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 765,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361388032,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 766,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361404416,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 767,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361437184,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 768,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361453568,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 769,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361469952,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 770,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361486336,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 771,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361502720,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 772,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361519104,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 773,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361551872,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 774,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361568256,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 775,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361584640,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 776,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361601024,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 777,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361617408,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 778,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361633792,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 779,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361666560,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 780,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361682944,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 781,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361699328,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 782,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361715712,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 783,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361732096,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 784,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361748480,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 785,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361764864,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 786,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361781248,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 787,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361797632,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 788,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361830400,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 789,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361846784,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 790,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361863168,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 791,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361879552,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 792,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361895936,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 793,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4361912320,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 794,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361945088,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 795,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361961472,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 796,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072,
+      "VA": 4361977856,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 797,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4361994240,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 798,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4362010624,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 799,
+      "bytes": 32768,
+      "allocated": 32768,
+      "flags": 131072,
+      "VA": 4362027008,
+      "snapshot": "kernel-138.log"
+    },
+    {
+      "kind": "new",
+      "handle": 800,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074,
+      "VA": 4362059776,
+      "snapshot": "kernel-138.log"
+    }
+  ],
+  "failed_request": {
+    "bytes": 16384,
+    "flags": 131074
+  }
+}

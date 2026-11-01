@@ -17,6 +17,7 @@ harness = r'''
 #include "waffle_gpu_data.h"
 #include "waffle_gpu_buffer.h"
 #include "waffle_gpu_registry.h"
+#include "waffle_gpu_reclaim.h"
 
 bool waffle_gpu_memory_create(uint64_t b,uint32_t f,struct waffle_gpu_memory *m){(void)b;(void)f;(void)m;assert(0);return false;}
 uint64_t waffle_gpu_memory_page(const struct waffle_gpu_memory *m,uint32_t o){(void)m;(void)o;assert(0);return 0;}
@@ -66,6 +67,7 @@ static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *g,struct waffle_gm
 '''
 tests = r'''
 int main(void){
+ assert(!smmu_registry_reclaim(NULL,NULL,false));
  assert(!smmu_registry_new(NULL,4096,WAFFLE_GPU_BO_WC));
  for(mode=0;mode<12;mode++){
   allocated=tlbs=cleans=binds=after_start_allocs=0;live=false;

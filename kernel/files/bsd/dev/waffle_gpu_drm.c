@@ -202,8 +202,12 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   if(copyout(&zero,r->data,8))error=EFAULT;
  }else if(command==WAFFLE_MSM_CLOSE){
   struct waffle_msm_close *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
-  if(!bo || r->pad){error=EINVAL;goto done;}drm_unmap(bo);bo->live=false;
-  redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=1\n",r->handle,bo->memory->allocation_bytes);
+  if(!bo || r->pad){error=EINVAL;goto done;}
+  uint32_t bytes=bo->memory->allocation_bytes;
+  drm_unmap(bo);
+  if(!waffle_gpu_context_memory_reclaim(drm_context,bo->memory,!bo->user_map && !bo->user_address)){error=EIO;goto done;}
+  bo->live=false;
+  redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=0\n",r->handle,bytes);
  }else error=ENOTTY;
 done:
  if(error)redwood_tl("waffle-gpu: GENERAL ioctl_refused op=%x error=%d pid=%d\n",(unsigned)(command&255),error,proc_pid(p));

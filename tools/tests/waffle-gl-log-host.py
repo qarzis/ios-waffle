@@ -63,3 +63,25 @@ for bad in [ui60.replace('stop_seconds=60','stop_seconds=90'),
  except RuntimeError:pass
  else:raise AssertionError('Incomplete or mismatched bounded UI proof accepted')
 print('UI observation-window proof: legacy30/declared60 accepted; unknown/mismatched window, missing presentation and failed teardown refused; synthetic host fixtures only')
+
+pub1='GENERAL_BO published index=1 VA=100000000 bytes=4096 allocated=16384 flags=20000 pages=4'
+pub2=pub1.replace('index=1','index=2')
+freed='GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0'
+release='GENERAL_BO released after GPU stop and context detach count=1 reclaimed_earlier=1 total=2'
+reuse=text.replace(pub1,pub1+'\n'+freed+'\n'+pub2).replace(
+ 'GENERAL_BO released after GPU stop and context detach count=1',release).replace('completed=1 buffers=1','completed=1 buffers=2')
+assert m.validate_gl_log(reuse)==pixels
+for bad in [reuse.replace(freed+'\n',''),reuse.replace('CPU_unmapped=1','CPU_unmapped=0'),
+            reuse.replace('dual_ASID_TLBI=1','dual_ASID_TLBI=0'),
+            reuse.replace('reclaimed index=1 VA=100000000','reclaimed index=1 VA=100004000'),
+            reuse.replace('used=0','used=16384'),reuse.replace('reclaimed_earlier=1 total=2','reclaimed_earlier=0 total=2'),
+            reuse.replace(release,'GENERAL_BO released after GPU stop and context detach count=2')]:
+ try:m.validate_gl_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Corrupt early-reclaim lifetime proof accepted')
+life=pub1+'\n'+freed+'\n'+pub2+'\n'+release+'\n'
+assert len(m.validate_gl_bo_lifetimes(life+life,32,33554432)[0])==2 # loader console replay
+try:m.validate_gl_bo_lifetimes(life+freed.replace('index=1','index=2')+'\n',32,33554432)
+except RuntimeError:pass
+else:raise AssertionError('First revocation after context detach accepted')
+print('GL BO lifetime proof: exact console replays and revoked-hole reuse accepted; missing revocation, CPU/TLB/VA/accounting/teardown corruption and post-detach new lifetime events refused; synthetic fixtures only')

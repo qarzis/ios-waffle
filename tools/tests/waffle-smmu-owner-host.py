@@ -15,6 +15,7 @@ h=r'''
 #include <setjmp.h>
 #include "waffle_gpu.h"
 #include "waffle_smmu.h"
+#include "waffle_gpu_reclaim.h"
 #include "waffle_gpu_job.h"
 #include "waffle_gpu_data.h"
 #include "waffle_gpu_buffer.h"
