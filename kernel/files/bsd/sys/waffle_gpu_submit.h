@@ -7,6 +7,13 @@
 #define WAFFLE_GPU_SUBMIT_BUFFERS 64u
 #define WAFFLE_GPU_SUBMIT_WORDS 1536u
 #define WAFFLE_GPU_SUBMIT_TAIL_WORDS 15u
+/* HFI tags are12 bits, unlike monotonic32-bit GPU fences. Serialize each
+ * request through its ACK and GPU completion before reusing a tag. Reserve
+ *4095 for shutdown; retain the historically qualified initial tag44. */
+static inline unsigned waffle_gpu_submit_sequence(uint32_t completed)
+{
+ return (43u+completed%4094u)%4094u+1u;
+}
 #if 256u+WAFFLE_GPU_SUBMIT_WORDS+WAFFLE_GPU_SUBMIT_TAIL_WORDS>=2048u
 #error "Root commands and completion tail must leave guards before the GPU token"
 #endif

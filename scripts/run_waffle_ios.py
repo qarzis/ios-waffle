@@ -148,11 +148,15 @@ def extract_gl_pixels(text):
     return pixels
 
 
+def gl_sequence(completed):
+    return (43+completed%4094)%4094+1
+
+
 def gl_completed_fences(text):
     fences={}
     for fence,seq,control in re.findall(r"GENERAL_SUBMIT done fence=(\d+) seq=(\d+) control=([0-9a-f]{8}) checked=4096 wrong_words=0",text):
         fence,seq,control=int(fence),int(seq),int(control,16)
-        if seq!=43+fence or control!=fence or (fence in fences and fences[fence]!=(seq,control)):raise RuntimeError("Invalid GL GPU completion token")
+        if seq!=gl_sequence(fence-1) or control!=fence or (fence in fences and fences[fence]!=(seq,control)):raise RuntimeError("Invalid GL GPU completion token")
         fences[fence]=(seq,control)
     if not fences or set(fences)!=set(range(1,max(fences)+1)):raise RuntimeError("Missing or discontinuous GL GPU fences")
     return max(fences)
@@ -231,11 +235,11 @@ def validate_gl_log(text):
         cursor=at+len(marker)
     if "waffle-gl-user: renderer=FD750" not in text:raise RuntimeError("Actual FD750 GL renderer not selected")
     for fence in range(1,count+1):
-        starts=list(re.finditer(rf"GENERAL_SUBMIT begin fence={fence} seq={43+fence} root_words=(\d+) kernel_tail=15 extra_IB_depth=0",text[cursor:]))
+        starts=list(re.finditer(rf"GENERAL_SUBMIT begin fence={fence} seq={gl_sequence(fence-1)} root_words=(\d+) kernel_tail=15 extra_IB_depth=0",text[cursor:]))
         if not starts or not 1<=int(starts[0][1])<=1536:raise RuntimeError("GL root command publication not proved")
         cursor+=starts[0].end()
-        for marker in (f"GENERAL_IB ACK matched seq{43+fence} value=00000000 valid=1",
-          f"GENERAL_SUBMIT done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0",
+        for marker in (f"GENERAL_IB ACK matched seq{gl_sequence(fence-1)} value=00000000 valid=1",
+          f"GENERAL_SUBMIT done fence={fence} seq={gl_sequence(fence-1)} control={fence:08x} checked=4096 wrong_words=0",
           f"GENERAL submitted fence={fence}"):
             at=text.find(marker,cursor)
             if at<0:raise RuntimeError("GL GPU fence not confirmed: "+marker)
@@ -382,7 +386,7 @@ def validate_ui_workload_log(text):
     ):
         if marker not in text:raise RuntimeError("UI workload proof missing: "+marker)
     for fence in range(1,count+1):
-        if f"GENERAL_IB ACK matched seq{43+fence} value=00000000 valid=1" not in text:
+        if f"GENERAL_IB ACK matched seq{gl_sequence(fence-1)} value=00000000 valid=1" not in text:
             raise RuntimeError("UI workload GPU ACK missing")
     close=re.search(rf"GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1",text)
     if not close or not 1<=int(close[1])<=capacity:raise RuntimeError("UI workload context teardown missing")
@@ -776,7 +780,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{44+gl_completed_fences(final_text) if image_kind==13 else 47 if (4<=image_kind<=8 or image_kind in (10,11,12)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{gl_sequence(gl_completed_fences(final_text)) if image_kind==13 else 47 if (4<=image_kind<=8 or image_kind in (10,11,12)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")

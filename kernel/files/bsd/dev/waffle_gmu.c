@@ -1929,7 +1929,9 @@ static bool submit_session_exchange(struct waffle_submit_session *s,unsigned wor
         s->next_sequence>=4095 || loader_return_remaining_us()<3000000)return false;
     uint32_t ib[5];
     if(waffle_writeback_ib_packet(ib,5,s->next_sequence,s->ib_va,words)!=5)return false;
-    s->phase=SUBMIT_BUSY;++s->submitted;++s->next_sequence;
+    s->phase=SUBMIT_BUSY;++s->submitted;
+    if(s->plan->compute_image==13)s->next_sequence=waffle_gpu_submit_sequence(s->submitted);
+    else ++s->next_sequence;
     struct waffle_gmu_plan watch=*s->plan;
     watch.raw_stage_pause=false;
     if(!hfi_exchange_watch(s->gmu,s->hfi,ib,5,name,true,&watch) ||
@@ -2112,7 +2114,7 @@ bool waffle_gmu_owner_memory_idle(struct waffle_gmu_owner *owner)
 {
     struct waffle_submit_session *s=owner && owner->plan?owner->plan->submit_session:NULL;
     return s && s->phase==SUBMIT_READY && s->owns_oob && s->submitted==s->completed &&
-        s->next_sequence==44+s->submitted && !rd(s->gpu,0xf400*4) &&
+        s->next_sequence==(s->plan->compute_image==13?waffle_gpu_submit_sequence(s->submitted):44+s->submitted) && !rd(s->gpu,0xf400*4) &&
         !(rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3);
 }
 bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *owner)
@@ -2197,7 +2199,7 @@ bool waffle_gmu_owner_submit(struct waffle_gmu_owner *owner,struct waffle_gpu_su
     if(!owner || !owner->plan || owner->plan->compute_image!=13 || !job || !job->commands ||
        !job->count || job->count>WAFFLE_GPU_SUBMIT_COMMANDS || !waffle_gmu_owner_memory_idle(owner))return false;
     struct waffle_submit_session *s=owner->plan->submit_session;
-    if(s->submitted>=1024 || s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024)return false;
+    if(s->submitted==UINT32_MAX || s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024)return false;
     uint32_t commands[WAFFLE_GPU_SUBMIT_WORDS];unsigned words=0;
     for(unsigned c=0;c<job->count;c++){
         const struct waffle_gpu_command *command=&job->commands[c];

@@ -92,3 +92,11 @@ try:m.validate_gl_bo_lifetimes(life+freed.replace('index=1','index=2')+'\n',32,3
 except RuntimeError:pass
 else:raise AssertionError('First revocation after context detach accepted')
 print('GL BO lifetime proof: exact console replays and revoked-hole reuse accepted; missing revocation, CPU/TLB/VA/accounting/teardown corruption and post-detach new lifetime events refused; synthetic fixtures only')
+longrun='\n'.join(f'GENERAL_SUBMIT done fence={f} seq={m.gl_sequence(f-1)} control={f:08x} checked=4096 wrong_words=0' for f in range(1,10001))
+assert m.gl_completed_fences(longrun)==10000
+for before in [1024,4051,8145]:
+ bad=longrun.replace(f'fence={before} seq={m.gl_sequence(before-1)}',f'fence={before} seq=4095')
+ try:m.gl_completed_fences(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Wrong wrapped HFI sequence accepted')
+print('GL fences:10000 monotonic32bit tokens with bounded HFI tags; corrupted former1024/tag-wrap boundaries refused; synthetic fixtures only')

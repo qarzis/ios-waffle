@@ -1,0 +1,1 @@
+HOST actual GMU:10000 consecutive synchronous submissions, former1024 and multiple4094-tag boundaries,32bitfence overflow refusal, matching packet sequence/completion guards/shutdown tag; ACK/stale-token failures retain poisoned session. Firmware and GPU mocked.
