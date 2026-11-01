@@ -1,0 +1,23 @@
+{
+  "run": "work/waffle/runs/20261101T122209Z",
+  "auto": "work/waffle/auto-runs/20261101T122145Z",
+  "hypothesis": "H1 unused relocation pointer with nr_relocs=0",
+  "hypothesis_confirmed": true,
+  "actual_Darwin_OSMesa": true,
+  "renderer": "FD750",
+  "GL_version": "4.6 Core Mesa26.3.0-rc1",
+  "GPU_submitted": true,
+  "GPU_completed_fences": 2,
+  "GPU_control_checks_per_job": 4096,
+  "GPU_wrong_words": 0,
+  "pixels_checked": 256,
+  "pixels_wrong": 0,
+  "filled_pixels": 128,
+  "GL_error": 0,
+  "BOs_created": 23,
+  "full_context_teardown": true,
+  "independent_android": "1",
+  "runner_exit": 0,
+  "UI_acceleration": false,
+  "log_sha256": "4d440175b422c899b5f4690a514d50b60a6ef0144ff98a9cd97f011f372b432f"
+}

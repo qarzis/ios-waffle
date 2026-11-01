@@ -59,6 +59,9 @@ t+=r'''
  uint32_t closed=1;assert(!drm_ioctl(0,WAFFLE_MSM_QUEUE_CLOSE,(char *)&closed,0,&owner));
  assert(drm_ioctl(0,WAFFLE_MSM_QUEUE_CLOSE,(char *)&closed,0,&owner)==EINVAL);
  assert(!drm_queue_valid(1) && drm_queue_valid(2) && !drm_queue_valid(33));
+ cmd.nr_relocs=1;cmd.relocs=0xdeadbeef;
+ assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner)==EINVAL && !copies);
+ cmd.nr_relocs=0; /* Actual Mesa softpin caller does not initialize relocs. */
  assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==1 && mapped==13);
  struct waffle_msm_wait wait={.fence=1,.queueid=2};assert(!drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner));wait.fence=2;assert(drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner)==EINVAL);
  for(unsigned i=1;i<=13;i++){struct waffle_msm_close r={.handle=i};assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&r,0,&owner));}

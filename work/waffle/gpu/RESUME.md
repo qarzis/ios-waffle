@@ -1,3 +1,52 @@
+# E39 PASS — actual Mesa FD750 triangle under XNU
+
+Run20261101T122209Z / auto20261101T122145Z both runner0/success. Independent Android1. Actual Darwin OSMesa FD750/GL4.6core: 256pixels checked/wrong0/128filled, actualGPUfences1/2, 4096guards/job wrong0. 23BOs/fullstop/contextnull. H1 unused relocation pointer nr_relocs0 CONFIRMED (nonzero pointers seen); flags10/root417+107 within existing bounds exclude H2/H3 for this trace. Minimal cdev pointer-validation fix only +telemetry. Artifact diagnostic-gpu-gl-submit-e39 sourcebound/validated. Results forensic-audit/E39-result.json, controlE39-control-result.json. No accelerated SpringBoard/display claim: actual GPU GL renders offscreen. Next inspect actual GL-to-display/IOSurface stack and E24 existing presentation path; choose bounded experiment before edits. No active hardware process, phone Android1. Preserve qualified current source/evidence to archive+verified refs; no GitHub push. User status asked/answered; prior autonomous work remains authorized. No manual BootiOS/flash/erase.
+
+# Active E39 hardware GL submit test running
+
+Fullbuild/sourcebinding/validationPASS. Oldmapped12control run20261101T122023Z/auto121959Z PASS and independentAndroid1. NewGL13 exec session recorded in turn, artifact diagnostic-gpu-gl-submit-e39, logfile gpu/auto-gl-submit-e39-user.log. No concurrent fastboot; wait full auto and independently check Android1. Exact hypotheses and prior findings below. User status answered, continue authorized GPU work.
+
+# Active E39 — actual FD750 GL context created; submit ABI gap fix building
+
+Userkeepworkingactive; lateststatusquestionansweredcommentary. E38GLrun
+121304Z/auto121240Z confirmedtablecapacityfix: actualFD750OpenGL4.6core
+contextcreated,23BOs, noNULLpipe/tablefailure. TwoMSMsubmitEINVALbeforeany
+GENERAL_SUBMIT, all256pixelszero/wrong. Fullcontextstop/23backingsfreed,
+Androidindependent1. Source/resultE38-result.json. NoGPUdrawexecutedyet.
+
+E39 max3hypothesesloggedH1unusedrelocspointer,H2NO_IMPLICITflag,H3rootwordcap.
+H1 actualMesa msm_ringbuffer_sp.c stackcmdssetsnr_relocs0butneverrelocs;
+ourcdevrequiredrelocs0unconditionally. ExistingMacanGPUignorespointerwhen
+count0. Minimalfixignoreunusedpointeronlywithnr_relocs0; nonzero countstill
+refused. Hostactualcdevpoisonpointerdeadbeef/count0accepted,count1rejectedPASS.
+AddedGENERALrequestflags/bos/roots/queueandrootbounds/relocfieldtelemetry.
+No flags/capacity expansions withoutactualvalue, noGPU/power/shaderchange.
+Nowfullbuild exec42943 artifactdiagnostic-gpu-gl-submit-e39,
+loggpu/build-gl-submit-e39.log. Needfullbuild/sourcebind thenoldmappedcontrol
+->Android1->oneGL13. E37queuefixconfirmed, E38tablefixconfirmed; distinct
+measurablegaps, no blindrepeat. Archive51e45d7, hardwareverifiedE33 4cf1355.
+NoGitHubpush/no flash/erase/manualBootiOS. KeepworkingunlessSTOP.
+
+# Active E38 GL capacity test running — status answered, continue
+
+Userlateststatus«как успехи?» answeredcommentary, do notstoporiginaltask.
+E37queuefixconfirmedactualqueues1/2/3/noNULLfault; nexttablepoolcapacity32
+failed6thBO. Actualhostmapper25bootstrap+realGLsizesreproducesfailure32,
+bound64success13BOusing33tables. E38fullbuild/sourcebindingPASS; oldmapped12
+control121142Z/auto121118Z PASS/runner0/Androidindependent1.
+
+CurrentoneGL13 E38 exec43186/auto20261101T121240Z running, artifact
+ diagnostic-gpu-gl-tables-e38, logfilegpu/auto-gl-tables-e38-user.log.
+No concurrentfastboot. Waitfullrunner/autorecoverythenAndroidindependent1.
+NewWIParchive51e45d73de8245d8ee0bb677323b3240ce2b2673; hardwareverifiedE33
+4cf1355848b401e9798eaf9d8328278ff5af0ee3unchanged. NoGLtriangleyetclaimed.
+Strictuserpixel/fence/BOlifetime/fullparentstop requiredbeforeverifiedref.
+Iffailinspectnewphase/no blindrepeat; useranti-loopreviewafter3failedsame
+phase, E36reviewalreadydone/newqueue+tablehypothesesevidencebased.
+Rawconsolefd0+signalhandlerworks; failuresprecisePCnormalizedMesasymbols.
+Generalonlycodechangescapacity64+failurelog, oldGPUsetup/AP/TCR/shaderuntouched.
+NoGitHubpush/noflash/erase/manualBootiOS. KeepworkingunlessuserSTOP.
+
 # Active E38 — GL queue blocker fixed; table pool exhaustion reproduced/fix building
 
 Userresumeactive/keepworking. E37queuefixconfirmedactualGLrun120715Z/
