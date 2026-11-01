@@ -1,31 +1,10 @@
-"""Prototype generation handles against actual cdev code; runtime unchanged.
-
-Temporary source adaptations are explicitly a design candidate, not a claim
-that the runtime allocator/registry already supports descriptor recycling.
-"""
+"""Generation handles against unmodified actual cdev; GPU allocation mocked."""
 from pathlib import Path
 import re,subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 ns={'__file__':str(root/'tools/tests/waffle-general-drm-host.py')}
 s=(root/'tools/tests/waffle-general-drm-host.py').read_text();exec(s[:s.index('\nwith tempfile.TemporaryDirectory()')],ns)
 source=ns['source']
-source=source.replace('bool live;','bool live;uint32_t handle;')
-begin=source.index('static struct drm_bo *drm_buffer(');end=source.index('static void drm_allocation_refused(',begin)
-source=source[:begin]+'''static struct drm_bo *drm_buffer(unsigned handle){
- unsigned slot=waffle_gpu_handle_slot(handle);
- return slot<drm_count && drm_bos[slot].live && drm_bos[slot].handle==handle?&drm_bos[slot]:NULL;
-}
-'''+source[end:]
-source=source.replace('(bos[i].handle-1)/64','waffle_gpu_handle_slot(bos[i].handle)/64').replace('(bos[i].handle-1)%64','waffle_gpu_handle_slot(bos[i].handle)%64')
-begin=source.index('  if(drm_count>=WAFFLE_GPU_BO_LIMIT)');end=source.index('  struct waffle_gpu_memory *bo=waffle_gpu_context_memory_new',begin)
-source=source[:begin]+'''  unsigned slot=WAFFLE_GPU_BO_LIMIT;uint32_t handle=0;
-  for(unsigned i=0;i<drm_count;i++)if(!drm_bos[i].live && (handle=waffle_gpu_handle_next(drm_bos[i].handle,i))){slot=i;break;}
-  if(slot==WAFFLE_GPU_BO_LIMIT && drm_count<WAFFLE_GPU_BO_LIMIT){slot=drm_count;handle=waffle_gpu_handle_next(0,slot);}
-  if(slot==WAFFLE_GPU_BO_LIMIT){error=ENOSPC;goto done;}
-'''+source[end:]
-old='drm_bos[drm_count]=(struct drm_bo){.memory=bo,.live=true};r->handle=++drm_count;'
-assert old in source
-source=source.replace(old,'drm_bos[slot]=(struct drm_bo){.memory=bo,.live=true,.handle=handle};if(slot==drm_count)drm_count++;r->handle=handle;')
 h=ns['h'];begin=h.index('struct waffle_gpu_memory *waffle_gpu_context_memory_new(');end=h.index('bool waffle_gpu_memory_map(',begin)
 h=h[:begin]+r'''
 static bool fail_memory;
@@ -59,7 +38,7 @@ int main(void){
   submit.nr_bos=1;
   assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&submit,0,&owner) && submit.fence==i+1 && !snapshot_live);
   struct waffle_msm_close close={.handle=n.handle};assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&close,0,&owner));
-  assert(!storage[0].object && live_reclaims==i+1);previous=n.handle;
+  assert(!storage[0].object && !drm_bos[0].memory && live_reclaims==i+1);previous=n.handle;
  }
  assert(stored==1 && copies==100000 && drm_count==1);
  /* A failed allocation must leave the slot's generation unchanged. */
@@ -72,6 +51,8 @@ int main(void){
  assert(!waffle_gpu_handle_next(drm_bos[0].handle,0));
  n=(struct waffle_msm_gem_new){.size=16384,.flags=WAFFLE_GPU_BO_WC};
  assert(!drm_ioctl(0,WAFFLE_MSM_NEW,(char *)&n,0,&owner) && n.handle==2 && drm_count==2);
+ assert(!drm_bos[0].memory && drm_bos[1].memory==&storage[0]);
+ drm_allocation_refused(16384,WAFFLE_GPU_BO_WC,"test");
  close.handle=n.handle;assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&close,0,&owner));
  assert(!drm_close(0,0,0,&owner) && !stored);return 0;
 }
@@ -81,4 +62,4 @@ with tempfile.TemporaryDirectory() as directory:
  subprocess.run(['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable','-Wno-misleading-indentation',
   '-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('HOST PROTOTYPE cdev:100000 allocate/submit/close cycles reuse one slot, monotonic generations reject stale INFO/CLOSE and duplicate high handles, failed allocation preserves generation, overflow quarantines slot. Registry/fences GPU mocked; temporary source adaptations only, runtime not wired.')
+print('HOST actual cdev:100000 allocate/submit/close cycles reuse one slot, monotonic generations reject stale INFO/CLOSE and duplicate high handles, failed allocation preserves generation, overflow quarantines slot. Registry/fences GPU mocked; no cdev source adaptations.')

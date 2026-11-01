@@ -175,6 +175,50 @@ def gl_va_budget(text,pid,capacity,budget):
     return span
 
 
+def gl_generation_handles(text):
+    declarations=re.findall(r"GENERAL open [^\n]*",text)
+    values=[]
+    for declaration in declarations:
+        fields=re.findall(r"\bgeneration_handles=([^\s]+)",declaration)
+        if 'generation_handles' in declaration and fields!=['1']:
+            raise RuntimeError("Malformed GPU generation handle declaration")
+        values.append(bool(fields))
+    if values and any(value!=values[0] for value in values):
+        raise RuntimeError("Conflicting GPU generation handle declarations")
+    return bool(values and values[0])
+
+
+def validate_gl_generation_handles(text,capacity,buffers,retired):
+    """Bind each issued identity to one public generation, including reuse."""
+    new=r"GENERAL gem_new handle=(\d+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) VA=([0-9a-f]+)"
+    close=r"GENERAL bo_retired handle=(\d+) bytes=(\d+) backing_retained=0"
+    seen={};previous={};active={};issued=0;closed=set()
+    for event in re.finditer(f"(?P<new>{new})|(?P<close>{close})",text):
+        kind='new' if event.group('new') else 'close'
+        values=re.fullmatch(new if kind=='new' else close,event.group(0)).groups()
+        handle=int(values[0]);key=(kind,handle)
+        if key in seen:
+            if seen[key]!=values:raise RuntimeError("Conflicting GPU generation event")
+            continue
+        seen[key]=values
+        if not 0<handle<=0xffffffff:raise RuntimeError("Invalid GPU generation handle")
+        slot=(handle-1)%capacity
+        if kind=='new':
+            expected=previous[slot]+capacity if slot in previous else slot+1
+            if slot in active or handle!=expected:raise RuntimeError("GPU handle reused before retirement or generation mismatch")
+            issued+=1
+            logical,allocated,flags,va=int(values[1]),int(values[2]),int(values[3],16),int(values[4],16)
+            if issued not in buffers or buffers[issued][:4]!=(va,logical,allocated,flags):
+                raise RuntimeError("GPU generation does not match backing publication")
+            previous[slot]=handle;active[slot]=(handle,issued,allocated)
+        else:
+            if slot not in active or active[slot][0]!=handle or active[slot][2]!=int(values[1]):
+                raise RuntimeError("Stale GPU generation retirement")
+            closed.add(active.pop(slot)[1])
+    if issued!=len(buffers) or closed!=retired:
+        raise RuntimeError("Incomplete GPU generation lifetime proof")
+
+
 def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     """Track unique publications/revocations across console replay duplicates."""
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
@@ -185,7 +229,8 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     release=releases[0]
     if any(m.groups()!=release.groups() for m in releases):raise RuntimeError("Conflicting GL release counts")
     if va_budget is None:va_budget=budget
-    buffers={};active={};seen={};used=0;retired=0;append_end=0x100000000
+    generations=gl_generation_handles(text)
+    buffers={};active={};seen={};used=0;retired=0;retired_indices=set();append_end=0x100000000
     for event in re.finditer(f"(?P<publication>{publication})|(?P<reclaim>{reclaim})",text):
         kind='publication' if event.group('publication') else 'reclaim'
         values=re.fullmatch(publication if kind=='publication' else reclaim,event.group(0)).groups()
@@ -197,7 +242,8 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         seen[key]=values
         if kind=='publication':
             va,logical,allocated,flags,pages=int(values[1],16),int(values[2]),int(values[3]),int(values[4],16),int(values[5])
-            if index!=len(buffers)+1 or index>capacity:raise RuntimeError("Missing GL BO publication")
+            if index!=len(buffers)+1 or index>0xffffffff or (index>capacity and not generations):raise RuntimeError("Missing GL BO publication")
+            if len(active)>=capacity:raise RuntimeError("Live GL BO descriptor capacity exceeded")
             if (not 0<logical<=8*1024*1024 or allocated!=((logical+16383)&~16383) or
                 flags not in (0x20000,0x20002) or pages!=allocated//4096 or va&16383 or
                 va<0x100000000 or va+allocated>0x100000000+va_budget):
@@ -214,13 +260,14 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             if index not in active or active[index][0]!=va or active[index][2]!=allocated:
                 raise RuntimeError("GL BO revocation has no matching live publication")
             if tuple(map(int,values[3:6]))!=(1,1,1):raise RuntimeError("GL BO revocation lacks CPU/GPU/TLB proof")
-            used-=allocated;active.pop(index);retired+=1
+            used-=allocated;active.pop(index);retired+=1;retired_indices.add(index)
             if int(values[6])!=used:raise RuntimeError("GL reclaim physical budget mismatch")
     if not buffers:raise RuntimeError("Missing GL BO publication")
     remaining=int(release[1]);earlier=int(release[2]) if release[2] else 0
     total=int(release[3]) if release[3] else remaining
     if remaining!=len(active) or earlier!=retired or total!=len(buffers) or remaining+earlier!=total:
         raise RuntimeError("GL BO backing release accounting mismatch")
+    if generations:validate_gl_generation_handles(text,capacity,buffers,retired_indices)
     return buffers,release.group(0)
 
 
@@ -403,7 +450,7 @@ def validate_ui_workload_log(text):
         if f"GENERAL_IB ACK matched seq{gl_sequence(fence-1)} value=00000000 valid=1" not in text:
             raise RuntimeError("UI workload GPU ACK missing")
     close=re.search(rf"GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1",text)
-    if not close or not 1<=int(close[1])<=capacity:raise RuntimeError("UI workload context teardown missing")
+    if not close or not 1<=int(close[1])<=(0xffffffff if gl_generation_handles(text) else capacity):raise RuntimeError("UI workload context teardown missing")
     buffers,_=validate_gl_bo_lifetimes(text,capacity,budget,gl_va_budget(text,pid,capacity,budget))
     if len(buffers)!=int(close[1]):raise RuntimeError("UI workload backing release count mismatch")
     if not re.search(r"redwood-gl: frame [1-9]\d*: \d+ GL calls, [1-9]\d* draws",text):

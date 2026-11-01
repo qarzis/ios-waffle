@@ -3,13 +3,13 @@
 #include "waffle_gpu_memory.h"
 #define WAFFLE_GPU_BO_VA_BASE 0x100000000ULL
 /* Bounded general heap, independent from 32-bit firmware regions. Handles
- * remain monotonic. Only completely revoked VA holes may be reused; failed
+ * include a generation. Only completely revoked slots/VA holes may be reused; failed
  * publication poisons the registry and retains backing until GPU detach. */
 struct waffle_gpu_registry {
  struct waffle_gpu_memory *buffers;
  void (*release_storage)(uintptr_t,uint32_t);
  uint32_t storage_bytes;
- uint32_t count,used;
+ uint32_t count,used,issued;
  bool poisoned;
 };
 struct waffle_gpu_registry_ops {
@@ -48,15 +48,19 @@ static inline struct waffle_gpu_memory *waffle_gpu_registry_new(struct waffle_gp
  const struct waffle_gpu_registry_ops *ops,uint64_t bytes,uint32_t flags)
 {
  if(!r || !r->buffers || !ops || !ops->idle || !ops->vacant || !ops->map_page || !ops->clean || !ops->tlb ||
-    r->poisoned || r->count>=WAFFLE_GPU_BO_LIMIT || !waffle_gpu_registry_flags(bytes,flags))return 0;
+    r->poisoned || r->count>WAFFLE_GPU_BO_LIMIT || r->issued==UINT32_MAX || !waffle_gpu_registry_flags(bytes,flags))return 0;
+ uint32_t slot=0;
+ while(slot<r->count && r->buffers[slot].object)slot++;
+ if(slot>=WAFFLE_GPU_BO_LIMIT)return 0;
  uint32_t allocated=((uint32_t)bytes+16383)&~16383u;
  if(r->used>WAFFLE_GPU_BO_HEAP_BYTES || allocated>WAFFLE_GPU_BO_HEAP_BYTES-r->used || !ops->idle(ops->context))return 0;
  uint64_t address=waffle_gpu_registry_find_hole(r,ops,allocated);
  if(!address)return 0;
- struct waffle_gpu_memory *bo=&r->buffers[r->count];
+ struct waffle_gpu_memory *bo=&r->buffers[slot];
  if(!waffle_gpu_memory_create(bytes,flags,bo))return 0;
  bo->gpu_va=address;
- ++r->count;r->used+=allocated;
+ if(slot==r->count)r->count++;
+ bo->serial=++r->issued;r->used+=allocated;
  /* Mark before touching any PTE: uncertain partial publication retains BO. */
  bo->published=true;
  for(uint32_t off=0;off<allocated;off+=4096){
@@ -75,6 +79,6 @@ static inline bool waffle_gpu_registry_destroy(struct waffle_gpu_registry *r,boo
  for(uint32_t i=0;i<r->count;i++)if(r->buffers[i].object && !waffle_gpu_memory_destroy(&r->buffers[i],true))return false;
  if(r->release_storage && r->buffers)r->release_storage((uintptr_t)r->buffers,r->storage_bytes);
  r->buffers=0;r->release_storage=0;r->storage_bytes=0;
- r->count=r->used=0;r->poisoned=false;return true;
+ r->count=r->used=r->issued=0;r->poisoned=false;return true;
 }
 #endif

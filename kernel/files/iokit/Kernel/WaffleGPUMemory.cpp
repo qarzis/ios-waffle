@@ -22,7 +22,7 @@ bool waffle_gpu_memory_create(uint64_t bytes,uint32_t flags,struct waffle_gpu_me
  uintptr_t address=reinterpret_cast<uintptr_t>(memory->getBytesNoCopy());
  if(!address || (address&16383)){memory->release();return false;}
  *bo=(struct waffle_gpu_memory){.object=reinterpret_cast<uintptr_t>(memory),.memory=address,.gpu_va=0,
-     .bytes=static_cast<uint32_t>(bytes),.allocation_bytes=allocated,.flags=flags,.published=false};
+     .bytes=static_cast<uint32_t>(bytes),.allocation_bytes=allocated,.flags=flags,.serial=0,.published=false};
  for(uint32_t offset=0;offset<allocated;offset+=4096)if(!waffle_gpu_memory_page(bo,offset)){
      memory->release();*bo={};return false;
  }

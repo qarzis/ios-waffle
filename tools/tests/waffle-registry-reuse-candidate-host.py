@@ -1,19 +1,11 @@
-"""Prototype tombstone reuse in actual registry/SMMU code; runtime unchanged."""
+"""Tombstone reuse in unmodified actual registry/SMMU code; hardware mocked."""
 from pathlib import Path
 import re,subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 ns={'__file__':str(root/'tools/tests/waffle-reclaim-smmu-host.py')}
 s=(root/'tools/tests/waffle-reclaim-smmu-host.py').read_text();exec(s[:s.index('\nwith tempfile.TemporaryDirectory()')],ns)
-memory=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text().replace('uint32_t bytes,allocation_bytes,flags;','uint32_t bytes,allocation_bytes,flags,serial;')
-registry=(root/'kernel/files/bsd/sys/waffle_gpu_registry.h').read_text().replace('uint32_t count,used;','uint32_t count,used,issued;')
-registry=registry.replace('r->count>=WAFFLE_GPU_BO_LIMIT','(r->count>WAFFLE_GPU_BO_LIMIT || r->issued==UINT32_MAX)')
-old='struct waffle_gpu_memory *bo=&r->buffers[r->count];';assert old in registry
-registry=registry.replace(old,'''uint32_t slot=0;while(slot<r->count && r->buffers[slot].object)slot++;
- if(slot>=WAFFLE_GPU_BO_LIMIT)return 0;
- struct waffle_gpu_memory *bo=&r->buffers[slot];''')
-old='++r->count;r->used+=allocated;';assert old in registry
-registry=registry.replace(old,'if(slot==r->count)r->count++;bo->serial=++r->issued;r->used+=allocated;')
-registry=registry.replace('r->count=r->used=0;','r->count=r->used=r->issued=0;')
+memory=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text()
+registry=(root/'kernel/files/bsd/sys/waffle_gpu_registry.h').read_text()
 extra=ns['extra'].replace('return 0x20000000ULL+bo->object*0x1000000ULL+off*2;',
  'return 0x20000000ULL+(uint64_t)(bo-active->registry.buffers)*0x100000ULL+off*2;')
 test=r'''
@@ -51,4 +43,4 @@ with tempfile.TemporaryDirectory() as directory:
  subprocess.run(['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-misleading-indentation',
   '-fsanitize=address,undefined','-I',str(p),'-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('HOST PROTOTYPE actual registry/SMMU:100000 allocate/revoke/reclaim cycles reuse one tombstone with monotonic serials; readonly anchor PTE/table count/resident budget unchanged, dual-ASID revocation before reuse, serial overflow refuses, full teardown once. Temporary header adaptations only; runtime not wired.')
+print('HOST actual registry/SMMU:100000 allocate/revoke/reclaim cycles reuse one tombstone with monotonic serials; readonly anchor PTE/table count/resident budget unchanged, dual-ASID revocation before reuse, serial overflow refuses, full teardown once. No registry header adaptations; hardware mocked.')

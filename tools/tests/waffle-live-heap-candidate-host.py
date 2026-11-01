@@ -11,20 +11,21 @@ fixture='static const uint64_t measured[][4]={'+','.join(
 test=r'''
 int main(void){
  struct smmu_owner owner;reset_owner(&owner);
+ struct waffle_gpu_memory *issued[907]={0};
  for(unsigned i=0;i<sizeof(measured)/sizeof(measured[0]);i++){
   const uint64_t *e=measured[i];
   if(e[0]){
-   struct waffle_gpu_memory *bo=smmu_registry_new(&owner,e[2],e[3]);assert(bo && owner.registry.count==e[1]);
+   struct waffle_gpu_memory *bo=smmu_registry_new(&owner,e[2],e[3]);assert(bo && owner.registry.issued==e[1]);issued[e[1]]=bo;
    for(unsigned off=0;off<bo->allocation_bytes;off+=4096){
     uint64_t entry=pte(&owner.pool,bo->gpu_va+off);
     assert((entry&PTE_ADDRESS)==waffle_gpu_memory_page(bo,off) && (entry&0xc3)==((bo->flags&2)?0xc3:0x43));
    }
-  }else assert(smmu_registry_reclaim(&owner,&owner.registry.buffers[e[1]-1],true));
+  }else assert(smmu_registry_reclaim(&owner,issued[e[1]],true));
  }
- assert(owner.registry.count==906 && owner.registry.used==67108864 && live_released==13);
+ assert(owner.registry.issued==906 && owner.registry.used==67108864 && live_released==13);
  struct waffle_gpu_memory *next=smmu_registry_new(&owner,16384,WAFFLE_GPU_BO_WC|2);
  assert((next!=NULL)==(WAFFLE_GPU_BO_HEAP_BYTES==134217728));
- if(next)assert(owner.registry.used==67125248 && owner.registry.count==907);
+ if(next)assert(owner.registry.used==67125248 && owner.registry.issued==907);
  assert(waffle_gpu_registry_destroy(&owner.registry,true) && released==objects && storage_frees==1);
  if(WAFFLE_GPU_BO_HEAP_BYTES==134217728){
   reset_owner(&owner);

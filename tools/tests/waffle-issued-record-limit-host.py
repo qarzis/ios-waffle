@@ -1,9 +1,10 @@
-"""Reproduce the current cumulative descriptor limit without a hardware run."""
+"""Reproduce the historical cumulative limit using a pinned pre-fix fixture."""
 from pathlib import Path
 import subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 ns={'__file__':str(root/'tools/tests/waffle-general-drm-host.py')}
 s=(root/'tools/tests/waffle-general-drm-host.py').read_text();exec(s[:s.index('\nwith tempfile.TemporaryDirectory()')],ns)
+ns['source']=ns['strip']((root/'tools/tests/fixtures/waffle-drm-before-generations.c').read_text()).replace('__asm__ volatile("dsb sy":::"memory");','')
 test=r'''
 int main(void){
  assert(waffle_gpu_drm_register());assert(!drm_open(0,0,0,&owner));
@@ -27,4 +28,4 @@ with tempfile.TemporaryDirectory() as directory:
  subprocess.run(['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable',
   '-Wno-misleading-indentation','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('HOST current cdev reproduces cumulative8192-record exhaustion despite immediate successful modeled reclamation of every BO and zero live backing. This is a proved persistent-session gap, not a newly observed hardware failure.')
+print('HOST pinned pre-generation cdev reproduces cumulative8192-record exhaustion despite immediate successful modeled reclamation of every BO and zero live backing. This is a proved persistent-session gap, not a newly observed hardware failure.')

@@ -1,0 +1,33 @@
+{
+  "run": "work/waffle/runs/20261101T214018Z",
+  "auto": "work/waffle/auto-runs/20261101T213954Z",
+  "planned_UI_seconds": 240,
+  "GPU_fences": 17525,
+  "all_completion_tokens_verified": true,
+  "total_BO_count": 4626,
+  "reclaimed_early": 4316,
+  "remaining_BO_count": 310,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "observed_allocation_refusals": 0,
+  "observed_new_ioctl_EINVAL": true,
+  "new_ioctl_EINVAL_cause": "Unknown: request size/flags not printed by current prevalidation; not attributed to memory exhaustion",
+  "profile_snapshot_count": 1152,
+  "readback_profile_occurrences_with_console_replay": [
+    {
+      "mode": "rows",
+      "reads": 1,
+      "occurrences": 156586
+    }
+  ],
+  "profile_caveat": "Counts include rolling console replay; not frames, distributions, or FPS. No batch inverted read observed for selected GPU PID.",
+  "UI_FPS_speedup_verified": false,
+  "runner_exit": 1,
+  "runner_failure": "Original strict failure retained; final rolling console lacks early startup proof",
+  "independent_android": "1",
+  "raw_proof_sha256": {
+    "kernel-926.log": "9575da55ade7fd295084be1ed634e9964903a855e5ae80dc5e5b22797e0d9613",
+    "kernel-final.log": "5b6d9ab4b6f88eeab8b1b333356253e8d04bd82a703072085661c5948d3dbc56",
+    "ui-gpu-events.log": "94698490a34a8548d742d4915ac8aacdbe9b2f187c671336eb4cbe6545e8f677"
+  }
+}
