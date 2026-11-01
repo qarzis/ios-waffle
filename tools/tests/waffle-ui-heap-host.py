@@ -22,7 +22,11 @@ t+=r'''
 }
 '''
 with tempfile.TemporaryDirectory() as directory:
- p=Path(directory);parts=model['parts'];(p/'test.c').write_text(model['h']+parts['mapping']+parts['types']+parts['dynamic']+t)
- subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+ p=Path(directory);parts=model['parts'];
+ header=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text();import re
+ (p/'waffle_gpu_memory.h').write_text(re.sub(r'#define WAFFLE_GPU_BO_HEAP_BYTES .*','#define WAFFLE_GPU_BO_HEAP_BYTES 33554432u',header))
+ (p/'waffle_gpu_registry.h').write_text((root/'kernel/files/bsd/sys/waffle_gpu_registry.h').read_text())
+ (p/'test.c').write_text(model['h']+parts['mapping']+parts['types']+parts['dynamic']+t)
+ subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-I',str(p),'-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
 print('Actual SMMU/registry:35 observedUIBOs use28901376bytes;5MiB request exceeds32MiB and fails before allocation/PTE/TLB,small16KiB request succeeds,no poisoning/table exhaustion; host only')

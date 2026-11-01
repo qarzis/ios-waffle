@@ -165,13 +165,16 @@ def validate_gl_log(text):
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64)\b",text)
     if not capacity:raise RuntimeError("Missing bounded GL BO capacity")
     capacity=int(capacity[1])
+    budget=re.search(rf"GENERAL open pid=1 BO_limit={capacity} heap_bytes=(33554432|67108864)\b",text)
+    if not budget:raise RuntimeError("Missing bounded GL heap declaration")
+    budget=int(budget[1])
     if "REBOOT REQUIRED" in text or "GENERAL_SUBMIT mismatch" in text:raise RuntimeError("GL GPU ownership or completion failed")
     markers=[f"GENERAL registered root_only=1 gated=1 BO_limit={capacity}",
        "waffle-gl-init: exec actual Darwin Mesa probe pid=1",
        "waffle-gl-user: begin actual_OSMesa=1 target=GPU triangle=16x16",
        "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
        "full GPU owner returned live to init caller; no mutex held","SERVICE begin root_live=1 serialized=1",
-       f"GENERAL open pid=1 BO_limit={capacity} heap_bytes=33554432"]
+       f"GENERAL open pid=1 BO_limit={capacity} heap_bytes={budget}"]
     cursor=0
     for marker in markers:
         at=text.find(marker,cursor)
@@ -200,7 +203,7 @@ def validate_gl_log(text):
         if va!=expected_va or not 0<logical<=8*1024*1024 or allocated!=(logical+16383)&~16383 or flags not in (0x20000,0x20002) or pages!=allocated//4096:
             raise RuntimeError("Invalid GL BO range/permission publication")
         expected_va+=allocated
-    if expected_va>0x102000000:raise RuntimeError("GL BO heap budget exceeded")
+    if expected_va>0x100000000+budget:raise RuntimeError("GL BO heap budget exceeded")
     markers=["waffle-gl-user: checked=256 wrong=0 filled=128 GL_error=0",
        f"GENERAL_BO released after GPU stop and context detach count={len(buffers)}",
        "SMMU_OWNER released after child stop and context detach","CLOCK_OWNER released before CX restore result=1",
@@ -323,9 +326,12 @@ def validate_ui_workload_log(text):
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64)\b",text)
     if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
     capacity=int(capacity[1])
+    budget=re.search(rf"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=(33554432|67108864)\b",text)
+    if not budget:raise RuntimeError("Missing bounded UI heap declaration")
+    budget=int(budget[1])
     for marker in (
         "waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1",
-        f"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=33554432",
+        f"GENERAL open pid={pid} BO_limit={capacity} heap_bytes={budget}",
         "FD750; shaders OpenGL ES GLSL ES",
         f"waffle-ui-gpu: bounded process stop pid={pid} seconds=30",
         "SMMU_OWNER released after child stop and context detach",

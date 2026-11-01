@@ -1,0 +1,38 @@
+kernel-2.log: waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1
+kernel-2.log: waffle-ui-init: exec normal init and real launchd/UI
+kernel-11.log: waffle-ui-gpu: selected process=backboardd pid=83 uid=501 bounded=1
+kernel-90.log: waffle-gpu: GENERAL open pid=83 BO_limit=64 heap_bytes=33554432
+kernel-90.log: waffle-gpu: GENERAL bo_retired handle=1 bytes=16384 backing_retained=1
+kernel-90.log: waffle-gpu: GENERAL ioctl_refused op=40 error=45 pid=83
+kernel-90.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.2 Mesa 26.3.0-rc1; FD750; shaders OpenGL ES GLSL ES 3.20
+kernel-113.log: waffle-gmu: GENERAL_SUBMIT begin fence=1 seq=44 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-113.log: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+kernel-113.log: waffle-gpu: GENERAL allocation_refused bytes=5242880 flags=20000 count=35 limit=64 reason=registry live_count=34 live_bytes=28884992 retired_count=1 retired_bytes=16384 heap_limit=33554432
+kernel-113.log: waffle-gpu: GENERAL ioctl_refused op=42 error=12 pid=83
+kernel-113.log: waffle-gmu: GENERAL_SUBMIT begin fence=2 seq=45 root_words=450 kernel_tail=15 extra_IB_depth=0
+kernel-113.log: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+kernel-117.log: waffle-gpu: GENERAL allocation_refused bytes=5242880 flags=20000 count=36 limit=64 reason=registry live_count=35 live_bytes=29016064 retired_count=1 retired_bytes=16384 heap_limit=33554432
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=3 seq=46 root_words=111 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+kernel-120.log: waffle-gpu: GENERAL allocation_refused bytes=16384 flags=20000 count=64 limit=64 reason=slots live_count=63 live_bytes=30048256 retired_count=1 retired_bytes=16384 heap_limit=33554432
+kernel-120.log: waffle-gpu: GENERAL ioctl_refused op=42 error=28 pid=83
+kernel-120.log: waffle-gpu: GENERAL ioctl_refused op=46 error=22 pid=83
+kernel-120.log: waffle-gpu: GENERAL bo_retired handle=35 bytes=5242880 backing_retained=1
+kernel-120.log: waffle-gpu: GENERAL ioctl_refused op=47 error=22 pid=83
+kernel-120.log: waffle-gpu: GENERAL allocation_refused bytes=16384 flags=20000 count=64 limit=64 reason=slots live_count=62 live_bytes=24805376 retired_count=2 retired_bytes=5259264 heap_limit=33554432
+kernel-120.log: waffle-gpu: GENERAL allocation_refused bytes=163840 flags=20000 count=64 limit=64 reason=slots live_count=62 live_bytes=24805376 retired_count=2 retired_bytes=5259264 heap_limit=33554432
+kernel-120.log: waffle-gpu: GENERAL allocation_refused bytes=32768 flags=20000 count=64 limit=64 reason=slots live_count=62 live_bytes=24805376 retired_count=2 retired_bytes=5259264 heap_limit=33554432
+kernel-120.log: waffle-gpu: GENERAL allocation_refused bytes=65536 flags=20000 count=64 limit=64 reason=slots live_count=62 live_bytes=24805376 retired_count=2 retired_bytes=5259264 heap_limit=33554432
+kernel-120.log: waffle-gpu: GENERAL allocation_refused bytes=1310720 flags=20000 count=64 limit=64 reason=slots live_count=62 live_bytes=24805376 retired_count=2 retired_bytes=5259264 heap_limit=33554432
+kernel-120.log: redwood: signal 11 at 0x18, pc 0xe554cec0, lr 0xe5549300, called from 0xe55b8a20 0xe55499e8 0xe5549af4 0xe4e02380 0xe4e33100 0x1d0cd50ec 0x1d0cd372c (unslid)
+kernel-122.log: waffle-gpu: GENERAL close passed=1 completed=3 buffers=64 context_null=1
+kernel-122.log: waffle-ui-gpu: RAM attempt already claimed or unavailable; keeping softpipe
+kernel-122.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.1 Mesa 26.3.0-rc1; softpipe; shaders OpenGL ES GLSL ES 3.10
+kernel-217.log:   -rw-r-u: GENERAL allocation_refused bytes=32768 flags=20000 count=64 limit=64 reason=slots live_count=62 live_bytes=24805376 retired_count=2 retired_bytes=5259264 heap_limit=33554432
+kernel-223.log:   -rw-r-fle-gpu: GENERAL ioctl_refused op=42 error=28 pid=83
+kernel-349.log: [  122.613504]: waffle-gmu: GENERAL_SUBMIT begin fence=1 seq=44 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-349.log: [  122.614457]: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+kernel-349.log: [  122.640418]: waffle-gmu: GENERAL_SUBMIT begin fence=2 seq=45 root_words=450 kernel_tail=15 extra_IB_depth=0
+kernel-349.log: [  122.641133]: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+kernel-349.log: [  124.001105]: waffle-gmu: GENERAL_SUBMIT begin fence=3 seq=46 root_words=111 kernel_tail=15 extra_IB_depth=0
+kernel-349.log: [  124.001335]: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
