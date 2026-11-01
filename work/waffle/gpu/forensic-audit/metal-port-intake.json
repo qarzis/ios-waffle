@@ -27,5 +27,16 @@
       "outcome": "same generatedfixture prerequisites dependmissing /home/vcvk/darwin-redwood-air/build/mesa-host/mesa-25.0.7/.../ir3_cmdline.c",
       "log": "work/waffle/gpu/metal-host-core-build.log"
     }
-  ]
+  ],
+  "pinned_fixture_host_baseline": {
+    "compile": "explicit C++17 core/src/fake_gpu and tests from Makefile; existing committed fixtures; MESA compilerdisabled",
+    "build_log": "work/waffle/gpu/metal-host-pinned-fixtures-build.log",
+    "test_log": "work/waffle/gpu/metal-host-pinned-fixtures-tests.log",
+    "tests": 259,
+    "failed_checks": 0,
+    "A750_hardware_tested": false,
+    "compiled_Metal_shader_frontend": false,
+    "binary": "/home/qarzis/hakios-metal-waffle/out/host/core-baseline-tests",
+    "binary_sha256": "4869592bd9065fddabb30af81b3dd64d32e357dbdfb5179dcae0bad3a4ec2fda"
+  }
 }

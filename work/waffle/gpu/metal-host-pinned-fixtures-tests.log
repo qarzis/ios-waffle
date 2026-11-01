@@ -1,0 +1,290 @@
+ok   a6xx_type7_headers_for_the_dispatch_packets
+ok   a6xx_register_offsets_are_mesas
+ok   a6xx_sp_cs_ctrl_reg0
+ok   a6xx_hlsq_cs_cntl_constlen
+ok   a6xx_sp_cs_ctrl_reg1_shared_and_constlen
+ok   a6xx_load_state6_word_0
+ok   a6xx_buffer_ibo_descriptor
+ok   a6xx_texture2d_descriptor
+ok   a6xx_sampler_words
+ok   a6xx_private_memory_fields_are_scaled
+ok   a6xx_dispatch_words
+ok   a6xx_batch_start_words
+ok   a6xx_render_opcodes_events_and_enums
+ok   a6xx_render_register_offsets_are_mesas
+ok   a6xx_fui_is_the_floats_bits
+ok   a6xx_first_draw_target_words
+ok   a6xx_first_draw_pass_and_viewport_words
+ok   a6xx_first_draw_program_words
+ok   a6xx_first_draw_link_and_vfd_words
+ok   a6xx_first_draw_fs_input_output_and_raster_words
+ok   c_api_copy_and_callbacks
+ok   c_api_free_inside_its_callback
+ok   c_api_fail_ends_in_error
+       (no compiler in this build: the C interface's compile and dispatch did not run)
+ok   c_api_library_and_kernel
+ok   c_api_texture_replace_and_read_convert_the_stride
+       (no compiler in this build: the C interface's texture dispatch did not run)
+ok   c_api_texture_dispatch
+       (no compiler in this build: the C interface's program and draw did not run)
+ok   c_api_program_and_draw
+       (no compiler in this build: the C interface's textured draw did not run)
+ok   c_api_draw_with_a_fragment_texture
+       (no compiler in this build: the C interface's vertex texture did not run)
+ok   c_api_draw_with_a_vertex_texture
+       (no compiler in this build: the C interface's depth-only pipeline did not run)
+ok   c_api_pipeline_without_a_fragment_function
+       (no compiler in this build: the C interface's multisampling did not run)
+ok   c_api_multisample_draw_and_resolve
+ok   c_api_texture_over_an_iosurface_refuses_by_name
+       (no compiler in this build: the C interface's indexed draw did not run)
+ok   c_api_indexed_draw
+       (no compiler in this build: the C interface's constexpr sampler draw did not run)
+ok   c_api_draw_with_a_constexpr_sampler
+ok   c_api_the_device_counts_what_it_has_allocated
+ok   gpu_params
+ok   copy_moves_the_bytes
+ok   fill_any_length
+ok   copy_then_fill_in_one_buffer_keeps_order
+ok   unaligned_copies_go_through_the_2d_engine_byte_for_byte
+ok   copies_outside_a_buffer_and_unaligned_fills_are_refused
+ok   handlers_run_in_commit_order_while_the_gpu_is_behind
+ok   command_memory_is_used_again
+ok   buffers_are_given_back
+ok   a_bad_stream_is_a_hang_the_kernel_resets_the_gpu_for
+ok   a_command_buffer_behind_a_hang_is_given_up_not_run
+ok   without_recovery_the_first_hang_ends_every_later_wait
+ok   a_fence_never_handed_out_is_a_hang
+ok   big_copies_are_cut_into_packets_the_gpu_takes
+       (no compiler in this build: the fixture comparison did not run)
+ok   compiler_without_mesa_refuses_by_name_and_with_it_matches_the_fixture
+       (no compiler in this build: the query typing did not run)
+ok   a_size_query_after_a_sample_leaves_the_texture_its_class
+       (no compiler in this build: the threadgroup layout did not run)
+ok   a_threadgroup_argument_starts_past_the_static_arrays
+       (no compiler in this build: the pointer phis did not run)
+ok   a_pointer_phi_into_one_buffer_compiles
+       (no compiler in this build: the texture fixture comparison did not run)
+ok   compiler_matches_the_texture_fixtures
+ok   compiler_refuses_a_declaration_that_disagrees_with_the_instructions
+ok   compiler_reads_the_image_only_kernel_off_the_nir
+ok   compiler_reads_the_copy_kernel_off_the_nir
+ok   compiler_reads_the_sampling_kernel_off_the_nir
+       (no compiler in this build: the stage fixture comparison did not run)
+ok   compiler_matches_the_stage_fixtures
+ok   compiler_refuses_a_kernel_as_a_stage_and_a_stage_as_a_kernel
+       (no compiler in this build: the link did not run)
+ok   compiler_links_the_two_programs
+ok   compiler_link_refuses_what_the_first_draw_does_not_serve
+ok   compiler_specialises_a_stage_by_the_pipelines_function_constants
+       (no compiler in this build: clz did not run)
+ok   a_kernel_counting_leading_zeros_compiles
+ok   a_kernel_asking_whether_a_value_is_uniform_compiles
+ok   a_kernel_packing_halves_into_bytes_compiles
+ok   a_kernel_whose_pointer_phis_are_undef_over_an_edge_compiles
+ok   an_unwritten_output_is_not_the_position
+ok   a_kernel_pushing_ten_constant_ranges_compiles
+ok   a_kernel_taking_a_ballot_compiles
+ok   a_kernel_taking_its_execution_width_compiles
+ok   a_fragment_stage_writing_depth_compiles_and_links
+ok   a_dual_source_fragment_stage_compiles_and_links
+       (no compiler in this build: bytes_id did not run)
+ok   a_kernel_taking_a_word_into_bytes_compiles
+ok   argument_buffer_layouts_and_compiles_on_many_threads_agree
+       (no compiler in this build: argument buffer layouts did not run)
+ok   the_layout_of_an_argument_buffer_comes_from_the_metadata
+       (no compiler in this build: argument buffers did not run)
+ok   argument_buffer_members_are_bound_from_the_words_in_their_set
+       (no compiler in this build: the constant buffer's known reads did not run)
+ok   a_stage_compiled_for_its_constant_buffer_reads_none_of_it
+ok   a_stage_compiled_without_the_preamble_is_taken_only_when_it_spills_less
+       (no compiler in this build: the device-buffer writes did not run)
+ok   a_stage_that_writes_its_device_buffers_is_told_from_one_that_reads_them
+ok   a_dispatch_gets_private_memory_and_the_threadgroup_memory_its_encoder_sets
+ok   an_indirect_dispatch_reads_its_counts_when_it_runs
+ok   a_dispatch_of_fill_id_holds_together_and_the_fake_does_not_run_it
+ok   a_dispatch_of_end_only_needs_no_buffers
+ok   a_dispatch_of_the_air_kernel_uploads_what_ir3_asks_for
+ok   a_constant_shorter_than_its_pushed_range_is_read_from_the_objects_pages
+ok   a_refused_dispatch_is_left_out_when_the_buffer_skips_refusals
+ok   a_dispatch_that_does_not_fit_is_refused_before_anything_reaches_the_gpu
+ok   the_fake_refuses_a_program_preload_of_128_units
+ok   the_fake_refuses_exec_cs_without_a_program
+ok   the_fake_refuses_a_grid_that_does_not_match_the_ndrange
+ok   the_fake_refuses_an_ibo_outside_every_buffer
+ok   the_fake_refuses_constants_past_constlen
+ok   the_fake_refuses_a_wait_that_nothing_satisfies
+ok   an_event_with_the_timestamp_bit_writes_a_timestamp_not_the_value
+ok   the_fake_refuses_id_registers_whose_two_copies_differ
+ok   a_texture_dispatch_that_does_not_fit_is_refused_before_anything_reaches_the_gpu
+ok   a_dispatch_of_an_image_only_kernel_puts_a_storage_descriptor_at_ibo_0_and_no_texture_state
+ok   an_image_kernel_stores_into_a_2d_array_or_a_3d_texture_through_a_layered_descriptor
+ok   a_dispatch_of_tex_copy_loads_the_texture_table_with_a_zero_slot_0_and_one_zero_sampler
+ok   a_dispatch_of_tex_sample_gid_loads_the_sampler_it_was_given
+ok   an_image_slot_the_kernel_never_addresses_gets_a_hole_descriptor_over_the_table
+ok   the_fake_refuses_a_texture_count_the_load_does_not_match
+ok   the_fake_refuses_a_texture_outside_every_buffer
+ok   the_fake_refuses_a_texture_pitch_shorter_than_a_row
+ok   the_fake_refuses_a_texture_of_a_format_it_does_not_know
+ok   the_fake_refuses_a_texture_load_without_a_sampler
+ok   the_fake_refuses_a_border_clamp_with_the_border_registers_unwritten
+ok   the_fake_refuses_an_image_whose_rows_run_off_its_buffer
+ok   the_fake_refuses_a_load_of_ibos_into_the_texture_block
+ok   the_fake_refuses_a_zero_ibo_descriptor
+ok   a_dispatch_loads_the_ubo_descriptors_an_ldc_reads_through
+ok   a_kernel_longer_than_the_instruction_cache_gets_the_instrlen_workaround
+ok   end_only_fixture
+ok   fill_id_text_fixture
+ok   fill_id_air_fixture
+ok   tex_fill_air_fixture
+ok   tex_fill_h_air_fixture
+ok   tex_copy_air_fixture
+ok   tex_sample_gid_air_fixture
+ok   buffer_kernels_have_no_texture_fields
+ok   texture_fields_refuse_mutations
+ok   stage_fixtures_hold_the_kernel_invariants
+ok   stage_fixtures_carry_what_the_listings_say
+ok   link_tri_flat_is_the_position_alone
+ok   link_tri_color_puts_the_varying_first_and_the_position_at_4
+ok   link_refuses_a_varying_the_vertex_stage_does_not_write
+ok   link_refuses_more_varyings_than_the_table_holds
+ok   metallib_reads_its_functions
+ok   metallib_universal_takes_air64
+ok   metallib_refuses_what_does_not_hold_together
+ok   parity_is_odd
+ok   headers_match_mesa
+ok   decode_round_trips_and_catches_bad_parity
+ok   long_register_writes_are_cut
+ok   memcpy_layout_is_mesas
+ok   render_refuses_what_the_first_draw_does_not_serve_by_name
+ok   render_encodes_the_first_triangles_registers
+ok   render_encodes_the_varying_link_of_tri_color
+ok   render_options_switch_each_group_and_each_alternative
+ok   a_draw_of_tri_flat_holds_together_and_the_fake_does_not_rasterize_it
+ok   a_draw_of_tri_color_and_of_the_hand_built_pair_hold_together
+ok   the_fake_accepts_the_unmutated_flat_draw_raw
+ok   the_fake_refuses_a_draw_packet_that_is_not_the_three_word_triangle_form
+ok   the_fake_refuses_a_draw_outside_a_begun_sysmem_pass
+ok   the_fake_refuses_a_draw_whose_stages_do_not_hold_together
+ok   the_fake_refuses_a_draw_whose_target_does_not_hold_together
+ok   the_fake_refuses_a_draw_whose_fragment_output_path_is_broken
+ok   the_fake_refuses_a_draw_whose_viewport_scissors_or_fetch_are_off
+ok   the_fake_refuses_a_draw_whose_link_or_fs_inputs_disagree
+ok   the_fake_refuses_a_draw_with_msaa_without_the_ccu_cntl_or_without_its_flushes
+ok   the_fake_refuses_the_packets_a_draw_stream_may_not_carry
+ok   a_draw_pushes_a_fragment_constant_range_out_of_the_bound_buffer
+ok   a_pushed_range_off_16_bytes_is_copied_by_the_gpu
+ok   a_draw_refuses_a_constant_range_it_cannot_serve_by_name
+ok   a_fragment_stage_that_writes_no_colour_is_drawn_with_nothing_written
+ok   a_stage_that_wants_private_memory_gets_the_queues
+ok   lines_are_drawn_as_the_hardwares_line_list_and_strip
+ok   a_vertex_stage_gets_its_driver_params_every_draw
+ok   a_draw_fetches_two_attributes_through_the_vertex_descriptor
+ok   each_vertex_format_family_decodes_as_metal_names_it
+ok   a_draw_refuses_a_vertex_fetch_it_cannot_serve_by_name
+ok   a_turned_copy_sets_the_2d_rotation_and_takes_the_sides_swapped
+ok   a_clear_fills_the_target_through_the_2d_engine_before_the_draw
+ok   a_clear_packs_the_colour_as_each_format_holds_it
+ok   a_clear_without_a_draw_is_a_pass_of_its_own
+ok   a_clear_refuses_a_colour_it_cannot_pack
+ok   the_fake_refuses_a_fill_whose_registers_do_not_hold_together
+ok   a_draw_blends_as_the_pipeline_says
+ok   a_command_buffer_counts_its_passes_and_draws
+ok   a_profiled_command_buffer_lists_its_passes
+       a draw then the same draw: 565 and 322 words written in full, 551 and 23 deduplicated
+ok   a_draw_in_an_open_pass_leaves_out_registers_already_holding_their_values
+       a draw with its pass start and end: 588 words, 519 of them register writes; opcode 100 2; opcode 101 2; opcode 20 5; opcode 29 2; opcode 38 3; opcode 50 12; opcode 52 4; opcode 56 4; opcode 60 7; opcode 67 4; opcode 70 20; opcode 99 4
+ok   the_words_of_a_draw_counted
+ok   a_draw_refuses_a_blend_it_cannot_serve
+ok   a_draw_like_the_last_leaves_out_its_program_and_pass_state
+       (no Mesa in this build: a compressed texture: the UBWC layout is Mesa's, and this build has none; the compressed copy-in did not run)
+ok   a_compressed_texture_is_copied_in_before_a_draw_samples_it_after_its_rows_changed
+ok   a_draw_samples_a_texture_through_the_fs_prefetch
+ok   a_draw_samples_a_texture_in_the_vertex_stage
+ok   a_draw_refuses_a_texture_the_fs_cannot_sample
+ok   the_fake_refuses_fs_textures_or_a_prefetch_that_do_not_hold_together
+ok   a_depth32float_texture_is_tiled_and_an_attachment_only
+ok   a_draw_tests_and_writes_depth_through_its_attachment
+ok   a_pass_of_depth_alone_draws_depth
+ok   a_draw_refuses_a_depth_setup_it_cannot_serve
+ok   the_fake_refuses_a_depth_draw_that_does_not_hold_together
+ok   a_texture_over_an_iosurface_draws_into_the_surfaces_memory
+ok   a_two_plane_surface_is_one_ycbcr_texture
+ok   a_texture_over_an_iosurface_refuses_what_the_gpu_cannot_take
+ok   an_indexed_draw_is_the_seven_word_form_with_primitive_restart
+ok   an_indexed_or_instanced_draw_refuses_what_it_cannot_serve
+ok   a_draw_loads_the_ubo_descriptors_an_ldc_reads_through
+ok   a_draw_loads_the_3d_ibo_table_an_ldib_reads_through
+ok   draws_into_the_same_attachments_share_one_pass
+ok   a_command_buffer_released_in_flight_gives_its_buffers_back
+ok   draws_take_their_tables_and_programs_from_a_few_buffers_and_upload_changed_words_again
+ok   a_draw_binds_the_queues_null_texture_at_the_reserved_slot_over_anything_bound_there
+ok   a_draw_writes_two_colour_targets_each_into_its_own_attachment
+ok   a_draw_that_reads_its_target_gets_the_target_as_a_texture_and_a_barrier_before_it
+ok   mip_levels_are_drawn_into_copied_and_generated
+ok   a_draw_that_writes_only_color_1_leaves_attachment_0_unwritten
+ok   a_stencil_attachment_is_the_s8_plane_and_its_test_the_draws_state
+ok   a_program_longer_than_the_instruction_cache_is_preloaded_in_part
+ok   an_occlusion_query_adds_the_draws_samples_to_its_word
+ok   a_multisample_pass_draws_under_its_count
+ok   a_multisample_texture_is_cleared_whole_and_resolved_to_the_mean
+ok   a_draw_samples_a_depth_texture_through_a_compare_sampler
+ok   a_draw_culls_as_its_cull_mode_and_winding_say
+ok   a_draw_into_a_cube_face_aims_at_that_face
+ok   a_draw_into_a_depth_mip_level_aims_at_that_level
+ok   a_vertex_stage_reads_its_constant_table
+ok   an_indirect_draw_reads_its_arguments_when_it_runs
+ok   append_runs_another_command_buffers_work_after_this_ones
+ok   generate_mipmaps_of_a_cube_makes_each_faces_own_levels
+ok   rgb10a2_is_drawn_through_its_own_colour_format
+ok   a_depth_array_is_drawn_layer_by_layer_and_sampled_whole
+ok   a_depth_slice_past_the_layers_is_refused
+ok   a_surface_texture_views_in_a_format_of_the_same_size
+ok   a_surface_reads_in_the_formats_of_its_fourccs_size
+ok   a_wider_format_reads_a_surface_as_fewer_pixels
+       1125x2436 BGRA8Unorm: 2 x 12 tiles of 576 x 208
+       1125x2436 RGBA16Float: 2 x 26 tiles of 576 x 96
+       64x64 RGBA8Unorm: 1 x 1 tiles of 64 x 64
+       2048x100 RGBA8Unorm: 2 x 1 tiles of 1024 x 112
+       17x3 RGBA8Unorm: 1 x 1 tiles of 32 x 16
+ok   the_gmem_plan_fits_the_bins_in_gmem_and_covers_the_target
+ok   a_pass_in_gmem_loads_and_stores_every_tile_in_place
+ok   a_gmem_store_without_its_load_shows
+ok   a_draw_gmem_cannot_replay_sends_the_pass_to_sysmem
+ok   a_pass_of_two_attachments_in_gmem_loads_and_stores_those_drawn
+ok   a_gmem_pass_is_tiled_over_its_render_area
+ok   a_fetch_in_a_corner_reads_bins_of_the_width_its_descriptor_has
+ok   the_queue_picks_gmem_or_sysmem_by_what_each_cost_a_target
+ok   gmem_for_a_pass_of_enough_draws_decided_at_its_end
+ok   a_pass_whose_like_was_light_is_recorded_for_sysmem_alone
+ok   a_dontcare_attachment_is_loaded_only_when_the_granules_pass_its_last_row
+ok   a_clear_in_gmem_comes_out_as_the_fill_does
+ok   a_binned_gmem_pass_bins_its_draws_then_tells_each_tile_its_streams
+ok   a_visibility_stream_overflow_turns_the_binning_off
+ok   texture_pitch_is_mesas_layout_rule
+ok   texture_make_lays_the_memory_out_and_refuses_by_name
+ok   texture_replace_and_read_convert_the_callers_stride
+ok   texture_replace_of_a_sub_region_leaves_everything_else_alone
+ok   texture_descriptors_are_the_worked_example_at_the_textures_address
+ok   texture_takes_the_render_target_usage_and_its_fields_give_the_mrt_words
+ok   sampler_words_follow_galliums_encoding_of_metals_descriptor
+ok   texture_levels_are_laid_out_as_fdl6_layout_does_it
+ok   an_astc_texture_is_laid_out_in_blocks
+ok   a_3d_texture_is_slices_of_a_2d_layout
+ok   a_2d_array_is_layers_of_a_2d_layout
+ok   a_cube_is_six_faces_under_the_cube_type
+ok   a_multisample_texture_is_its_samples_side_by_side
+ok   a_multisample_depth_is_tiled_at_its_samples_cpp
+ok   a_texture_view_names_a_level_or_a_slice_of_its_parents_memory
+ok   a_textures_plan_is_the_memory_make_gives_it
+ok   a_1d_array_is_stored_through_the_2d_image_of_its_layers
+ok   a_2d_texture_views_as_an_array_and_a_cube_as_a_cube_array
+ok   an_etc2_texture_is_laid_out_in_blocks_of_its_size
+ok   an_array_or_a_cube_with_mip_levels_is_layer_after_layer
+ok   a_2d_chain_and_a_depth_buffer_view_as_one_slice_arrays
+ok   pvrtc_decodes_its_two_colours_its_modulation_and_its_block_order
+ok   a_layer_of_a_depth_array_views_as_2d
+ok   a_swizzled_view_composes_with_what_its_parent_reads
+ok   a_1d_texture_views_as_a_one_slice_1d_array
+ok   a_stencil_view_reads_the_s8_plane
+259 tests, 0 failed checks

@@ -1,0 +1,9 @@
+{
+  "auto": "work/waffle/auto-runs/20261101T205839Z",
+  "kernel_started": false,
+  "GPU_executed": false,
+  "reason": "New --ui-long-test absent from inner runner option allowlist, assertion before kernel work",
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "fix": "Add flag to both allowlist and protocol assertion exclusions; pure CLI parser tested beforeretry"
+}
