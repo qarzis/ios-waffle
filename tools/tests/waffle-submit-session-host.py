@@ -77,6 +77,8 @@ static bool wait_for(uintptr_t gmu,unsigned off,unsigned mask,unsigned expected,
  return mode!=34 && mode!=6 && mode!=24 && !(mode==15 && waits==4);
 }
 static void say(const char *fmt,...){(void)fmt;}
+static void clock_get_uptime(uint64_t *ticks){static uint64_t now;*ticks=(now+=1000);}
+static void absolutetime_to_nanoseconds(uint64_t ticks,uint64_t *nanos){*nanos=ticks;}
 static void stop_unsafe(const char *reason){assert(reason);longjmp(trap,1);}
 static bool present_gpu_pixels(const volatile uint32_t *pixels){assert(pixels==active_arena+3072);for(unsigned i=0;i<256;i++)assert(pixels[i]==waffle_copy_expected(2,3072+i));return mode!=27;}
 static bool hfi_exchange_watch(uintptr_t,uintptr_t,const uint32_t *,unsigned,const char *,bool,struct waffle_gmu_plan *);

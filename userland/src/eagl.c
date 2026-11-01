@@ -628,36 +628,6 @@ target_to_surface(struct eagl *e, struct image *image)
   glPixelStorei(GL_PACK_ROW_LENGTH, (GLint)(row / 4));
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
   if (!image->invert) {
-#ifdef WAFFLE_GL_STAGE_READBACK
-   bool staged = false;
-   if (image->width > 0 && image->height > 0 &&
-       (size_t)image->width <= SIZE_MAX / 4 &&
-       (size_t)image->height <= SIZE_MAX / ((size_t)image->width * 4)) {
-    size_t packed_row = (size_t)image->width * 4;
-    size_t bytes = packed_row * (size_t)image->height;
-    if (packed_row <= row && bytes <= 8u * 1024u * 1024u) {
-     if (e->readback_bytes < bytes) {
-      void *memory = realloc(e->readback, bytes);
-      if (memory != NULL) {
-       e->readback = memory;
-       e->readback_bytes = bytes;
-      }
-     }
-     if (e->readback_bytes >= bytes) {
-      glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-      glReadPixels(0, 0, image->width, image->height, GL_BGRA, GL_UNSIGNED_BYTE, e->readback);
-      for (GLsizei y = 0; y < image->height; y++) {
-       memcpy(base + row * (size_t)y, e->readback + packed_row * (size_t)y, packed_row);
-      }
-      staged = true;
-#ifdef WAFFLE_GL_PROFILE_READBACK
-      readback_mode = "staged";
-#endif
-     }
-    }
-   }
-   if (!staged)
-#endif
    glReadPixels(0, 0, image->width, image->height, GL_BGRA, GL_UNSIGNED_BYTE, base);
 #ifdef WAFFLE_GL_PROFILE_READBACK
    read_calls++;

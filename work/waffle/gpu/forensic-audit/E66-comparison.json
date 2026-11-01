@@ -1,0 +1,14 @@
+{
+  "experiment": "E66 full-buffer access width A/B",
+  "baseline_run": "work/waffle/runs/20261101T225333Z",
+  "candidate_run": "work/waffle/runs/20261101T230339Z",
+  "baseline_median_us": 4103.0,
+  "candidate_median_us": 4144.0,
+  "latency_change_percent": 0.9992688276870609,
+  "both_strict_GL_proof_passed": true,
+  "reference_pixels_per_policy": 292320000,
+  "optimization_qualified": false,
+  "decision": "No measured gain; restore qualified scalar E63 runtime and remove sampling overhead. Preserve rejected candidate and measurements.",
+  "panel_FPS_measured": false,
+  "user_requested_last_test_and_laptop_shutdown": true
+}
