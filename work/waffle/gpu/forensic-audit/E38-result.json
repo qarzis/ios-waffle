@@ -1,0 +1,17 @@
+{
+  "run": "work/waffle/runs/20261101T121304Z",
+  "auto": "work/waffle/auto-runs/20261101T121240Z",
+  "tablecapacity_hypothesis_confirmed": true,
+  "actual_GL_context_created": true,
+  "renderer": "FD750",
+  "GL_version": "4.6 Core Mesa26.3",
+  "BOs_created": 23,
+  "GPU_submitted": false,
+  "pixels_correct": 0,
+  "pixels_wrong": 256,
+  "first_new_blocker": "MSM_SUBMIT EINVAL before private GPU submission",
+  "full_backing_reclaimed_after_contextdetach": true,
+  "android_restored": true,
+  "independent_adb": "1",
+  "log_sha256": "c21c0beac04846ed6b52eef8a2790e52bace35645de419fca0694d7cddaeaa10"
+}

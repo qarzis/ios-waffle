@@ -1,0 +1,37 @@
+{
+  "experiment": "E29 first GLSL compiled by Mesa executed by A750/XNU",
+  "run": "work/waffle/runs/20261101T085112Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T085048Z",
+  "glsl_source": "tools/tests/fixtures/waffle-glsl-copy.comp",
+  "compiler": "MesaGLSL -> linkedNIR -> GalliumSSBOlowering -> FD750IR3",
+  "shader_bytes": 128,
+  "command_words": 191,
+  "bindless_descriptor_state": "actual Mesa fd6_image.cc A7xx fields",
+  "prepare_without_EXEC_passed": true,
+  "real_user_pid": 1,
+  "jobs_completed": 3,
+  "gpu_written_fences": [
+    1,
+    2,
+    3
+  ],
+  "actual_gpu_pixels_verified": 768,
+  "two_bo_word_checks": 24576,
+  "wrong_words": 0,
+  "user_checks": 768,
+  "user_wrong": 0,
+  "negative_checks": 5,
+  "stop_sequence": 47,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "opengl_context_or_ios_acceleration": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T085112Z/kernel-final.log": "17101c00a478965036b294c43039a42886090b8da362dbcaa8ff980ebe46567d",
+    "work/waffle/runs/20261101T085112Z/gpu-glsl-jobs.json": "506dee7e76c580e2f3426963479f4df5a856fe3bf2b5a078df3ca7c3da69b40e",
+    "work/waffle/runs/20261101T085112Z/gpu-glsl-job-1.png": "349f131ee7f768e57c616a653f931c6e94196fbe686d18aae597976ef3b7e43f",
+    "work/waffle/runs/20261101T085112Z/gpu-glsl-job-2.png": "ee9e7bde258c8fe88212f98ce9f3c957b23e04026663088285042c1d158bc4f3",
+    "work/waffle/runs/20261101T085112Z/gpu-glsl-job-3.png": "b329437193210adf8e562090a4bf0543aab157eb3a03a3c463208fe3a7ec2ad7"
+  }
+}

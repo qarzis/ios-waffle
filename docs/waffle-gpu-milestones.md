@@ -1,70 +1,61 @@
-# OnePlus 12 GPU milestones
+# OnePlus 12 GPU progress
 
-Status: November 1, 2026, OnePlus 12 PJD110 / SM8650 / Adreno 750.
-The current verified implementation includes the first E21 compute shader test. These are
-bounded kernel diagnostics, with Android reset and boot confirmation between
-cold sessions. They do not establish GPU rendering of the iOS interface.
+Adreno 750 now renders through actual Darwin Mesa and the existing EAGL hook
+under XNU. A 750 × 1624 offscreen frame passed all 1,218,000 pixel checks and
+was handed to the existing display driver through IOSurface.
+**SpringBoard GPU acceleration and Metal are not working yet.**
 
-| Stage | Hardware result | Evidence |
+| Verified test | Result | Evidence |
 | --- | --- | --- |
-| E06-r2: physical clocks | GFX3D 231,000,200 Hz and GMU 260,001,136 Hz; measurement fields restored and full shutdown passed | [Result](../work/waffle/gpu/forensic-audit/E06-r2-result.json) |
-| E07: LPAC mapping control | SID1/CB1, GMU SID5/CB3, 42 SQE-page data/instruction translations and GMU lifecycle passed; no CP RAW | [Result and runner classification limitation](../work/waffle/gpu/forensic-audit/E07-result.json) |
-| E08: full CP_INIT | First native CP_INIT ACK under XNU: sequence 42, value 0, valid 1; successful unchanged reproduction after Android reset | [First result](../work/waffle/gpu/forensic-audit/E08-result.json), [repeat](../work/waffle/gpu/forensic-audit/E08-repeat-result.json) |
-| E09: signed ZAP | PAS13 initialization, memory setup and signature authentication succeeded; native secure-mode switch ACK and TRUST=0 | [Result](../work/waffle/gpu/forensic-audit/E09-result.json) |
-| E10: GPU memory write | GPU wrote four expected words; CPU checked all 4,096 buffer words with no unexpected changes | [Result](../work/waffle/gpu/forensic-audit/E10-result.json) |
-| E11: indirect-buffer fetch, first attempt | Failed with an exact SMMU permission fault at the IB address; Android recovered. This attempt is retained as a failure | [Failure](../work/waffle/gpu/forensic-audit/E11-result.json) |
-| E11-r2: scoped IB permission fix | AP_UNPRIV added only for the dedicated writable command BO. GPU fetched eight PM4 words and produced the correct memory result; all 4,096 words checked | [Result](../work/waffle/gpu/forensic-audit/E11-r2-result.json) |
-| E12: owned submission session | Heap-owned session retained OOB/BO across initialization return; three IBs with distinct completion tokens and results passed | [Result](../work/waffle/gpu/forensic-audit/E12-result.json) |
-| E13: GMU begin/finish owner | GMU register snapshots, live state and shutdown evidence survived begin return; default control and three-IB session passed | [Session](../work/waffle/gpu/forensic-audit/E13-result.json), [control](../work/waffle/gpu/forensic-audit/E13-control-result.json) |
-| E14: GMU/TCM component | Live component returned to its SMMU parent; three IBs passed, then GMU stopped and the complete 32 KiB TCM snapshot was restored before owner release | [Session](../work/waffle/gpu/forensic-audit/E14-result.json), [control](../work/waffle/gpu/forensic-audit/E14-control-result.json) |
-| E15: SMMU parent owner | Parent-owned tables, firmware plan, context snapshots and callback storage survived constructor return. Three distinct GPU results passed; child stopped before context detach and parent release | [Session](../work/waffle/gpu/forensic-audit/E15-result.json), [27 access checks / 42 LPAC checks control](../work/waffle/gpu/forensic-audit/E15-control-result.json) |
-| E16–E19: board and AOP ownership | Live GPU state survives component returns; AOP mutex is released during GPU work, with child-first shutdown | [E19 result](../work/waffle/gpu/forensic-audit/E19-result.json) |
-| E20: post-startup buffer | New 16 KiB BO mapped and bound after GPU boot; three real GPU results and all 4,096 words passed | [Result](../work/waffle/gpu/forensic-audit/E20-result.json) |
-| E21: first compute shader | Eight Adreno 750 shader invocations wrote 0–7 under XNU; control fence=1, all 4,096 words correct, full shutdown and Android recovery | [Shader result](../work/waffle/gpu/forensic-audit/E21-result.json), [prepare control](../work/waffle/gpu/forensic-audit/E21-prepare-result.json), [kernel log](../work/waffle/runs/20261031T213222Z/kernel-final.log) |
+| E21: compute shader | First verified shader execution | [Report](../work/waffle/gpu/forensic-audit/E21-result.json) |
+| E29–E33: Mesa buffers and commands | GLSL compute, userspace submission, direct BO mappings and GPU completion tokens | [E33 report](../work/waffle/gpu/forensic-audit/E33-result.json) |
+| E39: actual Mesa OpenGL | FD750 triangle; all 256 pixels correct | [Report](../work/waffle/gpu/forensic-audit/E39-result.json) |
+| E40–E41: IOSurface and GL adapter | GPU result read into IOSurface and resolved by the display worker; actual EAGL GL adapter tested | [E41 report](../work/waffle/gpu/forensic-audit/E41-result.json) |
+| E42: repeated GLES frames | 64 alternating frames; 16,384 correct pixels, 133 GPU completions, stable 25 BOs | [Report](../work/waffle/gpu/forensic-audit/E42-result.json) |
+| E43: actual EAGL hook | Actual EAGLContext, private dispatch table and attachImage; hook performs IOSurface readback | [Report](../work/waffle/gpu/forensic-audit/E43-result.json) |
+| E44: full logical display size | 750 × 1624, all 1,218,000 pixels correct; 205 GPU completions, 28 BOs, complete shutdown and Android recovery | [Report](../work/waffle/gpu/forensic-audit/E44-hardware-result.json), [kernel log](../work/waffle/runs/20261101T130419Z/kernel-final.log) |
 
-E15's complete kernel log is [preserved here](../work/waffle/runs/20261031T111210Z/kernel-final.log).
-The [hardware runner report](../work/waffle/diagnostic-gpu-smmu-owner-e15/hardware-result-94.json)
-records exit 0 and confirmed Android boot. The
-[automatic-cycle report](../work/waffle/auto-runs/20261031T111146Z/result.json)
-records automatic loader entry, no physical Boot iOS selection and no flash
-operations. [Source hashes](../work/waffle/diagnostic-gpu-smmu-owner-e15/source-binding-audit.json)
-and [container validation](../work/waffle/diagnostic-gpu-smmu-owner-e15/validation.json)
-identify the tested artifacts. Build images, captured firmware and iOS assets
-are not distributed with these reports.
+## Current implementation
 
-## What changed
+The controlled root-only backend provides owned BOs, persistent userspace
+mappings, multiple logical queues on one serialized hardware context, bounded
+command submission and GPU-written completion tokens. The SMMU table pool is
+bounded at 64 tables. Full-size Mesa targets require a 5 MiB BO; the per-BO limit
+is now 8 MiB, with the total GPU heap unchanged at 32 MiB and 32 BOs.
 
-The earlier CP_INIT failures were passed after adding the missing LPAC mapping
-and aperture, native GMU bank placement and invalidation for both ASIDs. That
-prerequisite set resolved the failing CP_INIT test; the individual contributions
-were not isolated and the historical reset reason was not decoded.
+Presentation currently uses CPU readback from GPU-rendered resources into
+IOSurface, followed by the existing CPU display path. The E44 probe only reads
+and checks the surface; the real EAGL hook fills it. Display-worker logs prove
+surface identity and geometry. They do not establish optical panel observation
+or direct GPU scanout.
 
-The new IB test exposed a separate, directly observed defect: its writable BO
-was privileged-only, while the actual command fetch was unprivileged. The
-scoped AP_UNPRIV fix removed that exact permission fault. Firmware and other
-writable mappings were not broadly relaxed.
+E43 initially failed because the hook prepends GLSL 300 while the test supplied
+its own version directive. The successful retry uses versionless legacy input
+and the unchanged hook. Explicit-version shader support remains a known limit.
+The [failed report](../work/waffle/gpu/forensic-audit/E43-first-result.json) is retained.
 
-GMU/TCM and SMMU ownership was then separated from constructor stack locals.
-The parent now retains tables, saved contexts and callback storage until the
-child finishes. Failed or uncertain completion/teardown retains resources
-instead of freeing pages still potentially used by hardware.
+## Remaining work
 
-## Remaining boundary
+- Multiple real EAGL contexts and context switching are not yet qualified.
+- Actual CoreAnimation/SpringBoard composition has not been tested through this backend.
+  Normal waffle startup still explicitly selects Mesa softpipe.
+- The backend remains a bounded diagnostic: one owning process, retained BO
+  backing, queue limits and a 1,024-job session limit. E44's inverted row readback
+  generated 205 submissions for one frame; continuous UI operation needs work.
+- Shared IOSurface GPU imports, direct scanout, production lifetime/recovery and
+  Metal remain unqualified or absent.
 
-- Board-clock, CX and AOP ownership still encloses the diagnostic session. The
-  current AOP transaction holds a mutex around the callback and sends ACD off
-  on exit; keeping the GPU alive by setting a flag would not provide a valid
-  production lifetime.
-- Dynamic userspace BO mappings, submission/fences and IRQ recovery are not
-  implemented as a persistent waffle backend. Kernel-test completion tokens
-  are not an advertised userspace fence API.
-- Shader execution, a verified offscreen frame and GPU-backed iOS composition
-  remain untested. The desktop continues to use Mesa softpipe. Metal is absent.
-- Reopening the GPU after shutdown in the same boot is unverified. The verified
-  lifecycle uses Android reset between cold sessions.
+## Recheck the published evidence
 
-The existing RedwoodGPU IOUserClient, Darwin DRM shim, FD750 Mesa device
-profile and IOSurface transport provide integration points; they do not by
-themselves establish working hardware rendering on waffle. See the
-[integration inventory](../work/waffle/gpu/forensic-audit/IOS-GPU-INTEGRATION.md)
-and [chronological debug log](../GPU_DEBUG_LOG.md).
+These commands validate logs or run host models; they do not access a phone:
+
+```sh
+python3 tools/check-waffle-gl-presentation.py work/waffle/runs/20261101T130419Z/kernel-final.log --fullsize
+python3 tools/tests/waffle-fullsize-budget-host.py
+python3 tools/tests/waffle-gl-log-host.py
+```
+
+Host-only no-op frontend traces are explicitly marked as architecture evidence,
+not GPU execution. The [chronological debug log](../GPU_DEBUG_LOG.md) records
+hypotheses, failures, controls and measured hardware results. Build images,
+iOS assets and captured firmware are not distributed here.

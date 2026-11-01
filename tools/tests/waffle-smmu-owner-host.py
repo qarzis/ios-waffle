@@ -15,6 +15,9 @@ h=r'''
 #include <setjmp.h>
 #include "waffle_gpu.h"
 #include "waffle_smmu.h"
+#include "waffle_gpu_job.h"
+#include "waffle_gpu_data.h"
+#include "waffle_gpu_buffer.h"
 #include "waffle_gpu_va.h"
 #include "waffle_gpu_writeback.h"
 typedef uintptr_t vm_offset_t;
@@ -42,8 +45,8 @@ h+=r'''
 static _Alignas(16384) uint8_t smmu[0x40000],qtb[0x1000],gmu[WAFFLE_GMU_SIZE],cc[WAFFLE_GPUCC_SIZE];
 static _Alignas(16384) uint8_t heap[16384],target[16384],sqe[16384],table[16384];
 static struct protected_gpu_pool protected;
-static _Alignas(16384) uint8_t dynamic_storage[16384];
-static unsigned dynamic_frees;
+static _Alignas(16384) uint8_t dynamic_storage[16384],data_storage[16384],user_storage[16384];
+static unsigned dynamic_frees,data_frees_extra,user_frees_extra;
 static struct waffle_gmu_owner child_object;
 static unsigned mode,allocs,heap_frees,data_frees,fw_frees,detaches,callbacks,child_ends,matrix_runs,mmio_maps;
 static bool heap_mode,child_live;
@@ -80,6 +83,8 @@ static int kmem_alloc(unsigned map,uintptr_t *out,unsigned size,unsigned flags,u
 static void kmem_free(unsigned map,uintptr_t p,unsigned size){
  assert(map==7 && size==16384 && !child_live);
  if(p==(uintptr_t)heap){assert(!heap_frees);++heap_frees;}
+ else if(p==(uintptr_t)user_storage){assert(!user_frees_extra && detaches==2 && fw_frees==1 && child_ends==1 && !heap_frees);user_frees_extra++;}
+ else if(p==(uintptr_t)data_storage){assert(!data_frees_extra && detaches==2 && fw_frees==1 && child_ends==1 && !heap_frees);data_frees_extra++;}
  else if(p==(uintptr_t)dynamic_storage){assert(!dynamic_frees && detaches==2 && fw_frees==1 && child_ends==1 && !heap_frees);dynamic_frees++;}
  else{assert(p==(uintptr_t)target || p==(uintptr_t)table);++data_frees;}
 }
@@ -142,6 +147,12 @@ static bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *child){
  if(mode==19)active_plan->submit_session=NULL;
  return mode!=11;
 }
+static unsigned copy_fence;
+static bool waffle_gmu_owner_copy(struct waffle_gmu_owner *child,struct waffle_gpu_copy_job *job){
+ assert(job && job->words==256);bool ok=waffle_gmu_owner_exercise(child);
+ if(ok){for(unsigned i=0;i<256;i++)job->output[i]=job->input[i];job->fence=++copy_fence;}
+ return ok;
+}
 static bool waffle_gmu_owner_end(struct waffle_gmu_owner *child){
  assert(child==&child_object && child_live && !detaches && !heap_frees && !data_frees);
  if(mode==12)longjmp(trap,1);
@@ -149,6 +160,16 @@ static bool waffle_gmu_owner_end(struct waffle_gmu_owner *child){
 }
 static uint64_t *permission_table(struct table_pool *p,uint64_t entry){(void)p;(void)entry;assert(0);return NULL;}
 static bool pool_permission_sync(struct pool_permission_context *p){(void)p;assert(0);return false;}
+static bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *g,const struct waffle_gpu_buffer *b){(void)g;(void)b;assert(0);return false;}
+static bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *g,struct waffle_gmu_region *r){(void)g;(void)r;assert(0);return false;}
+static bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *p,struct waffle_gpu_buffer b[2]){(void)p;(void)b;return false;}
+static bool waffle_gmu_owner_submit(struct waffle_gmu_owner *p,struct waffle_gpu_submit_job *j){(void)p;(void)j;assert(0);return false;}
+static bool waffle_gmu_owner_memory_idle(struct waffle_gmu_owner *p){(void)p;return false;}
+
+bool waffle_gpu_memory_create(uint64_t b,uint32_t f,struct waffle_gpu_memory *m){(void)b;(void)f;(void)m;assert(0);return false;}
+uint64_t waffle_gpu_memory_page(const struct waffle_gpu_memory *m,uint32_t o){(void)m;(void)o;assert(0);return 0;}
+bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *m,bool d){(void)m;(void)d;assert(0);return false;}
+
 static bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *p){(void)p;assert(0);return false;}
 static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *p,struct waffle_gmu_region *r){(void)p;(void)r;assert(0);return false;}
 
@@ -179,8 +200,8 @@ int main(void){
  }
  /* Call the public API directly: begin must return without exercising or
   * releasing any state, with valid permission callbacks until end. */
- for(unsigned early=0;early<2;++early){
-  mode=0;heap_mode=true;
+ for(unsigned early=0;early<3;++early){
+  mode=0;heap_mode=true;copy_fence=0;
   allocs=heap_frees=data_frees=fw_frees=detaches=callbacks=child_ends=matrix_runs=mmio_maps=0;
   child_live=false;active_plan=NULL;
   memset(smmu,0,sizeof(smmu));memset(qtb,0,sizeof(qtb));memset(gmu,0,sizeof(gmu));memset(cc,0,sizeof(cc));
@@ -194,9 +215,17 @@ int main(void){
    assert(waffle_smmu_owner_exercise(live) && callbacks==2 && child_live && !detaches);
    assert(!waffle_smmu_owner_exercise(live) && callbacks==2);
   }
-  if(early){live->state.dynamic.memory=(uintptr_t)dynamic_storage;dynamic_frees=0;}
-  assert(waffle_smmu_owner_end(live)==!early);
-  if(early)assert(dynamic_frees==1);
+  if(early==2){
+   uint32_t input[256]={0},output[256]={0};struct waffle_gpu_copy_job job={input,output,256,0,false};
+   assert(!waffle_smmu_owner_copy(NULL,&job) && !waffle_smmu_owner_copy(live,NULL));
+   for(unsigned fence=1;fence<=3;fence++){assert(waffle_smmu_owner_copy(live,&job) && job.fence==fence);assert(!heap_frees && !detaches);}
+   assert(callbacks==4 && !waffle_smmu_owner_exercise(live));
+  }
+  if(early==2){live->state.data.memory=(uintptr_t)data_storage;data_frees_extra=0;live->state.user_buffer.memory=(uintptr_t)user_storage;user_frees_extra=0;}
+  if(early==1){live->state.dynamic.memory=(uintptr_t)dynamic_storage;dynamic_frees=0;}
+  assert(waffle_smmu_owner_end(live)==(early!=1));
+  if(early==1)assert(dynamic_frees==1);
+  if(early==2)assert(data_frees_extra==1 && user_frees_extra==1);
   assert(!child_live && child_ends==1 && heap_frees==1 && data_frees==2 && fw_frees==1);
  }
  /* Even a caller attempting cleanup directly cannot detach a live child. */

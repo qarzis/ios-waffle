@@ -6,7 +6,7 @@ root = Path(__file__).resolve().parents[2]
 source = (root / 'kernel/files/bsd/dev/waffle_adreno.c').read_text()
 decl = source[source.index('struct board_clock_owner;'):source.index('struct aop_channel_context')]
 power = source[source.index('static void probe_cx('):source.index('void waffle_adreno_init(void)\n{')]
-begin = source[source.index('static struct board_power_owner *probe_gpu_body(unsigned probe)'):]
+begin = source[source.index('static struct board_power_owner *probe_gpu_body(unsigned probe)'):source.index('/* Internal adapter;')]
 harness = r'''
 #include <assert.h>
 #include <stdint.h>

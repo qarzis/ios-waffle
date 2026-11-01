@@ -49,7 +49,7 @@ diff --git a/bsd/conf/files b/bsd/conf/files
 index 44274016a4cf..cd551dd42a09 100644
 --- a/bsd/conf/files
 +++ b/bsd/conf/files
-@@ -109,6 +109,35 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
+@@ -109,6 +109,39 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
  bsd/dev/unix_startup.c			standard
  
  bsd/dev/monotonic.c optional monotonic
@@ -59,6 +59,10 @@ index 44274016a4cf..cd551dd42a09 100644
 +bsd/dev/macan_synaptics.c	standard
 +bsd/dev/waffle_synaptics.c	standard
 +bsd/dev/waffle_adreno.c	standard
++bsd/dev/waffle_gpu_service.c	standard
++bsd/dev/waffle_gpu_user.c	standard
++bsd/dev/waffle_gpu_msm.c	standard
++bsd/dev/waffle_gpu_drm.c	standard
 +bsd/dev/waffle_smmu.c	standard
 +bsd/dev/waffle_gmu.c	standard
 +bsd/dev/macan_adreno.c	standard
@@ -1625,13 +1629,15 @@ diff --git a/iokit/conf/files b/iokit/conf/files
 index 5fb0a52062e0..a4d41e19b327 100644
 --- a/iokit/conf/files
 +++ b/iokit/conf/files
-@@ -79,6 +79,14 @@ iokit/Kernel/IOSubMemoryDescriptor.cpp			optional iokitcpp
+@@ -79,6 +79,16 @@ iokit/Kernel/IOSubMemoryDescriptor.cpp			optional iokitcpp
  iokit/Kernel/IOGuardPageMemoryDescriptor.cpp		optional iokitcpp
  
  iokit/Kernel/IOPlatformExpert.cpp			optional iokitcpp
 +iokit/Kernel/GenericARMPE.cpp			optional iokitcpp
 +iokit/Kernel/MiniIOSurface.cpp			optional iokitcpp
 +iokit/Kernel/MiniIOMobileFramebuffer.cpp		optional iokitcpp
++iokit/Kernel/WaffleGPUMemory.cpp			optional iokitcpp
++iokit/Kernel/WaffleGPUMap.cpp			optional iokitcpp
 +iokit/Kernel/MacanGPU.cpp				optional iokitcpp
 +iokit/Kernel/MacanBattery.cpp			optional iokitcpp
 +iokit/Kernel/MacanWLAN.cpp			optional iokitcpp

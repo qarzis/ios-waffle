@@ -1,0 +1,14 @@
+{
+  "run": "work/waffle/runs/20261101T115710Z",
+  "auto": "work/waffle/auto-runs/20261101T115646Z",
+  "GPU_submitted": false,
+  "BO_count": 3,
+  "guest_halted_without_PID1_panic": true,
+  "raw_user_STDOUT_log_visible": false,
+  "precise_PC_obtained": false,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "reassessment_required": true,
+  "log_sha256": "2a760c043ae61d74ecac9ebbb7f251331c7c91f1ca067e139150dcd50cfa4aa2",
+  "reassessment_completed": "GPU_DEBUG_LOG.md: after three failed experiments; fault before commands, inherited dynamic stdout not a reliable evidence channel; test new postdyld console FD first"
+}

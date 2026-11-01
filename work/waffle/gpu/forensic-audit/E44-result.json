@@ -1,0 +1,30 @@
+{
+  "experiment": "E44 actual FD750 fullscreen allocation architecture audit",
+  "host_only": true,
+  "GPU_execution": false,
+  "width": 750,
+  "height": 1624,
+  "logical_RGBA_minimum_bytes": 4872000,
+  "actual_largest_BO_bytes": 5242880,
+  "existing_per_BO_cap_bytes": 4194304,
+  "first_demonstrated_blocker": "actual5MiB target BO is refused by4MiB general allocator cap",
+  "requested_BO_sizes": {
+    "4096": 18,
+    "4194304": 3,
+    "5242880": 1,
+    "40960": 1,
+    "163840": 1
+  },
+  "successful_allocation_events": 24,
+  "rounded_16KiB_total_bytes": 18333696,
+  "unchanged_heap_budget_bytes": 33554432,
+  "root_command_snapshots": [
+    {
+      "path": "work/waffle/gpu/forensic-audit/e44-gl-fullsize/msm-requests.jsonl-submit-1-cmd-0.bin",
+      "bytes": 2800,
+      "words": 700
+    }
+  ],
+  "trace_sha256": "014993b15bd2d7196e2db04852f8bcf71b5866cddc1e252a4e7691bc1d741500",
+  "next_experiment": "Replay actual fullsize allocation prefix through existing allocator/registry/SMMU host harness; then bound per BO to8MiB with32MiB total unchanged, build kernel and old mapped control; only then bounded750x1624GPU/EAGL-pixel test. No fullscreen hardware claim from this host trace."
+}

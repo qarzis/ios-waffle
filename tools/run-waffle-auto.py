@@ -23,6 +23,19 @@ def main():
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
     parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--gl-context',action='store_true',help='E36 actual Darwin OSMesa GL renderer')
+    parser.add_argument('--mapped',action='store_true',help='E33 direct mapped BOs; requires --msm --mesa-transport')
+    parser.add_argument('--mesa-transport',action='store_true',help='E32 actual Mesa DRM shim; requires --msm')
+    parser.add_argument('--msm',action='store_true',help='E31 two BOs and user command submission')
+    parser.add_argument('--user-va',action='store_true',help='E30 GLSL data at64bitlowerGPUVA; requires dispatch')
+    parser.add_argument('--glsl',action='store_true',help='E29 GLSL compiled shader; prepare or dispatch')
+    parser.add_argument('--data-bo',action='store_true',help='E28 separate GPU data allocation; requires dispatch')
+    parser.add_argument('--user-copy',action='store_true',help='E27 real Darwin user-process ioctl boundary; requires dispatch')
+    parser.add_argument('--worker',action='store_true',help='E26 serialized top-level context with kernel worker; requires dispatch')
+    parser.add_argument('--copy-jobs',action='store_true',help='E25 three caller-input compute jobs; requires dispatch')
+    parser.add_argument('--image-present',action='store_true',help='E24 CPU-present verified GPU pixels then restore; requires dispatch')
+    parser.add_argument('--image-copy',action='store_true',help='E23 uploaded image read/copy; requires --compute')
+    parser.add_argument('--image',action='store_true',help='E22 compute-generated16x16 pixels; requires --compute')
     parser.add_argument('--compute',choices=('prepare','dispatch'),help='E21 bounded shader state/control or dispatch; requires --dynamic-bo')
     parser.add_argument('--dynamic-bo',action='store_true',help='E20: post-bootstrap test BO; requires --session')
     parser.add_argument('--session',action='store_true',help='E12 bounded owned session: requires --ib and entire verified chain')
@@ -33,6 +46,11 @@ def main():
     parser.add_argument('--fastboot', default=str(ROOT.parent / 'platform-tools/fastboot'))
     parser.add_argument('--adb', default=str(ROOT.parent / 'platform-tools/adb'))
     args = parser.parse_args()
+    if sum((args.gl_context,args.msm,args.user_va,args.glsl,args.data_bo,args.user_copy,args.worker,args.copy_jobs,args.image_present,args.image_copy,args.image))>1:parser.error('Choose image ramp or uploaded image copy')
+    if (args.image_present or args.copy_jobs or args.worker or args.user_copy or args.data_bo or args.user_va or args.msm or args.gl_context) and args.compute!='dispatch':parser.error('--image-present requires --compute dispatch')
+    args.image=args.gl_context or args.msm or args.image or args.image_copy or args.image_present or args.copy_jobs or args.worker or args.user_copy or args.data_bo or args.glsl or args.user_va
+    if args.mesa_transport and not args.msm:parser.error('--mesa-transport requires --msm')
+    if args.mapped and not (args.msm and args.mesa_transport):parser.error('--mapped requires MSM Mesa transport')
     artifact = args.artifact.resolve()
     image = artifact / 'HakiOS-waffle-PJD110-AUTO-RAM.img'
     if args.access_matrix and not args.prepare_gpu:
@@ -49,6 +67,8 @@ def main():
         parser.error('--writeback requires --zap')
     if args.ib and not args.writeback:
         parser.error('--ib requires --writeback')
+    if args.image and not args.compute:
+        parser.error('--image requires --compute')
     if args.compute and not args.dynamic_bo:
         parser.error('--compute requires --dynamic-bo')
     if args.dynamic_bo and not args.session:
@@ -56,10 +76,25 @@ def main():
     if args.session and not args.ib:
         parser.error('--session requires --ib')
     manifest = json.loads((artifact / 'manifest.json').read_text())
+    if args.gl_context:
+        if not manifest.get('gl_context'):parser.error('Artifact lacks controlled GL probe')
+        glroot=artifact/'gl-probe/root.packfs'
+        if hashlib.sha256(glroot.read_bytes()).hexdigest()!=manifest.get('gl_probe_root_sha256'):parser.error('GL root hash mismatch')
+        system=ROOT/'work/waffle/images/system.packfs'
+        digest=hashlib.sha256()
+        with system.open('rb') as stream:
+            for block in iter(lambda:stream.read(16*1024*1024),b''):digest.update(block)
+        if digest.hexdigest()!=manifest.get('gl_system_sha256'):parser.error('GL system image hash mismatch')
+    if args.mapped and not manifest.get('mapped_bo'):parser.error('Artifact lacks mapped BO probe')
+    if args.mesa_transport and not manifest.get('mesa_drm_shim'):parser.error('Artifact is not the Mesa transport probe')
     if not manifest.get('automatic_usb_loader'):
         parser.error('Artifact does not declare automatic loader entry')
     if hashlib.sha256(image.read_bytes()).hexdigest() != manifest['boot_image_sha256']:
         parser.error('Boot image does not match manifest')
+    if args.msm or args.user_copy or args.data_bo or args.user_va or (args.glsl and args.compute=="dispatch"):
+        root_image=artifact/('mapped-probe/user-probe.packfs' if args.mapped else 'msm-probe/user-probe.packfs' if args.msm else 'user-probe/user-probe.packfs')
+        if not root_image.is_file() or hashlib.sha256(root_image.read_bytes()).hexdigest()!=manifest.get('mapped_probe_root_sha256' if args.mapped else 'msm_probe_root_sha256' if args.msm else 'user_probe_root_sha256'):
+            parser.error('User probe root does not match manifest')
     for name in ('adb', 'fastboot'):
         if not Path(getattr(args, name)).is_file():
             parser.error(f'Missing {name}')
@@ -75,7 +110,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image, 'image_copy':args.image_copy,'image_present':args.image_present,'copy_jobs':args.copy_jobs,'worker':args.worker,'user_copy':args.user_copy,'data_bo':args.data_bo,'glsl':args.glsl,'user_va':args.user_va,'msm':args.msm,'mesa_transport':args.mesa_transport,'mapped':args.mapped,'gl_context':args.gl_context,
               'physical_boot_selection': False, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -142,7 +177,11 @@ def main():
                 items.append('--dynamic-bo')
             if args.compute:
                 items.append('--compute-'+args.compute)
-            result = command(items, timeout=240)
+            if args.image:
+                items.append('--gl-context' if args.gl_context else '--msm' if args.msm else '--user-va' if args.user_va else '--glsl' if args.glsl else '--data-bo' if args.data_bo else '--user-copy' if args.user_copy else '--worker' if args.worker else '--copy-jobs' if args.copy_jobs else '--image-present' if args.image_present else '--image-copy' if args.image_copy else '--image')
+            if args.mesa_transport:items.append('--mesa-transport')
+            if args.mapped:items.append('--mapped')
+            result = command(items, timeout=420 if args.gl_context else 240)
             report['runner_exit'] = result.returncode
             if result.returncode:
                 raise RuntimeError('GPU test failed; preserve original result and inspect recovery log')

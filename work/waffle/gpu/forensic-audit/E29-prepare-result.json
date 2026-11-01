@@ -1,0 +1,18 @@
+{
+  "experiment": "E29 GLSL bindless state prepare without shader dispatch",
+  "run": "work/waffle/runs/20261101T084939Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T084916Z",
+  "command_words": 191,
+  "exec_replaced_by_nop": true,
+  "all256_output_words_still_poisoned": true,
+  "command_word_checks": 4096,
+  "data_word_checks": 4096,
+  "wrong_words": 0,
+  "gpu_control": 1,
+  "stop_sequence": 45,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "cc765bd7b03958c74b72d73843b29e1e966ff84621b1824f08ed061961178dc0"
+}

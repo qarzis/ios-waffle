@@ -1,0 +1,19 @@
+{
+  "experiment": "E36 cache-r2: dyld issue resolved, userspaceSIGSEGV before submit",
+  "run": "work/waffle/runs/20261101T105128Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T105104Z",
+  "cache_readable_and_magic": true,
+  "GPU_context_opened": true,
+  "BOs_published": 3,
+  "largest_BO_bytes": 4194304,
+  "GPU_commands_submitted": false,
+  "real_GL_pixels_produced": false,
+  "first_failure": "PID1 exits namespace2/subcode0xb SIGSEGV immediately after third BO creation; precise PC unknown",
+  "runner_secondary_error": "old COMUTE values marker remains in DynamicBO validator due multiline replacement mismatch; fix on resume, never treat as GPU failure cause",
+  "kernel_log_sha256": "e2dcee91bba40a0d29046a1fddcaff055382681029b99f4e2c96abbed0bab062",
+  "runner_exit": 1,
+  "android_restored": true,
+  "independent_adb": "1",
+  "user_requested_stop": true,
+  "next_diagnostic": "direct raw-syscall signal/ucontext PC+LR logging and general MAP ioctl result/address evidence, symbolize against actual Mesa; no speculative fix"
+}

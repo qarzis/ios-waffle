@@ -1,0 +1,32 @@
+{
+  "experiment": "E30 lower64bitGPUVA buffer",
+  "base": "6190b8a19f9c2459c2051bb2a4c8a6372e636438",
+  "unchanged_files": [
+    "kernel/files/bsd/dev/waffle_gpu_service.c",
+    "kernel/files/bsd/dev/waffle_gpu_user.c",
+    "kernel/files/bsd/sys/waffle_gpu_glsl.h",
+    "kernel/files/bsd/sys/waffle_gpu_data.h",
+    "kernel/files/bsd/sys/waffle_gpu_job.h",
+    "userland/src/waffle_gpu_probe.c",
+    "kernel/files/bsd/sys/waffle_gpu_user.h",
+    "tools/waffle-glsl-compile.cc",
+    "tools/waffle-compute-export.cc",
+    "kernel/files/bsd/sys/waffle_aop.h",
+    "kernel/files/bsd/sys/waffle_gen7_boot.h",
+    "loader/loader.c"
+  ],
+  "gpu_boot_power_firmware_security_native_stop_unchanged": true,
+  "generic_buffer_record": "waffle_gpu_buffer.gpu_va uint64_t, separate from firmware32bitregion",
+  "test_data_gpu_va": "0x100000000",
+  "va_range": "lower39bit; chosen alignedvacant controlledVA, not claimednativeKGSLheapstart",
+  "mapped_bytes": 16384,
+  "ttbr0_root_index": 4,
+  "no_high_compact_alias_for_data": true,
+  "same_glsl_binary_and_191word_commands_except_data_descriptor_base": true,
+  "same_static_user_program_and_ioctl_abi": true,
+  "word_checks_per_job": 8192,
+  "jobs": 3,
+  "user_pixels": 768,
+  "buffer_free_after_full_stop_context_detach": true,
+  "hardware_tested": false
+}

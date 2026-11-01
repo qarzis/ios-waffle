@@ -1,0 +1,13 @@
+{
+  "experiment": "E36 oldmapped12 control",
+  "run": "work/waffle/runs/20261101T104324Z",
+  "auto": "work/waffle/auto-runs/20261101T104300Z",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "GPU_jobs": 3,
+  "correct_pixels": 768,
+  "word_checks": 24576,
+  "wrong": 0,
+  "negative_checks": 7
+}

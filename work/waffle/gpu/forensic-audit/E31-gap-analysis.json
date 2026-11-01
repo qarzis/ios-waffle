@@ -1,0 +1,26 @@
+{
+  "experiment": "E31 BO and command boundary before Mesa runtime integration",
+  "base": "b748e27778c9c4292dbad9ee82c56b5bbf188e87",
+  "first_proven_gap": "Mesa DRM shim uses MSM BO/map/submit/fence; Waffle only has inline copy service, MacanGPU backend calls redwood_gpu_*",
+  "components": {
+    "power_firmware_security_smmu": "implemented, E30 verified; unchanged in E31",
+    "gpu_data_64bit_va": "implemented, E30 verified",
+    "context_serialization_and_parent_lifetime": "implemented, E26-E30 verified",
+    "MSM_UAPI_layouts": "matched actual pinned Mesa sizeof/offsets; bounded subset only",
+    "BO_handles_upload_download": "implemented, host verified; hardware pending",
+    "user_command_publication": "implemented, host verified; only exact 191word compiled Mesa compute package",
+    "fence_wait": "blocking submit validates actual GPU fence/results before success; future fence refused",
+    "Mesa_libdrm_transport": "existing Redwood IOKit path; Waffle transport integration remains next",
+    "GEM_mmap_general_VA_arbitrary_PM4": "absent",
+    "IOKit_Waffle_userclient": "absent",
+    "IOSurface_GL_context_SpringBoard": "not accelerated"
+  },
+  "hypotheses": [
+    {
+      "id": "E31-H1",
+      "claim": "user-uploaded audited command and independent data BO roundtrip using MSM layouts can execute unchanged GLSL with real fences",
+      "minimum_experiment": "oldmode10 control thenoneMSM11 run on same source-bound kernel; 3 jobs,768 pixels,24576 twoBO checks,7 negative cases; fullstop47,Android independentADB1",
+      "failure_policy": "preserve first failed phase and exact logs; no blind retry"
+    }
+  ]
+}

@@ -14,6 +14,14 @@ harness = r'''
 #include <string.h>
 #include <setjmp.h>
 #include "waffle_gpu_writeback.h"
+#include "waffle_gpu_data.h"
+#include "waffle_gpu_buffer.h"
+#include "waffle_gpu_registry.h"
+
+bool waffle_gpu_memory_create(uint64_t b,uint32_t f,struct waffle_gpu_memory *m){(void)b;(void)f;(void)m;assert(0);return false;}
+uint64_t waffle_gpu_memory_page(const struct waffle_gpu_memory *m,uint32_t o){(void)m;(void)o;assert(0);return 0;}
+bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *m,bool d){(void)m;(void)d;assert(0);return false;}
+
 typedef uintptr_t vm_offset_t;
 #define PAGE_SIZE 16384
 #define KMA_KOBJECT 1
@@ -37,10 +45,13 @@ types = r'''
 struct waffle_gmu_region {uint32_t address,size;uintptr_t memory;bool gpu_only,readonly;};
 struct waffle_gmu_plan {bool compact_gpu_va;unsigned count;struct waffle_gmu_region regions[16];};
 struct waffle_gmu_owner {unsigned tag;};
-struct smmu_owner {struct waffle_gmu_region dynamic;struct waffle_gmu_plan firmware;struct table_pool pool;struct pool_permission_context permission_context;struct waffle_gmu_owner *child;};
+struct smmu_owner {struct waffle_gpu_registry registry;struct waffle_gmu_region dynamic,data;struct waffle_gpu_buffer user_buffer;unsigned compute_image;struct waffle_gmu_plan firmware;struct table_pool pool;struct pool_permission_context permission_context;struct waffle_gmu_owner *child;};
 static struct waffle_gmu_owner child;
 static struct smmu_owner *active;
 static uint64_t waffle_gpu_plan_alias(const struct waffle_gmu_plan *p,uint64_t address){return p->compact_gpu_va?waffle_gpu_compact_alias(address):0;}
+static bool waffle_gmu_owner_memory_idle(struct waffle_gmu_owner *g){assert(g==&child && live);return mode!=2;}
+static bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *g,const struct waffle_gpu_buffer *b){(void)g;(void)b;assert(0);return false;}
+static bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *g,struct waffle_gmu_region *r){(void)g;(void)r;assert(0);return false;}
 static bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *g){assert(g==&child && live);return mode!=2;}
 static uint64_t pte(struct table_pool *p,uint64_t va){uint64_t *r=(void *)p->memory[0];uint64_t *middle=permission_table(p,r[(va>>30)&511]);if(!middle)return 0;uint64_t *leaf=permission_table(p,middle[(va>>21)&511]);return leaf?leaf[(va>>12)&511]:0;}
 static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *g,struct waffle_gmu_region *r){
@@ -52,6 +63,7 @@ static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *g,struct waffle_gm
 '''
 tests = r'''
 int main(void){
+ assert(!smmu_registry_new(NULL,4096,WAFFLE_GPU_BO_WC));
  for(mode=0;mode<12;mode++){
   allocated=tlbs=cleans=binds=after_start_allocs=0;live=false;
   struct smmu_owner owner={.child=&child,.firmware={.compact_gpu_va=true,.count=1,.regions={{.address=0x80074000,.size=16384}}},.permission_context={.cb=1,.lpac_cb=2}};

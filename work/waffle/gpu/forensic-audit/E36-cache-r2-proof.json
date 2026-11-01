@@ -1,0 +1,10 @@
+{
+  "same_kernel": true,
+  "same_RAM_image": true,
+  "same_Mesa": true,
+  "same_dynamic_program": true,
+  "same_system": true,
+  "same_firmware": true,
+  "change": "staticinit explicitDYLD_SHARED_CACHE_DIR plus cachefilemagicpreflight; hostvalidatorGLmarkerdiagnostics",
+  "root_sha256": "5dd14b8c1e9b98159a2a1b626c6b97d4b6ea4441d733932f2b3b31c09ef1425f"
+}

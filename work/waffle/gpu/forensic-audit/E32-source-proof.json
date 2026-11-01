@@ -1,0 +1,18 @@
+{
+  "experiment": "E32 actual Mesa DRM shim transport",
+  "kernel_and_efi_identical_verified_E31": true,
+  "kernel_sha256": "84385dd4742397f9943b4ea480b0770e30b9c151ac4a5bec51c4014fbac3988c",
+  "firmware_identical": true,
+  "actual_static_program_contains_mesa_shim": true,
+  "normal_Redwood_shim_arm64_syntax_passed": true,
+  "host_transport_actual_cdev_client_passed": true,
+  "source_sha256": {
+    "tools/mesa/drm-shim/drm_shim.c": "aaca47017215cdb222129a1d6e2555be0912453d3801f550ef826dc656db83c2",
+    "userland/src/waffle_msm_probe.c": "e3f39c5d886ca0396af27641036e82ddebfb1979654500625f11257cc354909f",
+    "tools/build-waffle-user-probe.py": "3fc0e5d212ecc9f33b49f34fbd3bfe7878107bdb5f0b6d80281f2571c0985f88",
+    "tools/tests/waffle-mesa-transport-host.py": "911f9f659242d1e1a294f257923faf82a6a5444eeb7da4c87499af8af6a56a9a",
+    "scripts/run_waffle_ios.py": "01e07a1214b799df5a86db7cc03b824264c6d456e3f5c908a3f00a3378088d17",
+    "tools/run-waffle-auto.py": "422e7fe17803230a5b04905c74c08eb67f82303074a69dbab007752b394c8009",
+    "work/waffle/gpu/run-publish-test.py": "f338f0ab414bfafb86a0d0c5645325aaef2746a2216f674bb71255aaf60ab28c"
+  }
+}

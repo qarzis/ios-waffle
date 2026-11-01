@@ -1,0 +1,37 @@
+{
+  "experiment": "E32 actual Mesa DRM shim transport hardware PASS",
+  "run": "work/waffle/runs/20261101T093817Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T093754Z",
+  "actual_shim_source": "tools/mesa/drm-shim/drm_shim.c",
+  "compile_mode": "WAFFLE_MSM_PROBE",
+  "transport_entrypoints": [
+    "drmOpenWithType",
+    "drmCommandWriteRead",
+    "drmCommandWrite",
+    "drmIoctl"
+  ],
+  "normal_Mesa_Redwood_path_unchanged": true,
+  "kernel_firmware_efi_identical_verified_E31": true,
+  "bo_handles": 2,
+  "jobs": 3,
+  "fences": [
+    1,
+    2,
+    3
+  ],
+  "pixels_checked": 768,
+  "two_bo_word_checks": 24576,
+  "wrong": 0,
+  "negative_checks": 7,
+  "full_shutdown": true,
+  "context_null": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "runtime_Gallium_GL_IOKit_IOSurface_acceleration": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T093817Z/kernel-final.log": "6268093a6f2c9cfc5c1f28cc924fa6f5783814f51e1ea60448ff3aff0607e3e3",
+    "work/waffle/runs/20261101T093817Z/gpu-mesa-jobs.json": "6b71295847af39496be5a5d3848b84fbb342c088d8ad7cd81d5ee260d0af27bd",
+    "work/waffle/auto-runs/20261101T093754Z/result.json": "6c27696c2fcfb0c2b831c713a2e8d1518a158e6d8480075866c4803013b6f523"
+  }
+}

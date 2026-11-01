@@ -1,0 +1,12 @@
+{
+  "experiment": "E33 oldMSM11 control",
+  "run": "work/waffle/runs/20261101T095152Z",
+  "auto": "work/waffle/auto-runs/20261101T095128Z",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "jobs": 3,
+  "pixels": 768,
+  "negative_checks": 7,
+  "wrong": 0
+}

@@ -1,0 +1,14 @@
+{
+  "surface": 1,
+  "swap": 1,
+  "stride": 64,
+  "pixels_checked": 256,
+  "pixels_wrong": 0,
+  "actual_EAGL_GL_adapter": true,
+  "actual_EAGL_hook": true,
+  "consecutive_frames": 1,
+  "display_worker_resolved_surface": true,
+  "CPU_readback": true,
+  "optical_visibility_verified": false,
+  "direct_GPU_scanout": false
+}

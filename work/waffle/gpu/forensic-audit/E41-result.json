@@ -1,0 +1,22 @@
+{
+  "run": "work/waffle/runs/20261101T123341Z",
+  "auto": "work/waffle/auto-runs/20261101T123318Z",
+  "actual_adapter": "userland/src/gl_osmesa.c unchanged",
+  "requested_API": 2,
+  "actual_GL_version": "OpenGL ES 3.2 Mesa26.3",
+  "renderer": "FD750",
+  "texture_FBO_complete": true,
+  "GPU_fences": 5,
+  "BOs": 25,
+  "RGBA_pixels_checked": 256,
+  "RGBA_pixels_wrong": 0,
+  "BGRA_IOSurface_pixels_wrong": 0,
+  "display_worker_resolved_exact_surface": true,
+  "CPU_readback": true,
+  "full_context_teardown": true,
+  "independent_android": "1",
+  "runner_exit": 0,
+  "optical_visibility_verified": false,
+  "UI_acceleration": false,
+  "log_sha256": "48c493d1cb6eb0681d2f11dfb0bdae3eed7823870ac4e6be736f3bbc62204a22"
+}

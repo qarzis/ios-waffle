@@ -14,7 +14,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | --- | :---: | --- |
 | CPU, interrupts, timers | ✅ | XNU and iOS boot; all 8 cores unverified |
 | Display | ✅ | 1440 × 3168 framebuffer |
-| GPU | ⚠️ | Adreno 750 compute shader tested; iOS still uses CPU rendering |
+| GPU | ⚠️ | Full-frame OpenGL ES tested; SpringBoard still uses CPU rendering |
 | Metal | ❌ | |
 | Touch | ✅ | Taps and swipes |
 | Buttons | ✅ | Power, volume up, volume down |

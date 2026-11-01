@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run the experimental PJD110 RAM port after selecting Boot iOS in UEFI."""
 import argparse
+import json
 from datetime import datetime, timezone
 import os
 import re
@@ -9,6 +10,8 @@ import shutil
 import subprocess
 import sys
 import time
+import struct
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE_DIR = ROOT if (ROOT / "root.packfs").is_file() else ROOT / "work/waffle/images"
@@ -28,14 +31,217 @@ def result_from_log(data):
     return f"result: returned {match[1]} 0" if match else ""
 
 
-def validate_aop_owner_log(text, compute_mode=0):
+def uploaded_image_pixels():
+    data=(ROOT/'tools/tests/fixtures/waffle-input16.ppm').read_bytes()
+    if len(data)!=781 or data[:13]!=b'P6\n16 16\n255\n':raise RuntimeError("Invalid uploaded image fixture")
+    return [int.from_bytes(data[i:i+3]+b'\xff','little') for i in range(13,len(data),3)]
+
+
+def extract_gpu_image(text, compute_mode, image=1):
+    blocks={}
+    for offset,values in re.findall(r"waffle-gmu: IMAGE pixels offset=(\d+) values=([0-9a-f]{8}(?:/[0-9a-f]{8}){7})",text):
+        offset=int(offset);pixels=[int(x,16) for x in values.split('/')]
+        if offset%8 or offset<0 or offset>248 or (offset in blocks and blocks[offset]!=pixels):
+            raise RuntimeError("Conflicting or invalid GPU image readback")
+        blocks[offset]=pixels
+    if set(blocks)!=set(range(0,256,8)):
+        raise RuntimeError("Incomplete GPU pixel readback")
+    pixels=[v for offset in range(0,256,8) for v in blocks[offset]]
+    expected=(uploaded_image_pixels() if image>=2 else [0xff000000|i for i in range(256)]) if compute_mode==2 else [0xdead0000+i for i in range(256)]
+    if pixels!=expected:raise RuntimeError("GPU pixel pattern did not match")
+    return pixels
+
+
+def extract_copy_jobs(text):
+    blocks={}
+    for fence,offset,values in re.findall(r"COPY_JOB pixels fence=(\d+) offset=(\d+) values=([0-9a-f]{8}(?:/[0-9a-f]{8}){7})",text):
+        key=(int(fence),int(offset));pixels=[int(v,16) for v in values.split('/')]
+        if key[0] not in (1,2,3) or key[1] not in range(0,256,8) or (key in blocks and blocks[key]!=pixels):
+            raise RuntimeError("Invalid or conflicting copy job pixels")
+        blocks[key]=pixels
+    if set(blocks)!={(f,o) for f in (1,2,3) for o in range(0,256,8)}:raise RuntimeError("Incomplete copy job pixels")
+    inputs=uploaded_image_pixels();result=[]
+    for fence,mask in enumerate((0x00010101,0x002a173c,0x0065ab19),1):
+        pixels=[v for offset in range(0,256,8) for v in blocks[fence,offset]]
+        if pixels!=[v^mask for v in inputs]:raise RuntimeError("Stale or corrupt copy job result")
+        result.append(pixels)
+    return result
+
+
+def write_gpu_png(path, pixels):
+    if len(pixels)!=256:raise RuntimeError("Expected 16x16 GPU image")
+    rgba=b''.join(word.to_bytes(4,'little') for word in pixels)
+    raw=b''.join(b'\0'+rgba[y*64:(y+1)*64] for y in range(16))
+    def chunk(name,data):
+        return struct.pack('>I',len(data))+name+data+struct.pack('>I',zlib.crc32(name+data)&0xffffffff)
+    path.write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',16,16,8,6,0,0,0))+
+                     chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))
+
+
+def validate_msm_log(text):
+    markers=["MSM registered BO2 submit191 root_only=1 gated=1",
+      "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
+      "full GPU owner returned live to init caller; no mutex held","SERVICE begin root_live=1 serialized=1",
+      "USER_BO published VA=100000000 pages=4 lower39=1 unprivileged=1",
+      "MSM open pid=1 actual_gpu_bos=2 user_commands=1","COPY_SEQUENCE begin jobs=3 kernel_caller=1",
+      "MSM gem_new handle=1 bytes=16384 VA=1ff8000478000","MSM gem_new handle=2 bytes=16384 VA=100000000",
+      "MSM invalid_command refused=1 next_fence=1"]
+    for fence in (1,2,3):
+        markers += [f"MSM_COMMAND accepted fence={fence} words=191 source=user_bo",
+          "GLSL_JOB mode=dispatch command_words=191 bindless=1 source=GLSL450",
+          f"COPY_JOB begin fence={fence} seq={43+fence} pixels=256",
+          f"COMPUTE_IB ACK matched seq{43+fence} value=00000000 valid=1",
+          f"DATA_BO checked=4096 wrong_words=0 fence={fence} independent=1",
+          f"COPY_JOB done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0",
+          f"COPY_CALLER fence={fence} checked=256 wrong=0",f"MSM submitted fence={fence} user_ib=1 bo_handles=2"]
+    markers += ["MSM report pid=1 checks=768 wrong=0 fence=3 negative=7",
+      "MSM gem_close handle=1 retained_until_context_stop=1","MSM gem_close handle=2 retained_until_context_stop=1",
+      "SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session",
+      "USER_BO released after GPU stop and context detach","DYNAMIC_BO released after GPU stop and context detach",
+      "SMMU_OWNER released after child stop and context detach","CLOCK_OWNER released before CX restore result=1",
+      "POWER_OWNER released after clock child, CX and CFG restore result=1",
+      "AOP_OWNER released after power child and channel restore result=1 transport=0",
+      "SERVICE end consumed=1 result=1","MSM close passed=1 report=1 context_null=1"]
+    # Repeated identical GLSL markers must be found after each previous fence.
+    cursor=0
+    for marker in markers:
+        at=text.find(marker,cursor)
+        if at<0:raise RuntimeError("MSM BO/command/lifetime proof missing: "+marker)
+        cursor=at+len(marker)
+    if "REBOOT REQUIRED" in text:raise RuntimeError("MSM requires reset")
+    return extract_copy_jobs(text)[-1]
+
+
+def validate_mapped_log(text):
+    pixels=validate_msm_log(text)
+    markers=["MSM_MAP enabled IOMemoryMap=1 revoke_before_submit=1",
+      "MSM_MAP mapped handle=1 bytes=16384 readonly=0 direct_backing=1",
+      "MSM_MAP mapped handle=2 bytes=16384 readonly=0 direct_backing=1",
+      "MSM_MAP revoked_before_validate next_fence=1","MSM invalid_command refused=1 next_fence=1"]
+    for fence in (1,2,3):
+        markers += ["MSM_MAP mapped handle=1 bytes=16384 readonly=0 direct_backing=1",
+          "MSM_MAP mapped handle=2 bytes=16384 readonly=0 direct_backing=1",
+          f"MSM_MAP revoked_before_validate next_fence={fence}",
+          f"MSM_COMMAND accepted fence={fence} words=191 source=user_bo",
+          f"MSM submitted fence={fence} user_ib=1 bo_handles=2",
+          "MSM_MAP mapped handle=2 bytes=16384 readonly=1 direct_backing=1","MSM_MAP unmapped handle=2"]
+    cursor=0
+    for marker in markers:
+        at=text.find(marker,cursor)
+        if at<0:raise RuntimeError("Direct BO mapping/handoff missing: "+marker)
+        cursor=at+len(marker)
+    if "waffle-mesa-probe: mapped_bo=1 upload_download_copy=0 handoff=unmap_before_submit" not in text or re.search(r"MSM_TRANSFER operation=\w+ bytes=16384",text):
+        raise RuntimeError("Mapped BO used copy transfers or actual client marker missing")
+    return pixels
+
+
+def extract_gl_pixels(text):
+    blocks={}
+    for offset,values in re.findall(r"waffle-gl-user: pixels offset=(\d+) values=([0-9a-f]{8}(?:/[0-9a-f]{8}){7})",text):
+        offset=int(offset);words=[int(v,16) for v in values.split('/')]
+        if offset not in range(0,256,8) or (offset in blocks and blocks[offset]!=words):raise RuntimeError("Invalid or conflicting GL readback")
+        blocks[offset]=words
+    if set(blocks)!=set(range(0,256,8)):raise RuntimeError("Incomplete actual GL pixel readback")
+    pixels=[v for offset in range(0,256,8) for v in blocks[offset]]
+    expected=[0xff0040ff if 4*x+2>2*y+1 and 4*x+2<63-2*y else 0xff000000 for y in range(16) for x in range(16)]
+    if pixels!=expected:raise RuntimeError("Actual GL triangle pixels differ from independent reference")
+    return pixels
+
+
+def gl_completed_fences(text):
+    fences={}
+    for fence,seq,control in re.findall(r"GENERAL_SUBMIT done fence=(\d+) seq=(\d+) control=([0-9a-f]{8}) checked=4096 wrong_words=0",text):
+        fence,seq,control=int(fence),int(seq),int(control,16)
+        if seq!=43+fence or control!=fence or (fence in fences and fences[fence]!=(seq,control)):raise RuntimeError("Invalid GL GPU completion token")
+        fences[fence]=(seq,control)
+    if not fences or set(fences)!=set(range(1,max(fences)+1)):raise RuntimeError("Missing or discontinuous GL GPU fences")
+    return max(fences)
+
+
+def validate_gl_log(text):
+    if "Library not loaded:" in text:
+        raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
+    pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
+    if "REBOOT REQUIRED" in text or "GENERAL_SUBMIT mismatch" in text:raise RuntimeError("GL GPU ownership or completion failed")
+    markers=["GENERAL registered root_only=1 gated=1 BO_limit=32",
+       "waffle-gl-init: exec actual Darwin Mesa probe pid=1",
+       "waffle-gl-user: begin actual_OSMesa=1 target=GPU triangle=16x16",
+       "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
+       "full GPU owner returned live to init caller; no mutex held","SERVICE begin root_live=1 serialized=1",
+       "GENERAL open pid=1 BO_limit=32 heap_bytes=33554432"]
+    cursor=0
+    for marker in markers:
+        at=text.find(marker,cursor)
+        if at<0:raise RuntimeError("GL start/lifetime proof missing: "+marker)
+        cursor=at+len(marker)
+    if "waffle-gl-user: renderer=FD750" not in text:raise RuntimeError("Actual FD750 GL renderer not selected")
+    for fence in range(1,count+1):
+        starts=list(re.finditer(rf"GENERAL_SUBMIT begin fence={fence} seq={43+fence} root_words=(\d+) kernel_tail=15 extra_IB_depth=0",text[cursor:]))
+        if not starts or not 1<=int(starts[0][1])<=1024:raise RuntimeError("GL root command publication not proved")
+        cursor+=starts[0].end()
+        for marker in (f"GENERAL_IB ACK matched seq{43+fence} value=00000000 valid=1",
+          f"GENERAL_SUBMIT done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0",
+          f"GENERAL submitted fence={fence}"):
+            at=text.find(marker,cursor)
+            if at<0:raise RuntimeError("GL GPU fence not confirmed: "+marker)
+            cursor=at+len(marker)
+    buffers={}
+    for index,va,logical,allocated,flags,pages in re.findall(r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)",text):
+        key=int(index);value=(int(va,16),int(logical),int(allocated),int(flags,16),int(pages))
+        if key in buffers and buffers[key]!=value:raise RuntimeError("Conflicting GL BO publication")
+        buffers[key]=value
+    if not buffers or set(buffers)!=set(range(1,len(buffers)+1)) or len(buffers)>32:raise RuntimeError("Missing GL BO publication")
+    expected_va=0x100000000
+    for key in sorted(buffers):
+        va,logical,allocated,flags,pages=buffers[key]
+        if va!=expected_va or not 0<logical<=8*1024*1024 or allocated!=(logical+16383)&~16383 or flags not in (0x20000,0x20002) or pages!=allocated//4096:
+            raise RuntimeError("Invalid GL BO range/permission publication")
+        expected_va+=allocated
+    if expected_va>0x102000000:raise RuntimeError("GL BO heap budget exceeded")
+    markers=["waffle-gl-user: checked=256 wrong=0 filled=128 GL_error=0",
+       f"GENERAL_BO released after GPU stop and context detach count={len(buffers)}",
+       "SMMU_OWNER released after child stop and context detach","CLOCK_OWNER released before CX restore result=1",
+       "POWER_OWNER released after clock child, CX and CFG restore result=1",
+       "AOP_OWNER released after power child and channel restore result=1 transport=0","SERVICE end consumed=1 result=1"]
+    for marker in markers:
+        at=text.find(marker,cursor)
+        if at<0:raise RuntimeError("GL result/teardown missing: "+marker)
+        cursor=at+len(marker)
+    close=re.search(rf"GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1",text[cursor:])
+    if not close or int(close[1])!=len(buffers):raise RuntimeError("GL BO backing lifetime not confirmed")
+    if "waffle-gl-user: result=1 actual_OSMesa=1" not in text[cursor+close.end():]:raise RuntimeError("GL process did not finish successfully")
+    return pixels
+
+
+def validate_aop_owner_log(text, compute_mode=0, image=False):
     """Require actual GPU results and child-first teardown for the owned path."""
+    if image==13:return validate_gl_log(text)
+    if image==12:return validate_mapped_log(text)
+    if image==11:return validate_msm_log(text)
     markers=[
         "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
         "full GPU owner returned live to init caller; no mutex held",
     ]
-    if compute_mode:
-        values="/".join(f"{i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
+    if image==9:
+        markers += ["GLSL_JOB mode=prepare command_words=191 bindless=1 source=GLSL450",
+                    "COMPUTE_IB ACK matched seq44 value=00000000 valid=1",
+                    "DATA_BO checked=4096 wrong_words=0 fence=1 independent=1",
+                    "COPY_JOB done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0",
+                    "GLSL_PREPARE output_poison=256 wrong=0 dispatch=0",
+                    "SESSION result=1 submitted=1 completed=1 next_sequence=45 OOB=1; bounded kernel session"]
+    elif image>=4:
+        markers += ["COPY_SEQUENCE begin jobs=3 kernel_caller=1"]
+        for fence in (1,2,3):
+            markers += [f"COPY_JOB begin fence={fence} seq={43+fence} pixels=256",
+                        f"COMPUTE_IB ACK matched seq{43+fence} value=00000000 valid=1",
+                        f"COPY_JOB done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0",
+                        f"COPY_CALLER fence={fence} checked=256 wrong=0"]
+        markers += ["SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session"]
+    elif compute_mode:
+        expected_pixels=uploaded_image_pixels() if image>=2 else [0xff000000|i for i in range(256)]
+        if image>=2:markers += ["IMAGE_COPY input_word=3328 output_word=3072 pixels=256"]
+        values="/".join(f"{expected_pixels[i] if image and compute_mode==2 else i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
+        if image:markers += [f"IMAGE begin width=16 height=16 pixels=256 dispatch={int(compute_mode==2)}"]
         markers += [f"COMPUTE begin mode={compute_mode} dispatch={int(compute_mode==2)} words=184 output_poison=1",
             "COMPUTE_IB ACK matched seq44 value=00000000 valid=1",
             f"COMPUTE values={values} control=00000001 checked=4096 wrong_words=0 mode={compute_mode}",
@@ -51,9 +257,59 @@ def validate_aop_owner_log(text, compute_mode=0):
         "POWER_OWNER released after clock child, CX and CFG restore result=1",
         "AOP_OWNER released after power child and channel restore result=1 transport=0",
     ]
+    if image==3:
+        start=markers.index("SESSION result=1 submitted=1 completed=1 next_sequence=45 OOB=1; bounded kernel session")
+        markers[start:start]=["PRESENT begin format=BGRA8 x=592 y=1456 width=256 height=256 cpu_blit=1",
+                             "PRESENT write checked=65536 wrong=0", "PRESENT restore checked=65536 wrong=0"]
+    if image==5:
+        at=markers.index("COPY_SEQUENCE begin jobs=3 kernel_caller=1")
+        markers[at:at]=["SERVICE begin root_live=1 serialized=1","SERVICE worker started separate_thread=1"]
+        at=markers.index("COPY_JOB begin fence=1 seq=44 pixels=256")
+        markers.insert(at,"SERVICE busy submit_refused=1 close_refused=1 retained=1")
+        at=markers.index("SMMU_OWNER released after child stop and context detach")
+        markers.insert(at,"SERVICE worker finished result=1")
+        markers += ["SERVICE end consumed=1 result=1","SERVICE probe passed=1 context_null=1"]
+    if 6<=image<=8 or image==10:
+        markers.insert(0,"USERDEV registered abi=1 pixels=256 mode=0600; no GPU opened")
+        at=markers.index("COPY_SEQUENCE begin jobs=3 kernel_caller=1")
+        markers[at:at]=["SERVICE begin root_live=1 serialized=1","USERDEV open pid=1 demand_context=1"]
+        at=markers.index("COPY_JOB begin fence=1 seq=44 pixels=256")
+        markers[at:at]=["USERDEV busy_open refused=1 pid=1","USERDEV invalid_copy refused=1 pid=1 version=2 words=256",
+                       "USERDEV invalid_copy refused=1 pid=1 version=1 words=255","USERDEV unknown_ioctl refused=1 pid=1"]
+        for fence in (1,2,3):
+            at=markers.index(f"COPY_CALLER fence={fence} checked=256 wrong=0")
+            markers.insert(at+1,f"USERDEV returned pid=1 fence={fence} words=256")
+        at=markers.index("SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session")
+        markers.insert(at,"USERDEV report pid=1 checks=768 wrong=0 fence=3 negative=5")
+        markers += ["SERVICE end consumed=1 result=1","USERDEV close pid=1 passed=1 report=1 context_null=1"]
+    if image in (7,8):
+        at=markers.index("COPY_JOB begin fence=1 seq=44 pixels=256")
+        markers.insert(at,"DATA_BO published separately VA=8007c000 pages=4 aliases=2 unprivileged=1")
+        for fence in (1,2,3):
+            at=markers.index(f"COPY_JOB done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0")
+            markers.insert(at,f"DATA_BO checked=4096 wrong_words=0 fence={fence} independent=1")
+        at=markers.index("SMMU_OWNER released after child stop and context detach")
+        markers.insert(at,"DATA_BO released after GPU stop and context detach")
+    if image in (8,10):
+        at=markers.index("COPY_JOB begin fence=1 seq=44 pixels=256")
+        markers.insert(at,"GLSL_JOB mode=dispatch command_words=191 bindless=1 source=GLSL450")
+    if image==9:
+        at=markers.index("GLSL_JOB mode=prepare command_words=191 bindless=1 source=GLSL450")
+        markers.insert(at,"DATA_BO published separately VA=8007c000 pages=4 aliases=2 unprivileged=1")
+        at=markers.index("SMMU_OWNER released after child stop and context detach")
+        markers.insert(at,"DATA_BO released after GPU stop and context detach")
+    if image==10:
+        at=markers.index("GLSL_JOB mode=dispatch command_words=191 bindless=1 source=GLSL450")
+        markers.insert(at,"USER_BO published VA=100000000 pages=4 lower39=1 unprivileged=1")
+        for fence in (1,2,3):
+            at=markers.index(f"COPY_JOB done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0")
+            markers.insert(at,f"DATA_BO checked=4096 wrong_words=0 fence={fence} independent=1")
+        at=markers.index("SMMU_OWNER released after child stop and context detach")
+        markers.insert(at,"USER_BO released after GPU stop and context detach")
     positions=[text.find(marker) for marker in markers]
     if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
         raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
+    return None if image==9 else extract_copy_jobs(text)[-1] if image>=4 else extract_gpu_image(text,compute_mode,image) if image else None
 
 
 def main():
@@ -70,6 +326,19 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-gl-context",action="store_true",help="E36 actual Darwin OSMesa GL renderer")
+    parser.add_argument("--gpu-mapped",action="store_true",help="E33 direct mapped GPU BOs with revoke-before-submit")
+    parser.add_argument("--gpu-mesa-transport",action="store_true",help="E32 require actual Mesa DRM shim marker and MSM proof")
+    parser.add_argument("--gpu-msm",action="store_true",help="E31 actual MSM BO handles and user uploaded Mesa commands")
+    parser.add_argument("--gpu-user-va",action="store_true",help="E30 64-bit lower GPU VA for GLSL data BO")
+    parser.add_argument("--gpu-glsl",action="store_true",help="E29 Mesa GLSL shader: prepare1 or dispatch2")
+    parser.add_argument("--gpu-data-bo",action="store_true",help="E28 user copies with separate GPU data BO")
+    parser.add_argument("--gpu-user-copy",action="store_true",help="E27 static Darwin user process -> fixed-copy ioctl -> GPU")
+    parser.add_argument("--gpu-worker",action="store_true",help="E26 parent-owned kernel worker and busy close refusal")
+    parser.add_argument("--gpu-copy-jobs",action="store_true",help="E25 three caller-input copy jobs with GPU fences")
+    parser.add_argument("--gpu-image-present",action="store_true",help="E24 CPU-present verified GPU image then restore framebuffer")
+    parser.add_argument("--gpu-image-copy",action="store_true",help="E23 uploaded16x16 image copy; requires compute")
+    parser.add_argument("--gpu-image",action="store_true",help="E22: compute-generated16x16 offscreen pixels; requires compute")
     parser.add_argument("--gpu-compute",type=int,choices=(1,2),help="E21: 1=state/control without dispatch; 2=eight-thread compute shader")
     parser.add_argument("--gpu-dynamic-bo",action="store_true",help="E20: allocate/map/bind test BO after GPU startup; requires session")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
@@ -77,6 +346,12 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
+    if args.gpu_mesa_transport and not args.gpu_msm:parser.error("--gpu-mesa-transport requires --gpu-msm")
+    if args.gpu_mapped and not (args.gpu_msm and args.gpu_mesa_transport):parser.error("--gpu-mapped requires MSM Mesa transport")
+    image_kind=13 if args.gpu_gl_context else 12 if args.gpu_mapped else 11 if args.gpu_msm else 10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    if image_kind>=3 and image_kind!=9 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
+    args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
         parser.error("--gpu-access-matrix requires prepare-only --gpu-probe 93")
     if args.gpu_measure_clocks and args.gpu_probe!=93:
@@ -89,6 +364,8 @@ def main():
         parser.error("--gpu-writeback requires --gpu-zap")
     if args.gpu_ib and not args.gpu_writeback:
         parser.error("--gpu-ib requires --gpu-writeback")
+    if args.gpu_image and not args.gpu_compute:
+        parser.error("--gpu-image requires --gpu-compute")
     if args.gpu_compute and not args.gpu_dynamic_bo:
         parser.error("--gpu-compute requires --gpu-dynamic-bo")
     if args.gpu_dynamic_bo and not args.gpu_session:
@@ -142,6 +419,8 @@ def main():
         arguments += " waffle_dynamic_bo=1"
     if args.gpu_compute:
         arguments += f" waffle_compute={args.gpu_compute}"
+    if args.gpu_image:
+        arguments += f" waffle_image={image_kind}"
     payload = out / "payload.xnup"
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
@@ -179,6 +458,7 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            image_pixels=None
             if args.gpu_session and not args.gpu_compute and not all(marker in final_text for marker in (
                     "SESSION OOB ownership transferred; init returned with GX retained",
                     "SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session",
@@ -186,10 +466,12 @@ def main():
                     "SESSION destroyed after full stop; aliases and heap released",
                     *[f"SESSION_IB ACK matched seq{i} value=00000000 valid=1" for i in (44,45,46)])):
                 raise RuntimeError(f"Owned session/multiple GPU results/stop not confirmed; logs: {out}")
+            if args.gpu_gl_context and "Library not loaded:" in final_text:
+                raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",final_text)[1])
             if args.gpu_dynamic_bo:
                 markers=("full GPU owner returned live to init caller; no mutex held",
                     "SESSION rebound BO VA=1ff8000478000", "DYNAMIC_BO published after GPU startup VA=80078000 pages=4 aliases=2 unprivileged=1",
-                    *(["COMPUTE values="] if args.gpu_compute else ["SESSION fence=1", "SESSION fence=2", "SESSION fence=3"]),
+                    *(["GENERAL_SUBMIT done fence=1"] if image_kind==13 else ["COMPUTE values="] if args.gpu_compute else ["SESSION fence=1", "SESSION fence=2", "SESSION fence=3"]),
                     "DYNAMIC_BO released after GPU stop and context detach", "SMMU_OWNER released after child stop and context detach")
                 positions=[final_text.find(marker) for marker in markers]
                 if -1 in positions or positions!=sorted(positions):
@@ -240,7 +522,9 @@ def main():
             if "waffle-gmu: REBOOT REQUIRED" in final_text:
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
-                validate_aop_owner_log(final_text, args.gpu_compute or 0)
+                image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)
+                if args.gpu_mesa_transport and "waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1" not in final_text:
+                    raise RuntimeError("Actual Mesa DRM shim transport not confirmed")
             elif args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
                     f"AOP channel{args.gpu_probe} result=0 channel=ffff0000 ack=ffff0000 link=0000ffff linkack=0000ffff",
                     f"AOP channel{args.gpu_probe} cleanup complete")):
@@ -386,7 +670,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{44+gl_completed_fences(final_text) if image_kind==13 else 47 if (4<=image_kind<=8 or image_kind in (10,11,12)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")
@@ -419,6 +703,11 @@ def main():
                 raise RuntimeError(f"Native BCL feature not enabled; logs: {out}")
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
+            if args.gpu_image and args.gpu_compute==2:
+                if image_pixels is None:raise RuntimeError("No GPU pixels validated")
+                write_gpu_png(out/"first-gpu-frame.png",image_pixels)
+                (out/"gpu-pixels.json").write_text(json.dumps({'width':16,'height':16,'rgba_words':image_pixels,'source':'actual kernel GPU readback'},indent=2)+"\n")
+                print(f"GPU image: {out/'first-gpu-frame.png'}",flush=True)
             return
         if not args.gpu_probe and (sequence in (2, 6, 9, 11) or (args.seconds > 60 and sequence % 6 == 0)):
             command("oem", "screenshot")

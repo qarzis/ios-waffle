@@ -12,6 +12,7 @@
 #include <pexpert/pexpert.h>
 #include <sys/systm.h>
 #include <sys/waffle_gpu.h>
+#include <sys/waffle_gpu_service.h>
 #include <sys/waffle_smmu.h>
 #include <sys/waffle_aop.h>
 #include <sys/waffle_gpu_pll.h>
@@ -738,6 +739,14 @@ void waffle_adreno_init(void)
             loader_return();return;
         }
         gpu_log("waffle-gpu: PLL%u verified firmware CX/MX256 handoff\n",probe);
+        uint32_t image=0;
+        if(probe==94 && PE_parse_boot_argn("waffle_image",&image,sizeof(image)) && (image==6 || image==7 || image==8 || image==10 || image==11 || image==12 || image==13)){
+            if(!(image==13?waffle_gpu_drm_register():(image==11 || image==12)?waffle_gpu_msm_register():waffle_gpu_user_register()))loader_return();
+            return;
+        }
+        if(probe==94 && PE_parse_boot_argn("waffle_image",&image,sizeof(image)) && image==5){
+            (void)waffle_gpu_service_probe();loader_return();return;
+        }
         uint32_t session=0;
         if(probe==92)probe_gpu_body(probe);
         else if(probe==94 && PE_parse_boot_argn("waffle_session",&session,sizeof(session)) && session==1) {
@@ -839,4 +848,58 @@ static struct board_power_owner *probe_gpu_body(unsigned probe)
     gpu_log("waffle-gpu: probe ended; returning to loader\n");
     
     return NULL;
+}
+
+/* Internal adapter; service mutex serializes the entire parent lifetime. */
+struct waffle_gpu_parent *waffle_gpu_parent_begin(void)
+{
+    uint32_t image=0;
+    if(pll92_power!=256 || !PE_parse_boot_argn("waffle_image",&image,sizeof(image)) || (image!=5 && image!=6 && image!=7 && image!=8 && image!=10 && image!=11 && image!=12 && image!=13))return NULL;
+    struct aop_gpu_owner *s=aop_gpu_owner_begin(94);
+    if(s)gpu_log("waffle-gpu: full GPU owner returned live to init caller; no mutex held\n");
+    return (struct waffle_gpu_parent *)s;
+}
+bool waffle_gpu_parent_copy(struct waffle_gpu_parent *parent,struct waffle_gpu_copy_job *job)
+{
+    struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;
+    if(job)job->fence=0;
+    if(!s || active_aop_gpu!=s || s->locked || !s->child || s->child!=active_board_power ||
+        !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child ||
+        (s->exercised && !s->exercise_ok))return false;
+    struct board_clock_owner *clock=s->child->child;
+    bool first=!s->exercised;
+    bool ok=waffle_smmu_owner_copy(clock->child,job);
+    clock->exercised=true;clock->ok=clock->ok && ok;
+    s->exercised=true;s->exercise_ok=first?ok:s->exercise_ok && ok;
+    return ok;
+}
+bool waffle_gpu_parent_buffers(struct waffle_gpu_parent *parent,struct waffle_gpu_buffer buffers[2])
+{
+    struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;
+    if(!s || active_aop_gpu!=s || s->locked || !s->child || s->child!=active_board_power ||
+       !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child || s->exercised)return false;
+    return waffle_smmu_owner_buffers(s->child->child->child,buffers);
+}
+struct waffle_gpu_memory *waffle_gpu_parent_memory_new(struct waffle_gpu_parent *parent,uint64_t bytes,uint32_t flags)
+{
+    struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;
+    if(!s || active_aop_gpu!=s || s->locked || !s->child || s->child!=active_board_power ||
+       !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child)return NULL;
+    return waffle_smmu_owner_memory_new(s->child->child->child,bytes,flags);
+}
+bool waffle_gpu_parent_submit(struct waffle_gpu_parent *parent,struct waffle_gpu_submit_job *job)
+{
+    struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;
+    if(job)job->fence=0;
+    if(!s || active_aop_gpu!=s || s->locked || !s->child || s->child!=active_board_power ||
+       !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child ||
+       (s->exercised && !s->exercise_ok))return false;
+    struct board_clock_owner *clock=s->child->child;bool first=!s->exercised;
+    bool ok=waffle_smmu_owner_submit(clock->child,job);
+    clock->exercised=true;clock->ok=clock->ok && ok;s->exercised=true;
+    s->exercise_ok=first?ok:s->exercise_ok && ok;return ok;
+}
+bool waffle_gpu_parent_end(struct waffle_gpu_parent *parent)
+{
+    return aop_gpu_owner_end((struct aop_gpu_owner *)parent);
 }

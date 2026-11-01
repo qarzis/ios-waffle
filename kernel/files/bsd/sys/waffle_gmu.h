@@ -3,6 +3,9 @@
 #include <mach/mach_types.h>
 #include <sys/waffle_gmu_firmware.h>
 #include <sys/waffle_gpu_va.h>
+#include <sys/waffle_gpu_job.h>
+#include <sys/waffle_gpu_buffer.h>
+#include <sys/waffle_gpu_submit.h>
 #define WAFFLE_GMU_REGIONS 16
 #define WAFFLE_GPU_SQE_ADDRESS 0x80010000u
 #define WAFFLE_GPU_AQE_ADDRESS 0x80030000u
@@ -29,7 +32,7 @@ struct waffle_gmu_plan {
     bool raw_stage_pause;
     struct waffle_submit_session *submit_session;
     unsigned session_slumber_sequence;
-    unsigned compute_mode;
+    unsigned compute_mode,compute_image;
     bool (*pool_permissions)(void *,uint64_t,uint32_t,uint32_t);
     void *pool_permissions_context;
     vm_offset_t fault_smmu;
@@ -48,8 +51,14 @@ void waffle_gmu_free(struct waffle_gmu_plan *);
 /* Parent retains SMMU/plan/clock ownership across these calls. */
 struct waffle_gmu_owner;
 struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *,unsigned,vm_offset_t);
+bool waffle_gmu_owner_submit(struct waffle_gmu_owner *,struct waffle_gpu_submit_job *);
+bool waffle_gmu_owner_copy(struct waffle_gmu_owner *,struct waffle_gpu_copy_job *);
 bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_memory_idle(struct waffle_gmu_owner *);
 bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *,const struct waffle_gpu_buffer *);
+bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *,struct waffle_gmu_region *);
 bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *,struct waffle_gmu_region *);
+bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *,struct waffle_gpu_buffer [2]);
 bool waffle_gmu_owner_end(struct waffle_gmu_owner *);
 #endif

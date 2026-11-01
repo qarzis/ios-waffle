@@ -107,8 +107,34 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-zap-load-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gpu-writeback-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-submit-session-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-general-submit-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-general-drm-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-gl-log-host.py"])
+    run([sys.executable, ROOT / "tools/build-waffle-gl-probe.py", "--output", output / "gl-probe"])
     run([sys.executable, ROOT / "tools/tests/waffle-compute-payload-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-image-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-copy-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-present-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-copy-jobs-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-service-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-user-host.py"])
+    run([sys.executable, ROOT / "tools/build-waffle-user-probe.py", "--output", output / "user-probe"])
+    run([sys.executable, ROOT / "tools/build-waffle-user-probe.py", "--msm", "--output", output / "msm-probe"])
+    run([sys.executable, ROOT / "tools/tests/waffle-msm-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-mesa-transport-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-memory-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-registry-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-registry-smmu-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-table-budget-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-fullsize-budget-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-map-helper-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-mapped-bo-host.py"])
+    run([sys.executable, ROOT / "tools/build-waffle-user-probe.py", "--msm", "--mesa-transport", "--mapped", "--output", output / "mapped-probe"])
+    run([sys.executable, ROOT / "tools/tests/waffle-image-gate-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-dynamic-bo-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-data-bo-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-user-va-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-glsl-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gmu-owner-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-tcm-owner-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-smmu-owner-host.py"])
@@ -137,10 +163,14 @@ def main():
         raise ValueError("Prepared XNU lacks the waffle SMMU build entry; apply the current kernel/kernel.patch")
     if "bsd/dev/waffle_gmu.c" not in (xnu / "bsd/conf/files").read_text():
         raise ValueError("Prepared XNU lacks the waffle GMU build entry; apply the current kernel/kernel.patch")
+    if "bsd/dev/waffle_gpu_service.c" not in (xnu / "bsd/conf/files").read_text():
+        raise ValueError("Prepared XNU lacks waffle GPU service build entry; apply current kernel/kernel.patch")
+    if "bsd/dev/waffle_gpu_user.c" not in (xnu / "bsd/conf/files").read_text():
+        raise ValueError("Prepared XNU lacks waffle GPU user build entry")
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
-    for relative in ("bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
-                     "bsd/dev/waffle_gmu.c", "bsd/sys/waffle_gpu_measure.h", "bsd/sys/waffle_hfi.h", "bsd/sys/waffle_hfi_tables.h", "bsd/sys/waffle_gmu.h", "bsd/sys/waffle_smmu.h", "bsd/sys/waffle_scm.h", "bsd/sys/waffle_zap.h", "bsd/sys/waffle_zap_load.h", "bsd/sys/waffle_gpu_writeback.h", "bsd/sys/waffle_gpu_compute.h", "bsd/sys/waffle_gmu_firmware.h", "bsd/dev/macan_touch_report.h",
+    for relative in ("iokit/Kernel/WaffleGPUMemory.cpp", "bsd/sys/waffle_gpu_submit.h", "bsd/sys/waffle_gpu_memory.h", "bsd/sys/waffle_gpu_registry.h", "iokit/Kernel/WaffleGPUMap.cpp", "bsd/sys/waffle_gpu_map.h", "bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_gpu_service.c", "bsd/dev/waffle_gpu_drm.c", "bsd/dev/waffle_gpu_msm.c", "bsd/sys/waffle_gpu_msm.h", "bsd/dev/waffle_gpu_user.c", "bsd/sys/waffle_gpu_user.h", "bsd/sys/waffle_gpu_service.h", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
+                     "bsd/dev/waffle_gmu.c", "bsd/sys/waffle_gpu_measure.h", "bsd/sys/waffle_hfi.h", "bsd/sys/waffle_hfi_tables.h", "bsd/sys/waffle_gmu.h", "bsd/sys/waffle_smmu.h", "bsd/sys/waffle_scm.h", "bsd/sys/waffle_zap.h", "bsd/sys/waffle_zap_load.h", "bsd/sys/waffle_gpu_writeback.h", "bsd/sys/waffle_gpu_compute.h", "bsd/sys/waffle_gpu_image.h", "bsd/sys/waffle_gpu_copy.h", "bsd/sys/waffle_gpu_job.h", "bsd/sys/waffle_gpu_data.h", "bsd/sys/waffle_gpu_buffer.h", "bsd/sys/waffle_gpu_glsl.h", "bsd/sys/waffle_gpu_present.h", "bsd/sys/waffle_gmu_firmware.h", "bsd/dev/macan_touch_report.h",
                      "bsd/sys/waffle_gen7_config.h", "bsd/sys/waffle_gen7_tables.h",
                      "bsd/sys/waffle_gen7_hwcg.h", "bsd/sys/waffle_gen7_cp.h", "bsd/sys/waffle_gen7_boot.h",
                      "bsd/dev/macan_input.c", "bsd/dev/macan_audio.c", "bsd/dev/macan_buttons.c",
@@ -200,14 +230,14 @@ def main():
                      "tools/tests/waffle-gpu-measure-host.py", "kernel/files/bsd/sys/waffle_gpu_measure.h",
                      "tools/tests/waffle-log-retrieval-host.py",
                      "tools/tests/waffle-smmu-fault-host.py", "tools/tests/waffle-hfi-publication-host.py", "tools/tests/waffle-post-prepare-query-host.py", "tools/tests/waffle-hfi-features-host.py", "tools/tests/waffle-pool-permissions-host.py", "tools/tests/waffle-dcvs-votes-host.py",
-                     "tools/tests/waffle-scm-aperture-host.py", "tools/tests/waffle-zap-host.py", "tools/tests/waffle-zap-load-host.py", "tools/tests/waffle-gpu-writeback-host.py", "tools/tests/waffle-submit-session-host.py", "tools/tests/waffle-compute-payload-host.py", "tools/check-waffle-compute.py", "tools/tests/fixtures/waffle-compute-opcodes.json", "tools/tests/fixtures/waffle-compute-manifest.json", "tools/tests/waffle-dynamic-bo-host.py", "tools/tests/waffle-gmu-owner-host.py", "tools/tests/waffle-tcm-owner-host.py", "tools/tests/waffle-smmu-owner-host.py", "tools/tests/waffle-board-power-owner-host.py", "kernel/files/bsd/sys/waffle_gpu_writeback.h", "kernel/files/bsd/sys/waffle_gpu_compute.h", "kernel/files/bsd/sys/waffle_zap.h", "kernel/files/bsd/sys/waffle_zap_load.h",
+                     "tools/tests/waffle-scm-aperture-host.py", "tools/tests/waffle-zap-host.py", "tools/tests/waffle-zap-load-host.py", "tools/tests/waffle-gpu-writeback-host.py", "tools/tests/waffle-submit-session-host.py", "tools/tests/waffle-compute-payload-host.py", "tools/tests/waffle-image-host.py", "tools/tests/waffle-copy-host.py", "tools/tests/waffle-present-host.py", "tools/tests/waffle-copy-jobs-host.py", "tools/tests/waffle-service-host.py", "tools/tests/waffle-user-host.py", "tools/build-waffle-user-probe.py", "userland/src/waffle_msm_probe.c", "tools/tests/waffle-msm-host.py", "tools/tests/waffle-image-gate-host.py", "tools/tests/waffle-map-helper-host.py", "tools/tests/waffle-mapped-bo-host.py", "tools/tests/waffle-mesa-transport-host.py", "tools/mesa/drm-shim/drm_shim.c", "tools/mesa/drm-shim/xf86drm.h", "userland/src/waffle_gpu_probe.c", "userland/libmini/mini.c", "userland/libmini/mini.h", "userland/libmini/start.S", "tools/tests/fixtures/waffle-copy256.asm", "tools/tests/fixtures/waffle-input16.ppm", "tools/tests/fixtures/waffle-copy-manifest.json", "tools/tests/fixtures/waffle-copy-source.json", "tools/tests/fixtures/waffle-ramp256.asm", "tools/tests/fixtures/waffle-image-manifest.json", "tools/tests/fixtures/waffle-image-source.json", "tools/check-waffle-compute.py", "tools/tests/fixtures/waffle-compute-opcodes.json", "tools/tests/fixtures/waffle-compute-manifest.json", "tools/tests/waffle-dynamic-bo-host.py", "tools/tests/waffle-data-bo-host.py", "tools/tests/waffle-user-va-host.py", "tools/tests/waffle-glsl-host.py", "tools/build-waffle-glsl-tools.py", "tools/waffle-glsl-compile.cc", "tools/waffle-compute-export.cc", "tools/tests/fixtures/waffle-glsl-copy.comp", "tools/tests/waffle-gmu-owner-host.py", "tools/tests/waffle-tcm-owner-host.py", "tools/tests/waffle-smmu-owner-host.py", "tools/tests/waffle-board-power-owner-host.py", "kernel/files/bsd/sys/waffle_gpu_writeback.h", "kernel/files/bsd/sys/waffle_gpu_compute.h", "kernel/files/bsd/sys/waffle_gpu_image.h", "kernel/files/bsd/sys/waffle_gpu_copy.h", "kernel/files/bsd/sys/waffle_gpu_job.h", "kernel/files/bsd/sys/waffle_gpu_data.h", "kernel/files/bsd/sys/waffle_gpu_buffer.h", "kernel/files/bsd/sys/waffle_gpu_glsl.h", "kernel/files/bsd/sys/waffle_gpu_present.h", "kernel/files/bsd/sys/waffle_zap.h", "kernel/files/bsd/sys/waffle_zap_load.h",
                      "tools/tests/waffle-gen7-cp-lifecycle.c", "tools/tests/waffle-hwcg-host.py",
                      "tools/build-waffle-gpu-start-tables.py", "tools/tests/waffle-gpu-start-tables-host.py",
                      "tools/tests/waffle-gen7-config-host.py", "tools/tests/waffle-gen7-transaction.c", "tools/tests/waffle-cp-init-host.py",
                      "loader/waffle-memory.h", "loader/waffle-memory-map.h",
                      "kernel/kernel.patch", "kernel/files/bsd/dev/macan_input.c", "kernel/files/bsd/dev/macan_audio.c",
                      "kernel/files/bsd/dev/waffle_synaptics.c", "kernel/files/bsd/dev/macan_touch_report.h",
-                     "kernel/files/bsd/dev/waffle_adreno.c", "kernel/files/bsd/sys/waffle_gpu.h", "kernel/files/bsd/sys/waffle_aop.h",
+                     "kernel/files/iokit/Kernel/WaffleGPUMemory.cpp", "tools/tests/waffle-general-submit-host.py", "kernel/files/bsd/sys/waffle_gpu_submit.h", "kernel/files/bsd/sys/waffle_gpu_memory.h", "kernel/files/bsd/sys/waffle_gpu_registry.h", "tools/tests/waffle-memory-host.py", "tools/tests/waffle-registry-host.py", "tools/tests/waffle-registry-smmu-host.py", "tools/tests/waffle-table-budget-host.py", "tools/tests/waffle-fullsize-budget-host.py", "kernel/files/iokit/Kernel/WaffleGPUMap.cpp", "kernel/files/bsd/sys/waffle_gpu_map.h", "kernel/files/bsd/dev/waffle_adreno.c", "kernel/files/bsd/dev/waffle_gpu_service.c", "tools/tests/waffle-gl-log-host.py", "tools/tests/waffle-msm-abi.c", "tools/build-waffle-gl-probe.py", "userland/src/waffle_gl_probe.c", "userland/src/waffle_gl_init.c", "tools/tests/waffle-general-drm-host.py", "tools/mesa/drm-shim/waffle_msm_transport.h", "kernel/files/bsd/dev/waffle_gpu_drm.c", "kernel/files/bsd/dev/waffle_gpu_msm.c", "kernel/files/bsd/sys/waffle_gpu_msm.h", "kernel/files/bsd/dev/waffle_gpu_user.c", "kernel/files/bsd/sys/waffle_gpu_user.h", "kernel/files/bsd/sys/waffle_gpu_service.h", "kernel/files/bsd/sys/waffle_gpu.h", "kernel/files/bsd/sys/waffle_aop.h",
                      "kernel/files/bsd/dev/waffle_smmu.c",
                      "kernel/files/bsd/dev/waffle_gmu.c", "kernel/files/bsd/sys/waffle_gmu.h", "kernel/files/bsd/sys/waffle_smmu.h",
                      "kernel/files/bsd/sys/waffle_gmu_firmware.h", "kernel/files/bsd/sys/waffle_scm.h", "tools/tests/waffle-scm-host.py", "tools/tests/waffle-secure-context-host.py", "tools/tests/waffle-protected-pool-host.py", "tools/tests/waffle-gmu-fw.c",

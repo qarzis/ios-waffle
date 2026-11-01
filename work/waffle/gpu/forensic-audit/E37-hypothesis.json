@@ -1,0 +1,10 @@
+{
+  "hypothesis": "E37-H1 multiple logical submitqueues required for Mesa screen+GL context",
+  "evidence": "exactsignalPCfd_pipe_get_param x0NULL; LRfd_context_init afterfd_pipe_new2 failure; kernelprevioussingleboolrefusessecondqueue; actualMesa __open_submitqueue calledperpipe",
+  "fix": "32boundedlogicalqueueIDs, independentvalidity/close, singlehardwarecontextserialized",
+  "host_checks": "actualcdevcreatesid1/id2, closesid1 thenexecutes/waitsusingid2; invalidclosedIDrefused",
+  "runtime_changed_file": "kernel/files/bsd/dev/waffle_gpu_drm.c",
+  "shader_power_firmware_smmu_unchanged": true,
+  "qualification": "oldmapped12control thenGL13; actualpixels/GPUfences/teardown/Androidrequired",
+  "current_hardware_tested": false
+}

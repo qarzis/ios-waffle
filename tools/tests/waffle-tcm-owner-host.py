@@ -4,6 +4,7 @@ import struct,subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 s=(root/'kernel/files/bsd/dev/waffle_gmu.c').read_text()
 code=s[s.index('struct waffle_tcm_context {'):s.index('static uint32_t gen7_config_read(')]
+code+='\nstatic bool owner_copy_sequence(struct waffle_gmu_owner *owner){return submit_session_run(owner->plan);}\nstatic bool owner_glsl_prepare(struct waffle_gmu_owner *owner){return submit_session_run(owner->plan);}\n'
 code=code.replace('__asm__ volatile("dsb sy" ::: "memory");','barrier();')
 fw=b''.join(struct.pack('<4I',addr,len(data),0,0)+data for addr,data in ((0,struct.pack('<4I',1,2,3,4)),(4,struct.pack('<I',9)),(0x10004008,struct.pack('<2I',6,7))))
 h=r'''
@@ -24,7 +25,7 @@ typedef uintptr_t vm_offset_t;
 #define VM_KERN_MEMORY_IOKIT 5
 #define KERN_SUCCESS 0
 #define kernel_map 7
-struct waffle_gmu_plan {const uint8_t *firmware;size_t length;void *submit_session;};
+struct waffle_gmu_plan {const uint8_t *firmware;size_t length;void *submit_session;unsigned compute_image;};
 struct gmu_boot_context {uintptr_t gmu,qtb;struct waffle_gmu_plan *plan;unsigned probe;bool configured,running;};
 static _Alignas(16384) uint8_t gmu[WAFFLE_GMU_SIZE],backup[32768],heap[16384],original[32768];
 static unsigned mode,allocs,backup_frees,heap_frees;
@@ -85,7 +86,7 @@ static void init(unsigned m,bool owner){
 }
 int main(void){
  for(unsigned probe_case=0;probe_case<2;++probe_case)for(unsigned m=0;m<=7;++m){
-  init(m,false);struct waffle_gmu_plan plan={fw,mode==3?sizeof(fw)-1:sizeof(fw),NULL};
+  init(m,false);struct waffle_gmu_plan plan={fw,mode==3?sizeof(fw)-1:sizeof(fw),NULL,0};
   if(!setjmp(trap)){
    bool ok=waffle_gmu_probe_tcm(&plan,probe_case?94:8,1);
    assert(ok==((mode==0) || (!probe_case && (mode==4 || mode==5 || mode==6))));
@@ -95,7 +96,7 @@ int main(void){
  }
  for(unsigned m=0;m<=14;++m){
   if(m==4 || m==5 || m==6 || m==8)continue;
-  init(m,true);struct waffle_gmu_plan plan={fw,mode==3?sizeof(fw)-1:sizeof(fw),NULL};
+  init(m,true);struct waffle_gmu_plan plan={fw,mode==3?sizeof(fw)-1:sizeof(fw),NULL,0};
   if(!setjmp(trap)){
    struct waffle_gmu_owner *owner=waffle_gmu_owner_begin(&plan,94,1);
    if(mode==1 || mode==2 || mode==3 || mode==7 || mode==9 || mode==10 || mode==14){

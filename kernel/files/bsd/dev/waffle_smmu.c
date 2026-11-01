@@ -10,7 +10,9 @@
 #include <sys/systm.h>
 #include <sys/waffle_gpu.h>
 #include <sys/waffle_gmu.h>
+#include <sys/waffle_gpu_data.h>
 #include <sys/waffle_smmu.h>
+#include <sys/waffle_gpu_registry.h>
 #include <sys/waffle_scm.h>
 #include <sys/waffle_gpu_writeback.h>
 #include <vm/vm_kern.h>
@@ -54,7 +56,7 @@ static bool tlb_sync(vm_offset_t cb)
     w32(cb, 0x7f0, 0); /* TLBSYNC */
     return poll(cb, 0x7f4, 1, 0, 10000);
 }
-#define TABLE_LIMIT 32
+#define TABLE_LIMIT 64
 #define PTE_ADDRESS 0x0000fffffffff000ULL
 struct table_pool {
     unsigned count;
@@ -393,13 +395,15 @@ static const uint32_t smmu_gmu_offsets[]={0x4,0x10,0x20,0x24,0x28,0x2c,0x30,0x38
 struct smmu_owner {
     vm_offset_t smmu,qtb,gmu,cc,cb,target;
     unsigned page,pages,contexts,matches,probe,index,lpac_checks;
-    uint32_t lpac_map,zap,writeback,ib,session,access_matrix,dynamic_bo,compute_mode;
+    uint32_t lpac_map,zap,writeback,ib,session,access_matrix,dynamic_bo,compute_mode,compute_image;
     uint32_t saved_ctl,saved_smr,saved_s2cr,old_cbar,old_cba2r,old[9];
     uint64_t old_fence,old_inputs[3],target_pa;
     struct gpu_context gpu_context,lpac_context;
     struct table_pool pool;
     struct waffle_gmu_plan firmware;
-    struct waffle_gmu_region dynamic;
+    struct waffle_gmu_region dynamic,data;
+    struct waffle_gpu_buffer user_buffer;
+    struct waffle_gpu_registry registry;
     struct protected_gpu_pool *protected_pool;
     struct pool_permission_context permission_context;
     struct access_matrix_context matrix;
@@ -445,6 +449,10 @@ static bool smmu_owner_begin(struct smmu_owner *s)
         ((s->compute_mode!=1 && s->compute_mode!=2) || probe!=94 || s->dynamic_bo!=1 || s->session!=1)) {
         log_line("waffle-iommu: compute requires controlled94 dynamic BO session; refused\n");return false;
     }
+    if(PE_parse_boot_argn("waffle_image",&s->compute_image,sizeof(s->compute_image)) &&
+        ((s->compute_image<1 || s->compute_image>13) || !s->compute_mode || (s->compute_image>=3 && s->compute_image!=9 && s->compute_mode!=2) || (s->compute_image==9 && s->compute_mode!=1) || probe!=94 || s->dynamic_bo!=1)) {
+        log_line("waffle-iommu: image requires controlled compute/dynamic session; refused\n");return false;
+    }
     if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&
         (s->access_matrix!=1 || probe!=93)) {
         log_line("waffle-iommu: access matrix requires prepare-only probe93; refused\n");return false;
@@ -489,6 +497,7 @@ static bool smmu_owner_begin(struct smmu_owner *s)
     s->snapshot_ready=true;
     if (probe >= 8 && !waffle_gmu_prepare(&s->firmware, probe)) return false;
     s->firmware.compute_mode=s->compute_mode;
+    s->firmware.compute_image=s->compute_image;
     if (!new_table(&s->pool) || kmem_alloc(kernel_map, &s->target, PAGE_SIZE,
             KMA_KOBJECT | KMA_ZERO | KMA_DATA, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) return false;
     s->target_pa = kvtophys(s->target);
@@ -715,9 +724,22 @@ static bool smmu_owner_finish(struct smmu_owner *s)
     w64(s->qtb, 0x410, s->old_fence);
     (void)r32(s->qtb, 0); barrier();
     if (s->safe_free) {
+        if(s->registry.count){
+            unsigned count=s->registry.count;
+            if(!waffle_gpu_registry_destroy(&s->registry,true))smmu_owner_stop("general BO reclamation failed after detach");
+            log_line("waffle-iommu: GENERAL_BO released after GPU stop and context detach count=%u\n",count);
+        }
         for (unsigned i = 0; i < s->pool.count; ++i) kmem_free(kernel_map, s->pool.memory[i], PAGE_SIZE);
         if (s->target) kmem_free(kernel_map, s->target, PAGE_SIZE);
         waffle_gmu_free(&s->firmware);
+        if(s->user_buffer.memory){
+            kmem_free(kernel_map,s->user_buffer.memory,PAGE_SIZE);
+            log_line("waffle-iommu: USER_BO released after GPU stop and context detach\n");
+        }
+        if(s->data.memory){
+            kmem_free(kernel_map,s->data.memory,PAGE_SIZE);
+            log_line("waffle-iommu: DATA_BO released after GPU stop and context detach\n");
+        }
         if(s->dynamic.memory) {
             kmem_free(kernel_map,s->dynamic.memory,PAGE_SIZE);
             log_line("waffle-iommu: DYNAMIC_BO released after GPU stop and context detach\n");
@@ -738,12 +760,49 @@ static bool dynamic_bo_vacant(struct table_pool *pool,uint64_t iova)
     uint64_t *leaf=permission_table(pool,entry);
     return leaf && !leaf[(iova>>12)&511];
 }
-static bool smmu_dynamic_bo_bind(struct smmu_owner *s)
+static bool smmu_registry_idle(void *context)
 {
-    const uint32_t address=WAFFLE_GPU_DYNAMIC_ADDRESS,bytes=16384;
+    struct smmu_owner *s=context;
+    return s && s->child && s->compute_image==13 && waffle_gmu_owner_memory_idle(s->child);
+}
+static bool smmu_registry_vacant(void *context,uint64_t address)
+{
+    struct smmu_owner *s=context;return dynamic_bo_vacant(&s->pool,address);
+}
+static bool smmu_registry_page(void *context,uint64_t address,uint64_t pa,bool readonly)
+{
+    struct smmu_owner *s=context;return map_page_access(&s->pool,address,pa,readonly,true);
+}
+static void smmu_registry_clean(void *context)
+{
+    struct smmu_owner *s=context;for(unsigned i=0;i<s->pool.count;i++)clean(s->pool.memory[i]);
+}
+static bool smmu_registry_tlb(void *context)
+{
+    struct smmu_owner *s=context;return pool_permission_sync(&s->permission_context);
+}
+static struct waffle_gpu_memory *smmu_registry_new(struct smmu_owner *s,uint64_t bytes,uint32_t flags)
+{
+    if(!s || s->compute_image!=13)return NULL;
+    const struct waffle_gpu_registry_ops ops={smmu_registry_idle,smmu_registry_vacant,
+        smmu_registry_page,smmu_registry_clean,smmu_registry_tlb,s};
+    struct waffle_gpu_memory *bo=waffle_gpu_registry_new(&s->registry,&ops,bytes,flags);
+    if(s->registry.poisoned){
+        log_line("waffle-iommu: GENERAL_BO publication failed index=%u bytes=%llu tables=%u limit=%u\n",s->registry.count,bytes,s->pool.count,TABLE_LIMIT);
+        smmu_owner_stop("general BO publication incomplete; retain backing and tables");
+    }
+    if(bo)log_line("waffle-iommu: GENERAL_BO published index=%u VA=%llx bytes=%u allocated=%u flags=%x pages=%u\n",
+        s->registry.count,bo->gpu_va,bo->bytes,bo->allocation_bytes,bo->flags,bo->allocation_bytes/4096);
+    return bo;
+}
+static bool smmu_bo_allocate_map(struct smmu_owner *s,struct waffle_gmu_region *bo,uint32_t address)
+{
+    const uint32_t bytes=16384;
     uint64_t alias=waffle_gpu_plan_alias(&s->firmware,address);
-    if(s->dynamic.memory || !s->child || !s->pool.count || !s->firmware.compact_gpu_va ||
+    if(bo->memory || !s->child || !s->pool.count || !s->firmware.compact_gpu_va ||
         !alias || !waffle_gmu_owner_can_bind_bo(s->child))return false;
+    if((address!=WAFFLE_GPU_DYNAMIC_ADDRESS && address!=WAFFLE_GPU_DATA_ADDRESS) ||
+        (bo!=&s->dynamic && s->dynamic.memory && address<s->dynamic.address+s->dynamic.size && s->dynamic.address<address+bytes))return false;
     for(unsigned i=0;i<s->firmware.count;i++) {
         struct waffle_gmu_region *r=&s->firmware.regions[i];
         if((uint64_t)address<(uint64_t)r->address+r->size && (uint64_t)r->address<address+bytes)return false;
@@ -754,15 +813,48 @@ static bool smmu_dynamic_bo_bind(struct smmu_owner *s)
     vm_offset_t memory=0;
     if(kmem_alloc(kernel_map,&memory,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
         VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
-    s->dynamic=(struct waffle_gmu_region){.address=address,.size=bytes,.memory=memory,.gpu_only=true};
+    *bo=(struct waffle_gmu_region){.address=address,.size=bytes,.memory=memory,.gpu_only=true};
     for(unsigned off=0;off<bytes;off+=4096)
         if(!map_page_access(&s->pool,(uint64_t)address+off,kvtophys(memory+off),false,true) ||
             !map_page_access(&s->pool,alias-WAFFLE_GPU_GLOBAL_BASE+off,kvtophys(memory+off),false,true))
             smmu_owner_stop("dynamic BO partial mapping; retain all pages");
     for(unsigned i=0;i<s->pool.count;i++)clean(s->pool.memory[i]);
     if(!pool_permission_sync(&s->permission_context))smmu_owner_stop("dynamic BO TLB publication incomplete");
-    if(!waffle_gmu_owner_bind_bo(s->child,&s->dynamic))return false;
-    log_line("waffle-iommu: DYNAMIC_BO published after GPU startup VA=%x pages=4 aliases=2 unprivileged=1\n",address);
+    return true;
+}
+static bool smmu_user_buffer_allocate_map(struct smmu_owner *s,uint64_t address)
+{
+    struct waffle_gpu_buffer *bo=&s->user_buffer;
+    if(bo->memory || !s->child || !s->pool.count || !s->dynamic.memory ||
+        !waffle_gpu_user_buffer_valid(address,16384) || !waffle_gmu_owner_can_bind_bo(s->child))return false;
+    for(unsigned off=0;off<16384;off+=4096)
+        if(!dynamic_bo_vacant(&s->pool,address+off))return false;
+    vm_offset_t memory=0;
+    if(kmem_alloc(kernel_map,&memory,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
+    *bo=(struct waffle_gpu_buffer){.gpu_va=address,.memory=memory,.bytes=16384};
+    if(kvtophys(memory)==kvtophys(s->dynamic.memory))smmu_owner_stop("user BO backing overlaps command BO");
+    for(unsigned off=0;off<16384;off+=4096)
+        if(!map_page_access(&s->pool,address+off,kvtophys(memory+off),false,true))
+            smmu_owner_stop("user BO partial mapping; retain all pages");
+    for(unsigned i=0;i<s->pool.count;i++)clean(s->pool.memory[i]);
+    if(!pool_permission_sync(&s->permission_context))smmu_owner_stop("user BO TLB publication incomplete");
+    if(!waffle_gmu_owner_bind_user_buffer(s->child,bo))return false;
+    log_line("waffle-iommu: USER_BO published VA=%llx pages=4 lower39=1 unprivileged=1\n",address);
+    return true;
+}
+static bool smmu_dynamic_bo_bind(struct smmu_owner *s)
+{
+    if(!smmu_bo_allocate_map(s,&s->dynamic,WAFFLE_GPU_DYNAMIC_ADDRESS) ||
+        !waffle_gmu_owner_bind_bo(s->child,&s->dynamic))return false;
+    log_line("waffle-iommu: DYNAMIC_BO published after GPU startup VA=%x pages=4 aliases=2 unprivileged=1\n",WAFFLE_GPU_DYNAMIC_ADDRESS);
+    if(s->compute_image==13)return true; /* General BOs are allocated by the client. */
+    if(s->compute_image==10 || s->compute_image==11 || s->compute_image==12)return smmu_user_buffer_allocate_map(s,WAFFLE_GPU_USER_TEST_VA);
+    if(s->compute_image>=7){
+        if(!smmu_bo_allocate_map(s,&s->data,WAFFLE_GPU_DATA_ADDRESS) ||
+            kvtophys(s->data.memory)==kvtophys(s->dynamic.memory) ||
+            !waffle_gmu_owner_bind_data_bo(s->child,&s->data))return false;
+        log_line("waffle-iommu: DATA_BO published separately VA=%x pages=4 aliases=2 unprivileged=1\n",WAFFLE_GPU_DATA_ADDRESS);
+    }
     return true;
 }
 struct waffle_smmu_owner {
@@ -801,6 +893,51 @@ bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *owner)
     if(owner->state.dynamic_bo && !smmu_dynamic_bo_bind(&owner->state))return false;
     owner->state.gmu_ok=waffle_gmu_owner_exercise(owner->state.child);
     return owner->state.gmu_ok;
+}
+bool waffle_smmu_owner_copy(struct waffle_smmu_owner *owner,struct waffle_gpu_copy_job *job)
+{
+    if(job)job->fence=0;
+    if(!owner || !owner->state.child || !job)return false;
+    if(!owner->exercised){
+        owner->exercised=true;
+        if(owner->state.dynamic_bo && !smmu_dynamic_bo_bind(&owner->state))return false;
+        owner->state.gmu_ok=true;
+    }
+    if(!owner->state.gmu_ok)return false;
+    bool ok=waffle_gmu_owner_copy(owner->state.child,job);
+    owner->state.gmu_ok=owner->state.gmu_ok && ok;
+    return ok;
+}
+bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *owner,struct waffle_gpu_buffer buffers[2])
+{
+    if(!owner || !owner->state.child || (owner->state.compute_image!=11 && owner->state.compute_image!=12))return false;
+    if(!owner->exercised){
+        owner->exercised=true;
+        owner->state.gmu_ok=owner->state.dynamic_bo && smmu_dynamic_bo_bind(&owner->state);
+    }
+    return owner->state.gmu_ok && waffle_gmu_owner_buffers(owner->state.child,buffers);
+}
+struct waffle_gpu_memory *waffle_smmu_owner_memory_new(struct waffle_smmu_owner *owner,uint64_t bytes,uint32_t flags)
+{
+    if(!owner || !owner->state.child || owner->state.compute_image!=13)return NULL;
+    if(!owner->exercised){
+        owner->exercised=true;
+        owner->state.gmu_ok=owner->state.dynamic_bo && smmu_dynamic_bo_bind(&owner->state);
+    }
+    return owner->state.gmu_ok?smmu_registry_new(&owner->state,bytes,flags):NULL;
+}
+bool waffle_smmu_owner_submit(struct waffle_smmu_owner *owner,struct waffle_gpu_submit_job *job)
+{
+    if(job)job->fence=0;
+    if(!owner || !job || !job->commands || !job->count || job->count>WAFFLE_GPU_SUBMIT_COMMANDS ||
+       !owner->state.child || owner->state.compute_image!=13 || !owner->state.gmu_ok || owner->state.registry.poisoned)return false;
+    for(unsigned c=0;c<job->count;c++){
+        bool owned=false;
+        for(unsigned i=0;i<owner->state.registry.count;i++)if(job->commands[c].buffer==&owner->state.registry.buffers[i])owned=true;
+        if(!owned || !waffle_gpu_command_valid(&job->commands[c]))return false;
+    }
+    bool ok=waffle_gmu_owner_submit(owner->state.child,job);
+    owner->state.gmu_ok=owner->state.gmu_ok && ok;return ok;
 }
 bool waffle_smmu_owner_end(struct waffle_smmu_owner *owner)
 {
