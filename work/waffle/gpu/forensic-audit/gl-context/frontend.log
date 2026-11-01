@@ -1,0 +1,4 @@
+HOST ONLY: no-op MSM adapter; GL success does not prove GPU execution
+Initializing DRM shim on /dev/dri/renderD128
+MESA-LOADER: failed to open dri: /usr/local/lib/gbm/dri_gbm.so: cannot open shared object file: No such file or directory (search paths /usr/local/lib/gbm, suffix _gbm)
+gbm failed

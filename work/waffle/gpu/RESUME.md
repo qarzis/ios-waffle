@@ -1,3 +1,41 @@
+# Active E34 complete host audit — next general Mesa BO/context backend
+
+Userkeepworkingactive, donotendbecauseofauditmilestone. SafeverifiedE33
+4cf1355848b401e9798eaf9d8328278ff5af0ee3; phoneordinaryAndroid1, nohardwareworker.
+ActualnativeMesaEGL/GBM/GLES3 FD750context nowcompiled/run understock
+freedreno_noop_drm_shim: frontendtriangle16x16, NO GPU EXECUTION. Separate
+mesa-gl-audit-build1227targets PASS; originalcomputecompilerbuilduntouched.
+Toolswaffle-gl-context-audit.c,waffle-msm-trace.c,run-waffle-gl-audit.py,
+analyze-waffle-gl-audit.py. Actualtrace182events/rootIB1240bytes gl-context-r3;
+E34-result.json parses310wordroot/5nestedIBs, oneGLsubmitreferences13BOs.
+22allocationevents includes4KiB/8KiB/4MiB, WC/readonly/cachedcoherentflags.
+Currentdiagnostic2fixed16KiBBO/exact191wordcompute cannotrunactualGL.
+FirstrequiredunsupportedMSMGET_PARAMGPU_ID/GMEM_SIZE/CHIP_ID; firstprobe
+cachedcoherentallocation optionalcanreject. Needderiveparametersfromboard
+capture NOTnoopmodel. NextminimumgeneralownedBOregistry/pagesizes/flags,
+thenorderedgenericsubmit+realGPUfence wrapper, thenactualGLtrianglepixels
+beforeIOSurface. No morecopyhelper-onlymilestones. ReadE34resultandtrace.
+NoE34kernelchange. PreservefirsttwohostGLfailuresGBMpath/pbufferconfig;
+r3WINDOWconfig+surfacelessmakecurrentpassed. NoMesasourcepatches. Do not
+claimhostrenderermeansIOSacceleration. RAMonly/no flash/erase, autoUEFI no
+physicalconfirmation. MainHEAD/indexuntouched; noGitHubpushrequested.
+
+# Active E34 host-only architecture audit — real Mesa GL context requirements
+
+Userkeepworkingactive; statusquestion answeredwithoutstopping. SafeE33
+verified4cf1355848b401e9798eaf9d8328278ff5af0ee3. PhoneordinaryAndroid1.
+Newdirection: runactualnativeMesa EGL/GalliumFD750 context understockMesa
+freedreno_noop_drm_shim tocollectrealBO/submitrequirements beforeanykernel
+changes. IMPORTANT noopshim DOESNOTexecuteGPU; anyGLsuccess/renderoutput
+there is onlyfrontend/capability/command-generation audit, neverhardware
+proof. Readstocksrc/drm-shim/README.md andfreedreno/drm-shim/README.md.
+FD_GPU_ID=750 stockchipentry43051401/GMEM3MiB (model, notdevicecapture).
+Use separatebuild mesa-gl-audit-build tokeepqualifiedcomputetools unchanged.
+PreferactualEGL/GBMfrontend; nativepatchedOSMesa includesDarwin-onlysurface
+extension, avoidsourcepatchingjusttobuildanofflineaudit. NoE34kernelchange.
+AuditmustidentifyfirstrealunsupportedBO/commandoperation, notmorehelper-only
+milestones. NoGitHubpush; RAMonly/no flash/erase. ContinueuntiluserSTOP.
+
 # Current E33 hardware PASS — direct user-mapped GPU BOs
 
 Explicituserinstructionkeepworking remainsactive. UseraskedwhenIOSGPU;

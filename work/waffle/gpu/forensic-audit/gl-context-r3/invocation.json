@@ -1,0 +1,14 @@
+{
+  "host_only": true,
+  "gpu_execution": false,
+  "environment": {
+    "LD_PRELOAD": "/home/qarzis/ios-macan/work/waffle/gpu/waffle-msm-trace.so:/home/qarzis/ios-macan/work/waffle/gpu/mesa-gl-audit-build/src/freedreno/drm-shim/libfreedreno_noop_drm_shim.so",
+    "LD_LIBRARY_PATH": "/home/qarzis/ios-macan/work/waffle/gpu/mesa-gl-audit-build/src/egl:/home/qarzis/ios-macan/work/waffle/gpu/mesa-gl-audit-build/src/gbm:/home/qarzis/ios-macan/work/waffle/gpu/mesa-gl-audit-build/src/mesa/glapi/es2api:/home/qarzis/ios-macan/work/waffle/gpu/mesa-gl-audit-build/src/mesa/glapi/shared-glapi",
+    "GBM_BACKENDS_PATH": "/home/qarzis/ios-macan/work/waffle/gpu/mesa-gl-audit-build/src/gbm/backends/dri",
+    "LIBGL_DRIVERS_PATH": "/home/qarzis/ios-macan/work/waffle/gpu/mesa-gl-audit-build/src/gallium/targets/dri",
+    "MESA_LOADER_DRIVER_OVERRIDE": "msm",
+    "FD_GPU_ID": "750",
+    "WAFFLE_MSM_TRACE": "/home/qarzis/ios-macan/work/waffle/gpu/forensic-audit/gl-context-r3/msm-requests.jsonl"
+  },
+  "exit": 0
+}

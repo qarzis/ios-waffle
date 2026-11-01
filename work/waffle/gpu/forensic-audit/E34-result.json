@@ -1,0 +1,490 @@
+{
+  "experiment": "E34 actual Mesa FD750 GL frontend architecture gap audit",
+  "host_only": true,
+  "gpu_execution": false,
+  "pixel_correctness_tested": false,
+  "frontend": "actual EGL/GLES3 Gallium FD750 triangle16x16",
+  "adapter": "stock freedreno_noop_drm_shim; SUBMIT is no-op",
+  "allocation_events": 22,
+  "requested_BO_sizes": {
+    "4096": 18,
+    "4194304": 3,
+    "8192": 1
+  },
+  "requested_BO_flags": {
+    "0x80000": 4,
+    "0x20000": 12,
+    "0x80002": 6
+  },
+  "submits": [
+    {
+      "op": "ioctl",
+      "fd": 7,
+      "nr": 70,
+      "ret": 0,
+      "submit": 1,
+      "flags": 16,
+      "nr_bos": 13,
+      "nr_cmds": 1,
+      "queue": 0,
+      "buffers": [
+        {
+          "handle": 2,
+          "flags": 3,
+          "iova": 0
+        },
+        {
+          "handle": 5,
+          "flags": 3,
+          "iova": 0
+        },
+        {
+          "handle": 10,
+          "flags": 3,
+          "iova": 0
+        },
+        {
+          "handle": 16,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 17,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 18,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 19,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 20,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 4,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 14,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 11,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 15,
+          "flags": 7,
+          "iova": 0
+        },
+        {
+          "handle": 3,
+          "flags": 3,
+          "iova": 0
+        }
+      ],
+      "commands": [
+        {
+          "type": 1,
+          "bo_index": 8,
+          "offset": 32768,
+          "size": 1240,
+          "relocs": 0,
+          "mapped": true
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "path": "work/waffle/gpu/forensic-audit/gl-context-r3/msm-requests.jsonl-submit-1-cmd-0.bin",
+      "bytes": 1240,
+      "words": 310,
+      "packets": [
+        {
+          "word": 0,
+          "type": 7,
+          "name": "CP_SET_MODE",
+          "payload_words": 1
+        },
+        {
+          "word": 2,
+          "type": 7,
+          "name": "CP_THREAD_CONTROL",
+          "payload_words": 1
+        },
+        {
+          "word": 4,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 6,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 8,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 10,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 12,
+          "type": 7,
+          "name": "CP_WAIT_FOR_IDLE",
+          "payload_words": 0
+        },
+        {
+          "word": 13,
+          "type": 4,
+          "name": "type4_reg_0xab1f",
+          "payload_words": 1
+        },
+        {
+          "word": 15,
+          "type": 7,
+          "name": "CP_WAIT_FOR_IDLE",
+          "payload_words": 0
+        },
+        {
+          "word": 16,
+          "type": 7,
+          "name": "CP_INDIRECT_BUFFER_PFE",
+          "payload_words": 3
+        },
+        {
+          "word": 20,
+          "type": 4,
+          "name": "type4_reg_0x88e5",
+          "payload_words": 1
+        },
+        {
+          "word": 22,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 6
+        },
+        {
+          "word": 29,
+          "type": 7,
+          "name": "CP_SET_AMBLE",
+          "payload_words": 3
+        },
+        {
+          "word": 33,
+          "type": 7,
+          "name": "CP_SET_AMBLE",
+          "payload_words": 3
+        },
+        {
+          "word": 37,
+          "type": 7,
+          "name": "CP_SET_AMBLE",
+          "payload_words": 3
+        },
+        {
+          "word": 41,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 43,
+          "type": 7,
+          "name": "CP_INDIRECT_BUFFER_PFE",
+          "payload_words": 3
+        },
+        {
+          "word": 47,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 49,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 51,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 53,
+          "type": 7,
+          "name": "CP_SKIP_IB2_ENABLE_GLOBAL",
+          "payload_words": 1
+        },
+        {
+          "word": 55,
+          "type": 7,
+          "name": "CP_SKIP_IB2_ENABLE_LOCAL",
+          "payload_words": 1
+        },
+        {
+          "word": 57,
+          "type": 4,
+          "name": "type4_reg_0x88e5",
+          "payload_words": 1
+        },
+        {
+          "word": 59,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 6
+        },
+        {
+          "word": 66,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 58
+        },
+        {
+          "word": 125,
+          "type": 7,
+          "name": "CP_NON_CONTEXT_REG_BUNCH",
+          "payload_words": 10
+        },
+        {
+          "word": 136,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 10
+        },
+        {
+          "word": 147,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 4
+        },
+        {
+          "word": 152,
+          "type": 4,
+          "name": "type4_reg_0x8891",
+          "payload_words": 1
+        },
+        {
+          "word": 154,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 3
+        },
+        {
+          "word": 158,
+          "type": 7,
+          "name": "CP_SET_MARKER",
+          "payload_words": 1
+        },
+        {
+          "word": 160,
+          "type": 4,
+          "name": "type4_reg_0x80f0",
+          "payload_words": 2
+        },
+        {
+          "word": 163,
+          "type": 4,
+          "name": "type4_reg_0x840a",
+          "payload_words": 2
+        },
+        {
+          "word": 166,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 58
+        },
+        {
+          "word": 225,
+          "type": 7,
+          "name": "CP_SET_VISIBILITY_OVERRIDE",
+          "payload_words": 1
+        },
+        {
+          "word": 227,
+          "type": 4,
+          "name": "type4_reg_0x9306",
+          "payload_words": 1
+        },
+        {
+          "word": 229,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 18
+        },
+        {
+          "word": 248,
+          "type": 7,
+          "name": "CP_SET_MODE",
+          "payload_words": 1
+        },
+        {
+          "word": 250,
+          "type": 7,
+          "name": "CP_INDIRECT_BUFFER_PFE",
+          "payload_words": 3
+        },
+        {
+          "word": 254,
+          "type": 7,
+          "name": "CP_CONTEXT_REG_BUNCH",
+          "payload_words": 16
+        },
+        {
+          "word": 271,
+          "type": 7,
+          "name": "CP_INDIRECT_BUFFER_PFE",
+          "payload_words": 3
+        },
+        {
+          "word": 275,
+          "type": 7,
+          "name": "CP_SET_DRAW_STATE",
+          "payload_words": 3
+        },
+        {
+          "word": 279,
+          "type": 7,
+          "name": "CP_SKIP_IB2_ENABLE_LOCAL",
+          "payload_words": 1
+        },
+        {
+          "word": 281,
+          "type": 7,
+          "name": "CP_SET_MARKER",
+          "payload_words": 1
+        },
+        {
+          "word": 283,
+          "type": 7,
+          "name": "CP_INDIRECT_BUFFER_PFE",
+          "payload_words": 3
+        },
+        {
+          "word": 287,
+          "type": 7,
+          "name": "CP_SET_MARKER",
+          "payload_words": 1
+        },
+        {
+          "word": 289,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 291,
+          "type": 4,
+          "name": "type4_reg_0x8891",
+          "payload_words": 1
+        },
+        {
+          "word": 293,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 3
+        },
+        {
+          "word": 297,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 299,
+          "type": 4,
+          "name": "type4_reg_0x8100",
+          "payload_words": 1
+        },
+        {
+          "word": 301,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 303,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 1
+        },
+        {
+          "word": 305,
+          "type": 7,
+          "name": "CP_EVENT_WRITE7",
+          "payload_words": 4
+        }
+      ],
+      "type7_opcodes": {
+        "CP_SET_MODE": 2,
+        "CP_THREAD_CONTROL": 1,
+        "CP_EVENT_WRITE7": 15,
+        "CP_WAIT_FOR_IDLE": 2,
+        "CP_INDIRECT_BUFFER_PFE": 5,
+        "CP_CONTEXT_REG_BUNCH": 8,
+        "CP_SET_AMBLE": 3,
+        "CP_SKIP_IB2_ENABLE_GLOBAL": 1,
+        "CP_SKIP_IB2_ENABLE_LOCAL": 2,
+        "CP_NON_CONTEXT_REG_BUNCH": 1,
+        "CP_SET_MARKER": 3,
+        "CP_SET_VISIBILITY_OVERRIDE": 1,
+        "CP_SET_DRAW_STATE": 1
+      },
+      "nested_IBs": [
+        {
+          "gpu_va": "0xff800900",
+          "words": 258
+        },
+        {
+          "gpu_va": "0xff816000",
+          "words": 69
+        },
+        {
+          "gpu_va": "0xff81e300",
+          "words": 24
+        },
+        {
+          "gpu_va": "0xff80e000",
+          "words": 114
+        },
+        {
+          "gpu_va": "0xff81e380",
+          "words": 30
+        }
+      ],
+      "sha256": "09943f011eca2d3c4ff931e2c315ed4fd40e5d1b01b1f2b6c355e484393ccd36"
+    }
+  ],
+  "first_required_unsupported_interface": "MSM GET_PARAM GPU_ID/GMEM_SIZE/CHIP_ID, not implemented in current diagnostic cdev; preceding cached-coherent probe may be refused as unsupported",
+  "first_real_memory_gap": "actual GL submission references13 BOs; current diagnostic exposes two fixed16KiB handles. GL startup requests4KiB/8KiB/4MiB BOs and WC/readonly/cached-coherent flags",
+  "command_gap": "actual root IB310words with5 nested IBs and draw-state packets; current kernel only accepts exact191word compute package",
+  "implementation_order": [
+    "real context parameter queries from board-verified values",
+    "general owned BO registry with pagewise mappings, sizes and flags; retain lifetime until GPU idle/stop",
+    "general ordered command submission and GPU fence wrapper; audited graphics PM4",
+    "actual GL triangle GPU pixel test before IOSurface integration"
+  ],
+  "evidence_sha256": "b00f956de64ca25fef7d84be83a012e173475759d99d6b2cd65dce5b95177878"
+}
