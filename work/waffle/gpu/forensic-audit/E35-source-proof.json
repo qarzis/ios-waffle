@@ -1,0 +1,13 @@
+{
+  "compiled_and_snapshot_identical": {
+    "kernel/files/iokit/Kernel/WaffleGPUMemory.cpp": "f9f08dc3a3220eb3cf2d13b4649f18ebefa96e4d827fc3b20d69d009cdd6d813",
+    "kernel/files/bsd/sys/waffle_gpu_memory.h": "3b89dc8c7a2f683fba34f87b356e2b0d83c4049d37c631eb381cd931836189bf",
+    "kernel/files/bsd/sys/waffle_gpu_registry.h": "7256092044690471126addcfd76a04239e6674c81dc78b8127f562e525f70740",
+    "kernel/files/bsd/dev/waffle_smmu.c": "3bdfc1916f1ea163712b7f570be9ae96fd77ec5c70e25ef2195fc568aa96cc20",
+    "kernel/files/bsd/dev/waffle_gmu.c": "4af3bd8b73da0a94e4c80610a67c829070457d2db642e6744d46b1f7bce99bdd"
+  },
+  "all_host_tests_passed": true,
+  "xnu_efi_container_passed": true,
+  "hardware_tested": false,
+  "general_mode13_still_disabled": true
+}

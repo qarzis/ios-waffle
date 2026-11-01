@@ -52,6 +52,7 @@ struct waffle_gmu_owner;
 struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *,unsigned,vm_offset_t);
 bool waffle_gmu_owner_copy(struct waffle_gmu_owner *,struct waffle_gpu_copy_job *);
 bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_memory_idle(struct waffle_gmu_owner *);
 bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *);
 bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *,const struct waffle_gpu_buffer *);
 bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *,struct waffle_gmu_region *);

@@ -1,3 +1,27 @@
+# Active E35 — general GL BO memory/registry/SMMU, build pending
+
+Userexplicitkeepworkingactive; donotendatmilestone. Hardware safeE33verified
+4cf1355848b401e9798eaf9d8328278ff5af0ee3; E34auditarchive29fa75a5d157440d797f2d8bc32c8583bd7526e0.
+PhoneordinaryAndroid1, nohardwareworker. E34actualMesaGLtrace demands13BOs,
+4KiB..4MiB/310wordroot+5nestedIBs. NewE35storageWaffleGPUMemory.cpp uses
+actualIOBufferMemoryDescriptor WC kernel/usershared memory, logicalbytes
+rounded16KiB, physical4KiBsegments validatedindependently; cachedcoherent
+explicitunsupported. wafer_gpu_memory/registry headers implement32slots,
+32MiBheap at4GiB, monotonicVA/no reuse; partialPTE/TLBpoisons/retainsuntil
+GPUcontextdetach. Registrycallbacks nowactualSMMU map_page_access/AP_UNPRIV/
+readonly/cleanalltables/dualASIDTLB; gmu_owner_memory_idle checksidle after
+completedsubmissions aswellasbeforefirst. Oldbindaliasgateunchanged.
+
+ActualC++storagehost4KiB/8KiB/16KiB/4MiB+failuresPASS. Registryreplays13real
+GLrequestsPASS; actualSMMUadapter+realPTEs all13noncontiguouspagephysical/
+readonlybits/26TLBsyncs+tablealloc/TLBretentionPASS. Existingowner/dynamic/
+data/userva/sessionregressionsPASS. Newmode13 NOTenabledinloader/innergate
+oruserservice yet: generalAPIinternalonly untilsubmissionbackendready. Do
+notclaimhardwaregeneralGLBOqualification. NextfullbuilddetectactualC++API
+issues; thenwiregeneralBOAPI/ownedmaps andgeneralGPUfence/IB submission.
+Do notwidenmode13untilcompletegatedclienttest exists. NohardwareE35planned
+untilthat. NoGitHubpush. RAMonly/no flash/erase. MainHEAD/indexuntouched.
+
 # Active E34 complete host audit — next general Mesa BO/context backend
 
 Userkeepworkingactive, donotendbecauseofauditmilestone. SafeverifiedE33

@@ -118,6 +118,9 @@ def main():
     run([sys.executable, ROOT / "tools/build-waffle-user-probe.py", "--msm", "--output", output / "msm-probe"])
     run([sys.executable, ROOT / "tools/tests/waffle-msm-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-mesa-transport-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-memory-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-registry-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-registry-smmu-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-map-helper-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-mapped-bo-host.py"])
     run([sys.executable, ROOT / "tools/build-waffle-user-probe.py", "--msm", "--mesa-transport", "--mapped", "--output", output / "mapped-probe"])
@@ -160,7 +163,7 @@ def main():
         raise ValueError("Prepared XNU lacks waffle GPU user build entry")
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
-    for relative in ("iokit/Kernel/WaffleGPUMap.cpp", "bsd/sys/waffle_gpu_map.h", "bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_gpu_service.c", "bsd/dev/waffle_gpu_msm.c", "bsd/sys/waffle_gpu_msm.h", "bsd/dev/waffle_gpu_user.c", "bsd/sys/waffle_gpu_user.h", "bsd/sys/waffle_gpu_service.h", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
+    for relative in ("iokit/Kernel/WaffleGPUMemory.cpp", "bsd/sys/waffle_gpu_memory.h", "bsd/sys/waffle_gpu_registry.h", "iokit/Kernel/WaffleGPUMap.cpp", "bsd/sys/waffle_gpu_map.h", "bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_gpu_service.c", "bsd/dev/waffle_gpu_msm.c", "bsd/sys/waffle_gpu_msm.h", "bsd/dev/waffle_gpu_user.c", "bsd/sys/waffle_gpu_user.h", "bsd/sys/waffle_gpu_service.h", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
                      "bsd/dev/waffle_gmu.c", "bsd/sys/waffle_gpu_measure.h", "bsd/sys/waffle_hfi.h", "bsd/sys/waffle_hfi_tables.h", "bsd/sys/waffle_gmu.h", "bsd/sys/waffle_smmu.h", "bsd/sys/waffle_scm.h", "bsd/sys/waffle_zap.h", "bsd/sys/waffle_zap_load.h", "bsd/sys/waffle_gpu_writeback.h", "bsd/sys/waffle_gpu_compute.h", "bsd/sys/waffle_gpu_image.h", "bsd/sys/waffle_gpu_copy.h", "bsd/sys/waffle_gpu_job.h", "bsd/sys/waffle_gpu_data.h", "bsd/sys/waffle_gpu_buffer.h", "bsd/sys/waffle_gpu_glsl.h", "bsd/sys/waffle_gpu_present.h", "bsd/sys/waffle_gmu_firmware.h", "bsd/dev/macan_touch_report.h",
                      "bsd/sys/waffle_gen7_config.h", "bsd/sys/waffle_gen7_tables.h",
                      "bsd/sys/waffle_gen7_hwcg.h", "bsd/sys/waffle_gen7_cp.h", "bsd/sys/waffle_gen7_boot.h",
@@ -228,7 +231,7 @@ def main():
                      "loader/waffle-memory.h", "loader/waffle-memory-map.h",
                      "kernel/kernel.patch", "kernel/files/bsd/dev/macan_input.c", "kernel/files/bsd/dev/macan_audio.c",
                      "kernel/files/bsd/dev/waffle_synaptics.c", "kernel/files/bsd/dev/macan_touch_report.h",
-                     "kernel/files/iokit/Kernel/WaffleGPUMap.cpp", "kernel/files/bsd/sys/waffle_gpu_map.h", "kernel/files/bsd/dev/waffle_adreno.c", "kernel/files/bsd/dev/waffle_gpu_service.c", "kernel/files/bsd/dev/waffle_gpu_msm.c", "kernel/files/bsd/sys/waffle_gpu_msm.h", "kernel/files/bsd/dev/waffle_gpu_user.c", "kernel/files/bsd/sys/waffle_gpu_user.h", "kernel/files/bsd/sys/waffle_gpu_service.h", "kernel/files/bsd/sys/waffle_gpu.h", "kernel/files/bsd/sys/waffle_aop.h",
+                     "kernel/files/iokit/Kernel/WaffleGPUMemory.cpp", "kernel/files/bsd/sys/waffle_gpu_memory.h", "kernel/files/bsd/sys/waffle_gpu_registry.h", "tools/tests/waffle-memory-host.py", "tools/tests/waffle-registry-host.py", "tools/tests/waffle-registry-smmu-host.py", "kernel/files/iokit/Kernel/WaffleGPUMap.cpp", "kernel/files/bsd/sys/waffle_gpu_map.h", "kernel/files/bsd/dev/waffle_adreno.c", "kernel/files/bsd/dev/waffle_gpu_service.c", "kernel/files/bsd/dev/waffle_gpu_msm.c", "kernel/files/bsd/sys/waffle_gpu_msm.h", "kernel/files/bsd/dev/waffle_gpu_user.c", "kernel/files/bsd/sys/waffle_gpu_user.h", "kernel/files/bsd/sys/waffle_gpu_service.h", "kernel/files/bsd/sys/waffle_gpu.h", "kernel/files/bsd/sys/waffle_aop.h",
                      "kernel/files/bsd/dev/waffle_smmu.c",
                      "kernel/files/bsd/dev/waffle_gmu.c", "kernel/files/bsd/sys/waffle_gmu.h", "kernel/files/bsd/sys/waffle_smmu.h",
                      "kernel/files/bsd/sys/waffle_gmu_firmware.h", "kernel/files/bsd/sys/waffle_scm.h", "tools/tests/waffle-scm-host.py", "tools/tests/waffle-secure-context-host.py", "tools/tests/waffle-protected-pool-host.py", "tools/tests/waffle-gmu-fw.c",

@@ -1,0 +1,16 @@
+{
+  "device_evidence": "recorded live PJD110 DTB, not no-op model",
+  "dtb": "work/waffle/gpu/android-capture2/android-live.dtb",
+  "dtb_sha256": "c0a4036689044dd47e4a46076285d1fca13361f4c280690c5e2e80ed7382a92a",
+  "node": "/soc/qcom,kgsl-3d0@3d00000",
+  "compatible": [
+    "qcom,adreno-gpu-gen7-9-1",
+    "qcom,kgsl-3d0"
+  ],
+  "chip_id": "0x43051401",
+  "native_core_source": "work/waffle/gpu/vendor/adreno-gpulist.h",
+  "native_core": "adreno_gpu_core_gen7_9_1",
+  "gmem_size": 3145728,
+  "gpu_model_evidence": "android-capture2/kgsl.txt Adreno750v2",
+  "parameters_not_yet_implemented_in_user_api": true
+}

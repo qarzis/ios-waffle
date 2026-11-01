@@ -2108,6 +2108,13 @@ static void submit_session_destroy(struct waffle_gmu_plan *plan,unsigned evidenc
 
 /* Bounded post-bootstrap BO binding. Parent owns mappings and backing pages
  * until full stop. Never replace an alias after a command has been published. */
+bool waffle_gmu_owner_memory_idle(struct waffle_gmu_owner *owner)
+{
+    struct waffle_submit_session *s=owner && owner->plan?owner->plan->submit_session:NULL;
+    return s && s->phase==SUBMIT_READY && s->owns_oob && s->submitted==s->completed &&
+        s->next_sequence==44+s->submitted && !rd(s->gpu,0xf400*4) &&
+        !(rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3);
+}
 bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *owner)
 {
     struct waffle_submit_session *s=owner && owner->plan?owner->plan->submit_session:NULL;
