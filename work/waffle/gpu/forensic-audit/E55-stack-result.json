@@ -1,0 +1,62 @@
+{
+  "_drm_submit": {
+    "object_sha256": "cbeaab04441ef546d435187131946578a25f49c7eb3262c7d25a423491ffed1f",
+    "prologue": [
+      "<_drm_submit>:",
+      "     a94:      \tstp\tx28, x27, [sp, #-0x60]!",
+      "     a98:      \tstp\tx26, x25, [sp, #0x10]",
+      "     a9c:      \tstp\tx24, x23, [sp, #0x20]",
+      "     aa0:      \tstp\tx22, x21, [sp, #0x30]",
+      "     aa4:      \tstp\tx20, x19, [sp, #0x40]",
+      "     aa8:      \tstp\tx29, x30, [sp, #0x50]",
+      "     aac:      \tadd\tx29, sp, #0x50",
+      "     ab0:      \tsub\tsp, sp, #0x270",
+      "     ab4:      \tmov\tx19, x0",
+      "     ab8:      \tadrp\tx8, 0x0 <ltmp0>",
+      "     abc:      \tldr\tx8, [x8]",
+      "     ac0:      \tldr\tx8, [x8]",
+      "     ac4:      \tstur\tx8, [x29, #-0x60]",
+      "     ac8:      \tldp\tw8, w9, [x0]"
+    ]
+  },
+  "_waffle_gmu_owner_submit": {
+    "object_sha256": "57f8c8fb3be1c0fcd105afaf2b6112f6a4899a9479ef8ca07f56d85921522799",
+    "prologue": [
+      "<_waffle_gmu_owner_submit>:",
+      "    7770:      \tstp\tx28, x27, [sp, #-0x60]!",
+      "    7774:      \tstp\tx26, x25, [sp, #0x10]",
+      "    7778:      \tstp\tx24, x23, [sp, #0x20]",
+      "    777c:      \tstp\tx22, x21, [sp, #0x30]",
+      "    7780:      \tstp\tx20, x19, [sp, #0x40]",
+      "    7784:      \tstp\tx29, x30, [sp, #0x50]",
+      "    7788:      \tadd\tx29, sp, #0x50",
+      "    778c:      \tsub\tsp, sp, #0x1, lsl #12   ; =0x1000",
+      "    7790:      \tsub\tsp, sp, #0x850",
+      "    7794:      \tadrp\tx8, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>",
+      "    7798:      \tldr\tx8, [x8]",
+      "    779c:      \tldr\tx8, [x8]",
+      "    77a0:      \tstur\tx8, [x29, #-0x60]",
+      "    77a4:      \tcbz\tx1, 0x77ac <_waffle_gmu_owner_submit+0x3c>"
+    ]
+  },
+  "_waffle_smmu_owner_memory_reclaim": {
+    "object_sha256": "3e4abac497582e72e4cccf90d390c99c13781803520da34d29fab24b38ea1702",
+    "prologue": [
+      "<_waffle_smmu_owner_memory_reclaim>:",
+      "    28ec:      \tcbz\tx0, 0x2944 <_waffle_smmu_owner_memory_reclaim+0x58>",
+      "    28f0:      \tldrb\tw8, [x0, #0xa38]",
+      "    28f4:      \ttbz\tw8, #0x0, 0x2944 <_waffle_smmu_owner_memory_reclaim+0x58>",
+      "    28f8:      \tmov\tw8, #0x0                ; =0",
+      "    28fc:      \tcbz\tx1, 0x2948 <_waffle_smmu_owner_memory_reclaim+0x5c>",
+      "    2900:      \tldrb\tw9, [x0, #0xa2c]",
+      "    2904:      \ttbz\tw9, #0x0, 0x2948 <_waffle_smmu_owner_memory_reclaim+0x5c>",
+      "    2908:      \tldr\tw9, [x0, #0x7d4]",
+      "    290c:      \tcbz\tw9, 0x2944 <_waffle_smmu_owner_memory_reclaim+0x58>",
+      "    2910:      \tsub\tsp, sp, #0x90",
+      "    2914:      \tstp\tx26, x25, [sp, #0x40]",
+      "    2918:      \tstp\tx24, x23, [sp, #0x50]",
+      "    291c:      \tstp\tx22, x21, [sp, #0x60]",
+      "    2920:      \tstp\tx20, x19, [sp, #0x70]"
+    ]
+  }
+}
