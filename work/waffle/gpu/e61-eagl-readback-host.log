@@ -1,0 +1,1 @@
+HOST actual EAGL readback:legacy1624 row reads vs one packed read at750x1624, independent per-pixel orientation/BGRA/padding/canary checks, non-inverted path/state restore/scratch reuse/lockfailure and first/growth allocationfailure fallback. GL and IOSurface mocked; no GPU/FPS claim.

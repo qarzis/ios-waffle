@@ -1,0 +1,25 @@
+{
+  "run": "work/waffle/runs/20261101T212153Z",
+  "auto": "work/waffle/auto-runs/20261101T212130Z",
+  "planned_UI_seconds": 240,
+  "GPU_fences": 1609,
+  "all_completion_tokens_verified": true,
+  "total_BO_count": 1354,
+  "reclaimed_early": 395,
+  "remaining_BO_count": 959,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "observed_allocation_refusals": 0,
+  "observed_submit_failures": 0,
+  "old128MiB_VA_boundary_crossed": false,
+  "maximum_observed_VA_end_offset": 86704128,
+  "workload_comparable_to_E58_fragmentation_pressure": false,
+  "runner_exit": 1,
+  "runner_failure": "rollingfinalconsolemissesstartup, originalstrictresultpreserved",
+  "independent_android": "1",
+  "raw_proof_sha256": {
+    "kernel-113.log": "c271f5fa53bfb2d776ea0b4b1f07dad2cab8f1105f7c8067b06edb6a9b4e4b0f",
+    "kernel-929.log": "06a3e5337d63a2345e55e6fbf8a4761cb7aa6032844950dc24d6fb283c6de3e5",
+    "ui-gpu-events.log": "a5060a0ce6ac16efd2cc4eca335e5f199eea337cbd02e2a3ca19b3e66d4c8b24"
+  }
+}

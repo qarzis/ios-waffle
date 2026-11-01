@@ -1,0 +1,1 @@
+HOST current cdev reproduces cumulative8192-record exhaustion despite immediate successful modeled reclamation of every BO and zero live backing. This is a proved persistent-session gap, not a newly observed hardware failure.
