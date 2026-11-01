@@ -37,6 +37,17 @@ static struct drm_bo *drm_buffer(unsigned handle)
 {
  return handle && handle<=drm_count && drm_bos[handle-1].live?&drm_bos[handle-1]:NULL;
 }
+static void drm_allocation_refused(uint64_t bytes,uint32_t flags,const char *reason)
+{
+ uint64_t live_bytes=0,retired_bytes=0;unsigned live_count=0,retired_count=0;
+ for(unsigned i=0;i<drm_count;i++){
+  if(drm_bos[i].live){live_count++;live_bytes+=drm_bos[i].memory->allocation_bytes;}
+  else{retired_count++;retired_bytes+=drm_bos[i].memory->allocation_bytes;}
+ }
+ redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=%s live_count=%u live_bytes=%llu retired_count=%u retired_bytes=%llu heap_limit=%u\n",
+  (unsigned long long)bytes,flags,drm_count,WAFFLE_GPU_BO_LIMIT,reason,live_count,
+  (unsigned long long)live_bytes,retired_count,(unsigned long long)retired_bytes,WAFFLE_GPU_BO_HEAP_BYTES);
+}
 static void drm_unmap(struct drm_bo *bo)
 {
  if(!waffle_gpu_map_revoke(&bo->user_map)){
@@ -116,12 +127,12 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   struct waffle_msm_gem_new *r=(void *)data;
   if(r->handle || !waffle_gpu_registry_flags(r->size,r->flags)){error=EINVAL;goto done;}
   if(drm_count>=WAFFLE_GPU_BO_LIMIT){
-   redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=slots\n",(unsigned long long)r->size,r->flags,drm_count,WAFFLE_GPU_BO_LIMIT);
+   drm_allocation_refused(r->size,r->flags,"slots");
    error=ENOSPC;goto done;
   }
   struct waffle_gpu_memory *bo=waffle_gpu_context_memory_new(drm_context,r->size,r->flags);
   if(!bo){
-   redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=registry\n",(unsigned long long)r->size,r->flags,drm_count,WAFFLE_GPU_BO_LIMIT);
+   drm_allocation_refused(r->size,r->flags,"registry");
    error=ENOMEM;goto done;
   }
   drm_bos[drm_count]=(struct drm_bo){.memory=bo,.live=true};r->handle=++drm_count;
@@ -166,6 +177,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
  }else if(command==WAFFLE_MSM_CLOSE){
   struct waffle_msm_close *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
   if(!bo || r->pad){error=EINVAL;goto done;}drm_unmap(bo);bo->live=false;
+  redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=1\n",r->handle,bo->memory->allocation_bytes);
  }else error=ENOTTY;
 done:
  if(error)redwood_tl("waffle-gpu: GENERAL ioctl_refused op=%x error=%d pid=%d\n",(unsigned)(command&255),error,proc_pid(p));

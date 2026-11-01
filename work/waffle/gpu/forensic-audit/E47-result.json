@@ -1,0 +1,240 @@
+{
+  "run": "work/waffle/runs/20261101T134804Z",
+  "auto": "work/waffle/auto-runs/20261101T134741Z",
+  "actual_backboardd_pid": 83,
+  "UID": 501,
+  "FD750_CoreAnimation_context": true,
+  "GPU_completed_fences": 3,
+  "first_new_failure": "5MiB allocation refused by unchanged32MiB registry heap after35BOs; later64slot exhaustion and SIGSEGV",
+  "BO_count_at_first_heap_refusal": 35,
+  "allocated_bytes_at_first_heap_refusal": 28901376,
+  "next_request_bytes": 5242880,
+  "heap_limit_bytes": 33554432,
+  "BO_count_at_close": 64,
+  "allocated_bytes_at_close": 30064640,
+  "GPU_parent_close_passed": true,
+  "close_completed": 3,
+  "context_null": true,
+  "CPU_fallback_observed": true,
+  "UI_GPU_success": false,
+  "pixel_correctness_verified": false,
+  "independent_android": "1",
+  "runner_exit": 1,
+  "final_log_saturated": true,
+  "early_heap_failure_log": "work/waffle/runs/20261101T134804Z/kernel-341.log",
+  "early_heap_failure_log_sha256": "6b93cb6c900c813908725f4ef325cc5051219b557d367fa5fc9b7b35226f7f48",
+  "parent_teardown_log": "work/waffle/runs/20261101T134804Z/kernel-370.log",
+  "parent_teardown_log_sha256": "22a04ceecb31bd2419e6982abb0f5119d89c68478ac86752a391bd5274173e8a",
+  "BO_prefix_at_heap_refusal": [
+    {
+      "index": 1,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 2,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 3,
+      "bytes": 4194304,
+      "allocated": 4194304,
+      "flags": 131072
+    },
+    {
+      "index": 4,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 5,
+      "bytes": 4194304,
+      "allocated": 4194304,
+      "flags": 131074
+    },
+    {
+      "index": 6,
+      "bytes": 4194304,
+      "allocated": 4194304,
+      "flags": 131072
+    },
+    {
+      "index": 7,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 8,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 9,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 10,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 11,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 12,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 13,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 14,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 15,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 16,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072
+    },
+    {
+      "index": 17,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072
+    },
+    {
+      "index": 18,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 19,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 20,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 21,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074
+    },
+    {
+      "index": 22,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074
+    },
+    {
+      "index": 23,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074
+    },
+    {
+      "index": 24,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074
+    },
+    {
+      "index": 25,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074
+    },
+    {
+      "index": 26,
+      "bytes": 131072,
+      "allocated": 131072,
+      "flags": 131072
+    },
+    {
+      "index": 27,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 28,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 29,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 30,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074
+    },
+    {
+      "index": 31,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131074
+    },
+    {
+      "index": 32,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 33,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 34,
+      "bytes": 16384,
+      "allocated": 16384,
+      "flags": 131072
+    },
+    {
+      "index": 35,
+      "bytes": 5242880,
+      "allocated": 5242880,
+      "flags": 131072
+    }
+  ]
+}

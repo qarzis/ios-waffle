@@ -1,0 +1,1 @@
+Actual SMMU/registry:35 observedUIBOs use28901376bytes;5MiB request exceeds32MiB and fails before allocation/PTE/TLB,small16KiB request succeeds,no poisoning/table exhaustion; host only

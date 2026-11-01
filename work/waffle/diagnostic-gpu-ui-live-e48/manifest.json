@@ -1,0 +1,23 @@
+{
+  "target": "OnePlus 12 PJD110 / SM8650, 16 GB",
+  "status": "bounded RAM userland test enabled",
+  "hardware_tested": false,
+  "source_revision": "c0ec663890aed1e21ab7773c34aaf4f9d7540937",
+  "source_diff": "source.patch",
+  "kernel_sha256": "c5b21f0f7c5aecc720dd0c3dfc24a73a2b977360e902054298737de43536cdcb",
+  "kernel_crc32": "6d2a9ac6",
+  "boot_image_sha256": "b05d103c7bee724310a6e735a1c1ed46a97cc34f919082687fdd8b7f72713804",
+  "kernel_build_target": "build (DriverKit symbolsets excluded)",
+  "automatic_usb_loader": true,
+  "mapped_bo": true,
+  "mesa_drm_shim": true,
+  "gl_context": true,
+  "gl_system_sha256": "564709e25c30e66d839391a4773aa485b4c3e2db7c3fdcfc19c6d88f30c38744",
+  "gl_system_bytes": 2318401536,
+  "ui_workload": true,
+  "user_probe_root_sha256": "4ef4e074764f97c9cc665a16165e7fedf487b1be9ee4e813da84ad6b7bf0dc21",
+  "msm_probe_root_sha256": "2c62d35e9fdba895d30efdc4e2aafbc9e8b2c05689645e394932bfbe1e38df1e",
+  "mapped_probe_root_sha256": "ac44570301d3c255e7d6681d9f54e957c9d198c6f235d20b35b46ba617d75301",
+  "gl_probe_root_sha256": "49559df15d3f66fc57bf5527edafb320f8bbadc23b5977a8ddf17bcddbff4473",
+  "experiment": "E48 telemetry-only actual UI live/retired memory diagnostic;64BO/32MiB unchanged"
+}

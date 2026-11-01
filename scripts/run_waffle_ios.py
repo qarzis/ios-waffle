@@ -483,15 +483,26 @@ def main():
     deadline = time.monotonic() + args.seconds + 90
     ui_started=time.monotonic()
     ui_screenshots=set()
+    ui_events=set()
     sequence = 0
     while time.monotonic() < deadline:
-        time.sleep(0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
+        time.sleep(0.2 if args.gpu_ui else 0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
         response = command("getvar", "result")
         line = next((s for s in response.splitlines() if s.startswith("result: ")), "")
         sequence += 1
         command("oem", "log")
         log_path = out / f"kernel-{sequence}.log"
         command("get_staged", log_path)
+        if args.gpu_ui:
+            # Preserve early evidence before the finite console log fills.
+            with (out/"ui-gpu-events.log").open("a") as events:
+                for event in log_path.read_text(errors="replace").splitlines():
+                    if event not in ui_events and any(marker in event for marker in (
+                        "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
+                        "GENERAL bo_retired", "GENERAL_SUBMIT", "A SHADER DOES NOT COMPILE",
+                        "GENERAL ioctl_refused", "REBOOT REQUIRED", "an OpenGL ES", "redwood: signal")):
+                        ui_events.add(event)
+                        events.write(f"{log_path.name}: {event}\n")
         if not line.strip().removeprefix("result:").strip():
             line = result_from_log(log_path.read_text(errors="replace"))
             if not line:
