@@ -18,6 +18,7 @@ h=r'''
 #include "waffle_gpu_copy.h"
 #include "waffle_gpu_job.h"
 #include "waffle_gpu_data.h"
+#include "waffle_gpu_submit.h"
 #include "waffle_gpu_buffer.h"
 typedef uintptr_t vm_offset_t;
 #define PAGE_SIZE 16384

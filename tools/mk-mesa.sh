@@ -28,7 +28,7 @@ if [ ! -d mesa-$VERSION ] || [ "$(cat mesa-$VERSION/.redwood-patches 2>/dev/null
 	echo "$PATCHES" > mesa-$VERSION/.redwood-patches
 fi
 rm -rf mesa-$VERSION/src/redwood-drm
-cp -r "$ROOT/tools/mesa/drm-shim" mesa-$VERSION/src/redwood-drm
+cp -rL "$ROOT/tools/mesa/drm-shim" mesa-$VERSION/src/redwood-drm
 if [ ! -x venv/bin/python3 ]; then
 	python3 -m venv venv
 	venv/bin/pip -q install mako pyyaml packaging meson

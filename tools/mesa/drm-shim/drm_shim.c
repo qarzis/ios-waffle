@@ -43,11 +43,14 @@ static int call(unsigned number,void *data,size_t size)
 #include <string.h>
 #include <unistd.h>
 #include <IOKit/IOKitLib.h>
+#include <sys/ioctl.h>
+#include "waffle_msm_transport.h"
 #include "xf86drm.h"
 #define REDWOOD_GPU_SERVICE "RedwoodGPU"
 #define REDWOOD_GPU_SURFACE 0x7e
 #define REDWOOD_GPU_DESCRIBE 0xffffffffu
 static io_connect_t connection;
+static int waffle_general;
 static int connection_fd = -1;
 int
 drmOpenWithType(const char *name, const char *busid, int type)
@@ -59,6 +62,13 @@ drmOpenWithType(const char *name, const char *busid, int type)
   return -1;
  }
  if (connection_fd >= 0) {
+  return dup(connection_fd);
+ }
+ const char *backend = getenv("WAFFLE_GPU_DRM");
+ if (backend && strcmp(backend, "1") == 0) {
+  connection_fd = open("/dev/waffle-gpu-drm", O_RDWR);
+  if (connection_fd < 0) return -1;
+  waffle_general = 1;
   return dup(connection_fd);
  }
  service = IOServiceGetMatchingService(0, IOServiceMatching(REDWOOD_GPU_SERVICE));
@@ -76,6 +86,11 @@ drmOpenWithType(const char *name, const char *busid, int type)
 static int
 call(unsigned number, void *data, size_t size)
 {
+ if (waffle_general) {
+  unsigned long request = waffle_msm_request(number, size);
+  if (!request) return EINVAL;
+  return ioctl(connection_fd, request, data) < 0 ? errno : 0;
+ }
  size_t returned = size;
  kern_return_t result = IOConnectCallStructMethod(connection, number, data, size, data, &returned);
  switch (result) {
@@ -104,6 +119,7 @@ drmIoctl(int fd, unsigned long request, void *arg)
 #ifdef WAFFLE_MSM_PROBE
  return (int)mini_syscall(SYS_ioctl,fd,request,(long)arg,0,0,0);
 #else
+ if (waffle_general) return ioctl(fd, request, arg);
  int error = call((unsigned)(request & 0xff), arg, IOCPARM_LEN(request));
  (void)fd;
  if (error != 0) {
@@ -163,6 +179,12 @@ drmGetCap(int fd, uint64_t capability, uint64_t *value)
 void *
 redwood_drm_map(int fd, uint32_t handle, uint64_t size)
 {
+ if (waffle_general) {
+  if (size == 0 || size > UINT32_MAX) { errno = EINVAL; return (void *)-1; }
+  struct waffle_msm_map request = { .handle=handle, .bytes=(uint32_t)size };
+  if (ioctl(fd, WAFFLE_MSM_MAP, &request) < 0) return (void *)-1;
+  return (void *)(uintptr_t)request.address;
+ }
  mach_vm_address_t address = 0;
  mach_vm_size_t mapped = 0;
  (void)fd;
@@ -175,6 +197,11 @@ redwood_drm_map(int fd, uint32_t handle, uint64_t size)
 void
 redwood_drm_unmap(int fd, uint32_t handle, void *address)
 {
+ if (waffle_general) {
+  struct waffle_msm_map request = { .address=(uint64_t)(uintptr_t)address, .handle=handle };
+  (void)ioctl(fd, WAFFLE_MSM_UNMAP, &request);
+  return;
+ }
  (void)fd;
  IOConnectUnmapMemory64(connection, handle, mach_task_self(), (mach_vm_address_t)(uintptr_t)address);
 }

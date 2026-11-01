@@ -67,6 +67,20 @@ bool waffle_gpu_context_buffers(struct waffle_gpu_context *context,struct waffle
     bool ok=context && active_context==context && context->parent && waffle_gpu_parent_buffers(context->parent,buffers);
     lck_mtx_unlock(&service_lock);return ok;
 }
+struct waffle_gpu_memory *waffle_gpu_context_memory_new(struct waffle_gpu_context *context,uint64_t bytes,uint32_t flags)
+{
+    if(!context || !lck_mtx_try_lock(&service_lock))return NULL;
+    struct waffle_gpu_memory *bo=active_context==context && context->parent?
+        waffle_gpu_parent_memory_new(context->parent,bytes,flags):NULL;
+    lck_mtx_unlock(&service_lock);return bo;
+}
+bool waffle_gpu_context_submit(struct waffle_gpu_context *context,struct waffle_gpu_submit_job *job)
+{
+    if(job)job->fence=0;
+    if(!context || !job || !lck_mtx_try_lock(&service_lock))return false;
+    bool ok=active_context==context && context->parent && waffle_gpu_parent_submit(context->parent,job);
+    lck_mtx_unlock(&service_lock);return ok;
+}
 bool waffle_gpu_context_end(struct waffle_gpu_context **context)
 {
     if(!context || !*context || !lck_mtx_try_lock(&service_lock))return false;

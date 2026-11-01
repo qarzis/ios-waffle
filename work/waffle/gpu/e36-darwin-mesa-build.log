@@ -1,0 +1,2 @@
+[cctools-port]: generating fake signature for 'out-26.3.0-rc1/libOSMesa.8.dylib'
+mk-mesa.sh: Mesa 26.3.0-rc1 (softpipe,freedreno): /home/qarzis/ios-macan/xnu-deps/build/mesa/out-26.3.0-rc1/libOSMesa.8.dylib, 18496008 bytes, 1310 gl* functions

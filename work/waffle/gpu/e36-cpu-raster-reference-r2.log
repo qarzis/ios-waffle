@@ -1,0 +1,5 @@
+HOST CPU REFERENCE: no OnePlus GPU execution
+MESA-EGL: warning: pci id for fd 3: 10de:25a2, driver (null)
+renderer=llvmpipe (LLVM 23.1.1, 256 bits) version=OpenGL ES 3.2 Mesa 26.2.4-arch3.1
+CPU reference raster: checked=256 wrong=0 filled=128
+frontend submitted triangle, GL error=0; NO GPU correctness or pixel readback claim

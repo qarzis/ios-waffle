@@ -49,7 +49,7 @@ diff --git a/bsd/conf/files b/bsd/conf/files
 index 44274016a4cf..cd551dd42a09 100644
 --- a/bsd/conf/files
 +++ b/bsd/conf/files
-@@ -109,6 +109,38 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
+@@ -109,6 +109,39 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
  bsd/dev/unix_startup.c			standard
  
  bsd/dev/monotonic.c optional monotonic
@@ -62,6 +62,7 @@ index 44274016a4cf..cd551dd42a09 100644
 +bsd/dev/waffle_gpu_service.c	standard
 +bsd/dev/waffle_gpu_user.c	standard
 +bsd/dev/waffle_gpu_msm.c	standard
++bsd/dev/waffle_gpu_drm.c	standard
 +bsd/dev/waffle_smmu.c	standard
 +bsd/dev/waffle_gmu.c	standard
 +bsd/dev/macan_adreno.c	standard

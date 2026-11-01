@@ -2189,6 +2189,46 @@ bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *owner,struct waffle_gpu_b
     buffers[1]=(struct waffle_gpu_buffer){.gpu_va=s->data_va,.memory=s->data_alias,.bytes=16384};
     return true;
 }
+/* General root command submission, still gated off until its client backend
+ * is complete. Caller owns BO registry, stable command storage and serialization. */
+bool waffle_gmu_owner_submit(struct waffle_gmu_owner *owner,struct waffle_gpu_submit_job *job)
+{
+    if(job)job->fence=0;
+    if(!owner || !owner->plan || owner->plan->compute_image!=13 || !job || !job->commands ||
+       !job->count || job->count>WAFFLE_GPU_SUBMIT_COMMANDS || !waffle_gmu_owner_memory_idle(owner))return false;
+    struct waffle_submit_session *s=owner->plan->submit_session;
+    if(s->submitted>=1024 || s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024)return false;
+    uint32_t commands[WAFFLE_GPU_SUBMIT_WORDS];unsigned words=0;
+    for(unsigned c=0;c<job->count;c++){
+        const struct waffle_gpu_command *command=&job->commands[c];
+        if(!waffle_gpu_command_valid(command) || command->bytes/4>WAFFLE_GPU_SUBMIT_WORDS-words)return false;
+        const volatile uint32_t *source=(const volatile uint32_t *)(command->buffer->memory+command->offset);
+        for(unsigned i=0;i<command->bytes/4;i++)commands[words++]=source[i];
+    }
+    unsigned fence=s->submitted+1,sequence=s->next_sequence;
+    uint64_t result_va=s->ib_va-1024+8192;
+    volatile uint32_t *out=(volatile uint32_t *)s->alias;
+    for(unsigned i=0;i<4096;i++)out[i]=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false);
+    __asm__ volatile("dsb sy":::"memory");
+    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false))return false;
+    say("waffle-gmu: GENERAL_SUBMIT begin fence=%u seq=%u root_words=%u kernel_tail=15 extra_IB_depth=0\n",fence,sequence,words);
+    if(!submit_session_exchange(s,words+WAFFLE_GPU_SUBMIT_TAIL_WORDS,"GENERAL_IB")){owner->exercise_ok=false;return false;}
+    for(unsigned attempt=0;attempt<2000;attempt++){
+        __asm__ volatile("dsb sy":::"memory");
+        if(out[2048]==fence)break;
+        delay_for_interval(100,NSEC_PER_USEC);
+    }
+    unsigned wrong=0;
+    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,true)){
+        if(!wrong)say("waffle-gmu: GENERAL_SUBMIT mismatch index=%u got=%08x expected=%08x\n",i,out[i],waffle_gpu_submit_initial(i,words,commands,fence,result_va,true));
+        wrong++;
+    }
+    if(wrong){s->phase=SUBMIT_POISONED;owner->exercise_ok=false;return false;}
+    s->completed=s->submitted;s->phase=SUBMIT_READY;job->fence=fence;
+    say("waffle-gmu: GENERAL_SUBMIT done fence=%u seq=%u control=%08x checked=4096 wrong_words=0\n",fence,sequence,out[2048]);
+    return true;
+}
+
 /* The parent owns power, SMMU, BO and serialization; no user pointer is accepted. */
 bool waffle_gmu_owner_copy(struct waffle_gmu_owner *owner,struct waffle_gpu_copy_job *job)
 {

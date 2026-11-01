@@ -8,13 +8,13 @@ c='''#include <stdbool.h>
 #include <assert.h>
 struct state {unsigned compute_image,compute_mode,dynamic_bo;};
 int main(void){struct state value,*s=&value;
-for(unsigned probe=93;probe<=94;probe++)for(unsigned image=1;image<=13;image++)for(unsigned compute=0;compute<=2;compute++)for(unsigned dyn=0;dyn<=1;dyn++){
+for(unsigned probe=93;probe<=94;probe++)for(unsigned image=1;image<=14;image++)for(unsigned compute=0;compute<=2;compute++)for(unsigned dyn=0;dyn<=1;dyn++){
 *s=(struct state){image,compute,dyn};
 bool refused='''+expr+''';
-bool allowed=probe==94 && dyn==1 && image<=12 && (image==9?compute==1:image>=3?compute==2:compute==1 || compute==2);
+bool allowed=probe==94 && dyn==1 && image<=13 && (image==9?compute==1:image>=3?compute==2:compute==1 || compute==2);
 assert(refused==!allowed);
 }return 0;}
 '''
 with tempfile.TemporaryDirectory() as d:
  p=Path(d);(p/'test.c').write_text(c);subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror',str(p/'test.c'),'-o',str(p/'test')],check=True);subprocess.run([str(p/'test')],check=True)
-print('Actual inner SMMU image guard:156 combinations modes1..13/compute0..2/dynamic0..1/probe93..94 passed')
+print('Actual inner SMMU image guard:168 combinations modes1..14/compute0..2/dynamic0..1/probe93..94 passed')

@@ -163,6 +163,7 @@ static bool pool_permission_sync(struct pool_permission_context *p){(void)p;asse
 static bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *g,const struct waffle_gpu_buffer *b){(void)g;(void)b;assert(0);return false;}
 static bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *g,struct waffle_gmu_region *r){(void)g;(void)r;assert(0);return false;}
 static bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *p,struct waffle_gpu_buffer b[2]){(void)p;(void)b;return false;}
+static bool waffle_gmu_owner_submit(struct waffle_gmu_owner *p,struct waffle_gpu_submit_job *j){(void)p;(void)j;assert(0);return false;}
 static bool waffle_gmu_owner_memory_idle(struct waffle_gmu_owner *p){(void)p;return false;}
 
 bool waffle_gpu_memory_create(uint64_t b,uint32_t f,struct waffle_gpu_memory *m){(void)b;(void)f;(void)m;assert(0);return false;}

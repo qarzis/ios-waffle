@@ -450,7 +450,7 @@ static bool smmu_owner_begin(struct smmu_owner *s)
         log_line("waffle-iommu: compute requires controlled94 dynamic BO session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_image",&s->compute_image,sizeof(s->compute_image)) &&
-        ((s->compute_image<1 || s->compute_image>12) || !s->compute_mode || (s->compute_image>=3 && s->compute_image!=9 && s->compute_mode!=2) || (s->compute_image==9 && s->compute_mode!=1) || probe!=94 || s->dynamic_bo!=1)) {
+        ((s->compute_image<1 || s->compute_image>13) || !s->compute_mode || (s->compute_image>=3 && s->compute_image!=9 && s->compute_mode!=2) || (s->compute_image==9 && s->compute_mode!=1) || probe!=94 || s->dynamic_bo!=1)) {
         log_line("waffle-iommu: image requires controlled compute/dynamic session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&
@@ -724,7 +724,11 @@ static bool smmu_owner_finish(struct smmu_owner *s)
     w64(s->qtb, 0x410, s->old_fence);
     (void)r32(s->qtb, 0); barrier();
     if (s->safe_free) {
-        if(s->registry.count && !waffle_gpu_registry_destroy(&s->registry,true))smmu_owner_stop("general BO reclamation failed after detach");
+        if(s->registry.count){
+            unsigned count=s->registry.count;
+            if(!waffle_gpu_registry_destroy(&s->registry,true))smmu_owner_stop("general BO reclamation failed after detach");
+            log_line("waffle-iommu: GENERAL_BO released after GPU stop and context detach count=%u\n",count);
+        }
         for (unsigned i = 0; i < s->pool.count; ++i) kmem_free(kernel_map, s->pool.memory[i], PAGE_SIZE);
         if (s->target) kmem_free(kernel_map, s->target, PAGE_SIZE);
         waffle_gmu_free(&s->firmware);
@@ -918,6 +922,19 @@ struct waffle_gpu_memory *waffle_smmu_owner_memory_new(struct waffle_smmu_owner 
         owner->state.gmu_ok=owner->state.dynamic_bo && smmu_dynamic_bo_bind(&owner->state);
     }
     return owner->state.gmu_ok?smmu_registry_new(&owner->state,bytes,flags):NULL;
+}
+bool waffle_smmu_owner_submit(struct waffle_smmu_owner *owner,struct waffle_gpu_submit_job *job)
+{
+    if(job)job->fence=0;
+    if(!owner || !job || !job->commands || !job->count || job->count>WAFFLE_GPU_SUBMIT_COMMANDS ||
+       !owner->state.child || owner->state.compute_image!=13 || !owner->state.gmu_ok || owner->state.registry.poisoned)return false;
+    for(unsigned c=0;c<job->count;c++){
+        bool owned=false;
+        for(unsigned i=0;i<owner->state.registry.count;i++)if(job->commands[c].buffer==&owner->state.registry.buffers[i])owned=true;
+        if(!owned || !waffle_gpu_command_valid(&job->commands[c]))return false;
+    }
+    bool ok=waffle_gmu_owner_submit(owner->state.child,job);
+    owner->state.gmu_ok=owner->state.gmu_ok && ok;return ok;
 }
 bool waffle_smmu_owner_end(struct waffle_smmu_owner *owner)
 {

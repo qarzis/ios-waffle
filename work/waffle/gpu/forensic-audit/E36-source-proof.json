@@ -1,0 +1,31 @@
+{
+  "compiled_and_snapshot_identical": {
+    "kernel/files/bsd/dev/waffle_adreno.c": "01552d6afbed21026177e969a6e5e90d9aadadc4b17877d5ff4c5448caf17e8c",
+    "kernel/files/bsd/dev/waffle_gmu.c": "4ab2758fc59a33508637123b0ad25f2599dc614ffa4dbc4cfe3644ec23c6557d",
+    "kernel/files/bsd/dev/waffle_smmu.c": "f5e86778e6f5a2815ea4a72db2de3175b4b1ccff35f337d671bc3e3ac399a82c",
+    "kernel/files/bsd/dev/waffle_gpu_drm.c": "eba5f2329c8f800ead84ef79926cfe8bc0a36fb9871963b8147c8c144a92e3f6",
+    "kernel/files/bsd/dev/waffle_gpu_service.c": "47a55c01095949987b84e772a670c07a40b57a57cd89c1fd49fd495d8e000505",
+    "kernel/files/iokit/Kernel/WaffleGPUMemory.cpp": "f9f08dc3a3220eb3cf2d13b4649f18ebefa96e4d827fc3b20d69d009cdd6d813",
+    "kernel/files/bsd/sys/waffle_gpu_submit.h": "04362b5555f006426ae2ca4b692aab42adf2d1cdf90547ee10062fcd554af92e",
+    "kernel/files/bsd/sys/waffle_gpu_msm.h": "899ccd260680f4d9a391ecbd0e4622d7f8b168a9e9626de8ee6f12c97ce2712b",
+    "kernel/files/bsd/sys/waffle_gpu_service.h": "ae5209043163705c8f22f53a50e0eb3ffb8833df89008d2feb9ca27f8056783a",
+    "kernel/files/bsd/sys/waffle_gpu_registry.h": "7256092044690471126addcfd76a04239e6674c81dc78b8127f562e525f70740",
+    "kernel/files/bsd/sys/waffle_gpu_memory.h": "3b89dc8c7a2f683fba34f87b356e2b0d83c4049d37c631eb381cd931836189bf",
+    "kernel/files/bsd/sys/waffle_gmu.h": "28d398b0c311ce882dc0801b29f7656d681dee04bc857a56775f87cbfb046a67",
+    "kernel/files/bsd/sys/waffle_smmu.h": "179910b1c86c8302d1937b97d884214791332027e0a19c7d72463ddf1602bd92",
+    "scripts/run_waffle_ios.py": "ae0a9a79774582b671451eb6c91369bb0c45478de4c7ef83bb2669ee62f8ea99",
+    "tools/run-waffle-auto.py": "d2d8968eaa734d2f3166d10651b673456af06327299133782954392a34608b33",
+    "work/waffle/gpu/run-publish-test.py": "a072caf53ae82eaa092b45c02218e9331f2a98e22e48410f4314490d0ffee2db",
+    "loader/waffle.h": "b97fd52ce029f731b255ea6305eb364b469a25bc17fc3ae8a9dddf8420947060",
+    "userland/src/waffle_gl_probe.c": "fab1fd829082b3dbcfa84eebd1e1c7012fc05b69b7e7c267864fdfcb50a50835",
+    "userland/src/waffle_gl_init.c": "73d1f9357967ca148e46aba2e1d094f3b7073e29fb2fc5ae23c7e364691440db",
+    "tools/build-waffle-gl-probe.py": "37911807c7fe56ff8be8c22f82fa3003f6b7005b68ab92134fa1e760efdd90e8"
+  },
+  "all_host_tests_passed": true,
+  "darwin_MSM_ABI_exact": true,
+  "xnu_efi_container_passed": true,
+  "gl_probe_root_sha256": "95769a74168d49c86cbb3ce66f6a6fafadf80325b09ecf9e46aff5e726900199",
+  "gl_system_sha256": "564709e25c30e66d839391a4773aa485b4c3e2db7c3fdcfc19c6d88f30c38744",
+  "dynamic_Mesa_sha256": "7e02650d1a5b7402e7b4db7bf84aba6aa3a7afd528e84a3a284e781caf2c5a47",
+  "hardware_tested": false
+}

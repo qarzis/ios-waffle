@@ -5,6 +5,12 @@
 /* Exact legacy MSM UAPI layouts used by MacanGPU.cpp and Mesa drm-shim.
  * E31 supports two owned16KiB BOs and one audited191word compute IB only.
  * Upload/download is a diagnostic extension, not GEM mmap or a full DRM fd. */
+struct waffle_msm_param { uint32_t pipe,param; uint64_t value; uint32_t len,pad; };
+struct waffle_msm_cpu_prep { uint32_t handle,op; int64_t seconds,nanoseconds; };
+struct waffle_msm_cpu_fini { uint32_t handle; };
+struct waffle_msm_madvise { uint32_t handle,madv,retained; };
+struct waffle_msm_queue { uint32_t flags,prio,id; };
+struct waffle_msm_queue_query { uint64_t data; uint32_t id,param,len,pad; };
 struct waffle_msm_gem_new { uint64_t size; uint32_t flags,handle; };
 struct waffle_msm_gem_info { uint32_t handle,info; uint64_t value; uint32_t len,pad; };
 struct waffle_msm_submit_bo { uint32_t flags,handle; uint64_t presumed; };
@@ -19,6 +25,13 @@ struct waffle_msm_close { uint32_t handle,pad; };
 struct waffle_msm_transfer { uint64_t pointer; uint32_t handle,offset,bytes,flags; };
 struct waffle_msm_map { uint64_t address; uint32_t handle,bytes,flags,pad; };
 struct waffle_msm_report { uint32_t version,checks,wrong,fence,negative; };
+#define WAFFLE_MSM_PARAM _IOWR('d',0x40,struct waffle_msm_param)
+#define WAFFLE_MSM_CPU_PREP _IOW('d',0x44,struct waffle_msm_cpu_prep)
+#define WAFFLE_MSM_CPU_FINI _IOW('d',0x45,struct waffle_msm_cpu_fini)
+#define WAFFLE_MSM_MADVISE _IOWR('d',0x48,struct waffle_msm_madvise)
+#define WAFFLE_MSM_QUEUE_NEW _IOWR('d',0x4a,struct waffle_msm_queue)
+#define WAFFLE_MSM_QUEUE_CLOSE _IOW('d',0x4b,uint32_t)
+#define WAFFLE_MSM_QUEUE_QUERY _IOW('d',0x4c,struct waffle_msm_queue_query)
 #define WAFFLE_MSM_NEW _IOWR('d',0x42,struct waffle_msm_gem_new)
 #define WAFFLE_MSM_INFO _IOWR('d',0x43,struct waffle_msm_gem_info)
 #define WAFFLE_MSM_SUBMIT _IOWR('d',0x46,struct waffle_msm_submit)

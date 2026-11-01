@@ -1,3 +1,122 @@
+# Active E36 ready — mode13 enabled, oldmapped12 control running
+
+Userlatest«дальше работай», thenaskedwhatnext; answeredcommentary andcontinue.
+KEEPWORKINGactive. SafeverifiedE33 4cf1355; archiveE35WIP9ca79fcb.
+E36finalfullhost/XNU/EFI/container/sourcebindingPASS diagnostic-gpu-gl-e36-ready.
+ExactDarwinMSM ioctlABIcompileassertPASS; controlleddynamicMesa/root/FW4/
+wholefullsystemSHAverified; oldmapped12 control exec94779/auto20261101T104300Z
+active. Loggpu/auto-gl-e36-control.log. No concurrentfastboot. Afterrunner0/
+autosuccess/independentAndroid1 preserve94controlreport, thenone --gl-context
+sameartifact/full94chain/compute dispatch (NO--msm/--mesa-transport flags).
+
+Mode13nowenabledexactfull94compute2chain inloader,innerSMMU,adreno registration
+andparentbegin. Itregistersnewgeneralcdev. NormalMesa opt-inWAFFLE_GPU_DRM1
+actualrootMesa/sharedcache. GLprogram closesallnonconsoleFDs3..255 after
+OSMesaDestroyContext, so cachedlibdrmfdcannotpreventGPUownerteardown.
+Strictvalidate_gl_log/extract_gl_pixels/gl_completed_fences requiresFD750,
+all256correcttrianglepixels,realprivateGPUtokens/rootACKs/15wordtail,
+ownedBO64bitranges/flags/pages/32MiBbudgetandfreedaftercontextdetach,
+fullparentteardown/contextnull/userresult1. Rejects8corruptedproofs host.
+Slumbersequencevariable44+completedfences; runnerderivedfromlogs.
+
+Directrunner --root artifact/gl-probe/root.packfs --system ORIGINAL
+work/waffle/images/system.packfs (2.2GiB). Auto--gl-context requiresrootand
+systemhashmanifest; run-publishwalltimeout360/auto420; loader90s startsafter
+transfer. Rootmd1 /redwood withinit/bin/lib/FW, systemresidentmd0originalstage0.
+Kernel/program/root/sourceproof forensic-audit/E36-source-proof.json.
+NoE36hardwareoutcomeyet. Preservefirstfailure/no blindretry. PriorGPUcompute
+andmappedstatescommitted. NoGitHubpush/no flash/erase/no physicalBootiOSselect.
+
+# Active E36 — actual Darwin OSMesa probe ready, full kernel build running
+
+KEEPWORKING userinstructionactive. Statusquestionsansweredincommentary;
+no stoprequested. SafeE33hardware4cf1355, E34audit29fa75a, E35WIP9ca79fcb.
+PhoneordinaryAndroid, nohardwareworker. Newgeneralcdev+GPUroot-submit+normal
+Mesaopt-intransport implemented, hostboundary/modeltestsPASS. Mode13 STILL
+loader/innergate/registrationdisabled untilwholecontrolledtestready.
+
+CURRENT exec fullkernelbuild diagnostic-gpu-gl-e36, logfile
+work/waffle/gpu/build-gl-e36.log. GeneralCdevnewentryinBSDconf/patch;
+fullsourcecopy/snapshot includesnewinterfaces. Needfinishbuild/errors.
+DarwinMesa buildfinished out-26.3.0-rc1/libOSMesa.8.dylib18496008bytes;
+normalMesa opt-inenvWAFFLE_GPU_DRM=1 routesdocumentedMSMrequests to
+/dev/waffle-gpu-drm, defaultRedwoodIOKitunchanged. Headercanonicalsymlink
+shim/waffle_gpu_msm.h, mk-mesa.sh cp-rL; patchstampunchanged(no sourcewipe).
+
+ActualdynamicGLprobe userland/src/waffle_gl_probe.c + staticwaffle_gl_init.c
+andtools/build-waffle-gl-probe.py built root at gpu/e36-gl-probe/root.packfs,
+manifestbindsactualMesa/program/loadcommands/FW4/source. Rootcontains/sbin/init,
+/bin/waffle-gl-probe,/lib/libOSMesa.8.dylib,/fw/*. ORIGINALfullsystem.packfs
+mustbe residentmd0, customrootmd1: existingfullsystem/sbin/launchd isstage0
+mountingmd1at/redwood thenexec/redwood/sbin/init. Kernelmacan_image_file scans
+md1thenmd0rawFW, sofourrawFWincustomrootworks beforeuserstartup. No mutatefull
+system2.2GiB. Newroot~19MiB. InitexecsdynamicprobeasPID1 withWAFFLE_GPU_DRM1,
+OSMESA_SOFTWARE0,MESA_SHADER_CACHE_DISABLEtrue,GALLIUM_THREAD0,DYLD_USE_CLOSURES0.
+GLprobe3.3core OSMesa/GLSLtriangle16x16, renderer MUSTcontainFD750, outputstarts
+poison, glFinish thenall256RGBAwords compared(128insideff0040ff/outsideff000000).
+Printsall32pixelgroups/resultthenrebootRB_HALT8. NeedactualGPUfence+lifecycle
+kernelproof too; userpixelsalonecannotqualify. CPUoracle independentllvmpipe
+forcedMesaGLVNDvendorPASS256wrong0/128inside (e36-cpu-raster-reference-r2.log).
+InitialGLVNDreferenceusedNVIDIA despiteforceSW; preservednotcountedasCPUproof.
+
+GeneralrootGPUwrapper now15words, includesCP_WAIT_FOR_IDLE thenexactqualified
+E29payload433..446tail. Identityfullpayload432..446hostPASS. Copiesrootbytes
+verbatimprivately, noextraIBdepth;1024word/16rootcap. Actual310wordGLroot
+modelbounds/stale/missingtoken/guard/ACK/idlefailuresretainPASS. Generalcdev
+actualhost13BOsizes/persistentmaps/params/queues/submit/wait/closePASS.
+SMMUregistry32BO/32MiBWC/read-only/pagewiseAP_UNPRIV lower4GiB/16KiBrounded.
+GPUMEMbaseactualprogrammed0x01000000 (NOTnoop0x100000);chip43051401/GMEM3MiB
+fromliveDT/nativecore. GenericmapsremainpersistentforMesa; root-onlycontrolled
+client, notuntrustedGLserviceorIOSurface. Oldmode12revocationpathunchanged.
+
+Next: completefullbuild; addnormaltransporthostABItests; enableexactmode13
+onlyafterrunner/rootmanifestsourcebinding andstrictGLacceptanceprepared.
+Runner mustpass--root customGLpackfs, --system ORIGINALfullsystem2.2GiB;
+oldermodesretainsmallroots. BindwholebigsystemSHAandsource. Fullsystemtransfer
+mayneedrunnerwalltimeout>180 whileloader90sdeadlinebeginsaftertransfer.
+Oldmode12controlonnewkernelfirst->Android1->onesinglemode13GLtest.
+No flash/erase, autoUEFI no manualBootiOS. Preservefirstfailure/noblindretry;
+after3failedexperimentsreassess. SaveWIParchive/mainHEADindexuntouched;
+verifiedrefonlyonactualhardwarequalification. NoGitHubpushrequested.
+
+# Active E36 — general BO/submit boundary + real Darwin Mesa transport
+
+Userexplicitkeepworkingactive; lateststatusquestionansweredwithoutstopping.
+SafehardwareE33verified4cf1355; E34audit29fa75a; E35WIP9ca79fcb. PhoneAndroid,
+nohardwareworker. E35 fullhost/XNU/EFI/container/sourcebindingPASS, mode13
+stilldisabledpendingcontrolledgeneralclient. E36 code implements:
+- waffle_gpu_submit.h / gmu_owner_submit: copyup to1024rootwords verbatim into
+privatekernelBO, appendexact14wordqualifiedA7xxcompletiontail, no extraIB
+nesting; actualfence+all4096guards verified. Actual310wordGLroot hostmodel
+3fences+bounds/stale/no-token/guard/ACK/idlefailure retentionPASS.
+- generalmemory API throughservice/parent/SMMU validatesownedregistrycommand
+objects andlogicalbounds. Oldservice/owner/GPUhostregressionsPASS.
+- new waffle_gpu_drm.c root-onlygeneralcdev /dev/waffle-gpu-drm, 32BOs/32MiB,
+params/NEW/INFO/MAP/persistentmaps/CPUprep/fini/madvise/queue/submit/wait/close.
+Actualcdev13realGLsizes/maps/root310hostboundaryPASS. Mode13NOTregistered or
+loader-enabled yet. NewCdevsource notfullXNUcompiledyet.
+- normalMesa drm_shim.c opt-inWAFFLE_GPU_DRM=1 opensgeneralcdev andmapsMSM
+requests, persistentredwood_drm_map withoutcopyuploads; defaultRedwoodIOKit
+pathretained. Actualarm64syntaxPASS. Canonicaluapi symlink inshim; mk-mesa.sh
+cp-rLdereferencessymlink. Newwaffle_msm_transport.h exactrequestsize/direction.
+- actualprogrammedGMEMbase=0x01000000, DIFFERENT fromnoopmodel0x100000;
+generalparamcorrectedbeforehardware. chip43051401/GMEM3MiBfromliveDT/native
+coreproofE35. Timestampunsupportedratherthaninvented. QueuequeryMSMIOW.
+
+CURRENT exec: DarwinMesa build via MESA_VERSION=26.3.0-rc1 bash tools/mk-mesa.sh,
+logwork/waffle/gpu/e36-darwin-mesa-build.log. Sourcepatchsignaturechecked
+54bfb50e...matchesexisting, so scriptdoesnotwipeMesa sources. Nativecompute/
+GL-audit builds remain. Outputout-26.3.0-rc1 leavesoriginaloutMesa intact.
+NeedfinishgeneraltransporthostABItests/fullXNUbuild, thenbuildrootdynamic
+OSMesaGLprobe withactualnewlib overexistingfullsystem.packfs (2.2GiB). Need
+rootwrapperstage0execdynamicprobe andFW4rawfiles; noUIbootclaim. Kernelmode13
+mustonlybeenabledafterwholecontrolledtestavailable. Do notRAMbootnewmodeuntil
+source/image/rootbound, priorcontrolPASS andAndroid1. NoGPUexecutedE35/E36yet.
+
+MainHEAD/indexuntouched, noGitHubpushrequested. RAMonly/no flash/erase;
+autoUEFI no physicalBootiOSselection. Preservefirsthardwarefailure/no blind
+retries; after3failedexperimentsreassess. ContinueworkunlessuserSTOP.
+
 # Active E35 — general GL BO memory/registry/SMMU, build pending
 
 Userexplicitkeepworkingactive; donotendatmilestone. Hardware safeE33verified
