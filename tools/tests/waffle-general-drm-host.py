@@ -54,8 +54,13 @@ t+=r'''
  bos[1].handle=1;assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner)==EINVAL && !copies);bos[1].handle=2;
  cmd.submit_offset=1;assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner)==EINVAL && !copies);cmd.submit_offset=0;
  struct waffle_msm_queue q={0};assert(!drm_ioctl(0,WAFFLE_MSM_QUEUE_NEW,(char *)&q,0,&owner) && q.id==1);request.queueid=1;
+ struct waffle_msm_queue q2={0};assert(!drm_ioctl(0,WAFFLE_MSM_QUEUE_NEW,(char *)&q2,0,&owner) && q2.id==2);
+ request.queueid=2;
+ uint32_t closed=1;assert(!drm_ioctl(0,WAFFLE_MSM_QUEUE_CLOSE,(char *)&closed,0,&owner));
+ assert(drm_ioctl(0,WAFFLE_MSM_QUEUE_CLOSE,(char *)&closed,0,&owner)==EINVAL);
+ assert(!drm_queue_valid(1) && drm_queue_valid(2) && !drm_queue_valid(33));
  assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==1 && mapped==13);
- struct waffle_msm_wait wait={.fence=1,.queueid=1};assert(!drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner));wait.fence=2;assert(drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner)==EINVAL);
+ struct waffle_msm_wait wait={.fence=1,.queueid=2};assert(!drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner));wait.fence=2;assert(drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner)==EINVAL);
  for(unsigned i=1;i<=13;i++){struct waffle_msm_close r={.handle=i};assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&r,0,&owner));}
  assert(!mapped && stored==13);assert(!drm_close(0,0,0,&owner) && !stored && !drm_context);return 0;
 }

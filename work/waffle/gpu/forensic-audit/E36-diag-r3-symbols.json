@@ -1,0 +1,10 @@
+{
+  "loaded": "xnu-deps/build/mesa/out-26.3.0-rc1/libOSMesa.8.dylib",
+  "unstripped_symbols": "xnu-deps/build/mesa/build-26.3.0-rc1-softpipe-freedreno/src/gallium/targets/osmesa/libOSMesa.8.dylib",
+  "text_section_identical": {
+    "va": 38152,
+    "sha256": "7c8453b6254d6a16aba87df9b72d2b23808686d9bb9b86695e0ee0f454c5892c",
+    "bytes": 8646600
+  },
+  "purpose": "signalPC relative actualdyldimagebase; headers differ due strip/installname, actualcode identical"
+}

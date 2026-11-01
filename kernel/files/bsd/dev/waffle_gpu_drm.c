@@ -26,7 +26,12 @@ static struct drm_bo drm_bos[WAFFLE_GPU_BO_LIMIT];
 static struct waffle_gpu_context *drm_context;
 static unsigned drm_count,drm_fence;
 static int drm_pid;
-static bool drm_queue;
+static uint32_t drm_queues;
+static unsigned drm_next_queue;
+static bool drm_queue_valid(uint32_t id)
+{
+ return id==0 || (id<=32 && (drm_queues&(1u<<(id-1))));
+}
 static struct drm_bo *drm_buffer(unsigned handle)
 {
  return handle && handle<=drm_count && drm_bos[handle-1].live?&drm_bos[handle-1]:NULL;
@@ -43,7 +48,7 @@ static int drm_open(dev_t dev,int flags,int type,struct proc *p)
  (void)dev;(void)flags;(void)type;lck_mtx_lock(&drm_lock);int error=0;
  if(drm_context){error=EBUSY;goto done;}
  drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
- drm_count=drm_fence=0;drm_queue=false;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
+ drm_count=drm_fence=0;drm_queues=0;drm_next_queue=0;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
  redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=32 heap_bytes=33554432\n",drm_pid);
 done:lck_mtx_unlock(&drm_lock);return error;
 }
@@ -69,7 +74,7 @@ static int drm_submit(struct waffle_msm_submit *r)
 {
  if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>32 || !r->nr_cmds || r->nr_cmds>WAFFLE_GPU_SUBMIT_COMMANDS ||
     r->in_syncobjs || r->out_syncobjs || r->nr_in_syncobjs || r->nr_out_syncobjs || r->syncobj_stride || r->pad ||
-    r->queueid>(drm_queue?1u:0u))return EINVAL;
+    !drm_queue_valid(r->queueid))return EINVAL;
  struct waffle_msm_submit_bo bos[32];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
  struct waffle_gpu_command roots[WAFFLE_GPU_SUBMIT_COMMANDS];
  if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands)))return EFAULT;
@@ -129,24 +134,31 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   }else{if(r->address!=bo->user_address || !bo->user_map){error=EINVAL;goto done;}drm_unmap(bo);}
  }else if(command==WAFFLE_MSM_SUBMIT){error=drm_submit((void *)data);
  }else if(command==WAFFLE_MSM_WAIT){
-  struct waffle_msm_wait *r=(void *)data;if(!r->fence || r->fence>drm_fence || r->flags || r->pad || r->queueid>(drm_queue?1u:0u))error=EINVAL;
+  struct waffle_msm_wait *r=(void *)data;if(!r->fence || r->fence>drm_fence || r->flags || r->pad || !drm_queue_valid(r->queueid))error=EINVAL;
  }else if(command==WAFFLE_MSM_CPU_PREP){
   struct waffle_msm_cpu_prep *r=(void *)data;if(!drm_buffer(r->handle) || (r->op&~15u))error=EINVAL;
  }else if(command==WAFFLE_MSM_CPU_FINI){if(!drm_buffer(((struct waffle_msm_cpu_fini *)data)->handle))error=EINVAL;
  }else if(command==WAFFLE_MSM_MADVISE){
   struct waffle_msm_madvise *r=(void *)data;if(!drm_buffer(r->handle) || r->madv>1){error=EINVAL;goto done;}r->retained=1;
  }else if(command==WAFFLE_MSM_QUEUE_NEW){
-  struct waffle_msm_queue *r=(void *)data;if(r->flags || r->prio || r->id || drm_queue){error=EINVAL;goto done;}r->id=1;drm_queue=true;
- }else if(command==WAFFLE_MSM_QUEUE_CLOSE){if(*(uint32_t *)data!=1 || !drm_queue){error=EINVAL;goto done;}drm_queue=false;
+  struct waffle_msm_queue *r=(void *)data;if(r->flags || r->prio || r->id){error=EINVAL;goto done;}
+  if(drm_next_queue==32){error=ENOSPC;goto done;}
+  r->id=++drm_next_queue;drm_queues|=1u<<(r->id-1);
+  redwood_tl("waffle-gpu: GENERAL queue_new id=%u priority=0 serialized=1\n",r->id);
+ }else if(command==WAFFLE_MSM_QUEUE_CLOSE){uint32_t id=*(uint32_t *)data;
+  if(!id || !drm_queue_valid(id)){error=EINVAL;goto done;}
+  drm_queues&=~(1u<<(id-1));
  }else if(command==WAFFLE_MSM_QUEUE_QUERY){
   struct waffle_msm_queue_query *r=(void *)data;uint64_t zero=0;
-  if(r->id!=1 || !drm_queue || r->param || r->pad || r->len!=8){error=EINVAL;goto done;}
+  if(!r->id || !drm_queue_valid(r->id) || r->param || r->pad || r->len!=8){error=EINVAL;goto done;}
   if(copyout(&zero,r->data,8))error=EFAULT;
  }else if(command==WAFFLE_MSM_CLOSE){
   struct waffle_msm_close *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
   if(!bo || r->pad){error=EINVAL;goto done;}drm_unmap(bo);bo->live=false;
  }else error=ENOTTY;
-done:lck_mtx_unlock(&drm_lock);return error;
+done:
+ if(error)redwood_tl("waffle-gpu: GENERAL ioctl_refused op=%x error=%d pid=%d\n",(unsigned)(command&255),error,proc_pid(p));
+ lck_mtx_unlock(&drm_lock);return error;
 }
 static int drm_close(dev_t dev,int flags,int type,struct proc *p)
 {

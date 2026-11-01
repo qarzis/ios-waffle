@@ -1,3 +1,70 @@
+# Active E37 — exact Mesa NULL pipe fault found, multiple queues fix building
+
+Userexplicitresume/keepworkingactive. PhoneAndroidindependent1 afterr4.
+SafeverifiedE33 4cf1355; archiveeaad189. E36threefailuresreviewcomplete;
+channelarchitecturefixeddiagnosticonlyconsole-r4run120105Z/auto120041Z
+opened/dev/consolefd0 (dynamicstdiofdsabsent). Exactfaultcaptured:
+Mesa base101cbc000, PC10247b2a8=>offset7bf2a8 fd_pipe_get_param, x0NULL,
+faultb8 ldr[x0,#b8]; LR70b648 fd_context_init immediatelyafterfd_pipe_new2NULL.
+ActualMesa screen+context need2pipes/queues; existinggeneralcdevsinglebool
+rejectssecondqueue. EvidenceE36-r4-fault.json andGPU_DEBUG_LOG. NoGPUdrawsent.
+R4Androidrecoveryverified1; nohardwareworker.
+
+Nowminimalgeneralcdevfix32logicalqueueIDs onexistingserializedsingleGPU
+context, onepriority, independentclosevalidity; defaultpreemptflagstill
+refusedMesa fallbacknormal. Actualhostrequires2queues andsubmit/wait2after
+close1PASS. Addedgeneralioctlrefusallogs. No GPUhardware/firmware/power/MMU/
+shadercodechanges. Newfullbuild exec6861 artifactdiagnostic-gpu-gl-queues-e37,
+loggpu/build-gl-queues-e37.log. Currentdynamicprogramrawlogs+signalhandler
+andindependentconsole preservedinnewroot. Needfullbuild/sourcebinding,
+thenoldmapped12control->runner0/Android1->oneactualGL13test. No blindretry.
+IfnextfailpreserveactualPC/APIlog beforehypothesis. MainHEAD/indexuntouched,
+noGitHubpush/no flash/erase/manualBootiOS. KeepworkinguntiluserSTOP.
+
+# Active E36 console-r4 after mandatory architecture reassessment
+
+Userexplicitresumeactive. Diag-r3run115710Z/auto115646Z gotsame3BO/noGPU,
+CPUhaltwithoutPID1panic (handlerlikelyhalted), butno rawfd1logs/PC. Android
+independent1 verified. After3failedE36experimentshardwarepausedforreview,
+recordedGPU_DEBUG_LOG. GPUcommandsneverreached: nojustifiedshader/powerfix.
+Reviewedactualrawsvcassemblycorrect, consolecnwriteconstty/kmrouting, both
+stdioandrawfd1silentafterdyld. NewhypothesisdiagnosticinheritedFDunreliable.
+
+Nowoneconsole-r4diagtest exec93146/auto20261101T120041Z active, artifact
+ diagnostic-gpu-gl-e36-console-r4, loggpu/auto-gl-e36-console-r4.log.
+OnlychangeprogramrawSYS_open5 /dev/console O_RDWR afterdyld; directloguses
+separateFD. Samekernel/Mesa/system/FW/staticecacheinit. GoalactualsignalPC
+fromexistinginstalledSIGSEGVhandler, notanotherGPUfix. Noconcurrentfastboot.
+Afterresultwaitrunner/autorecoverythenindependentAndroid1. Ifconsolefails,
+DO NOTrepeatconsolevariants: usekernelboundedtelemetryoractualUXexception
+instrumentation (sourcebsd/uxkern/ux_exception.c) tologbadaccessstate.
+Stockkcdata parserlocaltools/lldbmacros/kcdata.py couldalsoofflineparsestackshot.
+
+Signalcodeincludesdyldimagebases, PC/LR/SP/fault/x0..7; actualMesacodesection
+hashidenticalunstrippedbuild provenE36-diag-r3-symbols.json (headerhashdiff
+expectedstrip/installname). NormalizeaddresssubtractactualMesabase(symbol
+preferredTEXTva0). llvm-nm/objdump available. Preservefirstactualfailure;
+noGLhardwarecorrectnessyet. SafeverifiedE33 4cf1355, WIParchiveeaad189.
+NoGitHubpush/no flash/erase/manualBootiOS. UserkeepworkinguntilSTOP.
+
+# Active E36 diagnostic r3 — explicit user resume after STOP
+
+Latestuser«продолжай» revokespriorSTOP. Androidindependent1 verified.
+No speculativeGPUfix. Newdynamicprobe rawSYS_writeconsole, SIGSEGV/BUS
+sigaction/ucontextPC/LR/SP/fault/registers anddyldimagebase list. Samekernel/
+Mesa/system/FW/staticinitcacheenv ascache-r2. Artifactdiagnostic-gpu-gl-e36-diag-r3,
+exec61579/auto20261101T115646Z active. Loggpu/auto-gl-e36-diag-r3.log.
+No concurrentfastboot; waitrunner/autorecovery thenAndroidindependent1.
+ThirdE36hardwareattempt; afterresult MUSTreassessarchitecture beforemore
+hardware (useranti-looprule). GoalexactuserPC, notGLsuccessclaim.
+IftraceprintsPC normalizeactualMesaloadbase+preferredMachOtextvmaddr,
+symbolizeunstrippedxnu-deps/build/mesa/build-26.3.0-rc1-softpipe-freedreno/
+src/gallium/targets/osmesa/libOSMesa.8.dylib via llvm-symbolizer/objdump.
+Programsourceuserland/src/waffle_gl_probe.c; buildtoolbuild-waffle-gl-probe.py.
+PriorSIGSEGVafter3BO(16KiB,16KiB,4MiB), noGENERAL_SUBMIT ever. Originalfirst
+failurecachepathfixed. Normalstdiohadnooutput, rawloggingmustexplainphase.
+VerifiedE33 4cf1355 unchanged; archiveSTOPeaad189. NoGitHubpush/no flash/erase.
+
 # STOPPED — user low limits, Android restored; E36 general GL still failing before draw
 
 Latestuser «4 процента лимитов останавливайся потиху». STOP newwork/tests/builds

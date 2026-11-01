@@ -1,0 +1,16 @@
+{
+  "run": "work/waffle/runs/20261101T120105Z",
+  "base": "0x101cbc000",
+  "pc": "0x7bf2a8",
+  "lr": "0x70b648",
+  "fault": "0xb8",
+  "signal": 11,
+  "pc_symbol": "fd_pipe_get_param",
+  "caller": "fd_context_init",
+  "instruction": "ldr x8,[x0,#0xb8]",
+  "register_x0": "0",
+  "first_proven_fault": "NULL pipe dereference in actual Mesa context creation",
+  "causal_interface_gap": "current cdev allows single submitqueue; screen creates first, context needs second; second request refused",
+  "diagnostic_output_fix": "postdyld console opened atfd0; inherited0/1/2 missing",
+  "host_reproduction": "actualgeneralcdev singlebooleanrejectssecondqueue; modifiedtestrequiresid1/id2 andsubmit/waitid2 afterclose1"
+}
