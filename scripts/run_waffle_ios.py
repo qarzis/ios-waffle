@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run the experimental PJD110 RAM port after selecting Boot iOS in UEFI."""
 import argparse
+import json
 from datetime import datetime, timezone
 import os
 import re
@@ -9,6 +10,8 @@ import shutil
 import subprocess
 import sys
 import time
+import struct
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE_DIR = ROOT if (ROOT / "root.packfs").is_file() else ROOT / "work/waffle/images"
@@ -28,14 +31,40 @@ def result_from_log(data):
     return f"result: returned {match[1]} 0" if match else ""
 
 
-def validate_aop_owner_log(text, compute_mode=0):
+def extract_gpu_image(text, compute_mode):
+    blocks={}
+    for offset,values in re.findall(r"waffle-gmu: IMAGE pixels offset=(\d+) values=([0-9a-f]{8}(?:/[0-9a-f]{8}){7})",text):
+        offset=int(offset);pixels=[int(x,16) for x in values.split('/')]
+        if offset%8 or offset<0 or offset>248 or (offset in blocks and blocks[offset]!=pixels):
+            raise RuntimeError("Conflicting or invalid GPU image readback")
+        blocks[offset]=pixels
+    if set(blocks)!=set(range(0,256,8)):
+        raise RuntimeError("Incomplete GPU pixel readback")
+    pixels=[v for offset in range(0,256,8) for v in blocks[offset]]
+    expected=[(0xff000000|i) if compute_mode==2 else 0xdead0000+i for i in range(256)]
+    if pixels!=expected:raise RuntimeError("GPU pixel pattern did not match")
+    return pixels
+
+
+def write_gpu_png(path, pixels):
+    if len(pixels)!=256:raise RuntimeError("Expected 16x16 GPU image")
+    rgba=b''.join(word.to_bytes(4,'little') for word in pixels)
+    raw=b''.join(b'\0'+rgba[y*64:(y+1)*64] for y in range(16))
+    def chunk(name,data):
+        return struct.pack('>I',len(data))+name+data+struct.pack('>I',zlib.crc32(name+data)&0xffffffff)
+    path.write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',16,16,8,6,0,0,0))+
+                     chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))
+
+
+def validate_aop_owner_log(text, compute_mode=0, image=False):
     """Require actual GPU results and child-first teardown for the owned path."""
     markers=[
         "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
         "full GPU owner returned live to init caller; no mutex held",
     ]
     if compute_mode:
-        values="/".join(f"{i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
+        values="/".join(f"{(0xff000000|i) if image and compute_mode==2 else i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
+        if image:markers += [f"IMAGE begin width=16 height=16 pixels=256 dispatch={int(compute_mode==2)}"]
         markers += [f"COMPUTE begin mode={compute_mode} dispatch={int(compute_mode==2)} words=184 output_poison=1",
             "COMPUTE_IB ACK matched seq44 value=00000000 valid=1",
             f"COMPUTE values={values} control=00000001 checked=4096 wrong_words=0 mode={compute_mode}",
@@ -54,6 +83,7 @@ def validate_aop_owner_log(text, compute_mode=0):
     positions=[text.find(marker) for marker in markers]
     if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
         raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
+    return extract_gpu_image(text,compute_mode) if image else None
 
 
 def main():
@@ -70,6 +100,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-image",action="store_true",help="E22: compute-generated16x16 offscreen pixels; requires compute")
     parser.add_argument("--gpu-compute",type=int,choices=(1,2),help="E21: 1=state/control without dispatch; 2=eight-thread compute shader")
     parser.add_argument("--gpu-dynamic-bo",action="store_true",help="E20: allocate/map/bind test BO after GPU startup; requires session")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
@@ -89,6 +120,8 @@ def main():
         parser.error("--gpu-writeback requires --gpu-zap")
     if args.gpu_ib and not args.gpu_writeback:
         parser.error("--gpu-ib requires --gpu-writeback")
+    if args.gpu_image and not args.gpu_compute:
+        parser.error("--gpu-image requires --gpu-compute")
     if args.gpu_compute and not args.gpu_dynamic_bo:
         parser.error("--gpu-compute requires --gpu-dynamic-bo")
     if args.gpu_dynamic_bo and not args.gpu_session:
@@ -142,6 +175,8 @@ def main():
         arguments += " waffle_dynamic_bo=1"
     if args.gpu_compute:
         arguments += f" waffle_compute={args.gpu_compute}"
+    if args.gpu_image:
+        arguments += " waffle_image=1"
     payload = out / "payload.xnup"
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
@@ -179,6 +214,7 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            image_pixels=None
             if args.gpu_session and not args.gpu_compute and not all(marker in final_text for marker in (
                     "SESSION OOB ownership transferred; init returned with GX retained",
                     "SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session",
@@ -240,7 +276,7 @@ def main():
             if "waffle-gmu: REBOOT REQUIRED" in final_text:
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
-                validate_aop_owner_log(final_text, args.gpu_compute or 0)
+                image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, args.gpu_image)
             elif args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
                     f"AOP channel{args.gpu_probe} result=0 channel=ffff0000 ack=ffff0000 link=0000ffff linkack=0000ffff",
                     f"AOP channel{args.gpu_probe} cleanup complete")):
@@ -419,6 +455,11 @@ def main():
                 raise RuntimeError(f"Native BCL feature not enabled; logs: {out}")
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
+            if args.gpu_image and args.gpu_compute==2:
+                if image_pixels is None:raise RuntimeError("No GPU pixels validated")
+                write_gpu_png(out/"first-gpu-frame.png",image_pixels)
+                (out/"gpu-pixels.json").write_text(json.dumps({'width':16,'height':16,'rgba_words':image_pixels,'source':'actual kernel GPU readback'},indent=2)+"\n")
+                print(f"GPU image: {out/'first-gpu-frame.png'}",flush=True)
             return
         if not args.gpu_probe and (sequence in (2, 6, 9, 11) or (args.seconds > 60 and sequence % 6 == 0)):
             command("oem", "screenshot")

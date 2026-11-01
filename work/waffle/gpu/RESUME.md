@@ -1,3 +1,48 @@
+# Current: E22 hardware PASS — first offscreen GPU image
+
+GPU produced a 16×16 RGBA red ramp under XNU on Adreno750. Dispatch run
+20261101T070518Z / auto070455Z: 256 actual pixels verified, control1,
+4096 words checked / wrong0; full teardown and independent ADB Android1.
+Prepare control kept all256 poison pixels; default93 passed. Evidence:
+forensic-audit/E22-result.json; runs/20261101T070518Z/first-gpu-frame.png
+and gpu-pixels.json. Image is compute output in memory, not screen output.
+Arbitrary image upload/copy and display presentation are next unverified steps.
+No production GPU service, rasterization or iOS acceleration claim.
+Source/artifact: diagnostic-gpu-image-e22; scoped image payload and readback,
+all power/security/mapping/teardown unchanged. No further hardware test active.
+Phone returned to Android. RAM-only; no flash/erase.
+GitHub task complete: b4fe8be on qarzis/ios-waffle default waffle/gpu-bringup
+contains E21. User resumed GPU work; do not publish again unless requested.
+
+Older chronological notes below are historical and superseded by this entry.
+
+# E22 built; first16x16offscreen GPUimage controls running
+
+GitHubpublicationCOMPLETE b4fe8be89a6756dd142cb44e6eb0b8079fef2864 at
+qarzis/ios-waffle defaultwaffle/gpu-bringup, remoteSHAconfirmed. Userasked
+finishGitHubandreturnGPU. LastHARDWAREverifiedE21 8a9c156, actual8thread
+shader0..7/all4096wrong0/fullstop/Android1. KeepverifiedrefthereuntilE22pass.
+
+E22newimagepath:256threadIR3computesRGBA0xff000000|localID ->16x16redramp.
+SameMesaA7xx184word/73reg/zeroprotectconflicts; outputBOoffset3000..3400
+instead100..120, samealreadyverified16KiBdynamicallocation/power/AOP/SMMU.
+Newwaffle_image1requirescompute1/2+94dynamicfullchain; allrunners/loadergate.
+Sharedcomputehelperselectspayload/expected andchecks4096words; imageoutputs
+256wordsdumped32blocksof8actualvolatileGPUreadback. StrictPythonextractor
+rejectsincomplete/conflictingwrongpixels; standardPNGwriterlosslesslyserializes
+ONLYactualvalidatedloggedpixels. NoPillowdependency. Hostincludesall14*2
+submitprepare/dispatchfailurecases, SHA/program/descriptor/PTErangeaudit,
+256poisonpixels/duplicates/missingreadback +PNGCRC/decompressiondataidentity.
+Allfullhost/XNU/EFI/container/sourcebindingPASS diagnostic-gpu-image-e22.
+NoE22hardwareoutcomeyet. Currentexecsession70903 auto93control log
+work/waffle/gpu/auto-image-e22-control.log. PhonewasADB/Android1confirmed.
+After93PASS/Android1 run --fullchain --dynamic-bo --compute prepare --image;
+ONLYafterPASS/Android1 run --compute dispatch --image. Preservemode1reports
+beforemode2overwritehardware-result94. Savefirst-gpu-frame.png/gpu-pixels.json
+fromactualrunonly. NoimageorUIaccelerationclaimuntilhardwarepasses.
+E22runtimeuncommittedpendinghardware; E22-scope-audit.json records unchanged
+power/AOP/boot/security/dynamicmapping/stop. Neverflash; autoUEFI RAMonly.
+
 # E21 PASS — FIRST REAL COMPUTE SHADER on Adreno750/XNU; publishing at user request
 
 LastverifiedE21runtime source+logs nowcheckpointed. Control93 run20261031T212802Z

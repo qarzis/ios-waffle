@@ -19,6 +19,7 @@
 #include <sys/waffle_zap_load.h>
 #include <sys/waffle_gpu_writeback.h>
 #include <sys/waffle_gpu_compute.h>
+#include <sys/waffle_gpu_image.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
@@ -1941,32 +1942,40 @@ static bool submit_session_submit(struct waffle_submit_session *s)
     s->completed=fence;s->phase=SUBMIT_READY;
     return true;
 }
-static bool submit_session_compute(struct waffle_submit_session *s,unsigned mode)
+static bool submit_session_compute(struct waffle_submit_session *s,unsigned mode,bool image)
 {
     if(!s || (mode!=1 && mode!=2) || s->phase!=SUBMIT_READY || !s->owns_oob ||
         s->submitted || s->completed || s->next_sequence!=44 ||
         s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024 ||
         rd(s->gpu,0xf400*4) || (rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3))return false;
+    _Static_assert(WAFFLE_IMAGE_WORDS==WAFFLE_COMPUTE_WORDS,"image command layout changed");
+    uint32_t (*initial)(unsigned,unsigned)=image?waffle_image_initial:waffle_compute_initial;
+    uint32_t (*expected)(unsigned,unsigned)=image?waffle_image_expected:waffle_compute_expected;
+    unsigned first=image?3072:64,pixels=image?256:8;
     volatile uint32_t *out=(volatile uint32_t *)s->alias;
-    for(unsigned i=0;i<4096;i++)out[i]=waffle_compute_initial(mode,i);
+    for(unsigned i=0;i<4096;i++)out[i]=initial(mode,i);
     __asm__ volatile("dsb sy":::"memory");
-    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_compute_initial(mode,i))return false;
+    for(unsigned i=0;i<4096;i++)if(out[i]!=initial(mode,i))return false;
+    if(image)say("waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=%u\n",mode==2);
     say("waffle-gmu: COMPUTE begin mode=%u dispatch=%u words=%u output_poison=1\n",mode,mode==2,WAFFLE_COMPUTE_WORDS);
     if(!submit_session_exchange(s,WAFFLE_COMPUTE_WORDS,"COMPUTE_IB"))return false;
     for(unsigned attempt=0;attempt<2000;attempt++) {
         __asm__ volatile("dsb sy":::"memory");
         bool seen=out[2048]==1;
-        if(mode==2)for(unsigned i=0;i<8;i++)if(out[64+i]!=i)seen=false;
+        if(mode==2)for(unsigned i=0;i<pixels;i++)if(out[first+i]!=expected(mode,first+i))seen=false;
         if(seen)break;
         delay_for_interval(100,NSEC_PER_USEC);
     }
     unsigned wrong=0;
-    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_compute_expected(mode,i)) {
-        if(!wrong)say("waffle-gmu: COMPUTE mismatch mode=%u index=%u got=%08x expected=%08x\n",mode,i,out[i],waffle_compute_expected(mode,i));
+    for(unsigned i=0;i<4096;i++)if(out[i]!=expected(mode,i)) {
+        if(!wrong)say("waffle-gmu: COMPUTE mismatch mode=%u index=%u got=%08x expected=%08x\n",mode,i,out[i],expected(mode,i));
         ++wrong;
     }
     say("waffle-gmu: COMPUTE values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x control=%08x checked=4096 wrong_words=%u mode=%u\n",
-        out[64],out[65],out[66],out[67],out[68],out[69],out[70],out[71],out[2048],wrong,mode);
+        out[first],out[first+1],out[first+2],out[first+3],out[first+4],out[first+5],out[first+6],out[first+7],out[2048],wrong,mode);
+    if(image)for(unsigned i=0;i<256;i+=8)
+        say("waffle-gmu: IMAGE pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,
+            out[first+i],out[first+i+1],out[first+i+2],out[first+i+3],out[first+i+4],out[first+i+5],out[first+i+6],out[first+i+7]);
     if(wrong){s->phase=SUBMIT_POISONED;return false;}
     s->completed=s->submitted;s->phase=SUBMIT_READY;
     return true;
@@ -1975,7 +1984,7 @@ static bool submit_session_run(struct waffle_gmu_plan *plan)
 {
     struct waffle_submit_session *s=plan->submit_session;
     if(plan->compute_mode) {
-        if(!submit_session_compute(s,plan->compute_mode))return false;
+        if(!submit_session_compute(s,plan->compute_mode,plan->compute_image!=0))return false;
     } else for(unsigned i=0;i<3;++i) {
         if(!submit_session_submit(s))return false;
         if(i<2)delay_for_interval(1000000,NSEC_PER_USEC);

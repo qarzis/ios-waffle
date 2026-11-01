@@ -1,0 +1,14 @@
+{
+  "experiment": "E22 image preparation without dispatch",
+  "run": "work/waffle/runs/20261101T070350Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T070326Z",
+  "dispatch_sent": false,
+  "all_256_output_words_still_poisoned": true,
+  "control_fence": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "android_confirmed": true,
+  "runner_exit": 0,
+  "log_sha256": "a7e0c859430f0ee93196e0feb739a72d7248f0cf13c0ce4adafac58fced8b448"
+}

@@ -377,3 +377,21 @@ E21 prepare94mode1 hardwarePASS run20261031T212939Z/auto212916Z. Actual184wordMe
 ## E21 hardware PASS — first actual A750 compute shader under XNU
 
 Default93control212802Z passed. Preparemode1 run212939Z/auto212916Z acceptedMesa184wordstate/preload/fence withEXEConlyNOP; output8wordsremainedpoison/control1/all4096wrong0. Dispatchmode2 run20261031T213222Z/auto213158Z samekernel/originalEXEC: actualSPshaderwrotelocalinvocationIDs0..7 from8threads toSSBO, control1/all4096wordswrong0. ACK44/slumber45/fullGMU/SMMU/PLL/clock/CX/AOPshutdown, runner0/autosuccess/independentAndroid1, no900e. Thisisfirstshaderexecution, notanimage/onscreen/iOSacceleration claim. Savedbothprepare/dispatchreports. Nextoffscreen16x16shaderpattern notimplemented; ramp256assemblyofflinecandidateexistsbutnotinhardware. UserrequestedGitHubsave/push now; stopnewGPUchangesandpublishverifiedE21.
+
+Publicationcompleted atuserrequest: verifiedE21source/evidence pushedqarzis/ios-waffle defaultwaffle/gpu-bringup b4fe8be89a6756dd142cb44e6eb0b8079fef2864; remoteSHAconfirmed, compactGPUtableupdated. UserexplicitlyresumedGPUwork.
+
+## E22 plan — first compute-generated offscreen16x16 image
+
+VerifiedE21shader8results8a9c156 preserved. Use sameMesaA7xxemitter/owned16KiBdynamicBO andexistingcomputeprepare/dispatch modes, optionalwaffle_image=1 requiringcompute+fullchain. NewIR3shader256threads computesRGBAword0xff000000|localID, stores256pixels (16x16redramp). OutputBOmovesfromoffset100to3000..3400 (fitsmapped4thpage, avoidscommand400 overlap); control2000/shader1000/UAV1100 unchanged. Twohardwarechecks: imageprepare keeps256poison/control1, thenimagedispatch all256actualSPpixels; bothverifyall4096words/guards/fullshutdown. DumpactualGPUreadbackwordsfromkernel andserializeONLYthosewordstoPNG; noCPUexpectedpixelimagefabrication. No rasterization/iOSGPUclaim. KeepE21defaultbehaviorandallpower/SMMUcodeunchanged. NoE22hardwareyet.
+
+E22implementation fullhostprepPASS: actualMesaA7xximageemission184words/73regs/zeroCPprotectconflicts, source-bound128byte256threadIR3shader. Outputoffset3000size400vsold100size20, all4mappedpagesunchanged. Sharedcomputehelperselectsinitial/expectedimagepayloadand256readbackwords, stillverifies4096; actualGPUwordsdumped32blocksof8. Strictextractorrequirescompleteconsistent256words +expectedpattern, PNGwriterlosslesslyserializesloggedactualRGBAwordsusingstdlibchunks. Hostchecks256poison/allprepare-dispatchfailurecases, missing/conflictingpixels, sourceSHA, PNGCRC/decompressionexactdata. Allpower/clock/AOP/GPUboot/stop/dynamicmapping codeunchanged; onlynewexactwaffle_image1flagrequirescomputechain. Fullbuildnext, noE22hardwareyet.
+
+E22 fullhost/XNU/EFI/container/currentcompiledsourcebinding PASS. BothimageflagmisusecasesrefusedbeforeUSB. RAMimageprepared; first93defaultcontrolthenimageprepare/dispatchonlyaftereachPASSandAndroid1. NoE22hardwareyet.
+
+E22 default93control PASS run20261101T070225Z/auto070201Z ACCESS27/alloc8/LPAC42/noRAW/fullshutdown/AOPrestore; runner0/Android1. Nextimageprepare with256poisonwords, EXECNOP.
+
+E22 imageprepare94mode1 PASS run20261101T070350Z/auto070326Z: actualimagebufferdescriptor/state/preload/184wordIB, EXECNOP; all256outputwordsstillpoison, control1/all4096wrong0, fullstop/runner0/independentAndroid1/no900e. Nextsamekernelimage-dispatch withactual256threadshader. Savedprepare-reportbeforeoverwrite.
+
+## E22 hardware PASS — first compute-generated 16×16 image
+
+Control93 run20261101T070225Z and prepare94mode1 run070350Z passed. Dispatch94mode2 run20261101T070518Z / auto070455Z: all256 actual shader-written RGBA pixels match 0xff000000|localID, control1, all4096 words checked / wrong0. ACK44, stop45, complete GMU/SMMU/clock/CX/AOP teardown; runner0, automatic Android return and independent ADB sys.boot_completed=1. Strict readback parser revalidated the saved kernel log. PNG and pixel JSON are serialized actual GPU readback, with hashes in E22-result.json. No new900e observed. This proves an offscreen compute image only; arbitrary image upload, display presentation, rasterization and iOS acceleration remain unverified. Hypothesis confirmed; no repeat needed. Next blocker is input-image upload/copy and display presentation, followed by production submission/fences and iOS integration. GitHub E21 publication already finished at b4fe8be; no new push requested.

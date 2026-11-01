@@ -23,8 +23,8 @@ static recorded_bo *record(fd_bo *bo)
 extern "C" fd_bo *__wrap__fd_bo_new(fd_device *dev,uint32_t size,uint32_t flags)
 {
     assert(!dev && count<4);
-    static const unsigned offsets[]={0x2000,0x1000,0x100,0x1100};
-    static const unsigned capacities[]={0x1000,0x100,0x20,0x100};
+    const unsigned offsets[]={0x2000,0x1000,size==1024?0x3000u:0x100u,0x1100};
+    static const unsigned capacities[]={0x1000,0x100,0x400,0x100};
     assert(size && size<=capacities[count]);
     auto *r=&bos[count];r->offset=offsets[count];
     r->bo.size=size;r->bo.alloc_flags=flags;r->bo.refcnt=1;
@@ -71,11 +71,11 @@ int main(int argc,char **argv)
     backend *b=a6xx_init<A7XX>(nullptr,&id);assert(b);
     FILE *input=std::fopen(argv[1],"r");assert(input);
     kernel *k=b->assemble(b,input);std::fclose(input);assert(k && count==2);
-    assert(k->num_bufs==1 && k->buf_sizes[0]==8);
-    assert(k->local_size[0]==8 && k->local_size[1]==1 && k->local_size[2]==1);
+    assert(k->num_bufs==1 && (k->buf_sizes[0]==8 || k->buf_sizes[0]==256));
+    assert(k->local_size[0]==k->buf_sizes[0] && k->local_size[1]==1 && k->local_size[2]==1);
     auto *ir=to_ir3_kernel(k);assert(!ir->v->pvtmem_size && !ir->v->shared_size);
-    k->bufs[0]=fd_bo_new(nullptr,32,0,"output");
-    for(unsigned i=0;i<8;i++)((uint32_t *)k->bufs[0]->map)[i]=0xdead0000u+i;
+    k->bufs[0]=fd_bo_new(nullptr,k->buf_sizes[0]*4,0,"output");
+    for(unsigned i=0;i<k->buf_sizes[0];i++)((uint32_t *)k->bufs[0]->map)[i]=0xdead0000u+i;
     uint32_t grid[3]={1,1,1};b->emit_grid(k,grid,(fd_submit *)1);
     size_t words=ring.cur-ring.start;assert(count==4 && words && words*4<=0xc00);
     std::memcpy(arena+0x400,commands,words*4);

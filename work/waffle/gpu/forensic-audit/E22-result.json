@@ -1,0 +1,28 @@
+{
+  "experiment": "E22 first compute-generated offscreen image",
+  "run": "work/waffle/runs/20261101T070518Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T070455Z",
+  "hardware_tested": true,
+  "dispatch_sent": true,
+  "dimensions": [
+    16,
+    16
+  ],
+  "actual_pixels_verified": 256,
+  "format": "RGBA8 little-endian uint32",
+  "pattern": "0xff000000 | local_invocation_id",
+  "control_fence": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb_boot_completed": "1",
+  "onscreen_tested": false,
+  "ios_acceleration": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T070518Z/kernel-final.log": "a3ec354b308ccdcb6791c18ae1b306fad349b41b1c55f3e382e411f603c43660",
+    "work/waffle/runs/20261101T070518Z/gpu-pixels.json": "f4953478f6fe9e07dc915f1048ca8d2918c81abdcc60494c3a447ad98fc53a81",
+    "work/waffle/runs/20261101T070518Z/first-gpu-frame.png": "891240ac95b85475e655a2ba6f24190382b809c1f9438c3859c7550e85b75e54"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "experiment": "E22",
+  "base": "8a9c156e894ecb12a3c6262a72f9c9dce0e84252",
+  "scope": "256-thread image payload and generic compute readback selection; extra exact gated image flag",
+  "all_board_aop_clock_power_and_gmu_boot_security_stop_unchanged": true,
+  "smmu_dynamic_mapping_teardown_unchanged": true,
+  "gpu_virtual_allocation_unchanged": "same 16KiB post-bootstrap BO",
+  "image_output_offset": 12288,
+  "image_bytes": 1024,
+  "dimensions": [
+    16,
+    16
+  ],
+  "shader": "RGBAword0xff000000|localID",
+  "command_dwords": 184,
+  "protected_register_conflicts": 0,
+  "prepare_and_dispatch_controls": true,
+  "pixels_exported_only_from_actual_logged_readback": true,
+  "hardware_tested": false
+}

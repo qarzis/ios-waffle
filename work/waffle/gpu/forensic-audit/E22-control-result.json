@@ -1,0 +1,13 @@
+{
+  "experiment": "E22 default control",
+  "run": "work/waffle/runs/20261101T070225Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T070201Z",
+  "access_checks": 27,
+  "hfi_allocations": 8,
+  "lpac_translations": 42,
+  "no_cp_raw": true,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "b6cf39dc5e9a2adcf66df7d92c5e1c8f62224f027e837eefd3495a8e198dc61d"
+}
