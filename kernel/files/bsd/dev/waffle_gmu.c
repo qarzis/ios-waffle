@@ -2193,12 +2193,6 @@ bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *owner,struct waffle_gpu_b
 }
 /* General root command submission, still gated off until its client backend
  * is complete. Caller owns BO registry, stable command storage and serialization. */
-static uint64_t general_profile_us(void)
-{
-    uint64_t ticks,nanos;
-    clock_get_uptime(&ticks);absolutetime_to_nanoseconds(ticks,&nanos);
-    return nanos/1000;
-}
 bool waffle_gmu_owner_submit(struct waffle_gmu_owner *owner,struct waffle_gpu_submit_job *job)
 {
     if(job)job->fence=0;
@@ -2206,9 +2200,6 @@ bool waffle_gmu_owner_submit(struct waffle_gmu_owner *owner,struct waffle_gpu_su
        !job->count || job->count>WAFFLE_GPU_SUBMIT_COMMANDS || !waffle_gmu_owner_memory_idle(owner))return false;
     struct waffle_submit_session *s=owner->plan->submit_session;
     if(s->submitted==UINT32_MAX || s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024)return false;
-    bool profile=s->submitted<16 || !((s->submitted+1)%128);
-    uint64_t ticks[8]={0};
-    if(profile)ticks[0]=general_profile_us();
     uint32_t commands[WAFFLE_GPU_SUBMIT_WORDS];unsigned words=0;
     for(unsigned c=0;c<job->count;c++){
         const struct waffle_gpu_command *command=&job->commands[c];
@@ -2219,35 +2210,24 @@ bool waffle_gmu_owner_submit(struct waffle_gmu_owner *owner,struct waffle_gpu_su
     unsigned fence=s->submitted+1,sequence=s->next_sequence;
     uint64_t result_va=s->ib_va-1024+8192;
     volatile uint32_t *out=(volatile uint32_t *)s->alias;
-    if(profile)ticks[1]=general_profile_us();
-    waffle_gpu_submit_stage(out,words,commands,fence,result_va);
+    for(unsigned i=0;i<4096;i++)out[i]=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false);
     __asm__ volatile("dsb sy":::"memory");
-    if(profile)ticks[2]=general_profile_us();
-    if(waffle_gpu_submit_check(out,words,commands,fence,result_va,false).wrong)return false;
-    if(profile)ticks[3]=general_profile_us();
+    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false))return false;
     say("waffle-gmu: GENERAL_SUBMIT begin fence=%u seq=%u root_words=%u kernel_tail=15 extra_IB_depth=0\n",fence,sequence,words);
     if(!submit_session_exchange(s,words+WAFFLE_GPU_SUBMIT_TAIL_WORDS,"GENERAL_IB")){owner->exercise_ok=false;return false;}
-    if(profile)ticks[4]=general_profile_us();
     for(unsigned attempt=0;attempt<2000;attempt++){
         __asm__ volatile("dsb sy":::"memory");
         if(out[2048]==fence)break;
         delay_for_interval(100,NSEC_PER_USEC);
     }
-    if(profile)ticks[5]=general_profile_us();
-    struct waffle_gpu_submit_check_result checked=waffle_gpu_submit_check(out,words,commands,fence,result_va,true);
-    if(profile)ticks[6]=general_profile_us();
-    if(checked.wrong){
-        say("waffle-gmu: GENERAL_SUBMIT mismatch index=%u got=%08x expected=%08x\n",checked.first,checked.got,checked.expected);
-        s->phase=SUBMIT_POISONED;owner->exercise_ok=false;return false;
+    unsigned wrong=0;
+    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,true)){
+        if(!wrong)say("waffle-gmu: GENERAL_SUBMIT mismatch index=%u got=%08x expected=%08x\n",i,out[i],waffle_gpu_submit_initial(i,words,commands,fence,result_va,true));
+        wrong++;
     }
+    if(wrong){s->phase=SUBMIT_POISONED;owner->exercise_ok=false;return false;}
     s->completed=s->submitted;s->phase=SUBMIT_READY;job->fence=fence;
     say("waffle-gmu: GENERAL_SUBMIT done fence=%u seq=%u control=%08x checked=4096 wrong_words=0\n",fence,sequence,out[2048]);
-    if(profile){
-        ticks[7]=general_profile_us();
-        say("waffle-gmu: GENERAL_PROFILE fence=%u snapshot_us=%llu stage_us=%llu preverify_us=%llu exchange_us=%llu fence_wait_us=%llu postverify_us=%llu finish_us=%llu\n",fence,
-            ticks[1]-ticks[0],ticks[2]-ticks[1],ticks[3]-ticks[2],ticks[4]-ticks[3],
-            ticks[5]-ticks[4],ticks[6]-ticks[5],ticks[7]-ticks[6]);
-    }
     return true;
 }
 

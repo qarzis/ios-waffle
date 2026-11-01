@@ -1,3 +1,79 @@
+# FINAL SAVE: PUBLIC 76d988679f89c59e47668d4cf4fa2231ca84f407 — STOPPED, phone Android1, laptop shutdown requested
+
+Publicpush+remoteverificationcomplete; runtimeE63scalarrestored, noactiveGPUtest.
+DO NOT resume hardware until user says continue. See latest section below.
+
+# STOPPED 2026-11-01 23:06+ UTC — user requested last test then laptop poweroff
+
+NO MORE PHONE TESTS until explicit resume. User said lasttestandall, then asked
+laptop shutdown. Last E66 finished strictcorrectness/runner0/autosuccess, Android
+independently1. Phone left ordinary Android. Save+publish completed before shutdown.
+
+Current runtime sources restored BYTE-FOR-BYTE to hardware-qualified E63
+waffle_gmu.c/waffle_gpu_submit.h after failed performance experiments. Queue and
+BO generation fixes RETAINED. E64stagingremoved, E66wide accessremoved, E65sample
+profilingremoved. Offline actualsubmit/10000fence regressionsPASS afterrestore.
+PreparedXNUsource files restored with NEW mtimes to force next rebuild. Existing
+builtkernel/object/loaderglobalMu binaries remain E66 until rebuild; do NOT claim
+source/binarymatch. Reuse existing diagnostic-gpu-queue-generations-e63 or rebuild
+via tools/build-waffle-diagnostic.py before new boot. NOnewhardwareafterlasttest.
+
+Verified E63 queue hardware run223047Z/auto223023Z:100queueNEW/CLOSE, new3171,
+stale3 SUBMIT EINVAL BEFOREGPU;9000BOcycles/4GPUwritebackwords/256correctGLpixels,
+3fences/9023BO=9001early+22stop/fullclose1/Android1. DedicatedqueueproofPASS,
+outerrunner1rollingBOpublicationgapretained. E63-result.json. Currentcdev now
+32liveslots withgenerationIDs, default0 valid, staleSUBMIT/WAIT/QUERY/CLOSErefused,
+wrapquarantine. Actualcdev100000cyclesmodelPASS; historical32cumulativenegative
+pinnedfixture. CoreGPUpower/firmware/SMMU/BOlimitsunchanged.
+
+E62 ten-minute UI run221345Z/auto221321Z complete:600s stop/1670contiguousGPUfences,
+1349BO=413early+936stop/fullclose1/Android1. Mostlyidle desktop+clockupdates,
+NOTcontinuousrenderingstress/FPS. NativeGOP60icons/Calendartextinspected;590saved.
+Strict allBOlifetime+generationproof PASS inliteralfirst-observed journal. FullUI
+prooffailsONLYmissingdisplayworker-surfacelog; outerrunner1startupDynamicBOgap
+kept. E62-result.json. Optional660soakloaderpolicy/buildflag validated; normal
+300/60 limitsunchanged. E63images builtsoak-capable. No indefiniteGPUclaimyet.
+
+FPS peruserpriority now focus after next resume:
+E64 direct750x1624noninverted240frames:292,320,000pixelscorrect/482GPUfences,
+strictGL+fullcleanup/runner0/Android1. Warm40excludedmedian4110us/p954174.
+E64packedRAMstaging sameprogram/kernel/fw:median5173.5us/p955238,+25.9%slower,
+allpixelscorrect. HypothesisREFUTED, code+flagREMOVED; doNOTrepeatwithoutnewdata.
+E65 selectedkernelphaseprofiling sameuserland:median4103us/p954156, strictGLPASS,
+19samples(first16+128/256/384),preverify65/postverify66usmedian,exchange500us;
+fullbufferops~24.7%sampledsubmit (~23.6%only3warm-samples),notdominantwholeframe.
+E66 aligned64bit access/full4096wordchecks: median4144us/p954204 vs4103 old,
++1.0%latency/no gain; pre/post78/78us (worse), all292,320,000pixels/482GPUtokens/
+strictGL/fullcleanup/runner0/Android1. LASTrun20261101T230339Z auto230315Z.
+Source/runtime64bitcandidateREVERTED. TwoFPSexperimentsnotqualified; don'tclaim
+UIFPSimproved. E64/E66-comparison.json plusrawfinals/reports saved. Rejectedwide
+header kept onlytools/tests/fixtures/waffle-submit-wide-rejected.h; researchtest
+loadsfixture, NOTcurrentruntime. Archivee8077ab174c20290c137b535dce6314dfe1eea9c
+preservesexactrejectedruntime/profilebeforewithdrawal. Earliera458777 preserves
+E64stagingbeforewithdrawal. No moretests tonight peruser.
+
+Benchmark tools: build-waffle-gl-probe.py --readback-benchmark --batch-readback
+--profile-readback generates240alternatingfull-frameoffscreen actualEAGLhook /
+inverted0. Everypixelchecked; timingexcludesCPUreference. NOTpanelFPS. Exact
+qualifiedreference root/hook/program in diagnostic-e64-direct-baseline/gl-probe
+reusedE65/E66; byteidenticaluserland. Sourcehistoricalhashes preserved inartifact.
+Analyzers analyze-waffle-readback-benchmark.py and analyze-waffle-submit-profile.py;
+accept numbered snapshots or standalone final. Strictprofilingparser+frameproof
+negativefixturesPASS. Architecture nextlikelyCPUreadback/displaypath, notblind
+resourcegrowth. MiniIOSurfacedefaultmemorycached; don'tclaimWCsurfacewithoutproof.
+GeneralGPU BOmapsAREWC. GeneralshimdoesnotimplementIOSurface0x7e, causingCPU
+readbackbridge. ExistingMiniIOSurfaceCopy/memory/client/planes +MacanGPU.cpp
+surfaceBuffer canbeauditedforfutureexplicitownership/cache/stride/fenceadapter;
+nozero-copyimplementationstarted. Preserveall4096guards unlessnewproveddesign.
+
+PublicGitHub last verified935f8c304f15e32a8a348a62f4ae67e1fae2fb47 (E60runtime+
+10minuteE62report/shortREADMErow). FinalcuratedE63+negativeFPSreport update may
+follow below before shutdown. MainHEAD/index untouched; archives alternateindex
+explicitpaths only. UseralsoaskedlaterMetalport; existingread-onlyaudit and259
+fakehosttestspassed butnoMetalA750hardware. Fullnotes below historical.
+
+--- Earlier state superseded by STOP/latest section above ---
+
 # E62-r2 ten-minute UI ACTIVE; E60 BO generation reuse now wired and hardware checked
 
 Latest user: continue GPU until continuous, FPS optimization, later hakios-metal,

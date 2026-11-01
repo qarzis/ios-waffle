@@ -21,6 +21,7 @@ def main():
         spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
     collector=module('collector',ROOT/'tools/collect-waffle-ui-evidence.py');runner=module('runner',ROOT/'scripts/run_waffle_ios.py')
     paths=sorted((x for x in args.run.glob('kernel-*.log') if re.fullmatch(r'kernel-\d+\.log',x.name)),key=lambda x:int(x.stem.split('-')[1]))
+    if not paths and (args.run/'kernel-final.log').is_file():paths=[args.run/'kernel-final.log']
     text,sources=collector.collect(paths);runner.validate_gl_log(text);fences=runner.gl_completed_fences(text);values=samples(text,fences)
     rows=[dict(fence=fence,**dict(zip((name+'_us' for name in FIELDS),value))) for fence,value in sorted(values.items())]
     totals={}

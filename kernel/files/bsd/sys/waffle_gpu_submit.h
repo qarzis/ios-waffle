@@ -59,42 +59,4 @@ static inline uint32_t waffle_gpu_submit_initial(unsigned index,uint32_t command
   return waffle_gpu_submit_tail(index-256-command_words,fence,result_va);
  return 0xc0e00000u^index;
 }
-/* The private BO uses Normal-WC memory, not device registers. Preserve every
- * DWORD and guard while reducing uncached accesses on little-endian ARM64.
- * may_alias makes the byte-storage view explicit; retain scalar alignment
- * fallback for callers whose pointer is only DWORD aligned. */
-typedef uint64_t waffle_gpu_submit_pair __attribute__((__may_alias__));
-struct waffle_gpu_submit_check_result {unsigned wrong,first;uint32_t got,expected;};
-static inline void waffle_gpu_submit_stage(volatile uint32_t *out,unsigned words,
- const uint32_t *commands,uint32_t fence,uint64_t va)
-{
- if((uintptr_t)out&7){
-  for(unsigned i=0;i<4096;i++)out[i]=waffle_gpu_submit_initial(i,words,commands,fence,va,false);
-  return;
- }
- for(unsigned i=0;i<4096;i+=2){
-  uint64_t low=waffle_gpu_submit_initial(i,words,commands,fence,va,false);
-  uint64_t high=waffle_gpu_submit_initial(i+1,words,commands,fence,va,false);
-  ((volatile waffle_gpu_submit_pair *)out)[i/2]=low|(high<<32);
- }
-}
-static inline struct waffle_gpu_submit_check_result waffle_gpu_submit_check(
- const volatile uint32_t *out,unsigned words,const uint32_t *commands,
- uint32_t fence,uint64_t va,bool completed)
-{
- struct waffle_gpu_submit_check_result result={0,0,0,0};
- unsigned width=((uintptr_t)out&7)?1:2;
- for(unsigned i=0;i<4096;i+=width){
-  uint64_t value=width==1?out[i]:((const volatile waffle_gpu_submit_pair *)out)[i/2];
-  for(unsigned j=0;j<width;j++){
-   uint32_t got=(uint32_t)(value>>(j*32));
-   uint32_t expected=waffle_gpu_submit_initial(i+j,words,commands,fence,va,completed);
-   if(got!=expected){
-    if(!result.wrong){result.first=i+j;result.got=got;result.expected=expected;}
-    result.wrong++;
-   }
-  }
- }
- return result;
-}
 #endif

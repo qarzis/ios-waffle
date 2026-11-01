@@ -123,7 +123,6 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-queue-log-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-readback-benchmark-log-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-submit-profile-log-host.py"])
-    run([sys.executable, ROOT / "tools/tests/waffle-submit-width-candidate-host.py"])
     run([sys.executable, ROOT / "tools/build-waffle-gl-probe.py", "--output", output / "gl-probe"])
     run([sys.executable, ROOT / "tools/tests/waffle-compute-payload-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-image-host.py"])

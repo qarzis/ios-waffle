@@ -1,6 +1,6 @@
-"""Actual access width: byte-equivalent full4096-word guard coverage.
+"""Rejected E66 access width: preserved byte-equivalence forensic model.
 
-Uses synthetic command words and CPU memory. Actual current helpers; no hardware speed claim.
+Uses synthetic command words and CPU memory. Experimental fixture only; current runtime uses the qualified scalar path.
 """
 from pathlib import Path
 import subprocess,tempfile
@@ -52,7 +52,8 @@ int main(void){
 '''
 with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);(p/'test.c').write_text(code)
+ (p/'waffle_gpu_submit.h').write_text((root/'tools/tests/fixtures/waffle-submit-wide-rejected.h').read_text())
  subprocess.run(['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-fstrict-aliasing',
-  '-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+  '-fsanitize=address,undefined','-I',str(p),'-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('HOST actual width helpers:32/64bit paths initialize identical full16KiB incl guards; all4096 single-word corruptions and multiword faults return identical counts/first-index/actual/expected, before/after completion,4/8-byte alignment,1..1536rootwords/fenceUINTMAX. Explicit may_alias and unaligned32bit fallback. Runtime wired; no GPU/performance claim.')
+print('HOST rejected width fixture:32/64bit paths initialize identical full16KiB incl guards; all4096 single-word corruptions and multiword faults return identical counts/first-index/actual/expected, before/after completion,4/8-byte alignment,1..1536rootwords/fenceUINTMAX. Explicit may_alias and unaligned32bit fallback. Experimental fixture only; runtime restored to scalar after hardware showed no gain.')

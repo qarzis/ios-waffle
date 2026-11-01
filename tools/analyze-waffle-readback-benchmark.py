@@ -38,6 +38,7 @@ def main():
     collector=module('collector',ROOT/'tools/collect-waffle-ui-evidence.py')
     runner=module('runner',ROOT/'scripts/run_waffle_ios.py')
     paths=sorted((x for x in args.run.glob('kernel-*.log') if re.fullmatch(r'kernel-\d+\.log',x.name)),key=lambda x:int(x.stem.split('-')[1]))
+    if not paths and (args.run/'kernel-final.log').is_file():paths=[args.run/'kernel-final.log']
     text,sources=collector.collect(paths);values=frames(text)
     checked=runner.extract_gl_pixels(text);fences=runner.gl_completed_fences(text)
     if len(checked)!=256 or fences<240 or 'GENERAL close passed=1' not in text:
