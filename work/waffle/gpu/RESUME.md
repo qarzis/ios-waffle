@@ -1,3 +1,65 @@
+# Current E33 hardware PASS — direct user-mapped GPU BOs
+
+Explicituserinstructionkeepworking remainsactive. UseraskedwhenIOSGPU;
+answeredstatusincommentary andcontinueoriginalobjective. PhoneAndroid1,
+no activeworkers. E33run20261101T095309Z/auto095246Z PASS: realIOKitC++
+physicaldescriptor/taskuniqueWCOMBmaps ofownedcommand/dataBOs,11maps/revokes,
+userfillsdirectlythroughactualMesa shimredwood_drm_map, allmapsrevokedbefore
+commandvalidation/GPUpublish, readonlymappedoutputafterGPUcompletion.
+3realGPUfences/768correctpixels/24576twoBOcheckswrong0/negative7, zero
+successfulbulk16384upload/downloadcopies, fullstop47/contextnull/runner0/
+autosuccess/independentAndroid1. StrictmappedparserPASS, actual3readbacks/PNGs
+inruns/20261101T095309Z/gpu-mapped-*. OldMSM11control095152Z/auto095128ZPASS.
+Artifactdiagnostic-gpu-mapped-e33 fullhost/XNU/EFI/container/sourcebindingPASS;
+firstbuildmissingcustomIOKitheaderpreserved/fixedrelativeinclude, nohardware
+failure. Result/sourceproof/gapauditforensic-audit/E33-*.json. Saveverified
+checkpoint withalternateindex/mainHEAD/index untouched. SafeE32dcd0943.
+
+Still bounded2BO/16KiB/exact191wordcompute package anddiagnostictransport.
+Nextrealgap: actualMesaGalliumGLcontext demandsgeneralBOallocation/mapping/
+CPUprep/commands andIOSurface presentation, notmorecopyhelpermilestones.
+Prefercapture/auditactualMesa context requirements beforemorekernelchanges.
+No fakeGL/acceleratorregistration. RAMonly/no flash/erase; autoUEFI no
+physicalconfirmation. NoGitHubpushrequested. ContinueuntiluserSTOP.
+
+# Active E33 hardware control — full build/source binding passed
+
+Explicitkeepworking instructionactive. Fullhost/XNU/EFI/container/current
+compiledsourcebindingPASS artifactdiagnostic-gpu-mapped-e33. Firstbuild
+customheaderinclude failurepreserved/fixedexplicitrelativepath, nohardware
+fromfailedbuild. ActualC++maphelper nowcompiledlinked. Newmappedroot/FWbound.
+Oldmode11 --msm control exec71022 active, logauto-mapped-e33-control.log.
+No concurrentfastboot. Afterrunner0/autosuccess/independentAndroid1 preserve
+94controlreport thenone --msm --mesa-transport --mapped mode12 sameartifact.
+Strictmappedparser requiresordered11maps/revokes+actualshim+GPUproof and
+no successfulbulk16384transfers. Preservefirstfailure/no blindretry.
+PhoneautoUEFI no physicalselection; RAMonly/no flash/erase. SafeE32dcd0943.
+NoGitHubpush. Do not stop ongoingworkunlessuserrequests orcriticalblocker.
+
+# Active E33 — direct mapped GPU BOs, build in progress
+
+User explicitly requires continue without stopping. Safe verifiedE32dcd0943.
+Newhypothesis: mapexisting16KiBGPUcommand/dataBOs intoactualDarwinPID1 via
+realIOKitIOMemoryDescriptor/IOMemoryMap uniqueWCOMBcurrenttask. XNUVCHR
+mmap returnsENODEV (kern_mman.c); donot inventd_mmap path. Explicitmode12.
+Beforevalidation/GPUpublish revokebothmaps+barrier; uncertainunmap retains
+backing/resets. Userreadbackreadonlymapping afterGPUdone, thenunmap. BOclose/
+contextclose revokesbeforefullstop/backingfree. Kernelneverexportsmaptoken.
+ActualMesa shimredwood_drm_map usedforwrites, readonlyextensionforoutput;
+knownauditedcommandstillrequired, no generalGL/IOKitacceleratorclaim.
+
+ActualC++helperhost/failurecasesPASS; actualclient+shim+cdev mappedmodel
+11mappings/revokes/3jobs/768checks/7negatives/zerobulkcopiesPASS; oldpaths
+regressionsPASS. ActualinnerSMMUgate156casesmode1..13PASS. Fullbuild now
+exec61410 artifactdiagnostic-gpu-mapped-e33, loggpu/build-mapped-e33.log.
+No E33hardwareyet. NewkernelWaffleGPUMap.cpp buildentry inpatch+preparedXNU.
+Afterfullbuild/container/sourcebindingPASS: old--msm image11 controlfirst,
+thennew--msm --mesa-transport --mapped image12 afterAndroidindependent1.
+Requirestrictmappedorderedhandoff+actualshim/MSM3fences/24576checks/7negatives,
+no successfulMSM_TRANSFER bytes16384, fullstop47/runner0/Android1.
+Preservefirstfailure/no blindretry. RAMonly/no flash/erase; autoUEFI no
+physicalconfirmation. NoGitHubpushrequested. MainHEAD/indexuntouched.
+
 # Current E32 hardware PASS — Mesa DRM shim to owned BO/user commands/GPU
 
 User explicitly resumed; GPU work authorized. PhoneordinaryAndroid,

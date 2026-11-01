@@ -448,7 +448,7 @@ static bool smmu_owner_begin(struct smmu_owner *s)
         log_line("waffle-iommu: compute requires controlled94 dynamic BO session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_image",&s->compute_image,sizeof(s->compute_image)) &&
-        ((s->compute_image<1 || s->compute_image>11) || !s->compute_mode || (s->compute_image>=3 && s->compute_image!=9 && s->compute_mode!=2) || (s->compute_image==9 && s->compute_mode!=1) || probe!=94 || s->dynamic_bo!=1)) {
+        ((s->compute_image<1 || s->compute_image>12) || !s->compute_mode || (s->compute_image>=3 && s->compute_image!=9 && s->compute_mode!=2) || (s->compute_image==9 && s->compute_mode!=1) || probe!=94 || s->dynamic_bo!=1)) {
         log_line("waffle-iommu: image requires controlled compute/dynamic session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&
@@ -805,7 +805,7 @@ static bool smmu_dynamic_bo_bind(struct smmu_owner *s)
     if(!smmu_bo_allocate_map(s,&s->dynamic,WAFFLE_GPU_DYNAMIC_ADDRESS) ||
         !waffle_gmu_owner_bind_bo(s->child,&s->dynamic))return false;
     log_line("waffle-iommu: DYNAMIC_BO published after GPU startup VA=%x pages=4 aliases=2 unprivileged=1\n",WAFFLE_GPU_DYNAMIC_ADDRESS);
-    if(s->compute_image==10 || s->compute_image==11)return smmu_user_buffer_allocate_map(s,WAFFLE_GPU_USER_TEST_VA);
+    if(s->compute_image==10 || s->compute_image==11 || s->compute_image==12)return smmu_user_buffer_allocate_map(s,WAFFLE_GPU_USER_TEST_VA);
     if(s->compute_image>=7){
         if(!smmu_bo_allocate_map(s,&s->data,WAFFLE_GPU_DATA_ADDRESS) ||
             kvtophys(s->data.memory)==kvtophys(s->dynamic.memory) ||
@@ -867,7 +867,7 @@ bool waffle_smmu_owner_copy(struct waffle_smmu_owner *owner,struct waffle_gpu_co
 }
 bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *owner,struct waffle_gpu_buffer buffers[2])
 {
-    if(!owner || !owner->state.child || owner->state.compute_image!=11)return false;
+    if(!owner || !owner->state.child || (owner->state.compute_image!=11 && owner->state.compute_image!=12))return false;
     if(!owner->exercised){
         owner->exercised=true;
         owner->state.gmu_ok=owner->state.dynamic_bo && smmu_dynamic_bo_bind(&owner->state);

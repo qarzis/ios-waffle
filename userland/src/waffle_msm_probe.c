@@ -19,9 +19,24 @@ static long call(int fd,unsigned long op,void *r){
 static int open_gpu(void){return open("/dev/waffle-gpu-msm",O_RDWR,0);}
 static long call(int fd,unsigned long op,void *r){return mini_syscall(SYS_ioctl,fd,op,(long)r,0,0,0);}
 #endif
+#ifdef WAFFLE_MSM_MAP_PROBE
+void *redwood_drm_map(int,uint32_t,uint64_t);
+static int transfer(int fd,unsigned long op,unsigned handle,void *ptr,unsigned bytes){
+ if(bytes!=16384)return -1;
+ if(op==WAFFLE_MSM_UPLOAD){
+  void *mapped=redwood_drm_map(fd,handle,bytes);if(mapped==(void *)-1)return -1;
+  memcpy(mapped,ptr,bytes);return 0; /* Submit revokes before validation. */
+ }
+ struct waffle_msm_map r={.handle=handle,.bytes=bytes,.flags=1};
+ if(call(fd,WAFFLE_MSM_MAP,&r))return -1;
+ memcpy(ptr,(const void *)(uintptr_t)r.address,bytes);
+ return call(fd,WAFFLE_MSM_UNMAP,&r);
+}
+#else
 static int transfer(int fd,unsigned long op,unsigned handle,void *ptr,unsigned bytes){
  struct waffle_msm_transfer r={.pointer=(uint64_t)(uintptr_t)ptr,.handle=handle,.bytes=bytes};return call(fd,op,&r);
 }
+#endif
 int main(int argc,char **argv,char **envp)
 {
  (void)argc;(void)argv;(void)envp;
@@ -31,6 +46,9 @@ int main(int argc,char **argv,char **envp)
  int console=open("/dev/console",O_RDWR,0);if(console>=0){dup2(console,1);dup2(console,2);}
 #ifdef WAFFLE_MSM_PROBE
  printf("waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1\n");
+#endif
+#ifdef WAFFLE_MSM_MAP_PROBE
+ printf("waffle-mesa-probe: mapped_bo=1 upload_download_copy=0 handoff=unmap_before_submit\n");
 #endif
  int fd=open_gpu(),ok=fd>=0;unsigned negative=0,checks=0,wrong=0;
  uint32_t command[4096],data[4096],input[256];uint64_t va[2]={0};

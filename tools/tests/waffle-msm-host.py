@@ -7,6 +7,11 @@ parts={'__file__':str(root/'tools/tests/waffle-user-host.py')};old=(root/'tools/
 h='#define _DEFAULT_SOURCE\n'+parts['h'][:parts['h'].index('static int proc_pid')]
 h+=r'''
 static uint32_t arenas[2][4096];
+static unsigned map_count,unmap_count;
+static bool PE_parse_boot_argn(const char *n,void *v,unsigned z){assert(!strcmp(n,"waffle_image") && z==4);*(unsigned *)v=11;return true;}
+static bool waffle_gpu_map_create(uintptr_t memory,bool ro,uint64_t *va,uintptr_t *token){(void)ro;assert(held && memory && !*token);*va=memory;*token=memory;map_count++;return true;}
+static bool waffle_gpu_map_revoke(uintptr_t *token){assert(held && token);if(*token)unmap_count++;*token=0;return true;}
+
 static int proc_pid(struct proc *p){return p->pid;}
 static int cdevsw_add(int major,const struct cdevsw *sw){assert(major==-1 && sw);return mode==4?-1:42;}
 static void cdevsw_remove(int major,const struct cdevsw *sw){assert(major==42 && sw);removes++;}

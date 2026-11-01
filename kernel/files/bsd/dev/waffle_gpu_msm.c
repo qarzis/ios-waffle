@@ -9,6 +9,8 @@
 #include <sys/waffle_gpu_service.h>
 #include <sys/waffle_gpu_msm.h>
 #include <sys/waffle_gpu_data.h>
+#include <sys/waffle_gpu_map.h>
+#include <pexpert/pexpert.h>
 extern void redwood_tl(const char *,...) __printflike(1,2);
 extern void loader_return(void);
 static LCK_GRP_DECLARE(msm_group,"waffle-gpu-msm");
@@ -18,6 +20,17 @@ static struct waffle_gpu_buffer msm_buffers[2];
 static bool msm_handles[2],msm_reported;
 static unsigned msm_next,msm_fence;
 static int msm_pid;
+static bool msm_mapped;
+static uintptr_t msm_map_tokens[2];
+static uint64_t msm_map_addresses[2];
+static void msm_revoke(unsigned index)
+{
+    if(!waffle_gpu_map_revoke(&msm_map_tokens[index])){
+        redwood_tl("waffle-gpu: REBOOT REQUIRED: user BO unmap failed; retain backing\n");loader_return();for(;;);
+    }
+    msm_map_addresses[index]=0;
+}
+
 static bool msm_handle(unsigned h){return h>=1 && h<=2 && msm_handles[h-1];}
 static int msm_open(dev_t dev,int flags,int type,struct proc *p)
 {
@@ -57,6 +70,11 @@ static int msm_submit(struct waffle_msm_submit *r)
        bos[0].presumed!=msm_buffers[0].gpu_va || bos[1].presumed!=msm_buffers[1].gpu_va ||
        cmd.type!=1 || cmd.submit_idx || cmd.submit_offset!=1024 || cmd.size!=WAFFLE_GLSL_WORDS*4 ||
        cmd.pad || cmd.nr_relocs || cmd.relocs)return EINVAL;
+    if(msm_mapped){
+        msm_revoke(0);msm_revoke(1);
+        __asm__ volatile("dsb sy":::"memory");
+        redwood_tl("waffle-gpu: MSM_MAP revoked_before_validate next_fence=%u\n",msm_fence+1);
+    }
     uint32_t input[256],output[256];
     if(!msm_contents_valid(msm_fence+1,input)){
         redwood_tl("waffle-gpu: MSM invalid_command refused=1 next_fence=%u\n",msm_fence+1);return EINVAL;
@@ -90,6 +108,20 @@ static int msm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
         error=command==WAFFLE_MSM_UPLOAD?copyin(r->pointer,memory,r->bytes):copyout(memory,r->pointer,r->bytes);
         __asm__ volatile("dsb sy":::"memory");
         if(error)error=EFAULT;
+        else redwood_tl("waffle-gpu: MSM_TRANSFER operation=%s bytes=%u\n",command==WAFFLE_MSM_UPLOAD?"upload":"download",r->bytes);
+    }else if(command==WAFFLE_MSM_MAP || command==WAFFLE_MSM_UNMAP){
+        struct waffle_msm_map *r=(void *)data;
+        if(!msm_mapped || !msm_handle(r->handle) || r->bytes!=16384 || r->pad || r->flags>1){error=EINVAL;goto done;}
+        unsigned index=r->handle-1;
+        if(command==WAFFLE_MSM_MAP){
+            if(r->address || msm_map_tokens[index]){error=EBUSY;goto done;}
+            if(!waffle_gpu_map_create(msm_buffers[index].memory,r->flags==1,&r->address,&msm_map_tokens[index])){error=ENOMEM;goto done;}
+            msm_map_addresses[index]=r->address;
+            redwood_tl("waffle-gpu: MSM_MAP mapped handle=%u bytes=16384 readonly=%u direct_backing=1\n",r->handle,r->flags);
+        }else{
+            if(!msm_map_tokens[index] || r->address!=msm_map_addresses[index]){error=EINVAL;goto done;}
+            msm_revoke(index);redwood_tl("waffle-gpu: MSM_MAP unmapped handle=%u\n",r->handle);
+        }
     }else if(command==WAFFLE_MSM_SUBMIT){error=msm_submit((void *)data);
     }else if(command==WAFFLE_MSM_WAIT){
         const struct waffle_msm_wait *r=(void *)data;
@@ -97,7 +129,7 @@ static int msm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
     }else if(command==WAFFLE_MSM_CLOSE){
         const struct waffle_msm_close *r=(void *)data;
         if(!msm_handle(r->handle) || r->pad){error=EINVAL;goto done;}
-        msm_handles[r->handle-1]=false;
+        msm_revoke(r->handle-1);msm_handles[r->handle-1]=false;
         redwood_tl("waffle-gpu: MSM gem_close handle=%u retained_until_context_stop=1\n",r->handle);
     }else if(command==WAFFLE_MSM_REPORT){
         const struct waffle_msm_report *r=(void *)data;
@@ -111,6 +143,7 @@ static int msm_close(dev_t dev,int flags,int type,struct proc *p)
     (void)dev;(void)flags;(void)type;(void)p;lck_mtx_lock(&msm_lock);
     if(!msm_context){lck_mtx_unlock(&msm_lock);return 0;}
     if(msm_fence==3)redwood_tl("waffle-gmu: SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session\n");
+    msm_revoke(0);msm_revoke(1);
     bool stopped=waffle_gpu_context_end(&msm_context);
     if(msm_context){redwood_tl("waffle-gpu: REBOOT REQUIRED: MSM close retains busy context\n");loader_return();for(;;);}
     bzero(msm_buffers,sizeof(msm_buffers));bzero(msm_handles,sizeof(msm_handles));
@@ -124,9 +157,12 @@ static const struct cdevsw msm_cdev={
 };
 bool waffle_gpu_msm_register(void)
 {
+    unsigned image=0;msm_mapped=PE_parse_boot_argn("waffle_image",&image,sizeof(image)) && image==12;
     int major=cdevsw_add(-1,&msm_cdev);if(major<0)return false;
     if(!devfs_make_node(makedev(major,0),DEVFS_CHAR,UID_ROOT,GID_WHEEL,0600,"waffle-gpu-msm")){
         cdevsw_remove(major,&msm_cdev);return false;
     }
-    redwood_tl("waffle-gpu: MSM registered BO2 submit191 root_only=1 gated=1\n");return true;
+    redwood_tl("waffle-gpu: MSM registered BO2 submit191 root_only=1 gated=1\n");
+    if(msm_mapped)redwood_tl("waffle-gpu: MSM_MAP enabled IOMemoryMap=1 revoke_before_submit=1\n");
+    return true;
 }

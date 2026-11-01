@@ -112,8 +112,32 @@ def validate_msm_log(text):
     return extract_copy_jobs(text)[-1]
 
 
+def validate_mapped_log(text):
+    pixels=validate_msm_log(text)
+    markers=["MSM_MAP enabled IOMemoryMap=1 revoke_before_submit=1",
+      "MSM_MAP mapped handle=1 bytes=16384 readonly=0 direct_backing=1",
+      "MSM_MAP mapped handle=2 bytes=16384 readonly=0 direct_backing=1",
+      "MSM_MAP revoked_before_validate next_fence=1","MSM invalid_command refused=1 next_fence=1"]
+    for fence in (1,2,3):
+        markers += ["MSM_MAP mapped handle=1 bytes=16384 readonly=0 direct_backing=1",
+          "MSM_MAP mapped handle=2 bytes=16384 readonly=0 direct_backing=1",
+          f"MSM_MAP revoked_before_validate next_fence={fence}",
+          f"MSM_COMMAND accepted fence={fence} words=191 source=user_bo",
+          f"MSM submitted fence={fence} user_ib=1 bo_handles=2",
+          "MSM_MAP mapped handle=2 bytes=16384 readonly=1 direct_backing=1","MSM_MAP unmapped handle=2"]
+    cursor=0
+    for marker in markers:
+        at=text.find(marker,cursor)
+        if at<0:raise RuntimeError("Direct BO mapping/handoff missing: "+marker)
+        cursor=at+len(marker)
+    if "waffle-mesa-probe: mapped_bo=1 upload_download_copy=0 handoff=unmap_before_submit" not in text or re.search(r"MSM_TRANSFER operation=\w+ bytes=16384",text):
+        raise RuntimeError("Mapped BO used copy transfers or actual client marker missing")
+    return pixels
+
+
 def validate_aop_owner_log(text, compute_mode=0, image=False):
     """Require actual GPU results and child-first teardown for the owned path."""
+    if image==12:return validate_mapped_log(text)
     if image==11:return validate_msm_log(text)
     markers=[
         "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
@@ -223,6 +247,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-mapped",action="store_true",help="E33 direct mapped GPU BOs with revoke-before-submit")
     parser.add_argument("--gpu-mesa-transport",action="store_true",help="E32 require actual Mesa DRM shim marker and MSM proof")
     parser.add_argument("--gpu-msm",action="store_true",help="E31 actual MSM BO handles and user uploaded Mesa commands")
     parser.add_argument("--gpu-user-va",action="store_true",help="E30 64-bit lower GPU VA for GLSL data BO")
@@ -243,7 +268,8 @@ def main():
     args = parser.parse_args()
     if sum((args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
     if args.gpu_mesa_transport and not args.gpu_msm:parser.error("--gpu-mesa-transport requires --gpu-msm")
-    image_kind=11 if args.gpu_msm else 10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    if args.gpu_mapped and not (args.gpu_msm and args.gpu_mesa_transport):parser.error("--gpu-mapped requires MSM Mesa transport")
+    image_kind=12 if args.gpu_mapped else 11 if args.gpu_msm else 10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
     if image_kind>=3 and image_kind!=9 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
     args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
@@ -562,7 +588,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{47 if (4<=image_kind<=8 or image_kind in (10,11)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{47 if (4<=image_kind<=8 or image_kind in (10,11,12)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")

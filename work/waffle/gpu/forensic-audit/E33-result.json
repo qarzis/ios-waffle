@@ -1,0 +1,33 @@
+{
+  "experiment": "E33 direct IOMemoryMap GPU BOs hardware PASS",
+  "run": "work/waffle/runs/20261101T095309Z",
+  "auto": "work/waffle/auto-runs/20261101T095246Z",
+  "mapping_api": "IOMemoryDescriptor::withPhysicalAddress/createMappingInTask; IOMemoryMap::unmap",
+  "user_maps": 11,
+  "user_map_revocations": 11,
+  "gpu_bos": 2,
+  "cache_policy": "unique WCOMB matching existing kernel NC aliases",
+  "ownership_handoff": "revoke both task maps before validating or publishing commands",
+  "readback": "readonly user mapping after actual GPU completion",
+  "successful_bulk_upload_download_copies": 0,
+  "jobs": 3,
+  "gpu_fences": [
+    1,
+    2,
+    3
+  ],
+  "pixels_checked": 768,
+  "two_bo_word_checks": 24576,
+  "wrong": 0,
+  "negative_checks": 7,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "general_GEM_mmap_or_GL": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T095309Z/kernel-final.log": "0eb1993bb166e5092fd3d819b8838eac63975aec2b4480edc0bcfddf5e2ef2de",
+    "work/waffle/runs/20261101T095309Z/gpu-mapped-jobs.json": "45255bbc217473da65dc24e1a7d13b8761ecf116500629754c7c111983560a1b",
+    "work/waffle/auto-runs/20261101T095246Z/result.json": "83817be810c2e592d7ea42fbedbb971b537c0abba3379daa5de1229f37136680"
+  }
+}

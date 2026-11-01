@@ -1,0 +1,39 @@
+{
+  "experiment": "E32 actual Mesa DRM shim transport",
+  "mesa_drm_shim": true,
+  "mapped_bo": true,
+  "static_arm64_pid1": true,
+  "dynamic_loader": false,
+  "flash_operations": false,
+  "source_sha256": {
+    "userland/src/waffle_msm_probe.c": "05a0527c2ccdc2922c624ef80f469d7597f7030099dd7c43e19870e550d1f389",
+    "kernel/files/bsd/sys/waffle_gpu_msm.h": "2e3b60ee2f86aa79ba277ee6533bb2fe3a74c855eed651e61e9100e4e8da74c6",
+    "kernel/files/bsd/sys/waffle_gpu_data.h": "e366d257fb6e58866c9066ee3a94f5621be9a558bddf3ba82546040149e07cab",
+    "kernel/files/bsd/sys/waffle_gpu_glsl.h": "ad084d0b86e51e51f401f9861d2d171ea32a5742c37ff9785c6ca6e556634c7a",
+    "userland/libmini/mini.c": "93e32f4d02268abd710d1e6ea2424412a3f71056a450199c1913267df4e77edd",
+    "userland/libmini/mini.h": "296866407563be6cc1be1965617925cc85d67bcfd3525c69659c44408bf8c761",
+    "userland/libmini/start.S": "75024af4f60a89ff82269a7076be303bcb50779f9f1d4ef504231bcf4ea1012c",
+    "kernel/files/bsd/sys/waffle_gpu_user.h": "3f310073ba2dfb00cbe71369baed170fad78268124f38aa2c0dbd3230f33b383",
+    "tools/build-waffle-user-probe.py": "fc2ad9d836da354e1e6da7665a0661a7108bdd2a4f1c0a0422c9e9568062c13f",
+    "tools/mesa/drm-shim/drm_shim.c": "2cc41944640dd6ae1908e97982372b200a2ff19f1cf6b0126421d5ad370f1cb9"
+  },
+  "program_sha256": "12a58a5849eb78b5e122b3af8b00ba11d0d3621c3a530e58b8d05a09aa5c7aa0",
+  "packfs_sha256": "81de76f7ff41f6c2cdaeb80b403d6673f4da6286f92a563d3b0fbb7c3be0a289",
+  "firmware": {
+    "fw/gen70900_aqe.fw": "25237c161d727b8ea92b4beb837a31651b44ea78bfc34d95672af8f346a45825",
+    "fw/gen70900_sqe.fw": "f756bafe5f69a87161c7c53385386374a791861a574c244e845baba677993842",
+    "fw/gen70900_zap.mbn": "8e454000fd86f74818917d34d46baa70a31360d81d9617015a02de4e00c0e397",
+    "fw/gmu_gen70900.bin": "9685f62c42543befcaee68d25355e16bf55cdb0d573bddcc9f6633f59eec3f72"
+  },
+  "load_commands": [
+    25,
+    25,
+    25,
+    25,
+    2,
+    27,
+    42,
+    5
+  ],
+  "user_execution_tested": false
+}

@@ -17,6 +17,7 @@ struct waffle_msm_submit {
 struct waffle_msm_wait { uint32_t fence,flags; int64_t seconds,nanoseconds; uint32_t queueid,pad; };
 struct waffle_msm_close { uint32_t handle,pad; };
 struct waffle_msm_transfer { uint64_t pointer; uint32_t handle,offset,bytes,flags; };
+struct waffle_msm_map { uint64_t address; uint32_t handle,bytes,flags,pad; };
 struct waffle_msm_report { uint32_t version,checks,wrong,fence,negative; };
 #define WAFFLE_MSM_NEW _IOWR('d',0x42,struct waffle_msm_gem_new)
 #define WAFFLE_MSM_INFO _IOWR('d',0x43,struct waffle_msm_gem_info)
@@ -25,6 +26,8 @@ struct waffle_msm_report { uint32_t version,checks,wrong,fence,negative; };
 #define WAFFLE_MSM_CLOSE _IOW('d',0x09,struct waffle_msm_close)
 #define WAFFLE_MSM_UPLOAD _IOW('W',0x50,struct waffle_msm_transfer)
 #define WAFFLE_MSM_DOWNLOAD _IOW('W',0x51,struct waffle_msm_transfer)
+#define WAFFLE_MSM_MAP _IOWR('W',0x53,struct waffle_msm_map)
+#define WAFFLE_MSM_UNMAP _IOW('W',0x54,struct waffle_msm_map)
 #define WAFFLE_MSM_REPORT _IOW('W',0x52,struct waffle_msm_report)
 _Static_assert(sizeof(struct waffle_msm_submit)==72,"MSM submit layout");
 _Static_assert(sizeof(struct waffle_msm_submit_cmd)==32,"MSM command layout");

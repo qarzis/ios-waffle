@@ -1,0 +1,15 @@
+{
+  "compiled_and_snapshot_identical": {
+    "kernel/files/iokit/Kernel/WaffleGPUMap.cpp": "ac279f4af62c5d73991755d80aa72bc9eab212c42c35880d8db3f01245194282",
+    "kernel/files/bsd/sys/waffle_gpu_map.h": "c8ad749086d89173bb66fd09bba82be73cf2c4703a68718dd2d8787d506d83ed",
+    "kernel/files/bsd/dev/waffle_gpu_msm.c": "bb95b4a25779bce21adfe9bbdd20e6cabe206a32ab4f38d56b67121c9af9acc9",
+    "kernel/files/bsd/sys/waffle_gpu_msm.h": "2e3b60ee2f86aa79ba277ee6533bb2fe3a74c855eed651e61e9100e4e8da74c6",
+    "kernel/files/bsd/dev/waffle_adreno.c": "b3d499ecc08b6f4cb14c9b278e4391bcadf34c2fd785725d6785ce40ceeb2aed",
+    "kernel/files/bsd/dev/waffle_smmu.c": "ce7899966c382d0f55d862cb537fd1d973b5fbc5e002003f072809b1bfc389ba",
+    "kernel/files/bsd/dev/waffle_gmu.c": "428361d384f862798a1478ced3d412631ccc64c5d7a48d921ec57ba8898751db"
+  },
+  "all_host_tests_passed": true,
+  "xnu_efi_container_passed": true,
+  "kernel_sha256": "f3aaf5cff70beb330498cecb1099560812d0605cf84fadb077afb95e3d231a73",
+  "hardware_tested": false
+}

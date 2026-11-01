@@ -13,6 +13,17 @@ int drmOpenWithType(const char *name,const char *busid,int type)
  if(fd>=0)connection_fd=fd;
  return fd;
 }
+void *redwood_drm_map(int fd,uint32_t handle,uint64_t size)
+{
+ struct waffle_msm_map r={.handle=handle,.bytes=(uint32_t)size};
+ if(size!=16384 || mini_syscall(SYS_ioctl,fd,WAFFLE_MSM_MAP,(long)&r,0,0,0)<0)return (void *)-1;
+ return (void *)(uintptr_t)r.address;
+}
+void redwood_drm_unmap(int fd,uint32_t handle,void *address)
+{
+ struct waffle_msm_map r={.address=(uint64_t)(uintptr_t)address,.handle=handle,.bytes=16384};
+ (void)mini_syscall(SYS_ioctl,fd,WAFFLE_MSM_UNMAP,(long)&r,0,0,0);
+}
 static int call(unsigned number,void *data,size_t size)
 {
  unsigned long request;

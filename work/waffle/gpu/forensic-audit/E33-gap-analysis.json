@@ -1,0 +1,37 @@
+{
+  "experiment": "E33 direct mapped BO audit",
+  "base": "dcd094307d8760b49bf21bc6e3d8fb638616dbe7",
+  "evidence": [
+    {
+      "path": "xnu-src/xnu-8796.121.2/bsd/kern/kern_mman.c",
+      "finding": "VCHR mmap returns ENODEV before device pager path"
+    },
+    {
+      "path": "xnu-src/xnu-8796.121.2/iokit/IOKit/IOMemoryDescriptor.h",
+      "finding": "withPhysicalAddress and createMappingInTask support unique cache-specified readonly task mappings"
+    },
+    {
+      "path": "xnu-src/xnu-8796.121.2/iokit/Kernel/IOMemoryDescriptor.cpp",
+      "finding": "IOMemoryMap::unmap calls doUnmap then drops address-map reference"
+    },
+    {
+      "path": "kernel/files/iokit/Kernel/MiniIOSurface.cpp",
+      "finding": "existing port uses actual createMappingInTask for sharing buffers"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "E33-H1",
+      "claim": "actual task maps of command/data BOs can handoff CPU ownership to GPU by revoking maps before validation, execute existing package and provide readonly mapped output without bulk copies",
+      "test": "oldmode11 control then singlemapped12,3jobs768pixels24576guards7negatives,11maps/revokes; actualC++helperfailurematrix beforehardware",
+      "expected": "orderedmap/revoke/command/fence/readonlyreadback/unmap logs, zero successfulbulktransfers, fullshutdownAndroid1"
+    }
+  ],
+  "limits": [
+    "root-only controlled singlePID diagnostic",
+    "exact known191word command package only",
+    "not full GEM mmap or Gallium renderer",
+    "not claiming protection against adversarial VM remap alias creation"
+  ],
+  "firmware_power_security_shader_unchanged": true
+}
