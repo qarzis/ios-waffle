@@ -1,0 +1,1 @@
+HOST actual cdev:233 BO references/57 measured roots admitted using bounded offstack metadata; five ordered windows/final fence5/wait; allocation/copyin/metadata budget/invalid-last-root failures submit nothing; third-window failure stops later work/frees snapshot/retains233 BOs until parent stop. GPU mocked, no hardware claim.

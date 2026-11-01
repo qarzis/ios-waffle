@@ -1,0 +1,21 @@
+{
+  "run": "work/waffle/runs/20261101T192640Z",
+  "auto": "work/waffle/auto-runs/20261101T192617Z",
+  "actual_backboardd_pid": 83,
+  "UID": 501,
+  "GPU_fences": 84,
+  "BO_count": 522,
+  "first_failure": "MSM_SUBMIT EINVAL:233 references>64,57 roots>16; complete dump7492words>1536 and existing private16KiB BO layout",
+  "first_failure_snapshot": "kernel-126.log",
+  "secondary_failure_snapshot": "kernel-131.log",
+  "secondary_failure": "allocation after repeated rejected submits:519live61718528B +3retired5390336B =67108864 budget",
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "teardown_snapshot": "kernel-136.log",
+  "runner_exit": 1,
+  "UI_GPU_success": false,
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "original_30s_timer_hypothesis": "insufficient explanation:60s test fails before planned stop on a different larger UI command package",
+  "next_step": "host-only architecture experiment: preserve root order while partitioning complete roots into current16-root/1536-word windows; no extra IB level, no GPU BO/stack growth; CPU request snapshots offstack required"
+}

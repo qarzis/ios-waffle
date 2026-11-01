@@ -1,6 +1,7 @@
 /* General BO and bounded root-IB transport. Mode13 is kept gated off until the
  * controlled graphics test is complete; this is not an untrusted GL service. */
 #include <kern/locks.h>
+#include <kern/kalloc.h>
 #include <libkern/libkern.h>
 #include <miscfs/devfs/devfs.h>
 #include <sys/conf.h>
@@ -85,17 +86,27 @@ static int drm_param(struct waffle_msm_param *r)
 static int drm_submit(struct waffle_msm_submit *r)
 {
  redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
- if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_SUBMIT_BUFFERS || !r->nr_cmds || r->nr_cmds>WAFFLE_GPU_SUBMIT_COMMANDS ||
+ if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_BO_LIMIT || !r->nr_cmds ||
     r->in_syncobjs || r->out_syncobjs || r->nr_in_syncobjs || r->nr_out_syncobjs || r->syncobj_stride || r->pad ||
     !drm_queue_valid(r->queueid))return EINVAL;
- struct waffle_msm_submit_bo bos[WAFFLE_GPU_SUBMIT_BUFFERS];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
- struct waffle_gpu_command roots[WAFFLE_GPU_SUBMIT_COMMANDS];
- if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands)))return EFAULT;
+ /* Snapshot one bounded CPU page of request metadata. Real UI requests are
+  * larger than an individual private-BO execution window; keep these two
+  * budgets independent and keep request arrays off the kernel stack. */
+ uint64_t bytes=(uint64_t)r->nr_bos*sizeof(struct waffle_msm_submit_bo)+
+  (uint64_t)r->nr_cmds*(sizeof(struct waffle_msm_submit_cmd)+sizeof(struct waffle_gpu_command));
+ if(bytes>16384)return EINVAL;
+ void *snapshot=kalloc_data((size_t)bytes,Z_WAITOK|Z_ZERO);
+ if(!snapshot)return ENOMEM;
+ int error=0;
+ struct waffle_msm_submit_bo *bos=snapshot;
+ struct waffle_msm_submit_cmd *commands=(void *)(bos+r->nr_bos);
+ struct waffle_gpu_command *roots=(void *)(commands+r->nr_cmds);
+ if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands))){error=EFAULT;goto done;}
  uint64_t seen[(WAFFLE_GPU_BO_LIMIT+63)/64]={0};uint32_t total=0;
  for(unsigned i=0;i<r->nr_bos;i++){
   struct drm_bo *bo=drm_buffer(bos[i].handle);
   if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen[(bos[i].handle-1)/64]&(1ULL<<((bos[i].handle-1)%64))) ||
-     (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va))return EINVAL;
+     (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va)){error=EINVAL;goto done;}
   seen[(bos[i].handle-1)/64]|=1ULL<<((bos[i].handle-1)%64);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
@@ -104,19 +115,34 @@ static int drm_submit(struct waffle_msm_submit *r)
   redwood_tl("waffle-gpu: GENERAL root index=%u type=%u bo_index=%u offset=%u bytes=%u reloc_count=%u unused_reloc_pointer=%llx\n",i,cmd->type,cmd->submit_idx,cmd->submit_offset,cmd->size,cmd->nr_relocs,(unsigned long long)cmd->relocs);
   /* Mesa softpin leaves relocs uninitialized when nr_relocs is zero.
    * A zero-length array has no pointer to validate or dereference. */
-  if(!bo || cmd->type!=1 || cmd->pad || cmd->nr_relocs)return EINVAL;
+  if(!bo || cmd->type!=1 || cmd->pad || cmd->nr_relocs){error=EINVAL;goto done;}
   roots[i]=(struct waffle_gpu_command){.buffer=bo->memory,.offset=cmd->submit_offset,.bytes=cmd->size};
-  if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS-total)return EINVAL;
+  if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS){error=EINVAL;goto done;}
   total+=cmd->size/4;
  }
  /* Controlled caller owns data consistency. Root bytes are snapshotted into
   * the private kernel command BO; persistent Mesa data mappings stay stable. */
  __asm__ volatile("dsb sy":::"memory");
- struct waffle_gpu_submit_job job={.commands=roots,.count=r->nr_cmds};
- if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1)return EIO;
- drm_fence=job.fence;r->fence=job.fence;
- redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,r->nr_cmds,total);
- return 0;
+ /* All metadata/ranges are checked before the first window. Each whole root
+  * retains its position; the existing synchronous completion tail separates
+  * adjacent windows without adding an IB level or growing the private BO. */
+ unsigned cursor=0,windows=0;
+ while(cursor<r->nr_cmds){
+  unsigned first=cursor,words=0;
+  while(cursor<r->nr_cmds && cursor-first<WAFFLE_GPU_SUBMIT_COMMANDS &&
+        roots[cursor].bytes/4<=WAFFLE_GPU_SUBMIT_WORDS-words){
+   words+=roots[cursor].bytes/4;cursor++;
+  }
+  struct waffle_gpu_submit_job job={.commands=roots+first,.count=cursor-first};
+  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){error=EIO;goto done;}
+  drm_fence=job.fence;windows++;
+  redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
+ }
+ r->fence=drm_fence;
+ redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
+done:
+ kfree_data(snapshot,(size_t)bytes);
+ return error;
 }
 static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc *p)
 {

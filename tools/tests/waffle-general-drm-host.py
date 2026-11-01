@@ -8,6 +8,11 @@ h='#define _DEFAULT_SOURCE\n'+parts['h'][:parts['h'].index('static int proc_pid'
 h+=r'''
 #include "waffle_gpu_registry.h"
 #include "waffle_gpu_va.h"
+#define Z_WAITOK 1
+#define Z_ZERO 2
+static unsigned snapshot_live,snapshot_fail;
+static void *kalloc_data(size_t bytes,unsigned flags){assert(held && bytes<=16384 && flags==3);if(snapshot_fail)return NULL;void *p=calloc(1,bytes);assert(p);snapshot_live++;return p;}
+static void kfree_data(void *p,size_t bytes){assert(held && p && bytes<=16384 && snapshot_live);snapshot_live--;free(p);}
 static struct waffle_gpu_memory storage[WAFFLE_GPU_BO_LIMIT];static unsigned stored,mapped;
 static int proc_pid(struct proc *p){return p->pid;}
 static int cdevsw_add(int major,const struct cdevsw *sw){assert(major==-1 && sw);return 42;}

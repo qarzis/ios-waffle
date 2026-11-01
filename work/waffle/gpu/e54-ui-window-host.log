@@ -1,0 +1,1 @@
+HOST ONLY: actual GMU code preserves all57 measured root ranges/7492 synthetic words in5 ordered windows, unchanged1536-word/16-root/private16KiB/tail/guards; ACK/stale-token failure stops before later windows and retains poisoned session. Cdev implementation and real GPU state preservation remain untested.

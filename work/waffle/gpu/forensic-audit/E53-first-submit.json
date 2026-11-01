@@ -1,0 +1,410 @@
+{
+  "run": "work/waffle/runs/20261101T192640Z",
+  "raw_snapshot": "kernel-126.log",
+  "raw_sha256": "a780bb97eadf3628d0409d76817456e44cc00f1911770df6f21150a6a42d780e",
+  "nr_bos": 233,
+  "nr_cmds": 57,
+  "root_words": 7492,
+  "commands": [
+    {
+      "index": 0,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 32768,
+      "bytes": 2784
+    },
+    {
+      "index": 1,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 262144,
+      "bytes": 944
+    },
+    {
+      "index": 2,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 393216,
+      "bytes": 444
+    },
+    {
+      "index": 3,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 491520,
+      "bytes": 428
+    },
+    {
+      "index": 4,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 557056,
+      "bytes": 428
+    },
+    {
+      "index": 5,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 622592,
+      "bytes": 444
+    },
+    {
+      "index": 6,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 720896,
+      "bytes": 428
+    },
+    {
+      "index": 7,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 786432,
+      "bytes": 428
+    },
+    {
+      "index": 8,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 851968,
+      "bytes": 444
+    },
+    {
+      "index": 9,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 950272,
+      "bytes": 428
+    },
+    {
+      "index": 10,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1015808,
+      "bytes": 428
+    },
+    {
+      "index": 11,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1081344,
+      "bytes": 444
+    },
+    {
+      "index": 12,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1179648,
+      "bytes": 428
+    },
+    {
+      "index": 13,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1245184,
+      "bytes": 428
+    },
+    {
+      "index": 14,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1310720,
+      "bytes": 428
+    },
+    {
+      "index": 15,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1376256,
+      "bytes": 428
+    },
+    {
+      "index": 16,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1441792,
+      "bytes": 444
+    },
+    {
+      "index": 17,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1540096,
+      "bytes": 428
+    },
+    {
+      "index": 18,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1605632,
+      "bytes": 428
+    },
+    {
+      "index": 19,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1671168,
+      "bytes": 444
+    },
+    {
+      "index": 20,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1769472,
+      "bytes": 428
+    },
+    {
+      "index": 21,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1835008,
+      "bytes": 428
+    },
+    {
+      "index": 22,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1900544,
+      "bytes": 444
+    },
+    {
+      "index": 23,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 1998848,
+      "bytes": 444
+    },
+    {
+      "index": 24,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2097152,
+      "bytes": 444
+    },
+    {
+      "index": 25,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2228224,
+      "bytes": 444
+    },
+    {
+      "index": 26,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2326528,
+      "bytes": 428
+    },
+    {
+      "index": 27,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2392064,
+      "bytes": 428
+    },
+    {
+      "index": 28,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2457600,
+      "bytes": 444
+    },
+    {
+      "index": 29,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2555904,
+      "bytes": 428
+    },
+    {
+      "index": 30,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2621440,
+      "bytes": 428
+    },
+    {
+      "index": 31,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2686976,
+      "bytes": 444
+    },
+    {
+      "index": 32,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2785280,
+      "bytes": 428
+    },
+    {
+      "index": 33,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2850816,
+      "bytes": 428
+    },
+    {
+      "index": 34,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 2916352,
+      "bytes": 444
+    },
+    {
+      "index": 35,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3014656,
+      "bytes": 428
+    },
+    {
+      "index": 36,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3080192,
+      "bytes": 428
+    },
+    {
+      "index": 37,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3145728,
+      "bytes": 444
+    },
+    {
+      "index": 38,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3244032,
+      "bytes": 428
+    },
+    {
+      "index": 39,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3309568,
+      "bytes": 428
+    },
+    {
+      "index": 40,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3375104,
+      "bytes": 444
+    },
+    {
+      "index": 41,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3473408,
+      "bytes": 428
+    },
+    {
+      "index": 42,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3538944,
+      "bytes": 428
+    },
+    {
+      "index": 43,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3604480,
+      "bytes": 444
+    },
+    {
+      "index": 44,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3702784,
+      "bytes": 428
+    },
+    {
+      "index": 45,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3768320,
+      "bytes": 428
+    },
+    {
+      "index": 46,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3833856,
+      "bytes": 444
+    },
+    {
+      "index": 47,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3932160,
+      "bytes": 428
+    },
+    {
+      "index": 48,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 3997696,
+      "bytes": 428
+    },
+    {
+      "index": 49,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 4063232,
+      "bytes": 444
+    },
+    {
+      "index": 50,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 4161536,
+      "bytes": 428
+    },
+    {
+      "index": 51,
+      "type": 1,
+      "submit_idx": 232,
+      "offset": 32768,
+      "bytes": 428
+    },
+    {
+      "index": 52,
+      "type": 1,
+      "submit_idx": 232,
+      "offset": 98304,
+      "bytes": 444
+    },
+    {
+      "index": 53,
+      "type": 1,
+      "submit_idx": 232,
+      "offset": 196608,
+      "bytes": 428
+    },
+    {
+      "index": 54,
+      "type": 1,
+      "submit_idx": 232,
+      "offset": 262144,
+      "bytes": 428
+    },
+    {
+      "index": 55,
+      "type": 1,
+      "submit_idx": 232,
+      "offset": 327680,
+      "bytes": 444
+    },
+    {
+      "index": 56,
+      "type": 1,
+      "submit_idx": 9,
+      "offset": 163840,
+      "bytes": 2808
+    }
+  ],
+  "payload_captured": false
+}

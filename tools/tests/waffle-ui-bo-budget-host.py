@@ -17,8 +17,8 @@ t=t[:at]+r'''
  assert(stored==WAFFLE_GPU_BO_LIMIT);
  struct waffle_msm_gem_new extra={.size=4096,.flags=WAFFLE_GPU_BO_WC};
  assert(drm_ioctl(0,WAFFLE_MSM_NEW,(char *)&extra,0,&owner)==ENOSPC && stored==WAFFLE_GPU_BO_LIMIT);
- struct waffle_msm_submit_bo all[WAFFLE_GPU_SUBMIT_BUFFERS];
- for(unsigned i=0;i<WAFFLE_GPU_SUBMIT_BUFFERS;i++)all[i]=(struct waffle_msm_submit_bo){.handle=i+1,.flags=3};
+ struct waffle_msm_submit_bo all[WAFFLE_GPU_SUBMIT_BUFFERS+1];
+ for(unsigned i=0;i<=WAFFLE_GPU_SUBMIT_BUFFERS;i++)all[i]=(struct waffle_msm_submit_bo){.handle=i+1,.flags=3};
  all[63].handle=WAFFLE_GPU_BO_LIMIT;
  memcpy((void *)storage[WAFFLE_GPU_BO_LIMIT-1].memory,actual_root,sizeof(actual_root));
  cmd.submit_idx=63;request.bos=(uintptr_t)all;request.nr_bos=64;request.fence=0;
@@ -27,10 +27,10 @@ t=t[:at]+r'''
  assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner)==EINVAL && copies==2);
  all[62].handle=63;
  request.nr_bos=WAFFLE_GPU_SUBMIT_BUFFERS+1;
- assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner)==EINVAL && copies==2);
+ assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==3 && copies==3);
  all[0].handle=65;request.nr_bos=1;cmd.submit_idx=0;request.fence=0;
  memcpy((void *)storage[64].memory,actual_root,sizeof(actual_root));
- assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==3);
+ assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==4);
  for(unsigned i=1;i<=WAFFLE_GPU_BO_LIMIT;i++){struct waffle_msm_close r={.handle=i};assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&r,0,&owner));}
  assert(!mapped && stored==WAFFLE_GPU_BO_LIMIT);
  assert(!drm_close(0,0,0,&owner) && !stored && !drm_context);return 0;
@@ -40,7 +40,7 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);(p/'test.c').write_text(ns['h']+ns['parts']['ioc']+ns['uapi']+ns['source']+t)
  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable','-Wno-misleading-indentation','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('Actual budget-derived context handle capacity versus64 per-submit references:highest handle/handle65 submit,duplicatehighhandle refused,65-reference submit refused,context-cap+1 refused,close retains backing untilparentstop; host only')
+print('Actual budget-derived context:highest handle/handle65 submit,duplicatehighhandle refused,65 references admitted in bounded CPU snapshot,context-cap+1 refused,close retains backing untilparentstop; fake allocator host model only')
 
 # Reuse the actual SMMU adapter harness, seeded with the observed25 boot tables.
 model={'__file__':str(root/'tools/tests/waffle-table-budget-host.py')}
