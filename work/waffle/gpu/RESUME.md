@@ -1,3 +1,29 @@
+# Current E30 hardware PASS — 64-bit lower GPU VA data buffer
+
+User authorized autonomous GPU work. E30 run20261101T090854Z/auto090830Z
+passed: separate16KiB dataBO VA0x100000000/PA0x8d2374000, lower39TTBR0 root4,
+four4KiB AP_UNPRIV NC PTEs, no compact highdataalias. Same Mesa GLSL binary,
+191wordcommands except descriptorbase, unchanged realDarwinPID1 program/ABI.
+3ioctls/fences1..3/768correctpixels/24576twoBOcheckswrong0/usernegative5.
+Fullstop47/contextdetach thenallocationfree/contextnull, runner0/autosuccess/
+independentADBAndroid1. Phone ordinary Android, no active hardware worker.
+
+Default93 control run090425Z/auto090401Z andoldGLSL8control run090723Z/
+auto090659Z passed on same kernel. Artifact diagnostic-gpu-user-va-e30:
+fullhost/XNU/EFI/container/sourcebinding PASS. Source scope and all results
+forensic-audit/E30-*.json; actualthreepixelgroups/PNGs run090854Z/gpu-user-va-*.
+E29 safe6190b8a retained in ancestry. Save E30 checkpoint to archive+verified
+refs with alternate index; main HEAD/index untouched. No GitHubpush requested.
+
+This qualifies bounded64bit GPU memory, notgeneralGEM/IOKit/Mesa GLcontext or
+acceleratedSpringBoard. Next gap: variableBO ownership/VA allocator and real
+MacanGPU/DRMshim integration; existing IOKit currentlycalls redwood_gpu_*.
+Do not redo mapping/owner loops or registerfakeaccelerator. No newexperiment
+until concrete onehypothesis/minimaltest recorded. RAM-only/no flash/erase;
+autoUEFI no physical Boot iOS confirmation. Android+independentADB1 aftereach.
+
+Older chronology below is superseded by this entry.
+
 # Current E29 hardware PASS — GLSL -> Mesa NIR -> FD750 -> GPU -> user
 
 Userauthorizedautonomousworkwhileaway. E28 e6a09e2 independentlymappeddata

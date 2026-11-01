@@ -131,7 +131,7 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         at=markers.index("SMMU_OWNER released after child stop and context detach")
         markers.insert(at,"SERVICE worker finished result=1")
         markers += ["SERVICE end consumed=1 result=1","SERVICE probe passed=1 context_null=1"]
-    if 6<=image<=8:
+    if 6<=image<=8 or image==10:
         markers.insert(0,"USERDEV registered abi=1 pixels=256 mode=0600; no GPU opened")
         at=markers.index("COPY_SEQUENCE begin jobs=3 kernel_caller=1")
         markers[at:at]=["SERVICE begin root_live=1 serialized=1","USERDEV open pid=1 demand_context=1"]
@@ -152,7 +152,7 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
             markers.insert(at,f"DATA_BO checked=4096 wrong_words=0 fence={fence} independent=1")
         at=markers.index("SMMU_OWNER released after child stop and context detach")
         markers.insert(at,"DATA_BO released after GPU stop and context detach")
-    if image==8:
+    if image in (8,10):
         at=markers.index("COPY_JOB begin fence=1 seq=44 pixels=256")
         markers.insert(at,"GLSL_JOB mode=dispatch command_words=191 bindless=1 source=GLSL450")
     if image==9:
@@ -160,6 +160,14 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         markers.insert(at,"DATA_BO published separately VA=8007c000 pages=4 aliases=2 unprivileged=1")
         at=markers.index("SMMU_OWNER released after child stop and context detach")
         markers.insert(at,"DATA_BO released after GPU stop and context detach")
+    if image==10:
+        at=markers.index("GLSL_JOB mode=dispatch command_words=191 bindless=1 source=GLSL450")
+        markers.insert(at,"USER_BO published VA=100000000 pages=4 lower39=1 unprivileged=1")
+        for fence in (1,2,3):
+            at=markers.index(f"COPY_JOB done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0")
+            markers.insert(at,f"DATA_BO checked=4096 wrong_words=0 fence={fence} independent=1")
+        at=markers.index("SMMU_OWNER released after child stop and context detach")
+        markers.insert(at,"USER_BO released after GPU stop and context detach")
     positions=[text.find(marker) for marker in markers]
     if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
         raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
@@ -180,6 +188,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-user-va",action="store_true",help="E30 64-bit lower GPU VA for GLSL data BO")
     parser.add_argument("--gpu-glsl",action="store_true",help="E29 Mesa GLSL shader: prepare1 or dispatch2")
     parser.add_argument("--gpu-data-bo",action="store_true",help="E28 user copies with separate GPU data BO")
     parser.add_argument("--gpu-user-copy",action="store_true",help="E27 static Darwin user process -> fixed-copy ioctl -> GPU")
@@ -195,8 +204,8 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
-    if sum((args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
-    image_kind=(9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    if sum((args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
+    image_kind=10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
     if image_kind>=3 and image_kind!=9 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
     args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
@@ -513,7 +522,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{47 if 4<=image_kind<=8 else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{47 if (4<=image_kind<=8 or image_kind==10) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")

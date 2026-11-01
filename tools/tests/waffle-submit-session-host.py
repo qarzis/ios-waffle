@@ -18,6 +18,7 @@ h=r'''
 #include "waffle_gpu_copy.h"
 #include "waffle_gpu_job.h"
 #include "waffle_gpu_data.h"
+#include "waffle_gpu_buffer.h"
 typedef uintptr_t vm_offset_t;
 #define PAGE_SIZE 16384
 #define KMA_KOBJECT 1
@@ -92,7 +93,7 @@ static bool hfi_exchange_watch(uintptr_t gmu,uintptr_t hfi,const uint32_t *p,uns
   assert(active_arena[glsl_case?WAFFLE_GLSL_EVENT_WORD:WAFFLE_JOB_EVENT_WORD]==fence && active_arena[glsl_case?WAFFLE_GLSL_WAIT_WORD:WAFFLE_JOB_WAIT_WORD]==fence && active_arena[2048]==0);
   for(unsigned i=0;i<256;i++)assert(active_arena[3072+i]==0xdead0000u+i);
   if(separate_case){
-   assert(session->data_alias==(uintptr_t)data_arena && session->data_va==waffle_gpu_compact_alias(WAFFLE_GPU_DATA_ADDRESS));
+   assert(session->data_alias==(uintptr_t)data_arena && session->data_va==(watch->compute_image==10?WAFFLE_GPU_USER_TEST_VA:waffle_gpu_compact_alias(WAFFLE_GPU_DATA_ADDRESS)));
    for(unsigned i=0;i<4096;i++){
     assert(active_arena[i]==(glsl_case?waffle_glsl_command_word(fence,i,session->data_va,false,glsl_prepare_case):waffle_data_command_word(caller_input,fence,i,session->data_va,false)));
     assert(data_arena[i]==waffle_data_word(caller_input,i,false));
@@ -265,10 +266,10 @@ int main(void){
  }
 
  separate_case=true;
- for(unsigned glsl=0;glsl<2;glsl++)for(unsigned failure=0;failure<9;failure++){
+ for(unsigned glsl=0;glsl<3;glsl++)for(unsigned failure=0;failure<9;failure++){
   glsl_case=glsl;
   mode=0;sends=allocs=frees=maps=unmaps=releases=waits=delays=0;after_open=false;
-  struct waffle_gmu_plan plan={.raw_stage_pause=true,.compute_mode=2,.compute_image=glsl?8:7};
+  struct waffle_gmu_plan plan={.raw_stage_pause=true,.compute_mode=2,.compute_image=glsl==2?10:glsl?8:7};
   assert(submit_session_open(1,2,3,&plan));after_open=true;
   struct waffle_gmu_owner owner={.plan=&plan,.exercise_ok=true};
   struct waffle_gmu_region fresh={WAFFLE_GPU_DYNAMIC_ADDRESS,16384,(uintptr_t)dynamic_arena,true,false};
@@ -277,7 +278,12 @@ int main(void){
   data.readonly=true;assert(!waffle_gmu_owner_bind_data_bo(&owner,&data));data.readonly=false;
   data.size=4096;assert(!waffle_gmu_owner_bind_data_bo(&owner,&data));data.size=16384;
   mode=4;assert(!waffle_gmu_owner_bind_data_bo(&owner,&data) && !plan.submit_session->data_alias && unmaps==1);mode=0;
-  assert(waffle_gmu_owner_bind_data_bo(&owner,&data));assert(!waffle_gmu_owner_bind_data_bo(&owner,&data));
+  if(glsl==2){
+   struct waffle_gpu_buffer buffer={WAFFLE_GPU_USER_TEST_VA,(uintptr_t)data_arena,16384,false};
+   buffer.gpu_va=0x1000;assert(!waffle_gmu_owner_bind_user_buffer(&owner,&buffer));buffer.gpu_va=WAFFLE_GPU_USER_TEST_VA;
+   buffer.readonly=true;assert(!waffle_gmu_owner_bind_user_buffer(&owner,&buffer));buffer.readonly=false;
+   assert(waffle_gmu_owner_bind_user_buffer(&owner,&buffer));assert(!waffle_gmu_owner_bind_user_buffer(&owner,&buffer));
+  }else{assert(waffle_gmu_owner_bind_data_bo(&owner,&data));assert(!waffle_gmu_owner_bind_data_bo(&owner,&data));}
   struct waffle_gpu_copy_job invalid={data_arena,caller_output,256,99};
   assert(!waffle_gmu_owner_copy(&owner,&invalid) && !invalid.fence && !sends);
   for(unsigned fence=1;fence<=3;fence++){

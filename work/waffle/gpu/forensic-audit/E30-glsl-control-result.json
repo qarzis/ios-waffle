@@ -1,0 +1,14 @@
+{
+  "experiment": "E30 old GLSL mode8 control",
+  "run": "work/waffle/runs/20261101T090723Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T090659Z",
+  "jobs": 3,
+  "pixels": 768,
+  "two_bo_word_checks": 24576,
+  "wrong": 0,
+  "negative_checks": 5,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "f34a262d5987f34456121a669ce9d97ea9da9f661be9c21b212b7a1bce615555"
+}

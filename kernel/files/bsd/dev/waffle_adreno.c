@@ -740,7 +740,7 @@ void waffle_adreno_init(void)
         }
         gpu_log("waffle-gpu: PLL%u verified firmware CX/MX256 handoff\n",probe);
         uint32_t image=0;
-        if(probe==94 && PE_parse_boot_argn("waffle_image",&image,sizeof(image)) && (image==6 || image==7 || image==8)){
+        if(probe==94 && PE_parse_boot_argn("waffle_image",&image,sizeof(image)) && (image==6 || image==7 || image==8 || image==10)){
             if(!waffle_gpu_user_register())loader_return();
             return;
         }
@@ -854,7 +854,7 @@ static struct board_power_owner *probe_gpu_body(unsigned probe)
 struct waffle_gpu_parent *waffle_gpu_parent_begin(void)
 {
     uint32_t image=0;
-    if(pll92_power!=256 || !PE_parse_boot_argn("waffle_image",&image,sizeof(image)) || (image!=5 && image!=6 && image!=7 && image!=8))return NULL;
+    if(pll92_power!=256 || !PE_parse_boot_argn("waffle_image",&image,sizeof(image)) || (image!=5 && image!=6 && image!=7 && image!=8 && image!=10))return NULL;
     struct aop_gpu_owner *s=aop_gpu_owner_begin(94);
     if(s)gpu_log("waffle-gpu: full GPU owner returned live to init caller; no mutex held\n");
     return (struct waffle_gpu_parent *)s;

@@ -1982,7 +1982,7 @@ static bool submit_session_compute_job(struct waffle_submit_session *s,unsigned 
         (job?(mode!=2 || image!=2 || s->submitted!=s->completed || s->next_sequence!=44+s->submitted || s->submitted>=1024):(s->submitted || s->completed || s->next_sequence!=44)) ||
         s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024 ||
         rd(s->gpu,0xf400*4) || (rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3))return false;
-    bool glsl=job && (s->plan->compute_image==8 || s->plan->compute_image==9);
+    bool glsl=job && (s->plan->compute_image==8 || s->plan->compute_image==9 || s->plan->compute_image==10);
     bool prepare=glsl && s->plan->compute_image==9;
     unsigned command_words=glsl?WAFFLE_GLSL_WORDS:WAFFLE_COMPUTE_WORDS;
     if(glsl && !s->data_alias)return false;
@@ -2149,6 +2149,24 @@ bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *owner,struct waffle_
     if(alias==s->alias){ml_io_unmap(alias,16384);return false;}
     s->data_alias=alias;s->data_va=va;
     say("waffle-gmu: DATA_BO bound VA=%llx PA=%llx separate_alias=1\n",va,pa);
+    return true;
+}
+
+bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *owner,const struct waffle_gpu_buffer *bo)
+{
+    if(!waffle_gmu_owner_can_bind_bo(owner) || !bo || bo->readonly || !bo->memory ||
+        !waffle_gpu_user_buffer_valid(bo->gpu_va,bo->bytes))return false;
+    struct waffle_submit_session *s=owner->plan->submit_session;
+    if(s->data_alias || s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024)return false;
+    uint64_t pa=kvtophys(bo->memory);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(bo->memory+16383)!=pa+16383)return false;
+    for(vm_offset_t a=bo->memory;a<bo->memory+16384;a+=64)__asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    vm_offset_t alias=ml_io_map_unmappable(pa,16384,VM_WIMG_WCOMB);
+    if(!alias)return false;
+    if(alias==s->alias){ml_io_unmap(alias,16384);return false;}
+    s->data_alias=alias;s->data_va=bo->gpu_va;
+    say("waffle-gmu: USER_BO bound VA=%llx PA=%llx separate_alias=1\n",bo->gpu_va,pa);
     return true;
 }
 
