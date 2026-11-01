@@ -1,3 +1,46 @@
+# STOPPED at user request — Android restored, E31 hardware pending
+
+Latest user: «стопни». No more GPU work/build/boot until explicit resume.
+No active workers. Independent ADB sys.boot_completed=1 after STOP.
+Oldmode10 control run20261101T092537Z/auto092513Z onE31kernel passed:
+runner0/autosuccess/Android1. NewMSMmode11 was NOT launched.
+
+E31 source implements diagnostic MSM twoBO handles/upload/download/exact
+usercommand191words/realfencewait, fullhost/XNU/EFI/container/sourceproofPASS.
+Hardwarequalificationpending. PreserveWIP separately; verifiedE30 remains
+b748e27778c9c4292dbad9ee82c56b5bbf188e87. Artifactdiagnostic-gpu-msm-e31.
+On explicitresume: Androidpreflight thenonefull94chain --compute dispatch
+--msm via tools/run-waffle-auto.py. RequirestrictMSMBO/3fences/768pixels/
+24576checks/7negatives/fullstop47/Androidindependent1, preservefirstfailure.
+Afterproof nextactualMesaDRMshimtransport integration; notyetmodified.
+No generalGEMmmap/GL/IOSurface/IOKitaccelerator/SpringBoardclaim.
+RAMonly/no flash/erase. No physical BootiOSselection needed. NoGitHubpush.
+
+Older entries below are superseded by this STOP.
+
+# Active E31 — MSM two-BO and user command submission
+
+User requests connecting buffers/commands to Mesa+iOS; work authorized.
+Safe E30 b748e277 retained. Full E31 host/XNU/EFI/container/sourcebinding
+passed; diagnostic-gpu-msm-e31. Exact pinnedMesa legacyMSM GEM_NEW/INFO/
+SUBMIT/WAIT structures, root-only diagnosticcdev /dev/waffle-gpu-msm, two
+realowned16KiB BO handles, explicitboundedupload/download; exact audited
+191wordMesa package uploadedbyuser and checkedbeforeHFI/no regeneration.
+OnlyknownGLSLcopyaccepted; notfullDRM/mmap/GL/IOKit/IOSurface support.
+
+Oldmode10control exec78647/auto20261101T092513Z now active. No concurrent
+fastboot. Afterrunner0/autosuccess/independentADB1 preserve94controlreport,
+thenone --msm run sameartifact/full94chain/compute dispatch. Requiresactual
+user3fences/768pixels/24576checks/7negatives andfullstop47/contextnull/Android1.
+Strictvalidate_msm_log checksBOcreation,usercommandacceptance/fences/close.
+No firmware/power/registerchanges; core preexistingpaths regressionspassed.
+Newsourceproof and architecturegap in forensic-audit/E31-*.json.
+
+Next afterhardwareproof: use same BO/submit path through actual Mesa DRMshim
+transport, preserving existingRedwood renderer path. No fake GLcapabilities.
+RAM-only/no flash/erase; automaticUEFI no physicalselection. Saveverified
+commits viaalternateindex/mainHEAD/index preserved. No GitHubpushrequested.
+
 # Current E30 hardware PASS — 64-bit lower GPU VA data buffer
 
 User authorized autonomous GPU work. E30 run20261101T090854Z/auto090830Z

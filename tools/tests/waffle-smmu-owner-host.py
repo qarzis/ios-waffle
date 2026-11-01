@@ -162,6 +162,7 @@ static uint64_t *permission_table(struct table_pool *p,uint64_t entry){(void)p;(
 static bool pool_permission_sync(struct pool_permission_context *p){(void)p;assert(0);return false;}
 static bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *g,const struct waffle_gpu_buffer *b){(void)g;(void)b;assert(0);return false;}
 static bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *g,struct waffle_gmu_region *r){(void)g;(void)r;assert(0);return false;}
+static bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *p,struct waffle_gpu_buffer b[2]){(void)p;(void)b;return false;}
 static bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *p){(void)p;assert(0);return false;}
 static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *p,struct waffle_gmu_region *r){(void)p;(void)r;assert(0);return false;}
 
@@ -208,7 +209,7 @@ int main(void){
    assert(!waffle_smmu_owner_exercise(live) && callbacks==2);
   }
   if(early==2){
-   uint32_t input[256]={0},output[256]={0};struct waffle_gpu_copy_job job={input,output,256,0};
+   uint32_t input[256]={0},output[256]={0};struct waffle_gpu_copy_job job={input,output,256,0,false};
    assert(!waffle_smmu_owner_copy(NULL,&job) && !waffle_smmu_owner_copy(live,NULL));
    for(unsigned fence=1;fence<=3;fence++){assert(waffle_smmu_owner_copy(live,&job) && job.fence==fence);assert(!heap_frees && !detaches);}
    assert(callbacks==4 && !waffle_smmu_owner_exercise(live));

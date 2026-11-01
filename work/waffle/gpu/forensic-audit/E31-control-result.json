@@ -1,0 +1,9 @@
+{
+  "experiment": "E31 oldmode10 control only",
+  "run": "work/waffle/runs/20261101T092537Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T092513Z",
+  "success": true,
+  "runner_exit": 0,
+  "independent_android": "1",
+  "new_msm_path_hardware_tested": false
+}

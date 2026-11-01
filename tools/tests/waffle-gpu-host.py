@@ -94,6 +94,8 @@ struct waffle_smmu_owner *waffle_smmu_owner_begin(uintptr_t b,uint32_t p,uint32_
 }
 bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *o) {(void)o;assert(0);return false;}
 struct waffle_gpu_copy_job;
+bool waffle_gpu_msm_register(void){return true;}
+bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *o,struct waffle_gpu_buffer b[2]){(void)o;(void)b;return false;}
 bool waffle_smmu_owner_copy(struct waffle_smmu_owner *o,struct waffle_gpu_copy_job *j) {(void)o;(void)j;assert(0);return false;}
 bool waffle_gpu_user_register(void) {assert(0);return false;}
 bool waffle_gpu_service_probe(void) {assert(0);return false;}

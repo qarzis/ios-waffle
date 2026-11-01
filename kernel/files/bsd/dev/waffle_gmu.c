@@ -1982,10 +1982,12 @@ static bool submit_session_compute_job(struct waffle_submit_session *s,unsigned 
         (job?(mode!=2 || image!=2 || s->submitted!=s->completed || s->next_sequence!=44+s->submitted || s->submitted>=1024):(s->submitted || s->completed || s->next_sequence!=44)) ||
         s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024 ||
         rd(s->gpu,0xf400*4) || (rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3))return false;
-    bool glsl=job && (s->plan->compute_image==8 || s->plan->compute_image==9 || s->plan->compute_image==10);
+    bool glsl=job && (s->plan->compute_image==8 || s->plan->compute_image==9 || s->plan->compute_image==10 || s->plan->compute_image==11);
     bool prepare=glsl && s->plan->compute_image==9;
     unsigned command_words=glsl?WAFFLE_GLSL_WORDS:WAFFLE_COMPUTE_WORDS;
     if(glsl && !s->data_alias)return false;
+    if(job && job->uploaded && (!glsl || s->plan->compute_image!=11))return false;
+    bool uploaded=job && job->uploaded;
     uint32_t input[256];
     unsigned fence=s->submitted+1,sequence=s->next_sequence;
     if(job){
@@ -2003,14 +2005,15 @@ static bool submit_session_compute_job(struct waffle_submit_session *s,unsigned 
     bool separate=job && s->data_alias;
     volatile uint32_t *data=(volatile uint32_t *)s->data_alias;
     if(separate){
-        for(unsigned i=0;i<4096;i++)data[i]=waffle_data_word(input,i,false);
+        if(!uploaded)for(unsigned i=0;i<4096;i++)data[i]=waffle_data_word(input,i,false);
         __asm__ volatile("dsb sy":::"memory");
         for(unsigned i=0;i<4096;i++)if(data[i]!=waffle_data_word(input,i,false))return false;
     }
     volatile uint32_t *out=(volatile uint32_t *)s->alias;
-    for(unsigned i=0;i<4096;i++)out[i]=glsl?waffle_glsl_command_word(fence,i,s->data_va,false,prepare):separate?waffle_data_command_word(input,fence,i,s->data_va,false):job?waffle_job_word(input,fence,i,false):initial(mode,i);
+    if(!uploaded)for(unsigned i=0;i<4096;i++)out[i]=glsl?waffle_glsl_command_word(fence,i,s->data_va,false,prepare):separate?waffle_data_command_word(input,fence,i,s->data_va,false):job?waffle_job_word(input,fence,i,false):initial(mode,i);
     __asm__ volatile("dsb sy":::"memory");
     for(unsigned i=0;i<4096;i++)if(out[i]!=(glsl?waffle_glsl_command_word(fence,i,s->data_va,false,prepare):separate?waffle_data_command_word(input,fence,i,s->data_va,false):job?waffle_job_word(input,fence,i,false):initial(mode,i)))return false;
+    if(uploaded)say("waffle-gmu: MSM_COMMAND accepted fence=%u words=191 source=user_bo\n",fence);
     if(glsl)say("waffle-gmu: GLSL_JOB mode=%s command_words=191 bindless=1 source=GLSL450\n",prepare?"prepare":"dispatch");
     if(job)say("waffle-gmu: COPY_JOB begin fence=%u seq=%u pixels=256\n",fence,sequence);
     if(image>=2)say("waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256\n");
@@ -2170,6 +2173,15 @@ bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *owner,const stru
     return true;
 }
 
+bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *owner,struct waffle_gpu_buffer buffers[2])
+{
+    struct waffle_submit_session *s=owner && owner->plan?owner->plan->submit_session:NULL;
+    if(!s || !buffers || owner->plan->compute_image!=11 || s->phase!=SUBMIT_READY ||
+       s->submitted || !s->alias || !s->data_alias || s->data_va!=WAFFLE_GPU_USER_TEST_VA)return false;
+    buffers[0]=(struct waffle_gpu_buffer){.gpu_va=s->ib_va-1024,.memory=s->alias,.bytes=16384};
+    buffers[1]=(struct waffle_gpu_buffer){.gpu_va=s->data_va,.memory=s->data_alias,.bytes=16384};
+    return true;
+}
 /* The parent owns power, SMMU, BO and serialization; no user pointer is accepted. */
 bool waffle_gmu_owner_copy(struct waffle_gmu_owner *owner,struct waffle_gpu_copy_job *job)
 {
@@ -2201,7 +2213,7 @@ static bool owner_glsl_prepare(struct waffle_gmu_owner *owner)
 {
     uint32_t input[256],output[256];
     for(unsigned i=0;i<256;i++)input[i]=waffle_job_test_pixel(1,i);
-    struct waffle_gpu_copy_job job={input,output,256,0};
+    struct waffle_gpu_copy_job job={input,output,256,0,false};
     if(!waffle_gmu_owner_copy(owner,&job) || job.fence!=1)return false;
     unsigned wrong=0;for(unsigned i=0;i<256;i++)if(output[i]!=0xdead0000u+i)++wrong;
     say("waffle-gmu: GLSL_PREPARE output_poison=256 wrong=%u dispatch=0\n",wrong);

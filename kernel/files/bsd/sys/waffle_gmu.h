@@ -56,5 +56,6 @@ bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *);
 bool waffle_gmu_owner_bind_user_buffer(struct waffle_gmu_owner *,const struct waffle_gpu_buffer *);
 bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *,struct waffle_gmu_region *);
 bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *,struct waffle_gmu_region *);
+bool waffle_gmu_owner_buffers(struct waffle_gmu_owner *,struct waffle_gpu_buffer [2]);
 bool waffle_gmu_owner_end(struct waffle_gmu_owner *);
 #endif

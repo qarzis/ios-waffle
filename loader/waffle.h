@@ -63,11 +63,11 @@ static inline int waffle_cmdline_allowed(const char *line)
         session+=waffle_token_equal(line,size,"waffle_session=1");
         dynamic_bo+=waffle_token_equal(line,size,"waffle_dynamic_bo=1");
         compute+=waffle_token_equal(line,size,"waffle_compute=1") || waffle_token_equal(line,size,"waffle_compute=2");
-        image+=waffle_token_equal(line,size,"waffle_image=10") || waffle_token_equal(line,size,"waffle_image=8") || waffle_token_equal(line,size,"waffle_image=9") || waffle_token_equal(line,size,"waffle_image=1") || waffle_token_equal(line,size,"waffle_image=2") || waffle_token_equal(line,size,"waffle_image=3") || waffle_token_equal(line,size,"waffle_image=4") || waffle_token_equal(line,size,"waffle_image=5") || waffle_token_equal(line,size,"waffle_image=6") || waffle_token_equal(line,size,"waffle_image=7");
+        image+=waffle_token_equal(line,size,"waffle_image=11") || waffle_token_equal(line,size,"waffle_image=10") || waffle_token_equal(line,size,"waffle_image=8") || waffle_token_equal(line,size,"waffle_image=9") || waffle_token_equal(line,size,"waffle_image=1") || waffle_token_equal(line,size,"waffle_image=2") || waffle_token_equal(line,size,"waffle_image=3") || waffle_token_equal(line,size,"waffle_image=4") || waffle_token_equal(line,size,"waffle_image=5") || waffle_token_equal(line,size,"waffle_image=6") || waffle_token_equal(line,size,"waffle_image=7");
         glsl_prepare+=waffle_token_equal(line,size,"waffle_image=9");
         prepare_count+=waffle_token_equal(line,size,"waffle_compute=1");
         present+=waffle_token_equal(line,size,"waffle_image=3");
-        repeated+=waffle_token_equal(line,size,"waffle_image=10") || waffle_token_equal(line,size,"waffle_image=8") || waffle_token_equal(line,size,"waffle_image=4") || waffle_token_equal(line,size,"waffle_image=5") || waffle_token_equal(line,size,"waffle_image=6") || waffle_token_equal(line,size,"waffle_image=7");
+        repeated+=waffle_token_equal(line,size,"waffle_image=11") || waffle_token_equal(line,size,"waffle_image=10") || waffle_token_equal(line,size,"waffle_image=8") || waffle_token_equal(line,size,"waffle_image=4") || waffle_token_equal(line,size,"waffle_image=5") || waffle_token_equal(line,size,"waffle_image=6") || waffle_token_equal(line,size,"waffle_image=7");
         dispatch+=waffle_token_equal(line,size,"waffle_compute=2");
         gpu_count+=waffle_number(line,size,"waffle_gpu=",1,94);
         prepare93|=waffle_number(line,size,"waffle_gpu=",93,93);
@@ -131,7 +131,7 @@ static inline int waffle_gpu_token_allowed(const char *word, size_t size)
         waffle_token_equal(word,size,"waffle_session=1") ||
         waffle_token_equal(word,size,"waffle_dynamic_bo=1") ||
         waffle_token_equal(word,size,"waffle_compute=1") || waffle_token_equal(word,size,"waffle_compute=2") ||
-        (waffle_token_equal(word,size,"waffle_image=1") || waffle_token_equal(word,size,"waffle_image=2") || waffle_token_equal(word,size,"waffle_image=3") || waffle_token_equal(word,size,"waffle_image=4") || waffle_token_equal(word,size,"waffle_image=5") || waffle_token_equal(word,size,"waffle_image=6") || waffle_token_equal(word,size,"waffle_image=7") || waffle_token_equal(word,size,"waffle_image=8") || waffle_token_equal(word,size,"waffle_image=9") || waffle_token_equal(word,size,"waffle_image=10"));
+        (waffle_token_equal(word,size,"waffle_image=1") || waffle_token_equal(word,size,"waffle_image=2") || waffle_token_equal(word,size,"waffle_image=3") || waffle_token_equal(word,size,"waffle_image=4") || waffle_token_equal(word,size,"waffle_image=5") || waffle_token_equal(word,size,"waffle_image=6") || waffle_token_equal(word,size,"waffle_image=7") || waffle_token_equal(word,size,"waffle_image=8") || waffle_token_equal(word,size,"waffle_image=9") || waffle_token_equal(word,size,"waffle_image=10") || waffle_token_equal(word,size,"waffle_image=11"));
 #else
     (void)word; (void)size;
     return 0;

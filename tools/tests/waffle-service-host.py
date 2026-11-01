@@ -70,9 +70,12 @@ static unsigned pll92_power=256;
 static struct aop_gpu_owner *aop_gpu_owner_begin(unsigned);
 static bool aop_gpu_owner_end(struct aop_gpu_owner *);
 static bool waffle_smmu_owner_copy(struct waffle_smmu_owner *,struct waffle_gpu_copy_job *);
+static bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *,struct waffle_gpu_buffer [2]);
 static bool PE_parse_boot_argn(const char *name,void *value,unsigned size){assert(!strcmp(name,"waffle_image") && size==4);*(unsigned *)value=5;return true;}
 '''
 mocks=r'''
+static bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *o,struct waffle_gpu_buffer b[2]){(void)o;(void)b;return false;}
+
 static void lock_held(void){assert(pthread_mutex_trylock(&service_lock)==EBUSY);}
 static struct aop_gpu_owner *aop_gpu_owner_begin(unsigned probe){
  lock_held();assert(probe==94 && !active_aop_gpu);starts++;
@@ -107,7 +110,7 @@ int main(void){
  }
  mode=0;attempts=allocs=frees=starts=ends=copies=started_thread=joined_thread=0;
  struct waffle_gpu_context *context=waffle_gpu_context_begin();assert(context && !waffle_gpu_context_begin());
- uint32_t input[256]={0},output[256]={0};struct waffle_gpu_copy_job job={input,output,255,99};
+ uint32_t input[256]={0},output[256]={0};struct waffle_gpu_copy_job job={input,output,255,99,false};
  assert(!waffle_gpu_context_copy(context,&job) && !job.fence && !copies);
  job.words=256;assert(!waffle_gpu_context_copy(NULL,&job) && !job.fence);
  assert(lck_mtx_try_lock(&service_lock));

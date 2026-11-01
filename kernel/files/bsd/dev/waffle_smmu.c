@@ -805,7 +805,7 @@ static bool smmu_dynamic_bo_bind(struct smmu_owner *s)
     if(!smmu_bo_allocate_map(s,&s->dynamic,WAFFLE_GPU_DYNAMIC_ADDRESS) ||
         !waffle_gmu_owner_bind_bo(s->child,&s->dynamic))return false;
     log_line("waffle-iommu: DYNAMIC_BO published after GPU startup VA=%x pages=4 aliases=2 unprivileged=1\n",WAFFLE_GPU_DYNAMIC_ADDRESS);
-    if(s->compute_image==10)return smmu_user_buffer_allocate_map(s,WAFFLE_GPU_USER_TEST_VA);
+    if(s->compute_image==10 || s->compute_image==11)return smmu_user_buffer_allocate_map(s,WAFFLE_GPU_USER_TEST_VA);
     if(s->compute_image>=7){
         if(!smmu_bo_allocate_map(s,&s->data,WAFFLE_GPU_DATA_ADDRESS) ||
             kvtophys(s->data.memory)==kvtophys(s->dynamic.memory) ||
@@ -864,6 +864,15 @@ bool waffle_smmu_owner_copy(struct waffle_smmu_owner *owner,struct waffle_gpu_co
     bool ok=waffle_gmu_owner_copy(owner->state.child,job);
     owner->state.gmu_ok=owner->state.gmu_ok && ok;
     return ok;
+}
+bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *owner,struct waffle_gpu_buffer buffers[2])
+{
+    if(!owner || !owner->state.child || owner->state.compute_image!=11)return false;
+    if(!owner->exercised){
+        owner->exercised=true;
+        owner->state.gmu_ok=owner->state.dynamic_bo && smmu_dynamic_bo_bind(&owner->state);
+    }
+    return owner->state.gmu_ok && waffle_gmu_owner_buffers(owner->state.child,buffers);
 }
 bool waffle_smmu_owner_end(struct waffle_smmu_owner *owner)
 {

@@ -12,6 +12,7 @@ struct waffle_gpu_copy_job {
     uint32_t *output;
     unsigned words;
     uint32_t fence;
+    bool uploaded; /* E31: immutable, prevalidated user command/data BO contents. */
 };
 #define WAFFLE_JOB_EVENT_WORD 430u
 #define WAFFLE_JOB_WAIT_WORD 435u

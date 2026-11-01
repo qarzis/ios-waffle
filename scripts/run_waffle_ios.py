@@ -78,8 +78,43 @@ def write_gpu_png(path, pixels):
                      chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))
 
 
+def validate_msm_log(text):
+    markers=["MSM registered BO2 submit191 root_only=1 gated=1",
+      "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
+      "full GPU owner returned live to init caller; no mutex held","SERVICE begin root_live=1 serialized=1",
+      "USER_BO published VA=100000000 pages=4 lower39=1 unprivileged=1",
+      "MSM open pid=1 actual_gpu_bos=2 user_commands=1","COPY_SEQUENCE begin jobs=3 kernel_caller=1",
+      "MSM gem_new handle=1 bytes=16384 VA=1ff8000478000","MSM gem_new handle=2 bytes=16384 VA=100000000",
+      "MSM invalid_command refused=1 next_fence=1"]
+    for fence in (1,2,3):
+        markers += [f"MSM_COMMAND accepted fence={fence} words=191 source=user_bo",
+          "GLSL_JOB mode=dispatch command_words=191 bindless=1 source=GLSL450",
+          f"COPY_JOB begin fence={fence} seq={43+fence} pixels=256",
+          f"COMPUTE_IB ACK matched seq{43+fence} value=00000000 valid=1",
+          f"DATA_BO checked=4096 wrong_words=0 fence={fence} independent=1",
+          f"COPY_JOB done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0",
+          f"COPY_CALLER fence={fence} checked=256 wrong=0",f"MSM submitted fence={fence} user_ib=1 bo_handles=2"]
+    markers += ["MSM report pid=1 checks=768 wrong=0 fence=3 negative=7",
+      "MSM gem_close handle=1 retained_until_context_stop=1","MSM gem_close handle=2 retained_until_context_stop=1",
+      "SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session",
+      "USER_BO released after GPU stop and context detach","DYNAMIC_BO released after GPU stop and context detach",
+      "SMMU_OWNER released after child stop and context detach","CLOCK_OWNER released before CX restore result=1",
+      "POWER_OWNER released after clock child, CX and CFG restore result=1",
+      "AOP_OWNER released after power child and channel restore result=1 transport=0",
+      "SERVICE end consumed=1 result=1","MSM close passed=1 report=1 context_null=1"]
+    # Repeated identical GLSL markers must be found after each previous fence.
+    cursor=0
+    for marker in markers:
+        at=text.find(marker,cursor)
+        if at<0:raise RuntimeError("MSM BO/command/lifetime proof missing: "+marker)
+        cursor=at+len(marker)
+    if "REBOOT REQUIRED" in text:raise RuntimeError("MSM requires reset")
+    return extract_copy_jobs(text)[-1]
+
+
 def validate_aop_owner_log(text, compute_mode=0, image=False):
     """Require actual GPU results and child-first teardown for the owned path."""
+    if image==11:return validate_msm_log(text)
     markers=[
         "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
         "full GPU owner returned live to init caller; no mutex held",
@@ -188,6 +223,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-msm",action="store_true",help="E31 actual MSM BO handles and user uploaded Mesa commands")
     parser.add_argument("--gpu-user-va",action="store_true",help="E30 64-bit lower GPU VA for GLSL data BO")
     parser.add_argument("--gpu-glsl",action="store_true",help="E29 Mesa GLSL shader: prepare1 or dispatch2")
     parser.add_argument("--gpu-data-bo",action="store_true",help="E28 user copies with separate GPU data BO")
@@ -204,8 +240,8 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
-    if sum((args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
-    image_kind=10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    if sum((args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
+    image_kind=11 if args.gpu_msm else 10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
     if image_kind>=3 and image_kind!=9 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
     args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
@@ -522,7 +558,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{47 if (4<=image_kind<=8 or image_kind==10) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{47 if (4<=image_kind<=8 or image_kind in (10,11)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")
