@@ -159,6 +159,8 @@ def gl_completed_fences(text):
 
 
 def validate_gl_log(text):
+    if "Library not loaded:" in text:
+        raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
     if "REBOOT REQUIRED" in text or "GENERAL_SUBMIT mismatch" in text:raise RuntimeError("GL GPU ownership or completion failed")
     markers=["GENERAL registered root_only=1 gated=1 BO_limit=32",
@@ -464,10 +466,12 @@ def main():
                     "SESSION destroyed after full stop; aliases and heap released",
                     *[f"SESSION_IB ACK matched seq{i} value=00000000 valid=1" for i in (44,45,46)])):
                 raise RuntimeError(f"Owned session/multiple GPU results/stop not confirmed; logs: {out}")
+            if args.gpu_gl_context and "Library not loaded:" in final_text:
+                raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",final_text)[1])
             if args.gpu_dynamic_bo:
                 markers=("full GPU owner returned live to init caller; no mutex held",
                     "SESSION rebound BO VA=1ff8000478000", "DYNAMIC_BO published after GPU startup VA=80078000 pages=4 aliases=2 unprivileged=1",
-                    *(["COMPUTE values="] if args.gpu_compute else ["SESSION fence=1", "SESSION fence=2", "SESSION fence=3"]),
+                    *(["GENERAL_SUBMIT done fence=1"] if image_kind==13 else ["COMPUTE values="] if args.gpu_compute else ["SESSION fence=1", "SESSION fence=2", "SESSION fence=3"]),
                     "DYNAMIC_BO released after GPU stop and context detach", "SMMU_OWNER released after child stop and context detach")
                 positions=[final_text.find(marker) for marker in markers]
                 if -1 in positions or positions!=sorted(positions):

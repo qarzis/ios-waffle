@@ -1,0 +1,868 @@
+== XNULOADER run (usb) ==
+payload entry 'kernel' size f04178
+payload entry 'ramdisk' size 1200000
+payload entry 'cmdline' size ce
+payload entry 'usb' size 2
+payload entry 'checkpoint' size 2
+FW_HOLD preflight resource=/vcs/vdd_cx query=0 state=100 valid=1
+FW_HOLD preflight resource=/vcs/vdd_cx query=1 state=1e0 valid=1
+FW_HOLD preflight resource=/vcs/vdd_cx query=2 state=1e0 valid=1
+FW_HOLD preflight resource=/vcs/vdd_mx query=0 state=100 valid=1
+FW_HOLD preflight resource=/vcs/vdd_mx query=1 state=1e0 valid=1
+FW_HOLD preflight resource=/vcs/vdd_mx query=2 state=1e0 valid=1
+FW_HOLD create resource=/vcs/vdd_cx status=0 handle=cf266304
+FW_HOLD request resource=/vcs/vdd_cx level=100 status=0
+FW_HOLD create resource=/vcs/vdd_mx status=0 handle=cf26626c
+FW_HOLD request resource=/vcs/vdd_mx level=100 status=0
+FW_HOLD verify resource=/vcs/vdd_cx state=100 valid=1
+FW_HOLD verify resource=/vcs/vdd_mx state=100 valid=1
+FW_HOLD verified CX=100 MX=100; dedicated clients retained until reset; no clock writes
+kernel va fffffff007004000..fffffff0082bc178 entry fffffff0074594a8
+kernel loaded at pa 8c9004000..8ca2c0000
+ramdisk at pa 8ca2c0000 size 1200000
+resident image at pa 8ce000000 size 8a300000: it is the root (md0), the payload ramdisk is md1
+return slot patched at 8c945a7f0, checkpoint 0
+device tree 958300000 len 3828, boot_args 958310000, top 958314000
+cmdline: debug=0x8 waffle=1 cpus=1 rd=md0 bootcpu=7 loader_return_after=90 fbscale=2 epoch=1793529889 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13 waffle_fw_cxmx=256
+the kernel will run on core 700 (this is core 0)
+jumping to 8c94594a8
+core 700: the firmware answers 0 to the request to start it
+kernel returned: log at 8c9bb49c4, 30437 bytes
+
+== KERNEL LOG ==
+waffle-gpu: PLL94 verified firmware CX/MX256 handoff
+waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=32
+waffle-touch: RSC drv2 version=30200 config=800c8104
+waffle-touch: idle TCS0 control=1010000 irq=0
+waffle-buttons: arbiter version=70010000 bus0 APIDs=896
+buttons: step 2: look through the arbiter's table for the channels of the two peripherals
+buttons: channel 533 is the PMK8550's power-on block (0x1001300); written by system 0, which also gets its interrupts
+buttons: channel 559 is GPIO6 of the PM8550 (0x1018d00); written by system 0, which also gets its interrupts
+buttons: step 3: the first transfers on the SPMI bus
+buttons: next: read the type of the PMK8550's power-on block through channel 533 (2 registers, 0x1304)
+buttons: the PMK8550's power-on block says type 0x1, subtype 0x9 (the read took 6 us)
+buttons: next: read the type of GPIO6 of the PM8550 through channel 559 (2 registers, 0x8d04)
+buttons: GPIO6 of the PM8550 says type 0x10, subtype 0x13 (the read took 6 us)
+buttons: step 4: how the keys' inputs are set up
+buttons: next: read the status and the interrupt setup of the PMK8550's power-on block (registers 0x1310 to 0x1319)
+buttons: power-on block: status 0x18 (power released, volume up released); interrupts: edge 0, high 0, low 0, enabled 0, latched 0, pending 0
+buttons: next: read the setup and the level of GPIO6 of the PM8550 (registers 0x8d40 to 0x8d47, 0x8d10)
+buttons: volume down's pin: mode 0 (input), supply 1, pull 0 (up), enabled; registers 0x40.. = 00 01 00 00 00 01 80 00; level high (released)
+buttons: step 5: watching power volume-up volume-down, every 16 ms: power is the side button
+waffle-touch: VDD command0 status=10101
+waffle-touch: VDD command1 status=10101
+waffle-touch: VDD command2 status=10101
+waffle-touch: VDD ldob4 1800mV HPM enabled=1
+waffle-touch: GPIO48 cfg=1 io=0
+waffle-touch: GPIO49 cfg=1 io=0
+waffle-touch: GPIO50 cfg=1 io=0
+waffle-touch: GPIO51 cfg=1 io=0
+waffle-touch: GPIO108 cfg=1 io=0
+waffle-touch: GPIO161 cfg=1 io=1
+waffle-touch: GPIO162 cfg=1 io=0
+waffle-touch: configured GPIO48 cfg=80 io=1
+waffle-touch: configured GPIO49 cfg=280 io=3
+waffle-touch: configured GPIO50 cfg=280 io=0
+waffle-touch: configured GPIO51 cfg=280 io=3
+waffle-touch: configured GPIO108 cfg=2c0 io=3
+waffle-touch: configured GPIO161 cfg=2c0 io=0
+waffle-touch: configured GPIO162 cfg=c0 io=1
+waffle-gl-init: exec actual Darwin Mesa probe pid=1
+Darwin Ignition Sequence Version 1.0.0: Mon Apr 24 20:19:10 PDT 2023; root:libignition-51~1538/libignition_core/RELEASE_ARM64
+libignition: 1: arguments           :
+libignition: 1:   ignition level    : 0x5
+libignition: 1:   force dylib root  : 0x0
+libignition: 1:   halt after stage  : n/a
+libignition: 1: ignition blob not available
+libignition: 1: configuration         :
+libignition: 1:   program             : waffle-gl-probe
+libignition: 1:   os environment      : n/a
+libignition: 1:   rd                  : md0
+libignition: 1:   arp0                : n/a
+libignition: 1:   rp                  : n/a
+libignition: 1:   pivot src           : n/a
+libignition: 1:   root ramdisk        : 0x0
+libignition: 1:   restore             : 0x0
+libignition: 1:   root device info    : 0x0
+libignition: 1:   can haz debugger    : 0x1
+libignition: 1:   rootfs mount flags  : 0x5001
+libignition: 1:   ecid                : 0x0
+libignition: 1:   hardware target     : d22ap
+libignition: 1:   initproc            : 0x1
+libignition: 1:   single user         : 0x0
+libignition: 1:   userspace reboot    : 0x0
+libignition: 1:   secure boot level   : 0x0
+libignition: 1:   os version          : n/a
+libignition: 1: parameters          :
+libignition: 1:   version           : 0x1
+libignition: 1:   argc              : 0x1
+libignition: 1:   log fd            : 0xffffffffffffffff
+libignition: 1:   platform          : 0x2
+libignition: 1: boot spec           :
+libignition: 1:   name              : ramdisk
+libignition: 1:   stage count       : 0x2
+libignition: 1:        hello: commence primary ignition
+libignition: 1:        hello: hello from waffle-gl-probe.1
+libignition: 1:      goodbye: ignition sequence complete
+Library not loaded: /usr/lib/libSystem.B.dylib
+  Referenced from: <119D4932-F71F-342C-92EC-EC40ADFD0B3F> /redwood/bin/waffle-gl-probe
+  Reason: tried: '/usr/lib/libSystem.B.dylib' (no such file, no dyld cache), '/usr/local/lib/libSystem.B.dylib' (no such file)
+
+--- kernel message buffer ---
+[   91.654024]:  vm_cache_geometry_colors: 0
+[   91.654026]: do_cacheid() - 512 bytes Unknown cache (I:256 D:256 (separate)), 12-way assoc, 64 bytes/line
+[   91.654207]: kprintf initialized
+[   91.654230]: initialize_screen: b=D5100000, w=000005A0, h=00000C60, r=00001680, d=00000000
+[   91.654241]: pe_arm_init_interrupts: args: 0xfffffff007b62720
+[   91.654242]: pe_arm_map_interrupt_controller: soc_phys:  0x400000
+[   91.654244]: pe_arm_map_interrupt_controller: failed to find the interrupt-controller.
+[   91.654246]: pe_arm_init_debug: failed to find cpu-debug-interface
+[   91.654274]: gic: v3, distributor 0xfffffff254de8000, cpu 0's redistributor 0xfffffff254fb8000, virtual timer on PPI 27
+[   91.654281]: Darwin Kernel Version 22.5.0: Sun Nov  1 13:41:40 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837
+[   91.656626]: pmap_startup() init/release time: 1951 microsec
+[   91.656629]: pmap_startup() delayed init/release of 0 pages
+[   91.656631]: vm_page_bootstrap: 242424 free pages, 150792 wired pages, (up to 0 of which are delayed free)
+[   91.658519]: VM boostrap: 102 maps, 204 entries and 512 holes available
+[   91.658533]: Maximum number of VM swap files: 5
+[   91.658584]: ipc_kernel_copy_map     : 0xfffffff002254000 - 0xfffffff002a54000 (8M)
+[   91.658586]: io_submap               : 0xfffffff002a54000 - 0xfffffff003254000 (8M)
+[   91.658588]: compressor              : 0xfffffff256000000 - 0xfffffff3fe040000 (6G)
+[   91.658589]: gIOKitPageableFixed2    : 0xfffffff3fe040000 - 0xfffffff404040000 (96M)
+[   91.658591]: zone_meta               : 0xfffffff404040000 - 0xfffffff406388000 (35M)
+[   91.658592]: bufferhdr               : 0xfffffff406388000 - 0xfffffff40662c000 (2704K)
+[   91.658593]: kmem_ptr_range_meta     : 0xfffffff40662c000 - 0xfffffff406688000 (368K)
+[   91.658595]: gIOKitPageableFixed3    : 0xfffffff406688000 - 0xfffffff40c688000 (96M)
+[   91.658596]: bsd_pageable            : 0xfffffff40c688000 - 0xfffffff40d8d0000 (18M)
+[   91.658597]: kmem_sprayqtn_range     : 0xfffffff40d8d0000 - 0xfffffff48472c000 (1902M)
+[   91.658598]: mb                      : 0xfffffff48472c000 - 0xfffffff48a72c000 (96M)
+[   91.658600]: gIOKitPageableFixed0    : 0xfffffff48a72c000 - 0xfffffff49072c000 (96M)
+[   91.658601]: kmem_ptr_range          : 0xfffffff49072c000 - 0xfffffff507c2c000 (1909M)
+[   91.658602]: ipc_kernel_map          : 0xfffffff507c2c000 - 0xfffffff509c2c000 (32M)
+[   91.658603]: gIOKitPageableFixed1    : 0xfffffff509c2c000 - 0xfffffff50fc2c000 (96M)
+[   91.658605]: kmem_data_range         : 0xfffffff50fc2c000 - 0xfffffff5fedfc000 (3825M)
+[   91.658606]: zones                   : 0xfffffff5fedfc000 - 0xfffffffbfedfc000 (24G)
+[   91.658626]: kmem_large_ranges[1]    : 0 - 0 (0B)
+[   91.658627]: kmem_large_ranges[2]    : 0 - 0 (0B)
+[   91.658628]: kmem_large_ranges[3]    : 0 - 0 (0B)
+[   91.658629]: kmem_large_ranges[4]    : 0xfffffff41c69b800 - 0xfffffff48472c000 (1664M)
+[   91.658630]: kmem_large_ranges[5]    : 0xfffffff52da66000 - 0xfffffff5fedfc000 (3347M)
+[   91.658635]: "vm_compressor_mode" is 2
+[   91.658649]: zone_init: pgzalloc  0xfffffff5fedfc000:0xfffffff600bb8000 (29M) [951 slots]
+[   91.658652]: zone_init: map VM    0xfffffff600bb8000:0xfffffff6e6da8000 (3681M)
+[   91.658654]: zone_init: map RO    0xfffffff6e6da8000:0xfffffff7338f8000 (1227M)
+[   91.658657]: zone_init: map GEN0  0xfffffff7338f8000:0xfffffff819ae8000 (3681M)
+[   91.658659]: zone_init: map GEN1  0xfffffff819ae8000:0xfffffff8ffcd8000 (3681M)
+[   91.658661]: zone_init: map GEN2  0xfffffff8ffcd8000:0xfffffff9e5ec8000 (3681M)
+[   91.658663]: zone_init: map GEN3  0xfffffff9e5ec8000:0xfffffffacc0b8000 (3681M)
+[   91.658665]: zone_init: map DATA  0xfffffffacc0b8000:0xfffffffbfedfc000 (4909M)
+[   91.658667]: zone_init: metadata  0xfffffff404050000:0xfffffff405850000 (24M)
+[   91.658668]: zone_init: metabits  0xfffffff405850000:0xfffffff406378000 (11M)
+[   91.658669]: zone_init: extra     0:0 (0B)
+[   91.658777]: VM bootstrap done: 90 maps, 163 entries and 499 holes left
+[   91.659940]: IOKit IOMD setownership ENABLED
+[   91.659942]: ATM subsystem is initialized
+[   91.660092]: Log queues configured: slot count: 8, per-slot size: 32768, total size: 262144
+[   91.660097]: Long logs support configured: size: 16384
+[   91.660110]: Firehose configured: 16 chunks, 8 io pages
+[   91.660112]: OSLog stream configured: stream: 8192 bytes, cache: 2112 bytes
+[   91.660113]: OSLog stream verification: 0
+[   91.660116]: Telemetry: Sampling all tasks once per 1 second
+[   91.660119]: Scheduler: Default of clutch
+[   91.660121]: Setting scheduler priority decay band limit 18
+[   91.660123]: standard timeslicing quantum is 10000 us
+[   91.660124]: standard background quantum is 2500 us
+[   91.660136]: mig_table_max_displ = 54 mach_kobj_count = 371
+[   91.660199]: BANK subsystem is initialized
+[   91.661117]: panic_trace: PE_arm_debug_enable_trace enter
+[   91.661118]: panic_trace: PE_arm_debug_enable_trace exit
+[   91.661122]: kdp_core zlib memory 0x8000
+[   91.661190]: Registered coredump handler for kernel
+[   91.661192]: Serial requested, consistent debug disabled or debug boot arg not present, configuring debugging over serial
+[   91.661193]: Initializing serial KDP
+[   91.661466]: iBoot version: iBoot-8422.100.650
+[   91.661466]: iBoot Stage 2 version: 
+[   91.662439]: IONVRAM.cpp:initImageFormat:1364 - NVRAM size is 8192 bytes
+[   91.662503]: IONVRAM.cpp:getNVRAMProperties:1176 - _bankSize=0x2000, _bankCount=0x1, _currentBank=0
+[   91.662530]: IONVRAMCHRPHandler.cpp:unserializeImage:479 - NVRAM : commonPartitionOffset - 0x30, commonPartitionSize - 0x1fd0, systemPartitionOffset - 0xffffffff, systemPartitionSize - 0
+[   91.662615]: ulock_initialize>thread_max=5120, ull_hash_buckets=2048
+[   91.662653]: minicrypto: registered (md5, sha1, sha2, hmac, aes-ecb/cbc/ctr, hmac-drbg prng); no xts/gcm, no RSA
+[   91.662775]: calling mpo_policy_init for vnguard
+[   91.662777]: Security policy loaded: Guarded vnode policy (vnguard)
+[   91.662779]: calling mpo_policy_init for AMFI
+[   91.662780]: Security policy loaded: Apple Mobile File Integrity (stand-in) (AMFI)
+[   91.662781]: calling mpo_policy_init for Sandbox
+[   91.662782]: Security policy loaded: Seatbelt sandbox policy (stand-in) (Sandbox)
+[   91.663914]: No POST boot-arg set.
+[   91.664089]: PMRD: PMTraceWorker 0x8f05a20916eb6633
+[   91.664139]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 10001)
+[   91.664244]: GenericARMPE: platform "D22AP"
+[   91.664252]: [0]ml_processor_register>pset_find(cluster_id=0) returned pset 0
+[   91.664253]: [0]ml_processor_register>cpu_id 0xfffffff733a0a500 cluster_id 0 cpu_number 0 is type 0
+[   91.664258]: GenericARMCPU: cpu 0 (phys id 0x700) registered
+[   91.664283]: Copyright (c) 1982, 1986, 1989, 1991, 1993
+	The Regents of the University of California. All rights reserved.
+
+[   91.664284]: bsd_init: calling kauth_init
+[   91.664342]: bsd_init: calling process_name
+[   91.664343]: bsd_init: calling get_bsdthread_info
+[   91.664344]: MAC Framework successfully initialized
+[   91.664372]: bsd_init: calling kauth_cred_create
+[   91.664373]: bsd_init: calling chgproccnt
+[   91.664374]: bsd_init: calling kmem_suballoc
+[   91.664376]: bsd_init: calling bsd_bufferinit
+[   91.664923]: using 4870 buffer headers and 4483 cluster IO buffer headers
+[   91.664930]: bsd_init: calling IOKitInitializeTime
+[   91.664949]: clock_initialize_calendar system does not have monotonic clock
+[   91.664951]: bsd_init: calling vfsinit
+[   91.665045]: ktriage_register_subsystem_strings: set subsystem 8 strings
+[   91.665046]: bsd_init: calling proc_uuid_policy_init()
+[   91.665114]: mcache: 1 CPU(s), 64 bytes CPU cache line size
+[   91.665114]: bsd_init: calling mbinit
+[   91.665191]: mbinit: done [96 MB total pool size, (64/32) split]
+[   91.665193]: bsd_init: calling knote_init
+[   91.665194]: bsd_init: calling eventhandler_init
+[   91.665194]: bsd_init: calling aio_init
+[   91.665204]: bsd_init: calling pshm_cache_init
+[   91.665205]: bsd_init: calling psem_cache_init
+[   91.665208]: bsd_init: calling nwk_wq_init
+[   91.665211]: bsd_init: calling dlil_init
+[   91.665214]: SK: netagent is enabled by default for this platform
+[   91.665304]: DLIL: running SUM16 self-tests ... PASSED
+[   91.665393]: dlil_init: Waiting for all the create dlil kernel threads to get scheduled at least once.
+[   91.665428]: PMRD: power event 7 args 0x8f05a20ae32e4483 0x0
+[   91.665430]: PMRD: power event 7 args 0x8f05a20ae32e4ca3 0x0
+[   91.665499]: PMRD: PowerChangeOverride (OFF_STATE->ON_STATE, f, 0x2) tag 0x20064
+[   91.665505]: PMRD: sysPowerDownHandler message kIOMessageSystemCapabilityChange
+[   91.665506]: PMRD: sysPowerDownHandler cap f -> f (flags 1)
+[   91.665522]: dlil_init: All the created dlil kernel threads have been scheduled at least once. Proceeding.
+[   91.665523]: bsd_init: calling socketinit
+[   91.665527]: bsd_init: calling domaininit
+[   91.665676]: bsd_init: calling skywalk_init
+[   91.665692]: SK[0]: skmem_region_init              seg_size 16384, md_seg_size 16384, drv_buf_seg_size 65536 [eff 81920], usr_buf_seg_size 16384
+[   91.666143]: Skywalk: running self-tests
+[   91.666143]: Skywalk: sk_copy64_8 ... PASSED
+[   91.666144]: Skywalk: sk_copy32_8 ... PASSED
+[   91.666145]: Skywalk: sk_copy64_16 ... PASSED
+[   91.666145]: Skywalk: sk_copy32_16 ... PASSED
+[   91.666146]: Skywalk: sk_copy64_20 ... PASSED
+[   91.666147]: Skywalk: sk_copy64_24 ... PASSED
+[   91.666147]: Skywalk: sk_copy64_32 ... PASSED
+[   91.666148]: Skywalk: sk_copy32_32 ... PASSED
+[   91.666149]: Skywalk: sk_copy64_40 ... PASSED
+[   91.666149]: Skywalk: sk_copy64_64x ... PASSED
+[   91.666150]: Skywalk: sk_copy64_32x ... PASSED
+[   91.666151]: Skywalk: sk_copy64_8x ... PASSED
+[   91.666151]: Skywalk: sk_copy64_4x ... PASSED
+[   91.666152]: Skywalk: sk_zero_16 ... PASSED
+[   91.666153]: Skywalk: sk_zero_32 ... PASSED
+[   91.666154]: Skywalk: sk_zero_48 ... PASSED
+[   91.666154]: Skywalk: sk_zero_128 ... PASSED
+[   91.666165]: Skywalk: memcmp mask ... PASSED
+[   91.666455]: bsd_init: calling memorystatus_freeze_init
+[   91.666456]: bsd_init: calling memorystatus_init
+[   91.666485]: bsd_init: calling sysctl_mib_init
+[   91.666486]: bsd_init: calling bsd_autoconf
+[   91.666486]: bsd_autoconf: calling kminit
+[   91.667332]: bsd_init: calling loopattach
+[   91.667422]: ifnet_attach: All kernel threads created for interface lo0 have been scheduled at least once. Proceeding.
+[   91.667425]: bsd_init: calling ether_family_init
+[   91.667456]: bsd_init: calling net_init_run
+[   91.667473]: skip attaching fsw to lo0 using legacy TX modelReinit'd ND information for interface lo0
+[   91.667724]: bsd_init: calling inittodr
+[   91.667725]: bsd_init: calling setconf
+[   91.667751]: PMRD: sysPowerDownHandler message kIOMessageSystemCapabilityChange
+[   91.667751]: PMRD: sysPowerDownHandler cap f -> f (flags 2)
+[   91.667753]: PMRD: tellChangeUp OFF_STATE->ON_STATE
+[   91.667756]: PMRD: PowerChangeDone: OFF_STATE->ON_STATE
+[   91.667757]: PMRD: Force re-evaluating aggressiveness
+[   91.667758]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 30002)
+[   91.667761]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x10001
+[   91.667762]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667763]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x302) tag 0x40064
+[   91.667765]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667765]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x302) tag 0x50064
+[   91.667767]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667768]: PMRD: adjustPowerState ON_STATE, asap 0, idleSleepEnabled 0
+[   91.667769]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 60008)
+[   91.667771]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x30002
+[   91.667772]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667773]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x60008
+[   91.667774]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667796]: cpu_start() cpu: 0
+[   91.667854]: MiniIOMobileFramebuffer: display 750x1624 on a panel of 1440x3168 (5760 bytes per row)
+[   91.769808]: !BSD
+[   91.769816]: Added memory device md0/rmd0 (01000000/0D000000) at FFFFFFF00C000000 for 000000008A300000
+[   91.769821]: Added memory device md1/rmd1 (01000001/0D000001) at FFFFFFF0082C0000 for 0000000001200000
+[   91.769822]: BSD root: md0, major 1, minor 0
+[   91.769824]: bsd_init: vfs_mountroot
+[   91.773244]: packfs: image with 62609 nodes, 2264064 KB, read in place
+[   91.773261]: bsd_init: calling VFS_ROOT
+[   91.773268]: bsd_init: calling devfs_kernel_mount
+[   91.773372]: waffle-gpu: PLL94 verified firmware CX/MX256 handoff
+[   91.773392]: bsd_init: calling siginit
+[   91.773393]: bsd_init: calling bsd_utaskbootstrap
+[   91.773493]: waffle-touch: RSC drv2 version=30200 config=800c8104
+[   91.773500]: waffle-touch: idle TCS0 control=1010000 irq=0
+[   91.773517]: waffle-buttons: arbiter version=70010000 bus0 APIDs=896
+[   91.773519]: buttons: step 2: look through the arbiter's table for the channels of the two peripherals
+[   91.774495]: bsd_init: calling mountroot_post_hook
+[   91.774496]: bsd_init: done
+[   91.774497]: vm_free_delayed_pages: initialized 0 free pages
+[   91.774551]: VM Swap Subsystem is ON
+[   91.774582]: Failed to open swap file 2
+[   91.774583]: vm_swap_create_file failed @ 91 secs
+[   91.774584]: vm_swap_create_file failed @ 91 secs
+[   91.774648]: buttons: channel 533 is the PMK8550's power-on block (0x1001300); written by system 0, which also gets its interrupts
+[   91.776399]: buttons: channel 559 is GPIO6 of the PM8550 (0x1018d00); written by system 0, which also gets its interrupts
+[   91.777037]: buttons: step 3: the first transfers on the SPMI bus
+[   91.777040]: buttons: next: read the type of the PMK8550's power-on block through channel 533 (2 registers, 0x1304)
+[   91.777053]: buttons: the PMK8550's power-on block says type 0x1, subtype 0x9 (the read took 6 us)
+[   91.777056]: buttons: next: read the type of GPIO6 of the PM8550 through channel 559 (2 registers, 0x8d04)
+[   91.777068]: buttons: GPIO6 of the PM8550 says type 0x10, subtype 0x13 (the read took 6 us)
+[   91.777071]: buttons: step 4: how the keys' inputs are set up
+[   91.777074]: buttons: next: read the status and the interrupt setup of the PMK8550's power-on block (registers 0x1310 to 0x1319)
+[   91.777103]: buttons: power-on block: status 0x18 (power released, volume up released); interrupts: edge 0, high 0, low 0, enabled 0, latched 0, pending 0
+[   91.777107]: buttons: next: read the setup and the level of GPIO6 of the PM8550 (registers 0x8d40 to 0x8d47, 0x8d10)
+[   91.777136]: buttons: volume down's pin: mode 0 (input), supply 1, pull 0 (up), enabled; registers 0x40.. = 00 01 00 00 00 01 80 00; level high (released)
+[   91.777139]: buttons: step 5: watching power volume-up volume-down, every 16 ms: power is the side button
+[   91.777164]: waffle-touch: VDD command0 status=10101
+[   91.777166]: waffle-touch: VDD command1 status=10101
+[   91.777168]: waffle-touch: VDD command2 status=10101
+[   91.777175]: waffle-touch: VDD ldob4 1800mV HPM enabled=1
+[   91.777177]: waffle-touch: GPIO48 cfg=1 io=0
+[   91.777179]: waffle-touch: GPIO49 cfg=1 io=0
+[   91.777181]: waffle-touch: GPIO50 cfg=1 io=0
+[   91.777183]: waffle-touch: GPIO51 cfg=1 io=0
+[   91.777185]: waffle-touch: GPIO108 cfg=1 io=0
+[   91.777186]: waffle-touch: GPIO161 cfg=1 io=1
+[   91.777188]: waffle-touch: GPIO162 cfg=1 io=0
+[   91.777199]: waffle-touch: configured GPIO48 cfg=80 io=1
+[   91.777201]: waffle-touch: configured GPIO49 cfg=280 io=3
+[   91.777203]: waffle-touch: configured GPIO50 cfg=280 io=0
+[   91.777205]: waffle-touch: configured GPIO51 cfg=280 io=3
+[   91.777207]: waffle-touch: configured GPIO108 cfg=2c0 io=3
+[   91.777209]: waffle-touch: configured GPIO161 cfg=2c0 io=0
+[   91.777211]: waffle-touch: configured GPIO162 cfg=c0 io=1
+[   91.777224]: No POST boot-arg set.
+[   91.777225]: bsd_init: bsd_do_post - doneload_init_program: attempting to load /usr/appleinternal/sbin/launchd.development
+[   91.777325]: load_init_program: attempting to load /sbin/launchd
+[   91.778467]: packfs: image with 12 nodes, 18432 KB, read in place
+[   91.781548]: shared_region: 0x8f05a20ae336aa1b [1(waffle-gl-probe)] check_np(0x16ee3bbb0) vm_shared_region_start_address() failed
+[   91.782033]: minisandbox: request 2 (first seen from waffle-gl-probe[1]): allowed
+[   91.782378]: shared_region: 0x8f05a20ae336aa1b [1(waffle-gl-probe)] check_np(0x16ee3b140) vm_shared_region_start_address() failed
+[   91.783372]: pid 1 exited -- exit reason namespace 6 subcode 0x1, description Library not loaded: /usr/lib/libSystem.B.dylib
+  Referenced from: <119D4932-F71F-342C-92EC-EC40ADFD0B3F> /redwood/bin/waffle-gl-probe
+  Reason: tried: '/usr/lib/libSystem.B.dylib' (no such file, no dyld cache), '/usr/local/lib/libSystem.B.dylib' (no such file)
+[   91.783377]: coredump (waffle-gl-probe, pid 1): writing core to /private/var/cores/waffle-gl-probe.core
+[   91.783381]: coredump (waffle-gl-probe, pid 1): failed to open core dump file /private/var/cores/waffle-gl-probe.core: error 2
+[   91.783383]: coredump (waffle-gl-probe, pid 1): core dump failed: error 2
+
+[   91.783384]: Failed to generate core file for pid: 1: error 2, took 0.000 seconds
+
+--- panic buffer ---
+panic(cpu 0 caller 0xfffffff0077c6f90):  initproc failed to start -- exit reason namespace 6 subcode 0x1 description: Library not loaded: /usr/lib/libSystem.B.dylib
+  Referenced from: <119D4932-F71F-342C-92EC-EC40ADFD0B3F> /redwood/bin/waffle-gl-probe
+  Reason: tried: '/usr/lib/libSystem.B.dylib' (no such file, no dyld cache), '/usr/local/lib/libSystem.B.dylib' (no such file)
+Debugger message: panic
+Device: D22
+Hardware Model: iPhone10,3
+ECID: 0000052445730001
+Boot args: debug=0x8 waffle=1 cpus=1 rd=md0 bootcpu=7 loader_return_after=90 fbscale=2 epoch=1793529889 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13 waffle_fw_cxmx=256
+Memory ID: 0x0
+OS release type: Not set yet
+OS version: Not set yet
+Kernel version: Darwin Kernel Version 22.5.0: Sun Nov  1 13:41:40 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837
+Kernel UUID: B858AA2A-5147-3D0A-8AB2-D28F154BDB98
+Boot session UUID: C169EBAA-5A3D-4A16-AE14-F3EA68983EC0
+iBoot version: iBoot-8422.100.650
+iBoot Stage 2 version: 
+secure boot?: NO
+roots installed: 0
+Paniclog version: 14
+Kernel text base:  0xfffffff007004000
+mach_absolute_time: 0x69074744
+Epoch Time:        sec       usec
+  Boot    : 0x6ae71821 0x00000000
+  Sleep   : 0x00000000 0x00000000
+  Wake    : 0x00000000 0x00000000
+  Calendar: 0x6ae71821 0x0001aee7
+
+Zone info:
+  Zone map: 0xfffffff5fedfc000 - 0xfffffffbfedfc000
+  . PGZ   : 0xfffffff5fedfc000 - 0xfffffff600bb8000
+  . VM    : 0xfffffff600bb8000 - 0xfffffff6e6da8000
+  . RO    : 0xfffffff6e6da8000 - 0xfffffff7338f8000
+  . GEN0  : 0xfffffff7338f8000 - 0xfffffff819ae8000
+  . GEN1  : 0xfffffff819ae8000 - 0xfffffff8ffcd8000
+  . GEN2  : 0xfffffff8ffcd8000 - 0xfffffff9e5ec8000
+  . GEN3  : 0xfffffff9e5ec8000 - 0xfffffffacc0b8000
+  . DATA  : 0xfffffffacc0b8000 - 0xfffffffbfedfc000
+  Metadata: 0xfffffff404050000 - 0xfffffff405850000
+  Bitmaps : 0xfffffff405850000 - 0xfffffff406378000
+  Extra   : 0 - 0
+
+TPIDRx_ELy = {1: 0xfffffff8ffe65698  0: 0x0000000000000000  0ro: 0x0000000101349ee0 }
+CORE 0 is the one that panicked. Check the full backtrace for details.
+Compressor Info: 0% of compressed pages limit (OK) and 0% of segments limit (OK) with 0 swapfiles and OK swap space
+Panicked task 0xfffffff73392d900: 51 pages, 1 threads: pid 1: waffle-gl-probe
+Panicked thread: 0xfffffff8ffe65698, backtrace: 0xfffffff40d95b5b0, tid: 169
+		  lr: 0xfffffff0072cb914  fp: 0xfffffff40d95b640
+		  lr: 0xfffffff007467690  fp: 0xfffffff40d95b660
+		  lr: 0xfffffff007457dfc  fp: 0xfffffff40d95b6e0
+		  lr: 0xfffffff007456e44  fp: 0xfffffff40d95b800
+		  lr: 0xfffffff0074565a4  fp: 0xfffffff40d95b810
+		  lr: 0xfffffff0072caf50  fp: 0xfffffff40d95bbc0
+		  lr: 0xfffffff0072cc0ac  fp: 0xfffffff40d95bc40
+		  lr: 0xfffffff007ad91d8  fp: 0xfffffff40d95bc60
+		  lr: 0xfffffff0077c6f90  fp: 0xfffffff40d95bd90
+		  lr: 0xfffffff0077c6568  fp: 0xfffffff40d95be20
+		  lr: 0xfffffff0077e1360  fp: 0xfffffff40d95be70
+		  lr: 0xfffffff0077e16ac  fp: 0xfffffff40d95beb0
+		  lr: 0xfffffff0072bf68c  fp: 0xfffffff40d95bf10
+		  lr: 0xfffffff0074569c0  fp: 0xfffffff40d95bf20
+
+   PMOC    €          0   ˆ       kcd_c_type                                        0   ˆ       kcd_c_totalout                  R                 0   ˆ       kcd_c_totalin                   à<              X¢Y    €       Hbf``0 â â’ÄäìâŒü’øÌ¼ø´œÄôbˆ8Œdgyícƒh    ÿÿb@ÜÄ €¢¿ 3,ˆDü$.   ÿÿbr€¸ˆA ¸²¸$57hLI*6ûAö!    ÿÿäd` 
+ô "±   ÿÿRB“gG’1   ÿÿ@“gp@U    ÿÿâÊO 
+µ@…]‹Ê3ó¼S‹òRsÂR‹Š3óóŒŒôLõ¬‚KóüòË­L­L´ŒŒŒÌ¬
+‹ª2‹­*òJu-Ì-ÍôõŒ¢Q¹º)™E%•±úN¡>.úùIYú.®a®>ş¾®~!ñA¾f&ñNÎ¾FÆæ`   ÿÿLRÛÃ LèŒGÓ„fA<LŠ
+â¡¤¢3—¨DôË¾³ì;[¾ş/Mó)ş$ğ´vŸÑÆ”ZtH¸rğ’Ù"nmÌ™Ğj™O=ÄäŸ”©à)Ë=gÅƒtÆÏ3.#é’ÛñíD«c‚æ²ÄO’¾ÿÁæuŸªÖ5¯y€p\°òõdFÊmå„5.ÅÃRQĞ†-yµáÄj£b7;éÇ{¹Ã¾   ÿÿ22€¸ˆA ‰Ì‚    ÿÿ2R@ÜÄ `çÅ	aAH    ÿÿ2R@ÜÄ àoù~»I<„$   ÿÿb fbpâ„Ğ0   ÿÿrò€œ Æ€Ù¢dŒ†™   ÿÿj‚ñ   ÿÿbšç k†ŠßÛsj¿Öfe _ˆŞcèwgbàÒ `¡°’ 3   ÿÿÊ É2ÍG    ÿÿÒ r€¤ÖˆØ? ¹#b•V »-W×¦Kı¢Ş·g€¤@    ÿÿbêo 2:€024( ósä <E‰çYÈâÈl¸@68Æ—$gãR   ÿÿRºG Èê ó˜¡4Œ   ÿÿÒB“‡‰Ãh    ÿÿ‚…O*T€¨    ÿÿbò€ 0u?vÃéÏ[0‘ÅMÎxÊ„"»%$ j0€YÍV·¹Añ1×"Ö~ç ˆ€N B »ˆA Ì7¾ ˜WòKKâÙ:"H)	4O¨¾M‡:D@é\+²   ÿÿrR¡4   ÿÿ‚…_”~    ÿÿB?˜:¨r‘L¢Âïd§,D„âcÎ±R/<Î Ñ- 	|>D\øe¦ä¤*( é$‰+üşö2‚º¸5ü    ÿÿ    ÿÿ‚…_:T=ü    ÿÿB?˜:†<h¸Áh¨~\Ô24‰Ï+d€„ĞÓ_<C<XevqáWœœ‘š¬2óJRóó’SãK2ŠRSÀ†Aà
+?¨Ş$nTC    ÿÿraá    ÿÿò€8ˆA =ü    ÿÿB¿°*†˜HøÁh¨0NJM†s%şğS.À~¸üI-áhş   ÿÿÚ›¥   ÿÿ‚ùœøbèş   ÿÿB÷/L]Gßup>;óA¨üöj!”R—b…^À*~w`÷/''jy•’˜š›Ÿ§—’š–ZT”š¢›’š˜““ŸœXl$ Úˆ‡+üü¡Ê¯ğ£ê   ÿÿrÁ²   ÿÿ‚…_T=ü    ÿÿB?˜ºKI?¨ñàúÆÑèáË–¶>MRøA2™.¸5l<A6®ğÃ¥Q(! ÄŒ@,ÂÉÀà£Z^   ÿÿŠƒ ,œ    ÿÿ‚…o6D#}   ÿÿB_˜ºKh¾°ôy;œğM­HN- 6i‚}Líğ   ÿÿ†#,œ    ÿÿ‚…oT=ı   ÿÿB_˜:¥_Xø:O$'|Aı†’¢ÄäT¨oSÔ_    ÿÿZ™¥   ÿÿ‚…o.”¾    ÿÿB_˜º†åëÁåêŸÓFD•¯· æÃ¨·i,™ 6zùÇVâN\øB
+†x`/'RÖÂl Æ¾ÜPí+$QÍ   ÿÿraá    ÿÿ‚…_T=ü    ÿÿB?˜º‚so‰
+7˜í¢P”>‚µ>æ`BèI\øyú§•e&§†¤åfæ%–¤†P¥=Ãug0;”¥€´³1¨|µ1p‡CŠ¤œUà†Ğ!UzûÁí`ùG]Á4   ÿÿêX8   ÿÿ‚…D£ü   ÿÿB˜º€LÚ”¿öö`—$o".ü¡íƒäü¢TİÄ¼ÄœÊ’ÌäbİÔ²Ô¼’b¨—ğR¸Ò/.M@	 Å(üÑë7    ÿÿŠƒ ,œ    ÿÿ‚…/Ì1èé   ÿÿB_˜:ƒ~"Œ†˜Š›´@“JnbÍ	¡—òò`•«w¾HıÅôÄ¢$`×1>9?''5¹lAWø2Au¾æB5   ÿÿraá    ÿÿò€¸ˆA =ü    ÿÿB¿°*íÔ×bœ‹XûŠgƒÓ=T'%&“¾úIH=üåƒéc. ù 5@àò/(½€€„‚“    ÿÿ²J 4   ÿÿ‚ù·ÊG÷/   ÿÿB÷/L]ÃdH}ÒrÎˆ(ÿª3C-€RİØÓ¬½ùùvÿró€ĞŒ H}¢ ªO22Ó3”!D’¸ÂOªİ4    ÿÿŠÃÂ   ÿÿ‚…_T=ü    ÿÿB?˜:í|ÒÒËKV¨P*ÿàÓWzùİA\øyúøåç—¸äç&fæA'Â~şP3"øP   ÿÿr+ 4   ÿÿ‚…_#”~    ÿÿB?˜ºŠß;ÁéÎ¦È†¨ô§ 5FıÀ~ññ`%›ˆ?`y•™_”ZP”™_”Y’Y•I’0‹Ğ¸Âª/†Õ     ÿÿraá    ÿÿ‚…_T=ü    ÿÿB?˜º‚?oÀáöÆ¤¨ğ“DuÃ5Qìá+¯”°‡!ÿŠ2¡Z   ÿÿraî   ÿÿ‚ù·*î_    ÿÿB÷/LÅÔË`jì&Ê¿¼¨Î`xLÀ¿İ7I*ŸaÆÿ‚E4T    ÿÿÒ0w   ÿÿ‚ù·*î_    ÿÿB÷/LÔ¿Wˆô/Ô|õ‘€½§“çßhş   ÿÿZØ¥   ÿÿ‚ù·ÊG÷/   ÿÿB÷/Lİ…Õö¹C{3Qñ‚æWqüéÙù"iş„º_Í    ÿÿŠÃÜ   ÿÿ‚ù·‡   ÿÿB÷/LÃ´Í`êœª$Ê¿0÷@­a#àßÏL&d¥gY4ÿ   ÿÿ‚ùæn    ÿÿ‚ù·‡   ÿÿB÷/L©şåyJ'ğïäù¤Å/Ìxi4ÿ   ÿÿJÀÜ   ÿÿ‚ù·*   ÿÿB÷/Lİ3Hz&¶|Fßbş]ı‹<ÿ
+¢ù   ÿÿúæn    ÿÿ‚ù·*î_    ÿÿB÷/LİûuàtL®[ø×š›¼ô|ê   ÿÿ2`î   ÿÿ‚ù·*î_    ÿÿB÷/L@,$ÿë_~˜ ôdş½½œ¼øİ‡f   ÿÿòaî   ÿÿ‚ù·*î_    ÿÿB÷/Lİ
+HzV	!ª¼rCsÇ§}øËgå¤ù—jşwT‹    ÿÿraî   ÿÿò€¸ˆA İ¿    ÿÿB÷oXƒ‚Ä¿.¹Äù7ªF)-Äïßì¤ù—jğlv˜   ÿÿr{ 4   ÿÿ‚ù·ÊG÷/   ÿÿB÷/L]ÄÒÊ+=È€u?~ÿn>@š¡†W²!ÛÂÀ    ÿÿraî   ÿÿ‚ù·*î_    ÿÿB÷/L9Ÿú)E¬ı‡ˆk?;£:ƒÁGüÂú—b÷/''ƒĞ¬ `ÿ#757¿¨²¸$±¤´8Ş"L4‰«=Î5!Æ€ò   ÿÿÒ°p    ÿÿ‚…ß¨8zø   ÿÿB?˜º
+á+àr Å0ƒ¨ò@j>ŒÊAK/°ø†õ?¤_~În>ñÁ!!ÁñA®şA!0ˆ¤q…Ì=0Ô<    ÿÿÒ 4   ÿÿ‚…ßd(=ü    ÿÿB?˜ºà)şpÓTAJª‚	Jï:…-¿q0ÀÂor<öşzúK+JÌM-V(ÉW(ÉHU(HÌKÍ!èd¸Â¦ÆÆ€Ò@ÚˆÙX„“ÁÆÀœ~RÔÀ´7„©Òó|Ÿ¿¡uóÚÁ    ÿÿÒ°p   ÿÿò€x
+ƒ z|    ÿÿB)`UÕóI‹>¨>X|œ ÙdÇ‡•B¢BFjNAjÔN|¡øğEÓ¬ ä 1sĞâ   ÿÿê)`’   ÿÿ‚…ÿT(=ü   ÿÿB˜:RÃŸj>,ü¯éUÃ3ü   ÿÿ†,   ÿÿ‚…ÿ,á   ÿÿB˜º9Ş:(ù
+ª'5‡"ÿsÕ¬™ ‘ÿPÀ	Õ	+¬Oc\éÕª¿–Ê€R
+@Ú ˆÙ€_zİáñOƒ¦Ø_°r   ÿÿê˜¿   ÿÿ‚…×lˆ0Fy   ÿÿB/˜:RÃë&;#ØXx=.Ç^—’^y!ØEax	LòC	/    ÿÿ†Ìß    ÿÿ‚…×\¨8zş   ÿÿB/˜:†iëÁæ¶œ3ÓPí8)e4¶
+Ôğ‡&00aéË;{x¡×w%E©‰)
+É‰99
+Ù©EÀêNAÙÍ.|\\éì ÆD´ğ   ÿÿ    ÿÿ‚…ß<¨8zø   ÿÿB?˜º§vÃmK‡Qá§ 5F×ngÉ	¡çÏh†h°ÊÛéğ©? Ä,@èál¯$¦§æ—–Ä§V” 01'>3ªøIBág‡¦   ÿÿòaá    ÿÿ‚…ß|¨8zø   ÿÿB?˜ºšı¶àpƒÑhÖ`pÑDZšPÓ'T^AÌrH\ú…_QjqqiQ*šÄq	…ß+.Ts    ÿÿraá    ÿÿò€xƒ zø   ÿÿB¿`U3Zo‚ÃoJ±QéOªFM$şVï":üò“²R“KâùØ$Š'>éB(ü¬`†Ò    ÿÿÒ 4   ÿÿ‚…ßB(=ü    ÿÿB?˜º3;Ááv`º9Qá§5Fí&~“ãsAû`š€4.ÿ2AÕ@R/B   ÿÿ2aî   ÿÿ‚ùwTİ¿    ÿÿB÷/L]ÀiHyÅĞG\y¥5F±î`É±q•W—b÷/''¤Ñ 5˜ß’ósÁY.¿*F
+E(üĞ   ÿÿòaá    ÿÿ‚…ßb¨8zø   ÿÿB?˜ºöô¥Ñ¬ÁàÊ¡‰¼ ^¤W~Åå‰ÀòÍ"¹¸Âª_Í    ÿÿòaá    ÿÿ‚…ß¨8zø   ÿÿB?˜º7!ùMÆPí8©h2G	¤¿äOÆXó–ô
+¿´ÌœÔød`‘U’Šf.®ğã‚êSCÓ   ÿÿò—@i    ÿÿ‚…ßR(=ü    ÿÿB?˜ºĞğóñ#.ü$ æ+@é»Âï÷	Høy Õ b |á—QC
+‰+ü`é=ü    ÿÿ    ÿÿ‚ñav   ÿÿ‚…'L?3'LB   ÿÿÒ R@ÌÄ†@Ìàğ‡¤Vp®§ÑwyIoŞ8¬ıËmÏp@›$~U–¥ê„qôÔUÅ>JyzóB˜@â:}13úY„l‘»V•±E¶(    ÿÿbåd`h ²:€@jA *á ‘ŠÏ³@Ü¬PQ^0Í$í€Xˆa2`	 ÁÄå‰ii9©ºé9ºEùI©0)   ÿÿRä„´': 2 #    ÿÿÒB“çA8¬   ÿÿrƒÊ· kBb   ÿÿ‚…÷J¨zú   ÿÿBO¿0uHF€™ûÑ ü•ìÆw+F0Ã]Â—‘dË±`4- Äàö+ƒô*3Hşo`j8 w`X $1ëÛt°(ÃdÃ—* ¥€´³±'Ã>#pºø³BËØë‚ù*ú„*  Ä\@,Ô°^\o¬9 ¡oL\æOÈ¯Ó©:A¸¢NB÷|Óódº‚i q`    ÿÿÒ+¡4   ÿÿ‚ñ¡|    ÿÿbÒ@ÜÄ P\’˜œ]œ‘__“_œY•
+‡“0P    ÿÿ’æd`P ²»á
+‘ØP&   ÿÿ’‚ªï€ò÷Î€²°S    ÿÿc
+ qƒ Â} .LZNbz1DJ²³¼vD  }:ÿêíX‘ñ            
+** Stackshot Succeeded ** Bytes Traced 5442 (Uncompressed 15584) **
+
+== END OF LOG ==
+
+== KERNEL LOG ==
+waffle-gpu: PLL94 verified firmware CX/MX256 handoff
+waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=32
+waffle-touch: RSC drv2 version=30200 config=800c8104
+waffle-touch: idle TCS0 control=1010000 irq=0
+waffle-buttons: arbiter version=70010000 bus0 APIDs=896
+buttons: step 2: look through the arbiter's table for the channels of the two peripherals
+buttons: channel 533 is the PMK8550's power-on block (0x1001300); written by system 0, which also gets its interrupts
+buttons: channel 559 is GPIO6 of the PM8550 (0x1018d00); written by system 0, which also gets its interrupts
+buttons: step 3: the first transfers on the SPMI bus
+buttons: next: read the type of the PMK8550's power-on block through channel 533 (2 registers, 0x1304)
+buttons: the PMK8550's power-on block says type 0x1, subtype 0x9 (the read took 6 us)
+buttons: next: read the type of GPIO6 of the PM8550 through channel 559 (2 registers, 0x8d04)
+buttons: GPIO6 of the PM8550 says type 0x10, subtype 0x13 (the read took 6 us)
+buttons: step 4: how the keys' inputs are set up
+buttons: next: read the status and the interrupt setup of the PMK8550's power-on block (registers 0x1310 to 0x1319)
+buttons: power-on block: status 0x18 (power released, volume up released); interrupts: edge 0, high 0, low 0, enabled 0, latched 0, pending 0
+buttons: next: read the setup and the level of GPIO6 of the PM8550 (registers 0x8d40 to 0x8d47, 0x8d10)
+buttons: volume down's pin: mode 0 (input), supply 1, pull 0 (up), enabled; registers 0x40.. = 00 01 00 00 00 01 80 00; level high (released)
+buttons: step 5: watching power volume-up volume-down, every 16 ms: power is the side button
+waffle-touch: VDD command0 status=10101
+waffle-touch: VDD command1 status=10101
+waffle-touch: VDD command2 status=10101
+waffle-touch: VDD ldob4 1800mV HPM enabled=1
+waffle-touch: GPIO48 cfg=1 io=0
+waffle-touch: GPIO49 cfg=1 io=0
+waffle-touch: GPIO50 cfg=1 io=0
+waffle-touch: GPIO51 cfg=1 io=0
+waffle-touch: GPIO108 cfg=1 io=0
+waffle-touch: GPIO161 cfg=1 io=1
+waffle-touch: GPIO162 cfg=1 io=0
+waffle-touch: configured GPIO48 cfg=80 io=1
+waffle-touch: configured GPIO49 cfg=280 io=3
+waffle-touch: configured GPIO50 cfg=280 io=0
+waffle-touch: configured GPIO51 cfg=280 io=3
+waffle-touch: configured GPIO108 cfg=2c0 io=3
+waffle-touch: configured GPIO161 cfg=2c0 io=0
+waffle-touch: configured GPIO162 cfg=c0 io=1
+waffle-gl-init: exec actual Darwin Mesa probe pid=1
+Darwin Ignition Sequence Version 1.0.0: Mon Apr 24 20:19:10 PDT 2023; root:libignition-51~1538/libignition_core/RELEASE_ARM64
+libignition: 1: arguments           :
+libignition: 1:   ignition level    : 0x5
+libignition: 1:   force dylib root  : 0x0
+libignition: 1:   halt after stage  : n/a
+libignition: 1: ignition blob not available
+libignition: 1: configuration         :
+libignition: 1:   program             : waffle-gl-probe
+libignition: 1:   os environment      : n/a
+libignition: 1:   rd                  : md0
+libignition: 1:   arp0                : n/a
+libignition: 1:   rp                  : n/a
+libignition: 1:   pivot src           : n/a
+libignition: 1:   root ramdisk        : 0x0
+libignition: 1:   restore             : 0x0
+libignition: 1:   root device info    : 0x0
+libignition: 1:   can haz debugger    : 0x1
+libignition: 1:   rootfs mount flags  : 0x5001
+libignition: 1:   ecid                : 0x0
+libignition: 1:   hardware target     : d22ap
+libignition: 1:   initproc            : 0x1
+libignition: 1:   single user         : 0x0
+libignition: 1:   userspace reboot    : 0x0
+libignition: 1:   secure boot level   : 0x0
+libignition: 1:   os version          : n/a
+libignition: 1: parameters          :
+libignition: 1:   version           : 0x1
+libignition: 1:   argc              : 0x1
+libignition: 1:   log fd            : 0xffffffffffffffff
+libignition: 1:   platform          : 0x2
+libignition: 1: boot spec           :
+libignition: 1:   name              : ramdisk
+libignition: 1:   stage count       : 0x2
+libignition: 1:        hello: commence primary ignition
+libignition: 1:        hello: hello from waffle-gl-probe.1
+libignition: 1:      goodbye: ignition sequence complete
+Library not loaded: /usr/lib/libSystem.B.dylib
+  Referenced from: <119D4932-F71F-342C-92EC-EC40ADFD0B3F> /redwood/bin/waffle-gl-probe
+  Reason: tried: '/usr/lib/libSystem.B.dylib' (no such file, no dyld cache), '/usr/local/lib/libSystem.B.dylib' (no such file)
+
+--- kernel message buffer ---
+[   91.654024]:  vm_cache_geometry_colors: 0
+[   91.654026]: do_cacheid() - 512 bytes Unknown cache (I:256 D:256 (separate)), 12-way assoc, 64 bytes/line
+[   91.654207]: kprintf initialized
+[   91.654230]: initialize_screen: b=D5100000, w=000005A0, h=00000C60, r=00001680, d=00000000
+[   91.654241]: pe_arm_init_interrupts: args: 0xfffffff007b62720
+[   91.654242]: pe_arm_map_interrupt_controller: soc_phys:  0x400000
+[   91.654244]: pe_arm_map_interrupt_controller: failed to find the interrupt-controller.
+[   91.654246]: pe_arm_init_debug: failed to find cpu-debug-interface
+[   91.654274]: gic: v3, distributor 0xfffffff254de8000, cpu 0's redistributor 0xfffffff254fb8000, virtual timer on PPI 27
+[   91.654281]: Darwin Kernel Version 22.5.0: Sun Nov  1 13:41:40 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837
+[   91.656626]: pmap_startup() init/release time: 1951 microsec
+[   91.656629]: pmap_startup() delayed init/release of 0 pages
+[   91.656631]: vm_page_bootstrap: 242424 free pages, 150792 wired pages, (up to 0 of which are delayed free)
+[   91.658519]: VM boostrap: 102 maps, 204 entries and 512 holes available
+[   91.658533]: Maximum number of VM swap files: 5
+[   91.658584]: ipc_kernel_copy_map     : 0xfffffff002254000 - 0xfffffff002a54000 (8M)
+[   91.658586]: io_submap               : 0xfffffff002a54000 - 0xfffffff003254000 (8M)
+[   91.658588]: compressor              : 0xfffffff256000000 - 0xfffffff3fe040000 (6G)
+[   91.658589]: gIOKitPageableFixed2    : 0xfffffff3fe040000 - 0xfffffff404040000 (96M)
+[   91.658591]: zone_meta               : 0xfffffff404040000 - 0xfffffff406388000 (35M)
+[   91.658592]: bufferhdr               : 0xfffffff406388000 - 0xfffffff40662c000 (2704K)
+[   91.658593]: kmem_ptr_range_meta     : 0xfffffff40662c000 - 0xfffffff406688000 (368K)
+[   91.658595]: gIOKitPageableFixed3    : 0xfffffff406688000 - 0xfffffff40c688000 (96M)
+[   91.658596]: bsd_pageable            : 0xfffffff40c688000 - 0xfffffff40d8d0000 (18M)
+[   91.658597]: kmem_sprayqtn_range     : 0xfffffff40d8d0000 - 0xfffffff48472c000 (1902M)
+[   91.658598]: mb                      : 0xfffffff48472c000 - 0xfffffff48a72c000 (96M)
+[   91.658600]: gIOKitPageableFixed0    : 0xfffffff48a72c000 - 0xfffffff49072c000 (96M)
+[   91.658601]: kmem_ptr_range          : 0xfffffff49072c000 - 0xfffffff507c2c000 (1909M)
+[   91.658602]: ipc_kernel_map          : 0xfffffff507c2c000 - 0xfffffff509c2c000 (32M)
+[   91.658603]: gIOKitPageableFixed1    : 0xfffffff509c2c000 - 0xfffffff50fc2c000 (96M)
+[   91.658605]: kmem_data_range         : 0xfffffff50fc2c000 - 0xfffffff5fedfc000 (3825M)
+[   91.658606]: zones                   : 0xfffffff5fedfc000 - 0xfffffffbfedfc000 (24G)
+[   91.658626]: kmem_large_ranges[1]    : 0 - 0 (0B)
+[   91.658627]: kmem_large_ranges[2]    : 0 - 0 (0B)
+[   91.658628]: kmem_large_ranges[3]    : 0 - 0 (0B)
+[   91.658629]: kmem_large_ranges[4]    : 0xfffffff41c69b800 - 0xfffffff48472c000 (1664M)
+[   91.658630]: kmem_large_ranges[5]    : 0xfffffff52da66000 - 0xfffffff5fedfc000 (3347M)
+[   91.658635]: "vm_compressor_mode" is 2
+[   91.658649]: zone_init: pgzalloc  0xfffffff5fedfc000:0xfffffff600bb8000 (29M) [951 slots]
+[   91.658652]: zone_init: map VM    0xfffffff600bb8000:0xfffffff6e6da8000 (3681M)
+[   91.658654]: zone_init: map RO    0xfffffff6e6da8000:0xfffffff7338f8000 (1227M)
+[   91.658657]: zone_init: map GEN0  0xfffffff7338f8000:0xfffffff819ae8000 (3681M)
+[   91.658659]: zone_init: map GEN1  0xfffffff819ae8000:0xfffffff8ffcd8000 (3681M)
+[   91.658661]: zone_init: map GEN2  0xfffffff8ffcd8000:0xfffffff9e5ec8000 (3681M)
+[   91.658663]: zone_init: map GEN3  0xfffffff9e5ec8000:0xfffffffacc0b8000 (3681M)
+[   91.658665]: zone_init: map DATA  0xfffffffacc0b8000:0xfffffffbfedfc000 (4909M)
+[   91.658667]: zone_init: metadata  0xfffffff404050000:0xfffffff405850000 (24M)
+[   91.658668]: zone_init: metabits  0xfffffff405850000:0xfffffff406378000 (11M)
+[   91.658669]: zone_init: extra     0:0 (0B)
+[   91.658777]: VM bootstrap done: 90 maps, 163 entries and 499 holes left
+[   91.659940]: IOKit IOMD setownership ENABLED
+[   91.659942]: ATM subsystem is initialized
+[   91.660092]: Log queues configured: slot count: 8, per-slot size: 32768, total size: 262144
+[   91.660097]: Long logs support configured: size: 16384
+[   91.660110]: Firehose configured: 16 chunks, 8 io pages
+[   91.660112]: OSLog stream configured: stream: 8192 bytes, cache: 2112 bytes
+[   91.660113]: OSLog stream verification: 0
+[   91.660116]: Telemetry: Sampling all tasks once per 1 second
+[   91.660119]: Scheduler: Default of clutch
+[   91.660121]: Setting scheduler priority decay band limit 18
+[   91.660123]: standard timeslicing quantum is 10000 us
+[   91.660124]: standard background quantum is 2500 us
+[   91.660136]: mig_table_max_displ = 54 mach_kobj_count = 371
+[   91.660199]: BANK subsystem is initialized
+[   91.661117]: panic_trace: PE_arm_debug_enable_trace enter
+[   91.661118]: panic_trace: PE_arm_debug_enable_trace exit
+[   91.661122]: kdp_core zlib memory 0x8000
+[   91.661190]: Registered coredump handler for kernel
+[   91.661192]: Serial requested, consistent debug disabled or debug boot arg not present, configuring debugging over serial
+[   91.661193]: Initializing serial KDP
+[   91.661466]: iBoot version: iBoot-8422.100.650
+[   91.661466]: iBoot Stage 2 version: 
+[   91.662439]: IONVRAM.cpp:initImageFormat:1364 - NVRAM size is 8192 bytes
+[   91.662503]: IONVRAM.cpp:getNVRAMProperties:1176 - _bankSize=0x2000, _bankCount=0x1, _currentBank=0
+[   91.662530]: IONVRAMCHRPHandler.cpp:unserializeImage:479 - NVRAM : commonPartitionOffset - 0x30, commonPartitionSize - 0x1fd0, systemPartitionOffset - 0xffffffff, systemPartitionSize - 0
+[   91.662615]: ulock_initialize>thread_max=5120, ull_hash_buckets=2048
+[   91.662653]: minicrypto: registered (md5, sha1, sha2, hmac, aes-ecb/cbc/ctr, hmac-drbg prng); no xts/gcm, no RSA
+[   91.662775]: calling mpo_policy_init for vnguard
+[   91.662777]: Security policy loaded: Guarded vnode policy (vnguard)
+[   91.662779]: calling mpo_policy_init for AMFI
+[   91.662780]: Security policy loaded: Apple Mobile File Integrity (stand-in) (AMFI)
+[   91.662781]: calling mpo_policy_init for Sandbox
+[   91.662782]: Security policy loaded: Seatbelt sandbox policy (stand-in) (Sandbox)
+[   91.663914]: No POST boot-arg set.
+[   91.664089]: PMRD: PMTraceWorker 0x8f05a20916eb6633
+[   91.664139]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 10001)
+[   91.664244]: GenericARMPE: platform "D22AP"
+[   91.664252]: [0]ml_processor_register>pset_find(cluster_id=0) returned pset 0
+[   91.664253]: [0]ml_processor_register>cpu_id 0xfffffff733a0a500 cluster_id 0 cpu_number 0 is type 0
+[   91.664258]: GenericARMCPU: cpu 0 (phys id 0x700) registered
+[   91.664283]: Copyright (c) 1982, 1986, 1989, 1991, 1993
+	The Regents of the University of California. All rights reserved.
+
+[   91.664284]: bsd_init: calling kauth_init
+[   91.664342]: bsd_init: calling process_name
+[   91.664343]: bsd_init: calling get_bsdthread_info
+[   91.664344]: MAC Framework successfully initialized
+[   91.664372]: bsd_init: calling kauth_cred_create
+[   91.664373]: bsd_init: calling chgproccnt
+[   91.664374]: bsd_init: calling kmem_suballoc
+[   91.664376]: bsd_init: calling bsd_bufferinit
+[   91.664923]: using 4870 buffer headers and 4483 cluster IO buffer headers
+[   91.664930]: bsd_init: calling IOKitInitializeTime
+[   91.664949]: clock_initialize_calendar system does not have monotonic clock
+[   91.664951]: bsd_init: calling vfsinit
+[   91.665045]: ktriage_register_subsystem_strings: set subsystem 8 strings
+[   91.665046]: bsd_init: calling proc_uuid_policy_init()
+[   91.665114]: mcache: 1 CPU(s), 64 bytes CPU cache line size
+[   91.665114]: bsd_init: calling mbinit
+[   91.665191]: mbinit: done [96 MB total pool size, (64/32) split]
+[   91.665193]: bsd_init: calling knote_init
+[   91.665194]: bsd_init: calling eventhandler_init
+[   91.665194]: bsd_init: calling aio_init
+[   91.665204]: bsd_init: calling pshm_cache_init
+[   91.665205]: bsd_init: calling psem_cache_init
+[   91.665208]: bsd_init: calling nwk_wq_init
+[   91.665211]: bsd_init: calling dlil_init
+[   91.665214]: SK: netagent is enabled by default for this platform
+[   91.665304]: DLIL: running SUM16 self-tests ... PASSED
+[   91.665393]: dlil_init: Waiting for all the create dlil kernel threads to get scheduled at least once.
+[   91.665428]: PMRD: power event 7 args 0x8f05a20ae32e4483 0x0
+[   91.665430]: PMRD: power event 7 args 0x8f05a20ae32e4ca3 0x0
+[   91.665499]: PMRD: PowerChangeOverride (OFF_STATE->ON_STATE, f, 0x2) tag 0x20064
+[   91.665505]: PMRD: sysPowerDownHandler message kIOMessageSystemCapabilityChange
+[   91.665506]: PMRD: sysPowerDownHandler cap f -> f (flags 1)
+[   91.665522]: dlil_init: All the created dlil kernel threads have been scheduled at least once. Proceeding.
+[   91.665523]: bsd_init: calling socketinit
+[   91.665527]: bsd_init: calling domaininit
+[   91.665676]: bsd_init: calling skywalk_init
+[   91.665692]: SK[0]: skmem_region_init              seg_size 16384, md_seg_size 16384, drv_buf_seg_size 65536 [eff 81920], usr_buf_seg_size 16384
+[   91.666143]: Skywalk: running self-tests
+[   91.666143]: Skywalk: sk_copy64_8 ... PASSED
+[   91.666144]: Skywalk: sk_copy32_8 ... PASSED
+[   91.666145]: Skywalk: sk_copy64_16 ... PASSED
+[   91.666145]: Skywalk: sk_copy32_16 ... PASSED
+[   91.666146]: Skywalk: sk_copy64_20 ... PASSED
+[   91.666147]: Skywalk: sk_copy64_24 ... PASSED
+[   91.666147]: Skywalk: sk_copy64_32 ... PASSED
+[   91.666148]: Skywalk: sk_copy32_32 ... PASSED
+[   91.666149]: Skywalk: sk_copy64_40 ... PASSED
+[   91.666149]: Skywalk: sk_copy64_64x ... PASSED
+[   91.666150]: Skywalk: sk_copy64_32x ... PASSED
+[   91.666151]: Skywalk: sk_copy64_8x ... PASSED
+[   91.666151]: Skywalk: sk_copy64_4x ... PASSED
+[   91.666152]: Skywalk: sk_zero_16 ... PASSED
+[   91.666153]: Skywalk: sk_zero_32 ... PASSED
+[   91.666154]: Skywalk: sk_zero_48 ... PASSED
+[   91.666154]: Skywalk: sk_zero_128 ... PASSED
+[   91.666165]: Skywalk: memcmp mask ... PASSED
+[   91.666455]: bsd_init: calling memorystatus_freeze_init
+[   91.666456]: bsd_init: calling memorystatus_init
+[   91.666485]: bsd_init: calling sysctl_mib_init
+[   91.666486]: bsd_init: calling bsd_autoconf
+[   91.666486]: bsd_autoconf: calling kminit
+[   91.667332]: bsd_init: calling loopattach
+[   91.667422]: ifnet_attach: All kernel threads created for interface lo0 have been scheduled at least once. Proceeding.
+[   91.667425]: bsd_init: calling ether_family_init
+[   91.667456]: bsd_init: calling net_init_run
+[   91.667473]: skip attaching fsw to lo0 using legacy TX modelReinit'd ND information for interface lo0
+[   91.667724]: bsd_init: calling inittodr
+[   91.667725]: bsd_init: calling setconf
+[   91.667751]: PMRD: sysPowerDownHandler message kIOMessageSystemCapabilityChange
+[   91.667751]: PMRD: sysPowerDownHandler cap f -> f (flags 2)
+[   91.667753]: PMRD: tellChangeUp OFF_STATE->ON_STATE
+[   91.667756]: PMRD: PowerChangeDone: OFF_STATE->ON_STATE
+[   91.667757]: PMRD: Force re-evaluating aggressiveness
+[   91.667758]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 30002)
+[   91.667761]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x10001
+[   91.667762]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667763]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x302) tag 0x40064
+[   91.667765]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667765]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x302) tag 0x50064
+[   91.667767]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667768]: PMRD: adjustPowerState ON_STATE, asap 0, idleSleepEnabled 0
+[   91.667769]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 60008)
+[   91.667771]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x30002
+[   91.667772]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667773]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x60008
+[   91.667774]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   91.667796]: cpu_start() cpu: 0
+[   91.667854]: MiniIOMobileFramebuffer: display 750x1624 on a panel of 1440x3168 (5760 bytes per row)
+[   91.769808]: !BSD
+[   91.769816]: Added memory device md0/rmd0 (01000000/0D000000) at FFFFFFF00C000000 for 000000008A300000
+[   91.769821]: Added memory device md1/rmd1 (01000001/0D000001) at FFFFFFF0082C0000 for 0000000001200000
+[   91.769822]: BSD root: md0, major 1, minor 0
+[   91.769824]: bsd_init: vfs_mountroot
+[   91.773244]: packfs: image with 62609 nodes, 2264064 KB, read in place
+[   91.773261]: bsd_init: calling VFS_ROOT
+[   91.773268]: bsd_init: calling devfs_kernel_mount
+[   91.773372]: waffle-gpu: PLL94 verified firmware CX/MX256 handoff
+[   91.773392]: bsd_init: calling siginit
+[   91.773393]: bsd_init: calling bsd_utaskbootstrap
+[   91.773493]: waffle-touch: RSC drv2 version=30200 config=800c8104
+[   91.773500]: waffle-touch: idle TCS0 control=1010000 irq=0
+[   91.773517]: waffle-buttons: arbiter version=70010000 bus0 APIDs=896
+[   91.773519]: buttons: step 2: look through the arbiter's table for the channels of the two peripherals
+[   91.774495]: bsd_init: calling mountroot_post_hook
+[   91.774496]: bsd_init: done
+[   91.774497]: vm_free_delayed_pages: initialized 0 free pages
+[   91.774551]: VM Swap Subsystem is ON
+[   91.774582]: Failed to open swap file 2
+[   91.774583]: vm_swap_create_file failed @ 91 secs
+[   91.774584]: vm_swap_create_file failed @ 91 secs
+[   91.774648]: buttons: channel 533 is the PMK8550's power-on block (0x1001300); written by system 0, which also gets its interrupts
+[   91.776399]: buttons: channel 559 is GPIO6 of the PM8550 (0x1018d00); written by system 0, which also gets its interrupts
+[   91.777037]: buttons: step 3: the first transfers on the SPMI bus
+[   91.777040]: buttons: next: read the type of the PMK8550's power-on block through channel 533 (2 registers, 0x1304)
+[   91.777053]: buttons: the PMK8550's power-on block says type 0x1, subtype 0x9 (the read took 6 us)
+[   91.777056]: buttons: next: read the type of GPIO6 of the PM8550 through channel 559 (2 registers, 0x8d04)
+[   91.777068]: buttons: GPIO6 of the PM8550 says type 0x10, subtype 0x13 (the read took 6 us)
+[   91.777071]: buttons: step 4: how the keys' inputs are set up
+[   91.777074]: buttons: next: read the status and the interrupt setup of the PMK8550's power-on block (registers 0x1310 to 0x1319)
+[   91.777103]: buttons: power-on block: status 0x18 (power released, volume up released); interrupts: edge 0, high 0, low 0, enabled 0, latched 0, pending 0
+[   91.777107]: buttons: next: read the setup and the level of GPIO6 of the PM8550 (registers 0x8d40 to 0x8d47, 0x8d10)
+[   91.777136]: buttons: volume down's pin: mode 0 (input), supply 1, pull 0 (up), enabled; registers 0x40.. = 00 01 00 00 00 01 80 00; level high (released)
+[   91.777139]: buttons: step 5: watching power volume-up volume-down, every 16 ms: power is the side button
+[   91.777164]: waffle-touch: VDD command0 status=10101
+[   91.777166]: waffle-touch: VDD command1 status=10101
+[   91.777168]: waffle-touch: VDD command2 status=10101
+[   91.777175]: waffle-touch: VDD ldob4 1800mV HPM enabled=1
+[   91.777177]: waffle-touch: GPIO48 cfg=1 io=0
+[   91.777179]: waffle-touch: GPIO49 cfg=1 io=0
+[   91.777181]: waffle-touch: GPIO50 cfg=1 io=0
+[   91.777183]: waffle-touch: GPIO51 cfg=1 io=0
+[   91.777185]: waffle-touch: GPIO108 cfg=1 io=0
+[   91.777186]: waffle-touch: GPIO161 cfg=1 io=1
+[   91.777188]: waffle-touch: GPIO162 cfg=1 io=0
+[   91.777199]: waffle-touch: configured GPIO48 cfg=80 io=1
+[   91.777201]: waffle-touch: configured GPIO49 cfg=280 io=3
+[   91.777203]: waffle-touch: configured GPIO50 cfg=280 io=0
+[   91.777205]: waffle-touch: configured GPIO51 cfg=280 io=3
+[   91.777207]: waffle-touch: configured GPIO108 cfg=2c0 io=3
+[   91.777209]: waffle-touch: configured GPIO161 cfg=2c0 io=0
+[   91.777211]: waffle-touch: configured GPIO162 cfg=c0 io=1
+[   91.777224]: No POST boot-arg set.
+[   91.777225]: bsd_init: bsd_do_post - doneload_init_program: attempting to load /usr/appleinternal/sbin/launchd.development
+[   91.777325]: load_init_program: attempting to load /sbin/launchd
+[   91.778467]: packfs: image with 12 nodes, 18432 KB, read in place
+[   91.781548]: shared_region: 0x8f05a20ae336aa1b [1(waffle-gl-probe)] check_np(0x16ee3bbb0) vm_shared_region_start_address() failed
+[   91.782033]: minisandbox: request 2 (first seen from waffle-gl-probe[1]): allowed
+[   91.782378]: shared_region: 0x8f05a20ae336aa1b [1(waffle-gl-probe)] check_np(0x16ee3b140) vm_shared_region_start_address() failed
+[   91.783372]: pid 1 exited -- exit reason namespace 6 subcode 0x1, description Library not loaded: /usr/lib/libSystem.B.dylib
+  Referenced from: <119D4932-F71F-342C-92EC-EC40ADFD0B3F> /redwood/bin/waffle-gl-probe
+  Reason: tried: '/usr/lib/libSystem.B.dylib' (no such file, no dyld cache), '/usr/local/lib/libSystem.B.dylib' (no such file)
+[   91.783377]: coredump (waffle-gl-probe, pid 1): writing core to /private/var/cores/waffle-gl-probe.core
+[   91.783381]: coredump (waffle-gl-probe, pid 1): failed to open core dump file /private/var/cores/waffle-gl-probe.core: error 2
+[   91.783383]: coredump (waffle-gl-probe, pid 1): core dump failed: error 2
+
+[   91.783384]: Failed to generate core file for pid: 1: error 2, took 0.000 seconds
+
+--- panic buffer ---
+panic(cpu 0 caller 0xfffffff0077c6f90):  initproc failed to start -- exit reason namespace 6 subcode 0x1 description: Library not loaded: /usr/lib/libSystem.B.dylib
+  Referenced from: <119D4932-F71F-342C-92EC-EC40ADFD0B3F> /redwood/bin/waffle-gl-probe
+  Reason: tried: '/usr/lib/libSystem.B.dylib' (no such file, no dyld cache), '/usr/local/lib/libSystem.B.dylib' (no such file)
+Debugger message: panic
+Device: D22
+Hardware Model: iPhone10,3
+ECID: 0000052445730001
+Boot args: debug=0x8 waffle=1 cpus=1 rd=md0 bootcpu=7 loader_return_after=90 fbscale=2 epoch=1793529889 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13 waffle_fw_cxmx=256
+Memory ID: 0x0
+OS release type: Not set yet
+OS version: Not set yet
+Kernel version: Darwin Kernel Version 22.5.0: Sun Nov  1 13:41:40 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837
+Kernel UUID: B858AA2A-5147-3D0A-8AB2-D28F154BDB98
+Boot session UUID: C169EBAA-5A3D-4A16-AE14-F3EA68983EC0
+iBoot version: iBoot-8422.100.650
+iBoot Stage 2 version: 
+secure boot?: NO
+roots installed: 0
+Paniclog version: 14
+Kernel text base:  0xfffffff007004000
+mach_absolute_time: 0x69074744
+Epoch Time:        sec       usec
+  Boot    : 0x6ae71821 0x00000000
+  Sleep   : 0x00000000 0x00000000
+  Wake    : 0x00000000 0x00000000
+  Calendar: 0x6ae71821 0x0001aee7
+
+Zone info:
+  Zone map: 0xfffffff5fedfc000 - 0xfffffffbfedfc000
+  . PGZ   : 0xfffffff5fedfc000 - 0xfffffff600bb8000
+  . VM    : 0xfffffff600bb8000 - 0xfffffff6e6da8000
+  . RO    : 0xfffffff6e6da8000 - 0xfffffff7338f8000
+  . GEN0  : 0xfffffff7338f8000 - 0xfffffff819ae8000
+  . GEN1  : 0xfffffff819ae8000 - 0xfffffff8ffcd8000
+  . GEN2  : 0xfffffff8ffcd8000 - 0xfffffff9e5ec8000
+  . GEN3  : 0xfffffff9e5ec8000 - 0xfffffffacc0b8000
+  . DATA  : 0xfffffffacc0b8000 - 0xfffffffbfedfc000
+  Metadata: 0xfffffff404050000 - 0xfffffff405850000
+  Bitmaps : 0xfffffff405850000 - 0xfffffff406378000
+  Extra   : 0 - 0
+
+TPIDRx_ELy = {1: 0xfffffff8ffe65698  0: 0x0000000000000000  0ro: 0x0000000101349ee0 }
+CORE 0 is the one that panicked. Check the full backtrace for details.
+Compressor Info: 0% of compressed pages limit (OK) and 0% of segments limit (OK) with 0 swapfiles and OK swap space
+Panicked task 0xfffffff73392d900: 51 pages, 1 threads: pid 1: waffle-gl-probe
+Panicked thread: 0xfffffff8ffe65698, backtrace: 0xfffffff40d95b5b0, tid: 169
+		  lr: 0xfffffff0072cb914  fp: 0xfffffff40d95b640
+		  lr: 0xfffffff007467690  fp: 0xfffffff40d95b660
+		  lr: 0xfffffff007457dfc  fp: 0xfffffff40d95b6e0
+		  lr: 0xfffffff007456e44  fp: 0xfffffff40d95b800
+		  lr: 0xfffffff0074565a4  fp: 0xfffffff40d95b810
+		  lr: 0xfffffff0072caf50  fp: 0xfffffff40d95bbc0
+		  lr: 0xfffffff0072cc0ac  fp: 0xfffffff40d95bc40
+		  lr: 0xfffffff007ad91d8  fp: 0xfffffff40d95bc60
+		  lr: 0xfffffff0077c6f90  fp: 0xfffffff40d95bd90
+		  lr: 0xfffffff0077c6568  fp: 0xfffffff40d95be20
+		  lr: 0xfffffff0077e1360  fp: 0xfffffff40d95be70
+		  lr: 0xfffffff0077e16ac  fp: 0xfffffff40d95beb0
+		  lr: 0xfffffff0072bf68c  fp: 0xfffffff40d95bf10
+		  lr: 0xfffffff0074569c0  fp: 0xfffffff40d95bf20
+
+   PMOC    €          0   ˆ       kcd_c_type                                        0   ˆ       kcd_c_totalout                  R                 0   ˆ       kcd_c_totalin                   à<              X¢Y    €       Hbf``0 â â’ÄäìâŒü’øÌ¼ø´œÄôbˆ8Œdgyícƒh    ÿÿb@ÜÄ €¢¿ 3,ˆDü$.   ÿÿbr€¸ˆA ¸²¸$57hLI*6ûAö!    ÿÿäd` 
+ô "±   ÿÿRB“gG’1   ÿÿ@“gp@U    ÿÿâÊO 
+µ@…]‹Ê3ó¼S‹òRsÂR‹Š3óóŒŒôLõ¬‚KóüòË­L­L´ŒŒŒÌ¬
+‹ª2‹­*òJu-Ì-ÍôõŒ¢Q¹º)™E%•±úN¡>.úùIYú.®a®>ş¾®~!ñA¾f&ñNÎ¾FÆæ`   ÿÿLRÛÃ LèŒGÓ„fA<LŠ
+â¡¤¢3—¨DôË¾³ì;[¾ş/Mó)ş$ğ´vŸÑÆ”ZtH¸rğ’Ù"nmÌ™Ğj™O=ÄäŸ”©à)Ë=gÅƒtÆÏ3.#é’ÛñíD«c‚æ²ÄO’¾ÿÁæuŸªÖ5¯y€p\°òõdFÊmå„5.ÅÃRQĞ†-yµáÄj£b7;éÇ{¹Ã¾   ÿÿ22€¸ˆA ‰Ì‚    ÿÿ2R@ÜÄ `çÅ	aAH    ÿÿ2R@ÜÄ àoù~»I<„$   ÿÿb fbpâ„Ğ0   ÿÿrò€œ Æ€Ù¢dŒ†™   ÿÿj‚ñ   ÿÿbšç k†ŠßÛsj¿Öfe _ˆŞcèwgbàÒ `¡°’ 3   ÿÿÊ É2ÍG    ÿÿÒ r€¤ÖˆØ? ¹#b•V »-W×¦Kı¢Ş·g€¤@    ÿÿbêo 2:€024( ósä <E‰çYÈâÈl¸@68Æ—$gãR   ÿÿRºG Èê ó˜¡4Œ   ÿÿÒB“‡‰Ãh    ÿÿ‚…O*T€¨    ÿÿbò€ 0u?vÃéÏ[0‘ÅMÎxÊ„"»%$ j0€YÍV·¹Añ1×"Ö~ç ˆ€N B »ˆA Ì7¾ ˜WòKKâÙ:"H)	4O¨¾M‡:D@é\+²   ÿÿrR¡4   ÿÿ‚…_”~    ÿÿB?˜:¨r‘L¢Âïd§,D„âcÎ±R/<Î Ñ- 	|>D\øe¦ä¤*( é$‰+üşö2‚º¸5ü    ÿÿ    ÿÿ‚…_:T=ü    ÿÿB?˜:†<h¸Áh¨~\Ô24‰Ï+d€„ĞÓ_<C<XevqáWœœ‘š¬2óJRóó’SãK2ŠRSÀ†Aà
+?¨Ş$nTC    ÿÿraá    ÿÿò€8ˆA =ü    ÿÿB¿°*†˜HøÁh¨0NJM†s%şğS.À~¸üI-áhş   ÿÿÚ›¥   ÿÿ‚ùœøbèş   ÿÿB÷/L]Gßup>;óA¨üöj!”R—b…^À*~w`÷/''jy•’˜š›Ÿ§—’š–ZT”š¢›’š˜““ŸœXl$ Úˆ‡+üü¡Ê¯ğ£ê   ÿÿrÁ²   ÿÿ‚…_T=ü    ÿÿB?˜ºKI?¨ñàúÆÑèáË–¶>MRøA2™.¸5l<A6®ğÃ¥Q(! ÄŒ@,ÂÉÀà£Z^   ÿÿŠƒ ,œ    ÿÿ‚…o6D#}   ÿÿB_˜ºKh¾°ôy;œğM­HN- 6i‚}Líğ   ÿÿ†#,œ    ÿÿ‚…oT=ı   ÿÿB_˜:¥_Xø:O$'|Aı†’¢ÄäT¨oSÔ_    ÿÿZ™¥   ÿÿ‚…o.”¾    ÿÿB_˜º†åëÁåêŸÓFD•¯· æÃ¨·i,™ 6zùÇVâN\øB
+†x`/'RÖÂl Æ¾ÜPí+$QÍ   ÿÿraá    ÿÿ‚…_T=ü    ÿÿB?˜º‚so‰
+7˜í¢P”>‚µ>æ`BèI\øyú§•e&§†¤åfæ%–¤†P¥=Ãug0;”¥€´³1¨|µ1p‡CŠ¤œUà†Ğ!UzûÁí`ùG]Á4   ÿÿêX8   ÿÿ‚…D£ü   ÿÿB˜º€LÚ”¿öö`—$o".ü¡íƒäü¢TİÄ¼ÄœÊ’ÌäbİÔ²Ô¼’b¨—ğR¸Ò/.M@	 Å(üÑë7    ÿÿŠƒ ,œ    ÿÿ‚…/Ì1èé   ÿÿB_˜:ƒ~"Œ†˜Š›´@“JnbÍ	¡—òò`•«w¾HıÅôÄ¢$`×1>9?''5¹lAWø2Au¾æB5   ÿÿraá    ÿÿò€¸ˆA =ü    ÿÿB¿°*íÔ×bœ‹XûŠgƒÓ=T'%&“¾úIH=üåƒéc. ù 5@àò/(½€€„‚“    ÿÿ²J 4   ÿÿ‚ù·ÊG÷/   ÿÿB÷/L]ÃdH}ÒrÎˆ(ÿª3C-€RİØÓ¬½ùùvÿró€ĞŒ H}¢ ªO22Ó3”!D’¸ÂOªİ4    ÿÿŠÃÂ   ÿÿ‚…_T=ü    ÿÿB?˜:í|ÒÒËKV¨P*ÿàÓWzùİA\øyúøåç—¸äç&fæA'Â~şP3"øP   ÿÿr+ 4   ÿÿ‚…_#”~    ÿÿB?˜ºŠß;ÁéÎ¦È†¨ô§ 5FıÀ~ññ`%›ˆ?`y•™_”ZP”™_”Y’Y•I’0‹Ğ¸Âª/†Õ     ÿÿraá    ÿÿ‚…_T=ü    ÿÿB?˜º‚?oÀáöÆ¤¨ğ“DuÃ5Qìá+¯”°‡!ÿŠ2¡Z   ÿÿraî   ÿÿ‚ù·*î_    ÿÿB÷/LÅÔË`jì&Ê¿¼¨Î`xLÀ¿İ7I*ŸaÆÿ‚E4T    ÿÿÒ0w   ÿÿ‚ù·*î_    ÿÿB÷/LÔ¿Wˆô/Ô|õ‘€½§“çßhş   ÿÿZØ¥   ÿÿ‚ù·ÊG÷/   ÿÿB÷/Lİ…Õö¹C{3Qñ‚æWqüéÙù"iş„º_Í    ÿÿŠÃÜ   ÿÿ‚ù·‡   ÿÿB÷/LÃ´Í`êœª$Ê¿0÷@­a#àßÏL&d¥gY4ÿ   ÿÿ‚ùæn    ÿÿ‚ù·‡   ÿÿB÷/L©şåyJ'ğïäù¤Å/Ìxi4ÿ   ÿÿJÀÜ   ÿÿ‚ù·*   ÿÿB÷/Lİ3Hz&¶|Fßbş]ı‹<ÿ
+¢ù   ÿÿúæn    ÿÿ‚ù·*î_    ÿÿB÷/LİûuàtL®[ø×š›¼ô|ê   ÿÿ2`î   ÿÿ‚ù·*î_    ÿÿB÷/L@,$ÿë_~˜ ôdş½½œ¼øİ‡f   ÿÿòaî   ÿÿ‚ù·*î_    ÿÿB÷/Lİ
+HzV	!ª¼rCsÇ§}øËgå¤ù—jşwT‹    ÿÿraî   ÿÿò€¸ˆA İ¿    ÿÿB÷oXƒ‚Ä¿.¹Äù7ªF)-Äïßì¤ù—jğlv˜   ÿÿr{ 4   ÿÿ‚ù·ÊG÷/   ÿÿB÷/L]ÄÒÊ+=È€u?~ÿn>@š¡†W²!ÛÂÀ    ÿÿraî   ÿÿ‚ù·*î_    ÿÿB÷/L9Ÿú)E¬ı‡ˆk?;£:ƒÁGüÂú—b÷/''ƒĞ¬ `ÿ#757¿¨²¸$±¤´8Ş"L4‰«=Î5!Æ€ò   ÿÿÒ°p    ÿÿ‚…ß¨8zø   ÿÿB?˜º
+á+àr Å0ƒ¨ò@j>ŒÊAK/°ø†õ?¤_~În>ñÁ!!ÁñA®şA!0ˆ¤q…Ì=0Ô<    ÿÿÒ 4   ÿÿ‚…ßd(=ü    ÿÿB?˜ºà)şpÓTAJª‚	Jï:…-¿q0ÀÂor<öşzúK+JÌM-V(ÉW(ÉHU(HÌKÍ!èd¸Â¦ÆÆ€Ò@ÚˆÙX„“ÁÆÀœ~RÔÀ´7„©Òó|Ÿ¿¡uóÚÁ    ÿÿÒ°p   ÿÿò€x
+ƒ z|    ÿÿB)`UÕóI‹>¨>X|œ ÙdÇ‡•B¢BFjNAjÔN|¡øğEÓ¬ ä 1sĞâ   ÿÿê)`’   ÿÿ‚…ÿT(=ü   ÿÿB˜:RÃŸj>,ü¯éUÃ3ü   ÿÿ†,   ÿÿ‚…ÿ,á   ÿÿB˜º9Ş:(ù
+ª'5‡"ÿsÕ¬™ ‘ÿPÀ	Õ	+¬Oc\éÕª¿–Ê€R
+@Ú ˆÙ€_zİáñOƒ¦Ø_°r   ÿÿê˜¿   ÿÿ‚…×lˆ0Fy   ÿÿB/˜:RÃë&;#ØXx=.Ç^—’^y!ØEax	LòC	/    ÿÿ†Ìß    ÿÿ‚…×\¨8zş   ÿÿB/˜:†iëÁæ¶œ3ÓPí8)e4¶
+Ôğ‡&00aéË;{x¡×w%E©‰)
+É‰99
+Ù©EÀêNAÙÍ.|\\éì ÆD´ğ   ÿÿ    ÿÿ‚…ß<¨8zø   ÿÿB?˜º§vÃmK‡Qá§ 5F×ngÉ	¡çÏh†h°ÊÛéğ©? Ä,@èál¯$¦§æ—–Ä§V” 01'>3ªøIBág‡¦   ÿÿòaá    ÿÿ‚…ß|¨8zø   ÿÿB?˜ºšı¶àpƒÑhÖ`pÑDZšPÓ'T^AÌrH\ú…_QjqqiQ*šÄq	…ß+.Ts    ÿÿraá    ÿÿò€xƒ zø   ÿÿB¿`U3Zo‚ÃoJ±QéOªFM$şVï":üò“²R“KâùØ$Š'>éB(ü¬`†Ò    ÿÿÒ 4   ÿÿ‚…ßB(=ü    ÿÿB?˜º3;Ááv`º9Qá§5Fí&~“ãsAû`š€4.ÿ2AÕ@R/B   ÿÿ2aî   ÿÿ‚ùwTİ¿    ÿÿB÷/L]ÀiHyÅĞG\y¥5F±î`É±q•W—b÷/''¤Ñ 5˜ß’ósÁY.¿*F
+E(üĞ   ÿÿòaá    ÿÿ‚…ßb¨8zø   ÿÿB?˜ºöô¥Ñ¬ÁàÊ¡‰¼ ^¤W~Åå‰ÀòÍ"¹¸Âª_Í    ÿÿòaá    ÿÿ‚…ß¨8zø   ÿÿB?˜º7!ùMÆPí8©h2G	¤¿äOÆXó–ô
+¿´ÌœÔød`‘U’Šf.®ğã‚êSCÓ   ÿÿò—@i    ÿÿ‚…ßR(=ü    ÿÿB?˜ºĞğóñ#.ü$ æ+@é»Âï÷	Høy Õ b |á—QC
+‰+ü`é=ü    ÿÿ    ÿÿ‚ñav   ÿÿ‚…'L?3'LB   ÿÿÒ R@ÌÄ†@Ìàğ‡¤Vp®§ÑwyIoŞ8¬ıËmÏp@›$~U–¥ê„qôÔUÅ>JyzóB˜@â:}13úY„l‘»V•±E¶(    ÿÿbåd`h ²:€@jA *á ‘ŠÏ³@Ü¬PQ^0Í$í€Xˆa2`	 ÁÄå‰ii9©ºé9ºEùI©0)   ÿÿRä„´': 2 #    ÿÿÒB“çA8¬   ÿÿrƒÊ· kBb   ÿÿ‚…÷J¨zú   ÿÿBO¿0uHF€™ûÑ ü•ìÆw+F0Ã]Â—‘dË±`4- Äàö+ƒô*3Hşo`j8 w`X $1ëÛt°(ÃdÃ—* ¥€´³±'Ã>#pºø³BËØë‚ù*ú„*  Ä\@,Ô°^\o¬9 ¡oL\æOÈ¯Ó©:A¸¢NB÷|Óódº‚i q`    ÿÿÒ+¡4   ÿÿ‚ñ¡|    ÿÿbÒ@ÜÄ P\’˜œ]œ‘__“_œY•
+‡“0P    ÿÿ’æd`P ²»á
+‘ØP&   ÿÿ’‚ªï€ò÷Î€²°S    ÿÿc
+ qƒ Â} .LZNbz1DJ²³¼vD  }:ÿêíX‘ñ            
+** Stackshot Succeeded ** Bytes Traced 5442 (Uncompressed 15584) **
+
+== END OF LOG ==

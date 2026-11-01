@@ -1,0 +1,13 @@
+{
+  "run": "work/waffle/runs/20261101T104449Z",
+  "auto": "work/waffle/auto-runs/20261101T104425Z",
+  "first_proven_failure": "dyld cannot find shared cache; libSystem.B.dylib not loaded before main",
+  "GPU_context_opened": false,
+  "GPU_commands_executed": false,
+  "runner_secondary_error": "old Dynamic BO marker validation masks actual pre-main dyld error",
+  "kernel_log_sha256": "a9719b883bfcce6da9922046e26bb460773b0120b7f0ab20c6f3f31c11370531",
+  "android_restored": true,
+  "independent_adb": "1",
+  "new_evidence": "system image has caches under/System/Cryptexes/OS/System/Library/Caches/com.apple.dyld; loader binary supportsDYLD_SHARED_CACHE_DIR",
+  "minimal_experiment": "samekernel/system/Mesa/program, staticinitpointsDYLD_SHARED_CACHE_DIR atactualexistingcache andchecksfilemagic"
+}

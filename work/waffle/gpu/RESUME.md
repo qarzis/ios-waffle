@@ -1,3 +1,100 @@
+# STOPPED — user low limits, Android restored; E36 general GL still failing before draw
+
+Latestuser «4 процента лимитов останавливайся потиху». STOP newwork/tests/builds
+until explicitresume. PhoneordinaryAndroid, independentADBsys.boot_completed=1
+verifiedaftercurrentfailure. Noactivehardwareworker. Do notobeyolderkeepworking.
+Hardwareverifiedref remainsE33 4cf1355848b401e9798eaf9d8328278ff5af0ee3:
+directuserBOmaps/compute3jobs. E34actualhostGLrequirementsaudit29fa75a,
+E35generalstorageWIP9ca79fcb, E36generalbackend+actualDarwinMesa/probeWIP
+04d4805467b36d37018a1f4ab75d74d0a6089941; newSTOPcheckpointarchiveonly.
+NoGL/SpringBoardacceleration orGPUtriangle yet. NoGitHubpushrequested.
+
+E36controloldmapped12 run104324Z/auto104300Z PASS onreadykernel,fullstop/
+Android1. FirstactualGL run104449Z/auto104425Z failedBEFOREmain: dyldcouldnot
+findsharedcache/libSystem.B.dylib, noGPUopen. PreservedE36-first-failure.json.
+MinimalstaticinitDYLD_SHARED_CACHE_DIR andcachefilemagicpreflight ->cache-r2
+samekernel/UEFI/Mesa/dynamicprogram/system/FW. Run20261101T105128Z/
+auto105104Z cache_readable1/magic1, dynamicloaderprogressed: GENERALopenpid1,
+3GENERAL_BOsgenuinelymapped (16KiB/16KiB/4MiB at100000000/100004000/100008000).
+ThenPID1 SIGSEGV namespace2/subcode0xb, beforeANYGENERAL_SUBMIT. NoGPUdraw
+commandsorGLpixels. ExactuserPCunknown. Androidauto-resetreturnednormal,
+independentADB1. Result/proof E36-cache-r2-{proof,result}.json. Originalpanic
+rawlogs preserved (containbinarycompressedstackshot; don'ttaildumpbinary).
+
+Onexplicitresume: auditthenminimaldiagnostictofindactualuserPC/LR/faultaddr
+beforefix. Normaldynamicprogramstdiooutputabsent thoughlibignitionrawlogs
+andkernelGPUlogsvisible. AdddirectDarwinSYS_write4(rawsvc#0x80) diagnostics,
+SIGSEGV/SIGBUS sigaction/ucontext (actualSDKmacharmthreadstateget_pc/get_lr),
+logimagebase/dyldloadaddresses andactualGENERALMAPrequest/results. Symbolize
+againstDarwinMesa buildunstrippedlib. Hostmodelactual13BO/maps passed; cannot
+assumecrashcause. GPUcontextopen succeeded; noCPdrawtestyet. No speculative
+GPU/power/firmwarefix. ThiswouldbeE36attempt3: ifnoresult stopandreassess
+architecture beforemorehardwaretests (useranti-looprule).
+
+Runnersecondarybug: currentDynamicBO markersstilluseCOMPUTEvalues evenfor
+mode13 (scripts/run_waffle_ios.py near466). Previousreplace didn'tmatchactual
+multiline. Correctonlygeneralmarkerbranch+earlyusercrashdiagnosis onresume;
+strictvalidate_gl_log/extract_gl_pixels/gl_completed_fences mustremain. Last
+runnererrorDynamicBOpublication masksactualSIGSEGV, preserveoriginalfailure.
+
+Artifacts: diagnostic-gpu-gl-e36-ready readykernel+firstroot; cache-r2artifact
+samekernel/image/sys/Mesa withupdatedstaticinit/root. Root19MiBmd1, original
+fullsystem2.2GiBresidentmd0; originalstage0mounts/redwoodthenexecinit/probe.
+Auto --gl-context/full94chain/--compute dispatch; no --msm flags. Transfers
+~75s thenguest~20s. Kernel/root/system/sourcehashbound, autoimageRAM-only.
+No physicalBootiOSselection, no flash/erase. Source/generalcode details below.
+MainHEAD/indexpreserved; archivedWIP onlyuntilGLhardwarefullqualification.
+
+Older entries below superseded by STOP.
+
+# Active E36 cache-r2 — first GL failed before main, minimal environment retest
+
+Userkeepworkingactive. FirstGLrun104449Z/auto104425Z failedBEFOREmain/GPU:
+actualdyldLibrarynotloaded:/usr/lib/libSystem.B.dylib (no sharedcache).
+NoGENERALopen/noGPUcommands. Panic/rawlogs/secondaryrunnererrorpreserved
+E36-first-failure.json. PhoneautoAndroid+independentADB1 verifiedafterfailure.
+Oldmapped12control104324Zpassed. HardwareverifiedrefE33 4cf1355 unchanged;
+WIParchive04d4805. NoGLhardwareaccelerationclaimed.
+
+Current singlecache-r2 exec61843 active, loggpu/auto-gl-e36-cache-r2.log;
+artifactdiagnostic-gpu-gl-e36-cache-r2. Samekernel/UEFI/Mesa/dynamicprogram/
+system/FW exactly asfirstattempt. Onlystaticinitadds explicit supported
+DYLD_SHARED_CACHE_DIR=/System/Cryptexes/OS/System/Library/Caches/com.apple.dyld
+andpreflightopensprimarycache/read16bytesdyld_v1magic beforeexec. Knownfrom
+actualdyldbinarystrings +actualpackfsfilelocation; noGPUcodechange.
+ValidatorfixesoldCOMPUTE-onlyDynamicBOmarkerforGL andreportsearlydyldfailure;
+strictGLpixel/fence/BO/lifetimeacceptanceremains. E36-cache-r2-proof.json.
+Waitcurrentrunner/autorecovery thenAndroidindependent1. Preservefirstnew
+failure. Noconcurrentfastboot. ThisisE36attempt2; afterthirdfailedexperiment
+reassessarchitecturebeforemoretests. No blindrepeat. NoGitHubpush/no flash/
+erase/manualBootiOS. UserinformednotyetGL/GPUimagebecausepre-mainfailure.
+
+Ifcacheenvignored, auditnormalCPUinit/var/cryptexsetup beforeanotherchange.
+RootSystem/Library/Caches missing, CryptexSystemLibraryCachesexists; actual
+normalinit mountsramfsprivatevar. Existingbindfs supportsMNT_UNION (normal
+initusesfor/jb-bin), could exposeCryptexcacheviaunionoverSystem/Library
+withoutmutatingroot, but DO NOTmakechangewhilecurrentresultunknown.
+
+# Active E36 first actual GL run — full system transferring to RAM
+
+KEEPWORKINGactive, userlatest«дальше работай». Oldmapped12control PASS
+run20261101T104324Z/auto104300Z/runner0/Androidindependent1. WIPcheckpoint
+04d4805467b36d37018a1f4ab75d74d0a6089941 archived; hardwareverifiedE33
+4cf1355848b401e9798eaf9d8328278ff5af0ee3 unchanged.
+SingleactualGLmode13 exec35124 active, auto20261101T104425Z,
+run20261101T104449Z. Loggpu/auto-gl-e36-user.log, artifact
+ diagnostic-gpu-gl-e36-ready/hardware-host-94.log. Atlastcheckpayload34.6MB
+sent, full2.2GiB systemtransferinprogress. No concurrentfastboot. Waitfor
+runner+autorecovery; thenindependentADBAndroid1, preservefirstfailure.
+Do notlaunchanotherexperimentuntilcurrentfullyresolved.
+StrictGLvalidator source/image/root/Mesa/fullsystemSHA-bound; actualGLGPU
+success requiresFD750,all256pixels,privateGPUfences/ACK,BOproof/fullteardown.
+Sourceproof forensic-audit/E36-source-proof.json. Mode13general kernel and
+normalMesaoptintransport vs actualdynamicOSMesa probe19MiBmd1, originalfull
+systemmd0. No fullsystem mutation. Noflash/erase/manualBootiOS needed.
+Ifpassed saveactualpixelartifact/verifiedcommit; nextIOSurface+presentation.
+Iffailed diagnoseexactfirstphase, no blindretry. NoGitHubpushrequested.
+
 # Active E36 ready — mode13 enabled, oldmapped12 control running
 
 Userlatest«дальше работай», thenaskedwhatnext; answeredcommentary andcontinue.
