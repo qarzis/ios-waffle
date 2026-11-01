@@ -1,7 +1,7 @@
 # OnePlus 12 GPU port
 
-Current status: actual GPU CoreAnimation composition has completed a 240-second
-RAM-only test with 17,525 verified GPU completions and clean GPU shutdown.
+Current status: actual GPU CoreAnimation composition has completed a 600-second
+RAM-only desktop session with 1,670 verified GPU completions and clean GPU shutdown.
 Indefinite operation and Metal remain unfinished.
 
 See the [current milestones and evidence](waffle-gpu-milestones.md). Sections below

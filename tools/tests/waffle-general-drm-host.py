@@ -7,6 +7,7 @@ def strip(s):return re.sub(r'^#include .*$','',s,flags=re.M)
 h='#define _DEFAULT_SOURCE\n'+parts['h'][:parts['h'].index('static int proc_pid')]
 h+=r'''
 #include "waffle_gpu_registry.h"
+#include "waffle_gpu_handles.h"
 #include "waffle_gpu_va.h"
 #define Z_WAITOK 1
 #define Z_ZERO 2

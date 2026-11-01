@@ -64,6 +64,11 @@ ui60=ui.replace('bounded=1\n','bounded=1 stop_seconds=60\n').replace('seconds=30
 assert m.validate_ui_workload_log(ui60)['GPU_fences']==1
 ui240=ui60.replace('seconds=60','seconds=240')
 assert m.validate_ui_workload_log(ui240)['GPU_fences']==1
+ui600=ui240.replace('seconds=240','seconds=600')
+assert m.validate_ui_workload_log(ui600)['GPU_fences']==1
+try:m.validate_ui_workload_log(ui600.replace('pid=83 seconds=600','pid=83 seconds=240'))
+except RuntimeError:pass
+else:raise AssertionError('Mismatched soak duration accepted')
 for bad in [ui60.replace('stop_seconds=60','stop_seconds=90'),
             ui60.replace('pid=83 seconds=60','pid=83 seconds=30'),
             ui60.replace('MiniIOMobileFramebuffer: swap','missing swap'),

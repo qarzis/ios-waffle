@@ -7,10 +7,10 @@ prefix=source[:source.index("before=set(Path('work/waffle/runs').iterdir())")]
 chain=['--lpac-map','--zap','--writeback','--ib','--session','--dynamic-bo','--compute-dispatch','--gl-context']
 previous=sys.argv
 try:
- for flags in [chain,chain+['--ui-workload'],chain+['--ui-workload','--ui-long-test']]:
+ for flags in [chain,chain+['--ui-workload'],chain+['--ui-workload','--ui-long-test'],chain+['--ui-workload','--ui-soak-test']]:
   sys.argv=['runner','94','artifact',*flags];ns={};exec(prefix,ns)
   assert ns['image']==13 and ns['probe']==94
- for flags in [chain+['--unknown'],chain+['--ui-long-test'],chain+['--ui-workload','--ui-workload']]:
+ for flags in [chain+['--unknown'],chain+['--ui-soak-test'],chain+['--ui-workload','--ui-soak-test','--ui-long-test'],chain+['--ui-long-test'],chain+['--ui-workload','--ui-workload']]:
   sys.argv=['runner','94','artifact',*flags]
   try:exec(prefix,{})
   except AssertionError:pass

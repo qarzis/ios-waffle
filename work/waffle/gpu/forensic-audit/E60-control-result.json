@@ -1,0 +1,17 @@
+{
+  "run": "work/waffle/runs/20261101T215403Z",
+  "auto": "work/waffle/auto-runs/20261101T215339Z",
+  "actual_Mesa_FD750": true,
+  "correct_reference_pixels": 256,
+  "GPU_fences": 2,
+  "public_generation_reuse_handle": 8193,
+  "registry_slot_reused": true,
+  "BO_issued": 23,
+  "early_reclaimed": 1,
+  "after_detach_released": 22,
+  "full_close_passed": true,
+  "runner_exit": 0,
+  "automatic_success": true,
+  "independent_android": "1",
+  "raw_sha256": "18115e1851b301178f588abac6fed1ad9a018559336f8fd817ed16efddee8838"
+}

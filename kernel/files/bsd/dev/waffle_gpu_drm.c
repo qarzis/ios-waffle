@@ -12,6 +12,7 @@
 #include <sys/waffle_gpu_msm.h>
 #include <sys/waffle_gpu_map.h>
 #include <sys/waffle_gpu_registry.h>
+#include <sys/waffle_gpu_handles.h>
 #include <sys/waffle_gpu_va.h>
 extern void redwood_tl(const char *,...) __printflike(1,2);
 extern void loader_return(void);
@@ -23,10 +24,11 @@ struct drm_bo {
  uintptr_t user_map;
  uint64_t user_address;
  bool live;
+ uint32_t handle;
 };
 static struct drm_bo drm_bos[WAFFLE_GPU_BO_LIMIT];
 static struct waffle_gpu_context *drm_context;
-static unsigned drm_count,drm_fence;
+static unsigned drm_count,drm_issued,drm_fence;
 static int drm_pid;
 static uint32_t drm_queues;
 static unsigned drm_next_queue;
@@ -36,18 +38,19 @@ static bool drm_queue_valid(uint32_t id)
 }
 static struct drm_bo *drm_buffer(unsigned handle)
 {
- return handle && handle<=drm_count && drm_bos[handle-1].live?&drm_bos[handle-1]:NULL;
+ unsigned slot=waffle_gpu_handle_slot(handle);
+ return slot<drm_count && drm_bos[slot].live && drm_bos[slot].handle==handle?&drm_bos[slot]:NULL;
 }
 static void drm_allocation_refused(uint64_t bytes,uint32_t flags,const char *reason)
 {
  uint64_t live_bytes=0,retired_bytes=0;unsigned live_count=0,retired_count=0;
  for(unsigned i=0;i<drm_count;i++){
   if(drm_bos[i].live){live_count++;live_bytes+=drm_bos[i].memory->allocation_bytes;}
-  else{retired_count++;retired_bytes+=drm_bos[i].memory->allocation_bytes;}
+  else{retired_count++;if(drm_bos[i].memory)retired_bytes+=drm_bos[i].memory->allocation_bytes;}
  }
- redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=%s live_count=%u live_bytes=%llu retired_count=%u retired_bytes=%llu heap_limit=%u\n",
+ redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=%s live_count=%u live_bytes=%llu retired_count=%u retired_bytes=%llu heap_limit=%u issued=%u\n",
   (unsigned long long)bytes,flags,drm_count,WAFFLE_GPU_BO_LIMIT,reason,live_count,
-  (unsigned long long)live_bytes,retired_count,(unsigned long long)retired_bytes,WAFFLE_GPU_BO_HEAP_BYTES);
+  (unsigned long long)live_bytes,retired_count,(unsigned long long)retired_bytes,WAFFLE_GPU_BO_HEAP_BYTES,drm_issued);
 }
 static void drm_unmap(struct drm_bo *bo)
 {
@@ -61,8 +64,8 @@ static int drm_open(dev_t dev,int flags,int type,struct proc *p)
  (void)dev;(void)flags;(void)type;lck_mtx_lock(&drm_lock);int error=0;
  if(drm_context){error=EBUSY;goto done;}
  drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
- drm_count=drm_fence=0;drm_queues=0;drm_next_queue=0;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
- redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u VA_bytes=%u\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES,WAFFLE_GPU_BO_VA_BYTES);
+ drm_count=drm_issued=drm_fence=0;drm_queues=0;drm_next_queue=0;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
+ redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u VA_bytes=%u generation_handles=1\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES,WAFFLE_GPU_BO_VA_BYTES);
 done:lck_mtx_unlock(&drm_lock);return error;
 }
 static int drm_param(struct waffle_msm_param *r)
@@ -105,9 +108,10 @@ static int drm_submit(struct waffle_msm_submit *r)
  uint64_t seen[(WAFFLE_GPU_BO_LIMIT+63)/64]={0};uint32_t total=0;
  for(unsigned i=0;i<r->nr_bos;i++){
   struct drm_bo *bo=drm_buffer(bos[i].handle);
-  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen[(bos[i].handle-1)/64]&(1ULL<<((bos[i].handle-1)%64))) ||
+  unsigned slot=waffle_gpu_handle_slot(bos[i].handle);
+  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen[slot/64]&(1ULL<<(slot%64))) ||
      (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va)){error=EINVAL;goto done;}
-  seen[(bos[i].handle-1)/64]|=1ULL<<((bos[i].handle-1)%64);
+  seen[slot/64]|=1ULL<<(slot%64);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
   struct waffle_msm_submit_cmd *cmd=&commands[i];
@@ -152,7 +156,13 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
  }else if(command==WAFFLE_MSM_NEW){
   struct waffle_msm_gem_new *r=(void *)data;
   if(r->handle || !waffle_gpu_registry_flags(r->size,r->flags)){error=EINVAL;goto done;}
-  if(drm_count>=WAFFLE_GPU_BO_LIMIT){
+  unsigned slot=WAFFLE_GPU_BO_LIMIT;uint32_t handle=0;
+  for(unsigned i=0;i<drm_count;i++)if(!drm_bos[i].live &&
+      (handle=waffle_gpu_handle_next(drm_bos[i].handle,i))){slot=i;break;}
+  if(slot==WAFFLE_GPU_BO_LIMIT && drm_count<WAFFLE_GPU_BO_LIMIT){
+   slot=drm_count;handle=waffle_gpu_handle_next(0,slot);
+  }
+  if(slot==WAFFLE_GPU_BO_LIMIT || drm_issued==UINT32_MAX){
    drm_allocation_refused(r->size,r->flags,"slots");
    error=ENOSPC;goto done;
   }
@@ -161,7 +171,9 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
    drm_allocation_refused(r->size,r->flags,"registry");
    error=ENOMEM;goto done;
   }
-  drm_bos[drm_count]=(struct drm_bo){.memory=bo,.live=true};r->handle=++drm_count;
+  drm_bos[slot]=(struct drm_bo){.memory=bo,.live=true,.handle=handle};
+  if(slot==drm_count)drm_count++;
+  drm_issued++;r->handle=handle;
   redwood_tl("waffle-gpu: GENERAL gem_new handle=%u bytes=%u allocated=%u flags=%x VA=%llx\n",r->handle,bo->bytes,bo->allocation_bytes,bo->flags,(unsigned long long)bo->gpu_va);
  }else if(command==WAFFLE_MSM_INFO){
   struct waffle_msm_gem_info *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
@@ -206,7 +218,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   uint32_t bytes=bo->memory->allocation_bytes;
   drm_unmap(bo);
   if(!waffle_gpu_context_memory_reclaim(drm_context,bo->memory,!bo->user_map && !bo->user_address)){error=EIO;goto done;}
-  bo->live=false;
+  bo->live=false;bo->memory=NULL;
   redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=0\n",r->handle,bytes);
  }else error=ENOTTY;
 done:
@@ -220,7 +232,7 @@ static int drm_close(dev_t dev,int flags,int type,struct proc *p)
  for(unsigned i=0;i<drm_count;i++)drm_unmap(&drm_bos[i]);
  bool ok=waffle_gpu_context_end(&drm_context);
  if(drm_context){redwood_tl("waffle-gpu: REBOOT REQUIRED: general GPU context retained\n");loader_return();for(;;);}
- redwood_tl("waffle-gpu: GENERAL close passed=%u completed=%u buffers=%u context_null=1\n",ok,drm_fence,drm_count);
+ redwood_tl("waffle-gpu: GENERAL close passed=%u completed=%u buffers=%u context_null=1\n",ok,drm_fence,drm_issued);
  bzero(drm_bos,sizeof(drm_bos));drm_pid=0;lck_mtx_unlock(&drm_lock);return ok?0:EIO;
 }
 static const struct cdevsw drm_cdev={

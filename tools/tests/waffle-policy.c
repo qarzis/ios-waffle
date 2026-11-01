@@ -339,6 +339,22 @@ int main(void)
     for (unsigned i = 0; i < sizeof(bad) / sizeof(bad[0]); i++)
         assert(!waffle_cmdline_allowed(bad[i]));
 #if defined(WAFFLE_USERLAND)
+    const char *soak="waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13 loader_return_after=660";
+#if defined(WAFFLE_UI_SOAK_TEST)
+    assert(waffle_cmdline_allowed(soak));
+    assert(waffle_return_seconds_allowed(660));
+    char duplicate[1024];strcpy(duplicate,soak);strcat(duplicate," loader_return_after=10");
+    assert(!waffle_cmdline_allowed(duplicate));
+#else
+    assert(!waffle_cmdline_allowed(soak));
+    assert(!waffle_return_seconds_allowed(660));
+#endif
+    assert(!waffle_cmdline_allowed("loader_return_after=660"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 loader_return_after=660"));
+    assert(!waffle_return_seconds_allowed(0));
+    assert(!waffle_return_seconds_allowed(301));
+    assert(!waffle_return_seconds_allowed(659));
+    assert(!waffle_return_seconds_allowed(661));
     assert(waffle_cmdline_allowed("loader_return_after=300"));
     assert(waffle_cmdline_allowed("loader_return_after=61"));
     assert(waffle_checkpoint_allowed(0));

@@ -14,7 +14,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | --- | :---: | --- |
 | CPU, interrupts, timers | ✅ | XNU and iOS boot; all 8 cores unverified |
 | Display | ✅ | 1440 × 3168 framebuffer |
-| GPU | ⚠️ | GPU compositor tested for 4 minutes; stability work continues |
+| GPU | ⚠️ | GPU compositor tested for 10 minutes; stability work continues |
 | Metal | ❌ | |
 | Touch | ✅ | Taps and swipes |
 | Buttons | ✅ | Power, volume up, volume down |

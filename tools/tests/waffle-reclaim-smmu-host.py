@@ -61,7 +61,7 @@ int main(void){
   if(ok){
    assert(!b->object && owner.registry.used==32768 && live_released==1 && tlbs==2);
    struct waffle_gpu_memory *d=smmu_registry_new(&owner,32768,WAFFLE_GPU_BO_WC);
-   assert(d && d->gpu_va==va && d==&owner.registry.buffers[3]);
+   assert(d && d->gpu_va==va && d==&owner.registry.buffers[1]);
    for(unsigned off=0;off<d->allocation_bytes;off+=4096){
     uint64_t entry=pte(&owner.pool,va+off);
     assert((entry&PTE_ADDRESS)==waffle_gpu_memory_page(d,off) && (entry&0xc3)==0x43);
@@ -77,18 +77,19 @@ int main(void){
  }
  for(unsigned reclaim=0;reclaim<2;reclaim++){
   struct smmu_owner owner;reset_owner(&owner);
+  struct waffle_gpu_memory *issued[801]={0};
   for(unsigned i=0;i<sizeof(events)/sizeof(events[0]);i++){
    const uint64_t *e=events[i];
    if(e[0]){
-    struct waffle_gpu_memory *bo=smmu_registry_new(&owner,e[2],e[3]);assert(bo && owner.registry.count==e[1]);
+    struct waffle_gpu_memory *bo=smmu_registry_new(&owner,e[2],e[3]);assert(bo && owner.registry.issued==e[1]);issued[e[1]]=bo;
     if(!reclaim)assert(bo->gpu_va==e[4]);
     for(unsigned off=0;off<bo->allocation_bytes;off+=4096){
      uint64_t entry=pte(&owner.pool,bo->gpu_va+off);
      assert((entry&PTE_ADDRESS)==waffle_gpu_memory_page(bo,off) && (entry&0xc3)==((bo->flags&2)?0xc3:0x43));
     }
-   }else if(reclaim)assert(smmu_registry_reclaim(&owner,&owner.registry.buffers[e[1]-1],true));
+   }else if(reclaim)assert(smmu_registry_reclaim(&owner,issued[e[1]],true));
   }
-  assert(owner.registry.count==800 && owner.registry.used==(reclaim?60080128:67108864));
+  assert(owner.registry.issued==800 && owner.registry.used==(reclaim?60080128:67108864));
   struct waffle_gpu_memory *next=smmu_registry_new(&owner,16384,WAFFLE_GPU_BO_WC|2);
   assert((next!=NULL)==(reclaim!=0));
   assert(owner.pool.count<=64 && live_released==(reclaim?10:0));

@@ -60,8 +60,8 @@ int main(void){
   if(failure==0){
    assert(!b->object && r.used==32768 && frees==1 && cleared==8 && tlbs==2 && !r.poisoned);
    struct waffle_gpu_memory *d=waffle_gpu_registry_new(&r,&base,32768,WAFFLE_GPU_BO_WC);
-   assert(d && d->gpu_va==bva && d==&entries[3] && r.used==65536);
-   assert(!waffle_gpu_registry_reclaim(&r,&ops,b,true));
+   assert(d && d->gpu_va==bva && d==&entries[1] && r.used==65536);
+   /* Internal pointers are reused; public stale generation handles are checked by cdev. */
   }else{
    assert(b->object && r.used==65536 && !frees);
    if(failure<=2)assert(!cleared && !r.poisoned);
@@ -79,20 +79,21 @@ int main(void){
   * first failure; hypothetical eligible reclamation admits the next16KiB. */
  for(unsigned reclaim=0;reclaim<2;reclaim++){
   reset_all();struct waffle_gpu_registry r={.buffers=entries};
+  struct waffle_gpu_memory *issued[801]={0};
   for(unsigned i=0;i<sizeof(events)/sizeof(events[0]);i++){
    const uint64_t *event=events[i];
    if(event[0]){
     struct waffle_gpu_memory *bo=waffle_gpu_registry_new(&r,&base,event[2],event[3]);
-    assert(bo && r.count==event[1]);
+    assert(bo && r.issued==event[1]);issued[event[1]]=bo;
     if(!reclaim)assert(bo->gpu_va==event[4]);
     for(unsigned off=0;off<bo->allocation_bytes;off+=4096)
      assert(ptes[slot(bo->gpu_va+off)]==(waffle_gpu_memory_page(bo,off)|0x43|((bo->flags&2)?0x80:0)));
-   }else if(reclaim){reset_phase();assert(waffle_gpu_registry_reclaim(&r,&ops,&entries[event[1]-1],true));}
+   }else if(reclaim){reset_phase();assert(waffle_gpu_registry_reclaim(&r,&ops,issued[event[1]],true));}
   }
-  assert(r.count==800 && r.used==(reclaim?60080128:67108864));
+  assert(r.issued==800 && r.used==(reclaim?60080128:67108864));
   struct waffle_gpu_memory *next=waffle_gpu_registry_new(&r,&base,16384,WAFFLE_GPU_BO_WC|2);
   assert((next!=NULL)==(reclaim!=0));
-  if(reclaim)assert(r.count==801 && r.used==60096512 && frees==10);
+  if(reclaim)assert(r.issued==801 && r.used==60096512 && frees==10);
   assert(waffle_gpu_registry_destroy(&r,true) && frees==objects);
  }
  return 0;

@@ -1,14 +1,13 @@
 # OnePlus 12 GPU progress
 
 Adreno 750 runs actual CoreAnimation/backboardd composition through Darwin Mesa.
-The latest RAM-only UI test ran for **240 seconds**, completing **17,525 GPU
-submissions** and a clean GPU shutdown. Earlier captures show desktop and Sileo
-while the GPU compositor was active.
+The latest RAM-only UI session completed its planned **600-second** window,
+**1,670 GPU submissions**, and full GPU shutdown. It was mostly idle after
+desktop startup, with periodic clock updates. This is not a continuous load or
+FPS benchmark. Native captures show the desktop, icons and Calendar text.
 
-This remains a bounded test. Indefinite operation, FPS, and Metal are not qualified.
-Some widgets have rendering defects. VA fragmentation and descriptor lifetime
-remain under investigation. The normal image still selects softpipe unless the isolated
-GPU test is enabled.
+Indefinite operation, broad app coverage and Metal remain unfinished. The normal
+image still selects softpipe unless the isolated GPU test is enabled.
 
 | Verified test | Result | Evidence |
 | --- | --- | --- |
@@ -26,13 +25,20 @@ GPU test is enabled.
 | E57: UI compositor | Desktop captured during GPU composition; planned 60-second stop and complete GPU cleanup | [Report](../work/waffle/gpu/forensic-audit/E57-result.json) |
 | E58: sustained UI | 240 seconds, all 16,351 completion tokens verified; 2,682 early BO releases plus 1,697 at shutdown | [Report](../work/waffle/gpu/forensic-audit/E58-result.json), [GPU event journal](../work/waffle/runs/20261101T210014Z/ui-gpu-events.log) |
 | E59: separate VA budget | 256 MiB virtual placement, unchanged 128 MiB physical budget; small GL control and 240-second UI test pass component checks | [Report](../work/waffle/gpu/forensic-audit/E59-result.json) |
+| E60: BO generations | Reclaimed descriptor slots reused; old handles refused; 9,000 real BO recycle cycles, last-buffer GPU writeback and 256 correct GL reference pixels | [Report](../work/waffle/gpu/forensic-audit/E60-recycle9000-result.json) |
 | E61: inverted readback A/B | Same 750 × 1624 scene, all 1,218,000 pixels correct; readback 68,126 → 5,408 µs, 1,624 → 1 GL reads | [Comparison](../work/waffle/gpu/forensic-audit/E61-comparison.json) |
 | E61: UI with qualified readback hook | 240 seconds, 17,525 GPU completions, clean stop; backboardd used the existing one-read path, so no UI FPS gain is established | [Report](../work/waffle/gpu/forensic-audit/E61-UI-result.json) |
+| E62: 10-minute UI session | Planned 600-second stop, 1,670 GPU completions; all 1,349 BO lifetimes/generations validate, full cleanup and Android recovery | [Report](../work/waffle/gpu/forensic-audit/E62-result.json) |
 
 The readback timing is one controlled frame per policy, not an FPS benchmark.
 E61 also logged GEM_NEW EINVAL without enough request details to establish why;
 no allocation-budget or submission failure was logged. Original outer runner
 failures due to lost rolling-console startup evidence remain recorded.
+
+The E60/E62 outer runner exits remain 1: final rolling logs miss startup/BO
+markers. E62's separate literal-snapshot check validates every BO lifetime and
+generation, but its full UI check lacks the display-worker surface log. GOP
+captures are retained locally; exact submitted-surface correlation is unverified.
 
 ## Current implementation
 
@@ -41,7 +47,8 @@ are partitioned in order into complete-root windows. The physical BO budget is
 128 MiB, the per-BO bound is 8 MiB, and 8,192 descriptor records are available.
 Virtual placement spans 256 MiB;
 physical residency remains limited to 128 MiB.
-Closed BOs are revoked before release. GPU fences remain monotonic; serialized
+Closed BOs are revoked before release. Descriptor slots are reused with
+32-bit generation handles; exhausted generations are quarantined before wrap. GPU fences remain monotonic; serialized
 HFI tags cycle independently of them. The former 1,024-submission diagnostic cap
 has been removed and crossed on hardware.
 
@@ -54,8 +61,9 @@ softpipe. A composite UI capture is not a pixel-reference test of every app.
 - Qualify GPU access beyond the old 128 MiB VA boundary. E59 separates VA from
   physical residency and passes the measured fragmentation host model, but its
   hardware workload did not allocate above that boundary.
-- Reuse descriptor records with stale-handle protection before indefinite sessions.
-- Remove diagnostic process/loader timers only after persistent-mode validation.
+- Reuse queue records with stale-ID protection; the current 32-ID cumulative
+  queue limit is a separate lifetime gap. Its patch is under focused validation.
+- Qualify sustained interactive load and persistent mode before removing timers.
 - Measure and improve readback, submission and logging costs; no measured FPS claim yet.
 - Port hakios-metal's A6xx/compiler/transport paths to A750 after the GPU baseline.
 

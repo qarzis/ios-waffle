@@ -63,9 +63,58 @@ static void crash_log(int sig,siginfo_t *info,void *context)
  raw_call(55,8,0,0);for(;;){}
 }
 #define printf direct_log
+#ifdef WAFFLE_GL_RECYCLE_BO
+#include <sys/stat.h>
+#include "waffle_gl_recycle_probe.h"
+static int existing_gpu_fd(void)
+{
+ struct stat device;
+ if(stat("/dev/waffle-gpu-drm",&device) || !S_ISCHR(device.st_mode))return -1;
+ for(int fd=0;fd<256;fd++){
+  struct stat candidate;
+  if(!fstat(fd,&candidate) && S_ISCHR(candidate.st_mode) && candidate.st_rdev==device.st_rdev)return dup(fd);
+ }
+ return -1;
+}
+#endif
 #ifdef WAFFLE_GL_HOOK
 #include "waffle_eagl_dispatch.h"
 static IOSurfaceRef hook_surface;
+#ifdef WAFFLE_GL_CONTEXTS
+static bool check_context_switch(void)
+{
+ bool ok=false;void **first=waffle_hook_table;id second=nil;
+ printf("waffle-gl-contexts: begin actual_EAGLContext=2 same_PID=1\n");
+ Class cls=objc_getClass("EAGLContext");
+ second=((id (*)(id,SEL))objc_msgSend)((id)cls,sel_registerName("alloc"));
+ second=((id (*)(id,SEL,unsigned long,id))objc_msgSend)(second,sel_registerName("initWithAPI:properties:"),2,nil);
+ if(!second){printf("waffle-gl-contexts: second initializer failed\n");goto done;}
+ void **table=((void **(*)(id,SEL))objc_msgSend)(second,sel_registerName("getMacroContextPrivate"));
+ if(!table || !table[0] || table==first || table[0]==first[0]){printf("waffle-gl-contexts: distinct table missing\n");goto done;}
+ waffle_hook_table=table;
+ glViewport(0,0,16,16);glDisable(GL_DITHER);glClearColor(0,0,1,1);glClear(GL_COLOR_BUFFER_BIT);glFinish();
+ uint32_t second_pixels[256];for(unsigned i=0;i<256;i++)second_pixels[i]=0xdeadbeef;
+ glReadPixels(0,0,16,16,GL_RGBA,GL_UNSIGNED_BYTE,second_pixels);
+ GLenum error=glGetError();unsigned wrong=0;
+ for(unsigned i=0;i<256;i++)wrong+=second_pixels[i]!=0xffff0000u;
+ printf("waffle-gl-contexts: second checked=256 wrong=%u GL_error=%x color=%08x distinct_context=1\n",wrong,error,second_pixels[0]);
+ if(wrong || error)goto done;
+ waffle_hook_table=first;for(unsigned i=0;i<256;i++)second_pixels[i]=0xdeadbeef;
+ glReadPixels(0,0,16,16,GL_RGBA,GL_UNSIGNED_BYTE,second_pixels);
+ error=glGetError();wrong=0;
+ for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+  bool filled=(4*x+2>2*y+1) && (4*x+2<63-2*y);
+  wrong+=second_pixels[y*16+x]!=(filled?0xff0040ffu:0xff000000u);
+ }
+ printf("waffle-gl-contexts: first_restored checked=256 wrong=%u GL_error=%x\n",wrong,error);
+ ok=!wrong && !error;
+done:
+ if(second)((void (*)(id,SEL))objc_msgSend)(second,sel_registerName("release"));
+ waffle_hook_table=first;
+ printf("waffle-gl-contexts: result=%u second_released=1\n",ok);
+ return ok;
+}
+#endif
 #endif
 static uint32_t pixels[256];
 #ifdef WAFFLE_GL_FULLSIZE
@@ -269,6 +318,12 @@ int main(void)
  const char *renderer=(const char *)glGetString(GL_RENDERER);
  printf("waffle-gl-user: renderer=%s version=%s\n",renderer?renderer:"NULL",glGetString(GL_VERSION));
  if(!renderer || !strstr(renderer,"FD750")){printf("waffle-gl-user: GPU renderer not selected\n");goto finish;}
+#ifdef WAFFLE_GL_RECYCLE_BO
+ int recycle_fd=existing_gpu_fd();
+ if(recycle_fd<0){printf("waffle-gl-recycle: existing device FD missing\n");goto finish;}
+ bool recycled=waffle_gl_recycle_buffers(recycle_fd,9000);close(recycle_fd);
+ if(!recycled)goto finish;
+#endif
 #ifdef WAFFLE_GL_EAGL
  const char *version=(const char *)glGetString(GL_VERSION);
  if(!version || !strstr(version,"OpenGL ES")){printf("waffle-gl-eagl: ES profile missing\n");goto finish;}
@@ -330,6 +385,9 @@ int main(void)
   if(filled)inside++;if(pixels[y*16+x]!=expected)wrong++;
  }
  ok=!wrong && !error && inside==128;
+#ifdef WAFFLE_GL_CONTEXTS
+ if(ok)ok=check_context_switch();
+#endif
 #ifdef WAFFLE_GL_PRESENT
  if(ok)ok=present_triangle();
 #endif

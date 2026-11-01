@@ -12,7 +12,7 @@
 struct waffle_gpu_memory {
  uintptr_t object,memory;
  uint64_t gpu_va;
- uint32_t bytes,allocation_bytes,flags;
+ uint32_t bytes,allocation_bytes,flags,serial;
  bool published;
 };
 #ifdef __cplusplus

@@ -16,7 +16,7 @@ fixture='static const uint64_t state[][5]={'+','.join(
 test=r'''
 int main(void){
  struct smmu_owner owner;reset_owner(&owner);assert(smmu_registry_prepare(&owner));
- owner.registry.count=3272;owner.registry.used=117080064;objects=3272;
+ owner.registry.count=3272;owner.registry.issued=3272;owner.registry.used=117080064;objects=3272;
  for(unsigned i=0;i<1840;i++){
   const uint64_t *b=state[i];struct waffle_gpu_memory *bo=&owner.registry.buffers[b[0]-1];
   *bo=(struct waffle_gpu_memory){.object=b[0],.bytes=b[1],.allocation_bytes=b[2],.flags=b[3],.gpu_va=b[4],.published=true};

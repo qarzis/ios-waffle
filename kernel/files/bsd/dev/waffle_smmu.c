@@ -726,10 +726,10 @@ static bool smmu_owner_finish(struct smmu_owner *s)
     (void)r32(s->qtb, 0); barrier();
     if (s->safe_free) {
         if(s->registry.buffers){
-            unsigned count=s->registry.count,remaining=0;
+            unsigned count=s->registry.count,issued=s->registry.issued,remaining=0;
             for(unsigned i=0;i<count;i++)if(s->registry.buffers[i].object)remaining++;
             if(!waffle_gpu_registry_destroy(&s->registry,true))smmu_owner_stop("general BO reclamation failed after detach");
-            log_line("waffle-iommu: GENERAL_BO released after GPU stop and context detach count=%u reclaimed_earlier=%u total=%u\n",remaining,count-remaining,count);
+            log_line("waffle-iommu: GENERAL_BO released after GPU stop and context detach count=%u reclaimed_earlier=%u total=%u\n",remaining,issued-remaining,issued);
         }
         for (unsigned i = 0; i < s->pool.count; ++i) kmem_free(kernel_map, s->pool.memory[i], PAGE_SIZE);
         if (s->target) kmem_free(kernel_map, s->target, PAGE_SIZE);
@@ -841,11 +841,11 @@ static struct waffle_gpu_memory *smmu_registry_new(struct smmu_owner *s,uint64_t
         smmu_registry_page,smmu_registry_clean,smmu_registry_tlb,s};
     struct waffle_gpu_memory *bo=waffle_gpu_registry_new(&s->registry,&ops,bytes,flags);
     if(s->registry.poisoned){
-        log_line("waffle-iommu: GENERAL_BO publication failed index=%u bytes=%llu tables=%u limit=%u\n",s->registry.count,bytes,s->pool.count,TABLE_LIMIT);
+        log_line("waffle-iommu: GENERAL_BO publication failed index=%u bytes=%llu tables=%u limit=%u\n",s->registry.issued,bytes,s->pool.count,TABLE_LIMIT);
         smmu_owner_stop("general BO publication incomplete; retain backing and tables");
     }
     if(bo)log_line("waffle-iommu: GENERAL_BO published index=%u VA=%llx bytes=%u allocated=%u flags=%x pages=%u\n",
-        s->registry.count,bo->gpu_va,bo->bytes,bo->allocation_bytes,bo->flags,bo->allocation_bytes/4096);
+        bo->serial,bo->gpu_va,bo->bytes,bo->allocation_bytes,bo->flags,bo->allocation_bytes/4096);
     return bo;
 }
 static bool smmu_bo_allocate_map(struct smmu_owner *s,struct waffle_gmu_region *bo,uint32_t address)
@@ -984,7 +984,7 @@ bool waffle_smmu_owner_memory_reclaim(struct waffle_smmu_owner *owner,struct waf
     if(!owner || !owner->exercised || !owner->state.gmu_ok || !bo)return false;
     struct smmu_owner *s=&owner->state;
     unsigned index=0;
-    for(unsigned i=0;i<s->registry.count;i++)if(bo==&s->registry.buffers[i])index=i+1;
+    for(unsigned i=0;i<s->registry.count;i++)if(bo==&s->registry.buffers[i])index=bo->serial;
     if(!index)return false;
     uint64_t va=bo->gpu_va;uint32_t bytes=bo->allocation_bytes;
     bool ok=smmu_registry_reclaim(s,bo,cpu_unmapped);

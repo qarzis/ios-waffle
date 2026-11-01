@@ -20,7 +20,7 @@ h=r'''
 static struct waffle_gpu_memory entries[WAFFLE_GPU_BO_LIMIT];
 static unsigned mode,allocs,frees,pages,cleans,tlbs,idles;
 static bool idle(void *p){assert(p==(void *)1);idles++;return mode!=1;}
-static bool vacant(void *p,uint64_t a){assert(p==(void *)1 && a>=0x100000000ULL && a<WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_HEAP_BYTES);return mode!=2;}
+static bool vacant(void *p,uint64_t a){assert(p==(void *)1 && a>=0x100000000ULL && a<WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_VA_BYTES);return mode!=2;}
 static bool page(void *p,uint64_t a,uint64_t pa,bool ro){assert(p==(void *)1 && !(a&4095) && !(pa&4095));(void)ro;pages++;return mode!=4 || pages!=2;}
 static void clean(void *p){assert(p==(void *)1);cleans++;}
 static bool tlb(void *p){assert(p==(void *)1);tlbs++;return mode!=5;}
@@ -50,7 +50,10 @@ t=r'''
  assert(!waffle_gpu_registry_destroy(&r,false) && !frees);
  assert(waffle_gpu_registry_destroy(&r,true) && frees==13);
  /* Both slot and heap exhaustion refuse without allocating/reusing any VA. */
- r.buffers=entries;r.count=WAFFLE_GPU_BO_LIMIT;assert(!waffle_gpu_registry_new(&r,&ops,4096,WAFFLE_GPU_BO_WC));r.count=0;r.used=WAFFLE_GPU_BO_HEAP_BYTES;
+ r.buffers=entries;r.count=WAFFLE_GPU_BO_LIMIT;
+ for(unsigned i=0;i<WAFFLE_GPU_BO_LIMIT;i++)entries[i].object=i+1;
+ assert(!waffle_gpu_registry_new(&r,&ops,4096,WAFFLE_GPU_BO_WC) && allocs==old_allocs);
+ memset(entries,0,sizeof(entries));r.count=0;r.used=WAFFLE_GPU_BO_HEAP_BYTES;
  assert(!waffle_gpu_registry_new(&r,&ops,4096,WAFFLE_GPU_BO_WC));return 0;
 }
 '''

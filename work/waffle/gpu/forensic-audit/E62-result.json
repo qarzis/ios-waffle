@@ -1,0 +1,32 @@
+{
+  "run": "work/waffle/runs/20261101T221345Z",
+  "auto": "work/waffle/auto-runs/20261101T221321Z",
+  "planned_UI_seconds": 600,
+  "planned_stop_completed": true,
+  "GPU_fences": 1670,
+  "all_completion_tokens_verified": true,
+  "total_BO_count": 1349,
+  "reclaimed_early": 413,
+  "remaining_BO_count": 936,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "independent_android": "1",
+  "observed_allocation_budget_refusals": 0,
+  "observed_submit_refusals": 0,
+  "workload": "desktop startup then mostly idle with periodic clock updates; not continuous rendering stress or FPS benchmark",
+  "desktop_capture": "ui-screen-60.raw visually inspected, icons/dock/Calendar text visible",
+  "runner_exit": 1,
+  "automatic_success": false,
+  "original_runner_failure": "Dynamic BO publication/use/release not confirmed in final rolling console; original failure retained",
+  "raw_sha256": {
+    "kernel-final.log": "cf2deaa9df8f5aa36cf20c182285a7f02f1dbbaa6b6719d38ddf5564eb788cf0",
+    "kernel-2320.log": "e86e3c640a66f959c354fd1167b848af1071b7d0a983aefb35ad14b68a098182",
+    "ui-gpu-events.log": "3bcc43ddf6fe400c1087f8206cd4410db9ff5c1548836a3eb62e4df15df11091",
+    "ui-screen-60.raw": "5a85ba3d9e48199b70fee547b1f6e4d7b9dbd38c1fb9137fced9eb3768c3a5b7",
+    "ui-screen-590.raw": "9776384f735c7de3c4296b8fcb524af7c3965259add676b8af107b2103dd38bb"
+  },
+  "strict_BO_lifetime_and_generation_proof_passed": true,
+  "strict_UI_proof_passed": false,
+  "strict_UI_proof_failure": "UI display-worker surface missing",
+  "proof_limitation": "GOP capture establishes visible desktop; no exact display-worker submitted-surface log correlation"
+}
