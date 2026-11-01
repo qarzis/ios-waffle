@@ -1,0 +1,18 @@
+{
+  "run": "work/waffle/runs/20261101T194203Z",
+  "auto": "work/waffle/auto-runs/20261101T194139Z",
+  "runner_exit": 0,
+  "actual_Darwin_Mesa": true,
+  "renderer": "FD750",
+  "checked_pixels": 256,
+  "wrong_pixels": 0,
+  "GPU_fences": 2,
+  "BO_count": 23,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "kernel_sha256": "5fb2921ca74b18d2c68aa8cc58a2c3737a3879e56961784f153af0084b0bffd9",
+  "raw_log_sha256": "9afc176f782d16217196a0617eb8d630586b8135c9642759e4c2691bc276760b",
+  "multiwindow_GPU_behavior_tested": false
+}

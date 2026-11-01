@@ -1,0 +1,49 @@
+{
+  "_drm_submit": {
+    "object": "xnu-src/xnu-8796.121.2/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/bsd/DEVELOPMENT/waffle_gpu_drm.o",
+    "object_sha256": "493f4bbde951d67d99db1d5806d975346e6da87aefc7bbe4a3401e6a62e30f5a",
+    "prologue": [
+      "<_drm_submit>:",
+      "     a64:      \tstp\tx28, x27, [sp, #-0x60]!",
+      "     a68:      \tstp\tx26, x25, [sp, #0x10]",
+      "     a6c:      \tstp\tx24, x23, [sp, #0x20]",
+      "     a70:      \tstp\tx22, x21, [sp, #0x30]",
+      "     a74:      \tstp\tx20, x19, [sp, #0x40]",
+      "     a78:      \tstp\tx29, x30, [sp, #0x50]",
+      "     a7c:      \tadd\tx29, sp, #0x50",
+      "     a80:      \tsub\tsp, sp, #0x270",
+      "     a84:      \tmov\tx19, x0",
+      "     a88:      \tadrp\tx8, 0x0 <ltmp0>",
+      "     a8c:      \tldr\tx8, [x8]",
+      "     a90:      \tldr\tx8, [x8]",
+      "     a94:      \tstur\tx8, [x29, #-0x60]",
+      "     a98:      \tldp\tw8, w9, [x0]"
+    ]
+  },
+  "_waffle_gmu_owner_submit": {
+    "object": "xnu-src/xnu-8796.121.2/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/bsd/DEVELOPMENT/waffle_gmu.o",
+    "object_sha256": "57f8c8fb3be1c0fcd105afaf2b6112f6a4899a9479ef8ca07f56d85921522799",
+    "prologue": [
+      "<_waffle_gmu_owner_submit>:",
+      "    7770:      \tstp\tx28, x27, [sp, #-0x60]!",
+      "    7774:      \tstp\tx26, x25, [sp, #0x10]",
+      "    7778:      \tstp\tx24, x23, [sp, #0x20]",
+      "    777c:      \tstp\tx22, x21, [sp, #0x30]",
+      "    7780:      \tstp\tx20, x19, [sp, #0x40]",
+      "    7784:      \tstp\tx29, x30, [sp, #0x50]",
+      "    7788:      \tadd\tx29, sp, #0x50",
+      "    778c:      \tsub\tsp, sp, #0x1, lsl #12   ; =0x1000",
+      "    7790:      \tsub\tsp, sp, #0x850",
+      "    7794:      \tadrp\tx8, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>",
+      "    7798:      \tldr\tx8, [x8]",
+      "    779c:      \tldr\tx8, [x8]",
+      "    77a0:      \tstur\tx8, [x29, #-0x60]",
+      "    77a4:      \tcbz\tx1, 0x77ac <_waffle_gmu_owner_submit+0x3c>"
+    ]
+  },
+  "cdev_frame_bytes": 720,
+  "owner_frame_bytes": 6320,
+  "combined_two_frames_bytes": 7040,
+  "default_kernel_stack_bytes": 16384,
+  "whole_callgraph_verified": false
+}

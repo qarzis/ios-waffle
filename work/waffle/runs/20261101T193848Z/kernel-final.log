@@ -1,0 +1,7 @@
+== XNULOADER run (usb) ==
+payload entry 'kernel' size f042d0
+payload entry 'ramdisk' size 1200000
+payload entry 'cmdline' size ce
+payload entry 'usb' size 2
+payload entry 'checkpoint' size 2
+waffle: kernel does not match this diagnostic build

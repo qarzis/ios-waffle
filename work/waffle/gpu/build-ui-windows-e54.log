@@ -1,0 +1,330 @@
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/check-waffle-dtb.py /home/qarzis/OnePlus12-port/vendor_boot.img-2.dtb /home/qarzis/OnePlus12-port/vendor_boot.img-3.dtb --output /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/hardware-provenance.json --live-dtb /home/qarzis/ios-macan/work/waffle/gpu/android-capture2/android-live.dtb --memory-header /home/qarzis/ios-macan/loader/waffle-memory-map.h --memory-output /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/memory-provenance.json
+[
+  {
+    "file": "/home/qarzis/OnePlus12-port/vendor_boot.img-2.dtb",
+    "sha256": "9bc1713b91598db5c996b98c4f93cad93a5fe9ae14e20214afb438cf58e25e42",
+    "soc_id": 557,
+    "revision": "0x20000",
+    "mpidrs": [
+      "0x0",
+      "0x100",
+      "0x200",
+      "0x300",
+      "0x400",
+      "0x500",
+      "0x600",
+      "0x700"
+    ],
+    "gic_registers": [
+      "0x17100000",
+      "0x10000",
+      "0x17180000",
+      "0x200000"
+    ],
+    "gic_stride": "0x40000",
+    "psci": "smc",
+    "timer_hz": 19200000
+  },
+  {
+    "file": "/home/qarzis/OnePlus12-port/vendor_boot.img-3.dtb",
+    "sha256": "2b27ad558c044b7ed7c2862413133659ad1f36a235597164bd24f9871038cc44",
+    "soc_id": 557,
+    "revision": "0x10000",
+    "mpidrs": [
+      "0x0",
+      "0x100",
+      "0x200",
+      "0x300",
+      "0x400",
+      "0x500",
+      "0x600",
+      "0x700"
+    ],
+    "gic_registers": [
+      "0x17100000",
+      "0x10000",
+      "0x17180000",
+      "0x200000"
+    ],
+    "gic_stride": "0x40000",
+    "psci": "smc",
+    "timer_hz": 19200000
+  }
+]
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/check-waffle-gpu.py /home/qarzis/OnePlus12-port/vendor_boot.img-2.dtb /home/qarzis/OnePlus12-port/vendor_boot.img-3.dtb work/waffle/gpu/android-capture2/android-live.dtb --output /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/gpu-provenance.json
+GPU profile agrees with 3 device trees; hardware access remains untested
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-policy.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-policy
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-policy
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-touch.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-touch
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-touch
+waffle touch: contacts, scaling, palm/release and malformed frames passed
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined /home/qarzis/ios-macan/tools/tests/waffle-compact-va.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-compact-va
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-compact-va
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gpu-host.py
+15 probe scenarios passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gmu-clock-host.py
+Production clock owner: legacy rollback, live heap journal after return, duplicate begin/exercise refusal, child-before-clock restore, allocation failure and unsafe PLL/RCG retention passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gmu-native-clock-host.py
+GMU native clock session:625->260, write/lock/latch/attach failures, live CM3/GX/busy detach retention and complete PLL/root rollback passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-firmware-power-host.py
+Read-only firmware audit: version guards, absent protocols/resources, ABI width, query types and getter errors passed
+NPA baseline hold: exact256 requests, partial failures retained, preflight/version/refusal and no repeated allocation passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-pll1-native-host.py
+WRITE 1018 00000007
+WRITE 1010 0000001b
+WRITE 1010 0044001b
+WRITE 1010 4444001b
+WRITE 1014 00001555
+WRITE 1020 20485699
+WRITE 1024 00182261
+WRITE 1028 82aa299c
+WRITE 101c 00000005
+WRITE 1030 00000003
+WRITE 1034 00009000
+WRITE 1038 00000034
+WRITE 1004 00000000
+WRITE 1000 00000104
+WRITE 1010 44440041
+WRITE 1014 00001aaa
+WRITE 1000 00004104
+WRITE 1000 00002104
+WRITE 1004 00000001
+WRITE 1000 80000005
+WRITE 1000 80000004
+WRITE 1004 00000000
+WRITE 1004 00000001
+WRITE 1000 80000005
+WRITE 1010 4444001b
+WRITE 1014 00001555
+WRITE 1000 80004005
+WRITE 1000 80002005
+WRITE 1000 80000004
+WRITE 1004 00000000
+NATIVE_PLL1_NORMAL_PASS
+Native PLL1 configure,1250MHz/calibration/enable,520MHz/disable; latch and lock errors passed
+WRITE 1018 00000007
+WRITE 1010 0000001b
+WRITE 1010 0044001b
+WRITE 1010 4444001b
+WRITE 1014 00001555
+WRITE 1020 20485699
+WRITE 1024 00182261
+WRITE 1028 82aa299c
+WRITE 101c 00000005
+WRITE 1030 00000003
+WRITE 1034 00009000
+WRITE 1038 00000034
+WRITE 1004 00000000
+WRITE 1000 00000104
+WRITE 1010 44440041
+WRITE 1014 00001aaa
+WRITE 1000 00004104
+WRITE 1000 00002104
+WRITE 1004 00000001
+WRITE 1000 80000005
+WRITE 1000 80000004
+WRITE 1004 00000000
+WRITE 1004 00000001
+WRITE 1000 80000005
+WRITE 1010 4444001b
+WRITE 1014 00001555
+WRITE 1000 80004005
+WRITE 1000 80002005
+WRITE 1000 80000004
+WRITE 1004 00000000
+PORT_PLL1_NORMAL_PASS
+Port PLL1 guards, every write failure, lock/latch errors and powered/detached rollback passed
+Port sequence matches native configure/1250/calibration/enable/520/standby writes
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-aop-host.py
+AOP QMP bounds, channel roundtrip, timeout cleanup and 13 refusal cases passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-aop-session-host.py
+Actual split QMP: 22 pinned-E18 IO trace/result parity cases, live return and duplicate begin/end refusal passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-aop-owner-host.py
+Actual AOP owner: 19 startup/rollback/live-child/short-lock/foreign-message/unknown-stop retention scenarios passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-aop-owner-log-host.py
+Actual AOP runner validation: positive result, all missing markers, wrong GPU values, held mutex and teardown order checks passed
+Actual compute runner validation: prepare/dispatch values, control fence and readback failures checked
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-llcc-host.py
+Actual LLCC snapshot: 11 whitelisted reads, zero writes, all3 mapping failures cleaned up; ASan/UBSan passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ramlog-export-host.py
+Actual RAM-log exporter: scattered pages, physical continuity, range and completeness checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ramlog-raw-host.py
+Production RAW59 gate: export failure refuses publication; complete export precedes hold and RAW;57 unchanged
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ramlog-run.py
+RAM-log run/kernel/probe binding, stale/duplicate/range/size refusals passed
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-gmu-fw.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gmu-fw
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gmu-fw /home/qarzis/ios-macan/work/waffle/gpu/android-capture2/gmu_gen70900.bin
+Captured GMU firmware: 15 blocks, 4 payloads parsed
+GMU parser boundary checks passed
+Running: cc -DWAFFLE_USERLAND=1 -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-policy.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-userland-policy
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-userland-policy
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-hfi.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-hfi
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-hfi
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gpu-tables.py
+Captured voltage/frequency/HFI table checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-powerseq-host.py
+Power sequencer busy/refused-write/rollback/native-sleep checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gx-host.py
+GX power/clock/ACK denial, normal release and explicit owned-session OOB handoff checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-context-host.py
+GPU context ownership/setup/rollback/TLB-timeout/SID2-isolation and actual native split TCR checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ucode-host.py
+Ucode CP-control-write denial/base-refusal/restore checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ucode-access-host.py
+Actual mapper: full native UCODE PTE attributes (AP, nG, AF, SH, cache index, XN/NS), captured flags, privileged data, bounds and conflicting PA checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-cp-host.py
+CP packet/setup-denial/timeout/DMA-register-consistency checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-hwsched-host.py
+HWSCHED START decode/pool/duplicate/overflow/secure-refusal/ACK checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-hfi-raw-fault-host.py
+Actual RAW fault monitor: DBG/CM3 faults, fatal retention, queue publication, log bounds and no guessed context layout passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-smmu-stall-host.py
+Actual SMMU stall policy matches native GPUHALT, preserves IRQ mask, refuses faults/disabled bank/readback failure
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ecats-access-host.py
+ECATS actual code matches native encoding; real allocation modes, first-failure stop and shutdown guards pass (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gpu-measure-host.py
+Actual clock counter: native selectors, Hz units, zero clock, bounded timeout and every dropped write/rollback tested; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-log-retrieval-host.py
+Loader: actual oem log retains completed 71KB kernel log despite 32KB console, live path and reset tested
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-smmu-fault-host.py
+Actual SMMU fault sampler: all3 banks, reserved FSR ignored, full64bitVA/syndrome, no writes, geometry guards passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-hfi-publication-host.py
+Actual HFI exchange: consecutive packet/index/barriers/doorbell; RAW/query ACK handling; disabled/full queues passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-post-prepare-query-host.py
+Production QUERY74/79: exact request headers and every preflight/ACK failure passed
+Production dispatch:93/90 prepare only,91/94 full CP,85 thread path verified
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-hfi-features-host.py
+Actual HFI features: native DMS capability before CORE, CP DMS-disabled payload, unique ordered sequences and every ACK failure stop passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-pool-permissions-host.py
+Production allocation permissions: AP/PA, break/clean/TLBI, invalid inputs and failed invalidation passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-dcvs-votes-host.py
+Actual DCVS helper matches native frequency/AB+IB pair; old profile and every ACK failure stop passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-hfi-acd-host.py
+Native ACD table: all 69 words, sequence and boundaries passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-scm-host.py
+SCM native ABI/segment bounds/CPU-inaccessible ownership/failure retention checks passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-scm-aperture-host.py
+Actual CP and LPAC aperture SCM helper matches native descriptor/SCM64 extended args; unsupported, allocation/alias/PA failure, busy bound and cleanup passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-zap-host.py
+Offline signed ZAP ELF bounds/metadata/payload layout, every truncation and corrupt header tests passed; no hardware action
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-zap-load-host.py
+Actual PAS13 sequence/ABI, payload order, native PM4 secure switch and failure retention passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gpu-writeback-host.py
+Actual GPU writeback helper: native packet/VA, initial zero, full-buffer guards, missing transfer, ACK/idle failure and alias lifetime passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-submit-session-host.py
+Actual owned session: heap/OOB lifetime, 3 unique fence results, stale transfer, first-failure retention, safe refusal and all stop-evidence gates passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-general-submit-host.py
+Actual general root submit:captured310word Mesa GL IB copied verbatim,no extra nesting,15word tail equals qualified export,3 GPU-token-model fences, bounds/stale/absent token/guard/ACK/idle failures retain session; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ui-root-host.py
+Actual GMU submit:five measured UI root lengths/offsets total1382words refusedat1024/admittedat1536;distinct model payload copiedinorder/exactqualified15wordtail/fence+4096guards;1536max leaves241guardwords beforecontrol2048,1537 rejected; host model only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ui-window-host.py
+HOST ONLY: actual GMU code preserves all57 measured root ranges/7492 synthetic words in5 ordered windows, unchanged1536-word/16-root/private16KiB/tail/guards; ACK/stale-token failure stops before later windows and retains poisoned session. Cdev implementation and real GPU state preservation remain untested.
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ui-request-host.py
+HOST actual cdev:233 BO references/57 measured roots admitted using bounded offstack metadata; five ordered windows/final fence5/wait; allocation/copyin/metadata budget/invalid-last-root failures submit nothing; third-window failure stops later work/frees snapshot/retains233 BOs until parent stop. GPU mocked, no hardware claim.
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-general-drm-host.py
+Actual general cdev:board-param values,13 real GL-sized BOs/persistent maps,root310words,bounds/duplicates/foreign PID/future fence refusals,queue and close retains backing until full context end; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gl-log-host.py
+GL acceptance parser:actual pixel completeness,FD750 renderer,GPU tokens/ACK/sequence,BO ranges/permissions/free/context stop and8 corrupted-proof refusals; synthetic host fixture only
+UI observation-window proof: legacy30/declared60 accepted; unknown/mismatched window, missing presentation and failed teardown refused; synthetic host fixtures only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/build-waffle-gl-probe.py --output /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/gl-probe
+{"root": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/gl-probe/root.packfs", "program": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/gl-probe/waffle-gl-probe", "mesa_bytes": 18496008, "hardware_tested": false}
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-compute-payload-host.py
+Compute payload: packet parity/bounds, protected-register and escaped-address rejection, poisoned output and one-packet prepare/dispatch difference passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-image-host.py
+Image payload: shader/source binding, 256 poisoned pixels, complete readback/duplicate checks and lossless actual-data PNG serialization passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-copy-host.py
+Uploaded-image copy payload: shader/source binding, 256 poisoned pixels, complete readback/duplicate checks and lossless actual-data PNG serialization passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-present-host.py
+Actual presentation helper: geometry/PA/overflow gates, BGRA swizzle, padded strides, ROI guards, capture/write/readback/restore, allocation/refusal/corruption failures and strict log acceptance passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-copy-jobs-host.py
+Kernel copy jobs: symbolic EVENT_WRITE/WAIT fence offsets, only2 immediate patches, all4096 words, 3 actual-output parser groups, stale/control/missing/conflicting results rejected (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-service-host.py
+Actual top-level service + parent adapter: real pthread worker/mutex, busy submit/end refusal and retained context, 3 requests, allocator/constructor/thread/job failures, consumed pointer and strict lifecycle log validation passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-user-host.py
+Actual cdev + actual static client source: Darwin IOC layout, owner/size/version/command/limit/refusal gates, 3 returns/report/close, busy retention and five client negative checks passed in host syscall model; real user copyin/copyout still requires hardware
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/build-waffle-user-probe.py --output /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/user-probe
+{"program": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/user-probe/waffle-gpu-user-probe", "ram_root": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/user-probe/user-probe.packfs", "static_arm64": true, "firmware_files": 4}
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/build-waffle-user-probe.py --msm --output /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/msm-probe
+{"program": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/msm-probe/waffle-gpu-user-probe", "ram_root": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/msm-probe/user-probe.packfs", "static_arm64": true, "firmware_files": 4}
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-msm-host.py
+waffle-msm-user: result=1 checks=768 wrong=0 negative=7
+Actual MSM cdev + actual client: two BO handles, uploads/user commands/3 fences/768 poisoned-output checks/7 negative tests; Mesa UAPI layout identity; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-mesa-transport-host.py
+waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1
+waffle-msm-user: result=1 checks=768 wrong=0 negative=7
+Actual Mesa drm_shim + actual user + actual cdev: commandWriteRead/commandWrite/ioctl, 3 jobs/768 checks/7 negatives; unsupported genericmsm/name/size refused; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-memory-host.py
+Actual general BO C++ storage:4KiB/8KiB/16KiB/4MiB zeroed WC/readonly,16KiB rounding, noncontiguous4KiB PA validation, allocation/map failures, published backing retained until GPU detach; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-registry-host.py
+General BO registry:13 real GL BO requests replayed,unique64bit VAs/32MiB budget/pagewise permissions, idle/vacancy/allocation/partial-map/TLB failures and detach-only reclamation; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-registry-smmu-host.py
+Actual SMMU registry adapter:13 real GL sizes/flags, all noncontiguous4KiB PTEs/AP/read-only bits,26 GPU/LPAC TLB syncs, table-allocation/TLB failure retention and detach-only release; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-registry-storage-host.py
+Actual registry/SMMU:metadata allocation failure,empty first-BO failure,partial PTE/TLB retention,detach-only BO-before-metadata release;4096 minimum BOs fill64MiB/all16384PTEs within64tables,stable descriptors and no early record exhaustion; host model only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-table-budget-host.py
+Actual SMMU table budget:25-table bootstrap+observedGLsizes reproduces32-table failure at6thBO;64-table bound admits13BOs using33tables; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-fullsize-budget-host.py
+Actual C++ BO adapter and SMMU:4MiB reproduces5MiB refusal;8MiB accepts5/8MiB with noncontiguous physical pages, rejects cap+1; actual24fullscreen allocations fit32MiB heap and64tables after25-table bootstrap; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ui-bo-budget-host.py
+Actual budget-derived context:highest handle/handle65 submit,duplicatehighhandle refused,65 references admitted in bounded CPU snapshot,context-cap+1 refused,close retains backing untilparentstop; fake allocator host model only
+Actual SMMU replays32 observed UI BOs/23625728bytes after25 boot tables, admits extra16KiB BO33 within current heap/64table bounds; extra request is host model only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ui-context-pool-host.py
+Actual SMMU/registry:observed64UIBOs/40173568B reproduce65thslot refusal;candidate128records admits prefix+64smallBOs in41222144B,under unchanged64MiB/64tables;ownerfits16KiB;129threfused; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-ui-heap-candidate-host.py
+Actual registry/SMMU:32MiB reproduces measuredUI5MiB refusal;64MiB admits exact35BO prefix+5MiB;entire64MiB window/all16384PTEs fits64tables after25boot tables,heap+1page rejected without allocation/PTE mutation; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-map-helper-host.py
+Actual C++ IOMemoryMap helper: PA/alignment/task/descriptor/map/address failures, readonly/unique WCOMB options, revoke failure retains token; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-mapped-bo-host.py
+waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1
+waffle-mesa-probe: mapped_bo=1 upload_download_copy=0 handoff=unmap_before_submit
+waffle-msm-user: result=1 checks=768 wrong=0 negative=7
+Actual mapped BO client/shim/cdev:11 mappings/revokes,3jobs/768 checks/7negative tests, zero bulk transfer copies; map size/handle/duplicate/stale-address refusals; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/build-waffle-user-probe.py --msm --mesa-transport --mapped --output /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/mapped-probe
+{"program": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/mapped-probe/waffle-gpu-user-probe", "ram_root": "/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/mapped-probe/user-probe.packfs", "static_arm64": true, "firmware_files": 4}
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-image-gate-host.py
+Actual inner SMMU image guard:168 combinations modes1..14/compute0..2/dynamic0..1/probe93..94 passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-dynamic-bo-host.py
+Actual dynamic BO: 12 vacancy/overlap/physical-range/partial-map/dual-ASID/bind-failure scenarios passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-data-bo-host.py
+Separate data BO: 17 actual mapping/PTE/publication/failure cases, distinct backing, exact FDL descriptor base relocation, command-old-output unchanged and all8192 expected words passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-user-va-host.py
+64bit lower GPU VA: 10 actual PTE/root-index4/range/overflow/allocation/partialmap/TLB/bind cases, distinct BO lifetime and descriptorhighword preserved; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-glsl-host.py
+Mesa GLSL: deterministic GLSL/link/NIR/FD750 IR3 and PM4 export, malformed source refusal, binary/payload identity, bindless state,191 words/76regs/zeroCPprotectconflicts; host only
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gmu-owner-host.py
+Actual GMU begin/finish/wrapper: snapshot owner across calls, stack/heap controls, startup cleanup and unsafe-stop retention passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-tcm-owner-host.py
+Actual TCM/component owner: overlapping snapshots, full restoration, begin/exercise/end parent handoff, partial failures and live/failed-stop retention passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-smmu-owner-host.py
+Actual SMMU owner: stack/heap paths, callback after begin return, partial setup rollback, child-first detach and TLB/unknown-state retention passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-board-power-owner-host.py
+Actual board power owner: 14 construction/rollback/borrowed-CX/caller-handoff scenarios and unsafe-child retention passed (host only)
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-secure-context-host.py
+Protected context GX/CM3 guards/private SID2/TLB-before-reclaim/failure retention passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-protected-pool-host.py
+Persistent protected pool scatter/batch/partial-rollback/TLB/CPU-inaccessible retention passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gpu-start-tables-host.py
+{"native_table_comparison": "passed", "protection_spans": 48, "restore_pairs": 75, "sanitizers": "ASan+UBSan", "device_access": false}
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-gen7-config-host.py
+Native gen7_start configuration: 92 writes/RMW matched; ASan+UBSan passed; no device access
+Stock native trusted window: exact _set_secvid writes and all other startup writes agree
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-hwcg-host.py
+HWCG native on/off trace, live clock lifetime, AO-only collapse restore, timeout, retention and zero LOAD reads passed
+Running: /usr/bin/python3 /home/qarzis/ios-macan/tools/tests/waffle-cp-init-host.py
+{"native_cp_init_comparison": "passed", "cases": 20475, "sanitizers": "ASan+UBSan", "hardware_tested": false, "runtime_integrated": true}
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-gen7-transaction.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gen7-transaction
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gen7-transaction
+Gen7: 92 failure rollbacks, 616-byte list, failed-exercise CP guard, split submission/collapse lifecycle, all63 missing-evidence cases and zero GX MMIO after collapse passed
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-gen7-cp-lifecycle.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gen7-cp-lifecycle
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gen7-cp-lifecycle
+Gen7 CP lifecycle: native RAW packet/ACK policy, publication ordering, idle boundaries, timeout/rejection retention and preflight passed
+Running: cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -g /home/qarzis/ios-macan/tools/tests/waffle-gen7-boot.c -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gen7-boot
+Running: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/test-gen7-boot
+Gen7 boot integration: 99 setup/base/clock failures, prepare/ACK/idle errors, paired cleanup and zero GX access after collapse passed
+Running: bash /home/qarzis/ios-macan/tools/xnu-build.sh -j6 build
+Running: bash /home/qarzis/ios-macan/loader/build.sh
+-rwxr-xr-x 1 qarzis qarzis 61440 Nov  1 22:36 loader-waffle.efi
+Running: /usr/bin/python3 build_uefi.py -d waffle -r DEBUG
+Running: /usr/bin/python3 /home/qarzis/ios-macan/loader/mkpayload.py -o /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/xnu-diagnostic.xnup --usb --checkpoint 1 --cmdline -v bootcpu=1 loader_return_after=10 kernel=/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/kernel
+/home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54/xnu-diagnostic.xnup: 15745952 bytes
+Diagnostic artifacts: /home/qarzis/ios-macan/work/waffle/diagnostic-gpu-ui-windows-e54
