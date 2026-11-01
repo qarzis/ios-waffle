@@ -1,18 +1,41 @@
 #include "mini.h"
 #include "waffle_gpu_msm.h"
 #include "waffle_gpu_data.h"
+#ifdef WAFFLE_MSM_PROBE
+int drmOpenWithType(const char *,const char *,int);
+int drmIoctl(int,unsigned long,void *);
+int drmCommandWrite(int,unsigned long,const void *,unsigned long);
+int drmCommandWriteRead(int,unsigned long,void *,unsigned long);
+static int open_gpu(void){return drmOpenWithType("waffle-msm-probe",0,2);}
+static long call(int fd,unsigned long op,void *r){
+ int result;
+ if(op==WAFFLE_MSM_NEW || op==WAFFLE_MSM_INFO || op==WAFFLE_MSM_SUBMIT){
+  result=drmCommandWriteRead(fd,(op&255)-0x40,r,IOCPARM_LEN(op));
+ }else if(op==WAFFLE_MSM_WAIT){result=drmCommandWrite(fd,7,r,sizeof(struct waffle_msm_wait));}
+ else return drmIoctl(fd,op,r);
+ if(result<0){errno=-result;return -1;}return result;
+}
+#else
+static int open_gpu(void){return open("/dev/waffle-gpu-msm",O_RDWR,0);}
 static long call(int fd,unsigned long op,void *r){return mini_syscall(SYS_ioctl,fd,op,(long)r,0,0,0);}
+#endif
 static int transfer(int fd,unsigned long op,unsigned handle,void *ptr,unsigned bytes){
  struct waffle_msm_transfer r={.pointer=(uint64_t)(uintptr_t)ptr,.handle=handle,.bytes=bytes};return call(fd,op,&r);
 }
 int main(int argc,char **argv,char **envp)
 {
  (void)argc;(void)argv;(void)envp;
+#ifdef WAFFLE_MSM_PROBE
+ /* Marker qualifies actual shim use only together with the GPU result proof. */
+#endif
  int console=open("/dev/console",O_RDWR,0);if(console>=0){dup2(console,1);dup2(console,2);}
- int fd=open("/dev/waffle-gpu-msm",O_RDWR,0),ok=fd>=0;unsigned negative=0,checks=0,wrong=0;
+#ifdef WAFFLE_MSM_PROBE
+ printf("waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1\n");
+#endif
+ int fd=open_gpu(),ok=fd>=0;unsigned negative=0,checks=0,wrong=0;
  uint32_t command[4096],data[4096],input[256];uint64_t va[2]={0};
  if(!ok)goto finish;
- int second=open("/dev/waffle-gpu-msm",O_RDWR,0);if(second<0 && errno==16)negative++;else{ok=0;if(second>=0)close(second);}
+ int second=open_gpu();if(second<0 && errno==16)negative++;else{ok=0;if(second>=0)close(second);}
  struct waffle_msm_gem_new bad={.size=4096};if(call(fd,WAFFLE_MSM_NEW,&bad)==-1 && errno==22)negative++;else ok=0;
  for(unsigned h=1;h<=2;h++){
   struct waffle_msm_gem_new r={.size=16384};if(call(fd,WAFFLE_MSM_NEW,&r) || r.handle!=h){ok=0;goto finish;}

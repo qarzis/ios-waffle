@@ -1,0 +1,3 @@
+waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1
+waffle-msm-user: result=1 checks=768 wrong=0 negative=7
+Actual Mesa drm_shim + actual user + actual cdev: commandWriteRead/commandWrite/ioctl, 3 jobs/768 checks/7 negatives; unsupported genericmsm/name/size refused; host only

@@ -1,3 +1,51 @@
+# Current E32 hardware PASS — Mesa DRM shim to owned BO/user commands/GPU
+
+User explicitly resumed; GPU work authorized. PhoneordinaryAndroid,
+independentADBsys.boot_completed=1, no activeworkers. E31verified5890f28:
+MSMtwo16KiBBOhandles/info/upload/download/user191wordcommands/3fences,
+corruptpacketrefusal withoutfenceconsumption. E32run20261101T093817Z/
+auto093754Z compilesactual tools/mesa/drm-shim/drm_shim.c into staticPID1,
+WAFFLE_MSM_PROBE explicitdiagnosticmode: realdrmOpenWithType(namewaffle-msm-probe),
+drmCommandWriteReadNEW_INFO_SUBMIT, drmCommandWriteWAIT, drmIoctl transfers/
+close. Actualshimmarker+strictorderedMSMproofPASS: 768correctGPU pixels,
+24576twoBOcheckswrong0,7negativechecks,fullstop47/contextnull/runner0/
+autosuccess/independentAndroid1. No900e. Actual3readbacks/PNGs saved under
+runs/20261101T093817Z/gpu-mesa-*. Artifactdiagnostic-gpu-mesa-e32 usesbyte-
+identicalverifiedE31-r2kernel/EFI/FW; onlyuserroot/transport/runnerschanged.
+Sourceproof/result forensic-audit/E32-*.json. Hostactualshim+client+cdevPASS;
+normalRedwoodIOKitshimarm64syntaxPASS, runtimepathunchanged. E32-H1confirmed.
+
+Thisisboundeddiagnostictransport, NOTfullGalliumGLcontext/generalGEMmmap/
+arbitraryPM4/IOKitaccelerator/IOSurface/SpringBoard. Kernel exposesexactknown
+GLSLcommandonly. Nextminimum: coherentmappableBO ownership andgeneralized
+submission/commandvalidation, thenrealIOKit/Mesa runtime integration. Do not
+repeatpower/owner/mapping-onlytests orregisterfakeaccelerator. Saveverified
+E32 checkpoint viaalternateindex/mainHEAD/indexuntouched. NoGitHubpush.
+RAMonly/no flash/erase; automaticUEFI no physicalBootiOSconfirmation.
+OriginalE31failure093237Z innerimageguard>10 preserved; onlybound11fix,
+144caseinnergate added. E31-r2 run093444Z passed beforeE32. E30b748e277 safe.
+
+Older entries below superseded by currentstate.
+
+# Active E32 — actual Mesa DRM shim transport hardware test running
+
+User explicitresume remainsactive. E31 hardware qualified5890f28d6fe76a4edc563a1fe3528d88cc7dc361.
+PhoneAndroid1 independentlyverified beforeE32. Exec93889 nowrunning,
+logwork/waffle/gpu/auto-mesa-e32-user.log. Artifactdiagnostic-gpu-mesa-e32.
+Kernel/EFI/RAMimage byteidenticalverifiedE31-r2; newstaticuserroot compiles
+actual tools/mesa/drm-shim/drm_shim.c with explicitWAFFLE_MSM_PROBE mode.
+KnownMSMNEW/INFO/SUBMIT throughdrmCommandWriteRead, WAITthroughdrmCommandWrite,
+extensions+GEMclose throughdrmIoctl. Actualhostshim+client+cdev3jobs/7negatives
+PASS; normalRedwoodIOKitshim arm64syntaxPASS. Diagnosticnamewaffle-msm-probe,
+normalMesa builds unchanged; no fullrenderer/Gallium/GEMmmap/GLclaim.
+
+Waitrunner/autorecovery thenindependentADB1. RequirestrictMSMproof plus
+waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1 marker.
+Preservefirstfailure/no blindretry. E32sourceproofrecords kernelhash/FWidentity.
+IfPASSsaveactualpixelgroups/results/verifiedcheckpoint separatefromE31.
+Nextgap remains generalBO/map/PM4 andIOKit/IOSurface runtimeintegration.
+RAMonly/no flash/erase; no physicalBootiOSconfirmation. NoGitHubpushrequested.
+
 # E31 hardware PASS — user BO handles and uploaded Mesa command packets
 
 Explicituserresume active; phoneordinaryAndroid independentADB1, no worker.

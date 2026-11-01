@@ -1,3 +1,32 @@
+/* Diagnostic Waffle transport is compiled only for the bounded RAM probe.
+ * Normal Mesa builds retain the existing Redwood IOKit transport. */
+#ifdef WAFFLE_MSM_PROBE
+#include "mini.h"
+#include "waffle_gpu_msm.h"
+#define DRM_COMMAND_BASE 0x40u
+static int connection_fd=-1;
+int drmOpenWithType(const char *name,const char *busid,int type)
+{
+ (void)busid;(void)type;
+ if(strcmp(name,"waffle-msm-probe")){errno=22;return -1;}
+ int fd=open("/dev/waffle-gpu-msm",O_RDWR,0);
+ if(fd>=0)connection_fd=fd;
+ return fd;
+}
+static int call(unsigned number,void *data,size_t size)
+{
+ unsigned long request;
+ switch(number){
+ case 0x42:if(size!=sizeof(struct waffle_msm_gem_new))return 22;request=WAFFLE_MSM_NEW;break;
+ case 0x43:if(size!=sizeof(struct waffle_msm_gem_info))return 22;request=WAFFLE_MSM_INFO;break;
+ case 0x46:if(size!=sizeof(struct waffle_msm_submit))return 22;request=WAFFLE_MSM_SUBMIT;break;
+ case 0x47:if(size!=sizeof(struct waffle_msm_wait))return 22;request=WAFFLE_MSM_WAIT;break;
+ case 0x09:if(size!=sizeof(struct waffle_msm_close))return 22;request=WAFFLE_MSM_CLOSE;break;
+ default:return 38;
+ }
+ return mini_syscall(SYS_ioctl,connection_fd,request,(long)data,0,0,0)<0?errno:0;
+}
+#else
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,9 +86,13 @@ call(unsigned number, void *data, size_t size)
   return EIO;
  }
 }
+#endif
 int
 drmIoctl(int fd, unsigned long request, void *arg)
 {
+#ifdef WAFFLE_MSM_PROBE
+ return (int)mini_syscall(SYS_ioctl,fd,request,(long)arg,0,0,0);
+#else
  int error = call((unsigned)(request & 0xff), arg, IOCPARM_LEN(request));
  (void)fd;
  if (error != 0) {
@@ -67,6 +100,7 @@ drmIoctl(int fd, unsigned long request, void *arg)
   return -1;
  }
  return 0;
+#endif
 }
 int
 drmCommandWrite(int fd, unsigned long index, const void *data, unsigned long size)
@@ -80,6 +114,7 @@ drmCommandWriteRead(int fd, unsigned long index, void *data, unsigned long size)
  (void)fd;
  return -call((unsigned)(DRM_COMMAND_BASE + index), data, size);
 }
+#ifndef WAFFLE_MSM_PROBE
 drmVersionPtr
 drmGetVersion(int fd)
 {
@@ -192,3 +227,5 @@ NONE(drmSyncobjQuery, __attribute__((unused)) int fd, __attribute__((unused)) ui
     __attribute__((unused)) uint32_t handle_count)
 NONE(drmSyncobjTransfer, __attribute__((unused)) int fd, __attribute__((unused)) uint32_t dst_handle, __attribute__((unused)) uint64_t dst_point,
     __attribute__((unused)) uint32_t src_handle, __attribute__((unused)) uint64_t src_point, __attribute__((unused)) uint32_t flags)
+
+#endif /* !WAFFLE_MSM_PROBE */
