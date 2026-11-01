@@ -1,0 +1,33 @@
+{
+  "experiment": "E27 standalone Darwin user GPU boundary",
+  "static_arm64_pid1": true,
+  "dynamic_loader": false,
+  "flash_operations": false,
+  "source_sha256": {
+    "userland/src/waffle_gpu_probe.c": "a50578ba95e25546cb2e806853413e19e3e78d9a8027241f1b9883a2e1eb6322",
+    "userland/libmini/mini.c": "93e32f4d02268abd710d1e6ea2424412a3f71056a450199c1913267df4e77edd",
+    "userland/libmini/mini.h": "296866407563be6cc1be1965617925cc85d67bcfd3525c69659c44408bf8c761",
+    "userland/libmini/start.S": "75024af4f60a89ff82269a7076be303bcb50779f9f1d4ef504231bcf4ea1012c",
+    "kernel/files/bsd/sys/waffle_gpu_user.h": "3f310073ba2dfb00cbe71369baed170fad78268124f38aa2c0dbd3230f33b383",
+    "tools/build-waffle-user-probe.py": "508fc4cffb80c6c4080ec509d134d1d875b8d751bda061c408647a57648ccc36"
+  },
+  "program_sha256": "d152e071d620459de36eac29a3cba74516cf49a6ee514ab3f0618105fcdb4fb0",
+  "packfs_sha256": "120011b38768b9cf69aac53694c725d7d883797fdb1c049e8061b2ab7902625d",
+  "firmware": {
+    "fw/gen70900_aqe.fw": "25237c161d727b8ea92b4beb837a31651b44ea78bfc34d95672af8f346a45825",
+    "fw/gen70900_sqe.fw": "f756bafe5f69a87161c7c53385386374a791861a574c244e845baba677993842",
+    "fw/gen70900_zap.mbn": "8e454000fd86f74818917d34d46baa70a31360d81d9617015a02de4e00c0e397",
+    "fw/gmu_gen70900.bin": "9685f62c42543befcaee68d25355e16bf55cdb0d573bddcc9f6633f59eec3f72"
+  },
+  "load_commands": [
+    25,
+    25,
+    25,
+    25,
+    2,
+    27,
+    42,
+    5
+  ],
+  "user_execution_tested": false
+}

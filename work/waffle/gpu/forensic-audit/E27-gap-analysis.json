@@ -1,0 +1,31 @@
+{
+  "experiment": "E27 user process boundary audit",
+  "base": "bcc7bbb19b999bfaa6192f74d50f308b6c58ae1b",
+  "current_blocker": "no actual user-process entry into verified GPU context; current probes returnloader before launchd",
+  "existing_ios_path": "MacanGPU.cpp UserClient and tools/mesa/drm-shim/drm_shim.c use existing DRM-like IOKit ABI; generalGPUVA/BO/user PM4 support forWaffle absent",
+  "minimal_choice": "separate diagnostic cdev fixed inline copy ioctl, staticfreestandingDarwin PID1, noMesa ABI claims",
+  "source_evidence": [
+    "kernel/files/bsd/dev/macan_input.c:cdev registration",
+    "userland/libmini/start.S:Darwin syscall54 ioctl",
+    "userland/src/stage0.c:staticlaunchd/reboot",
+    "kernel/files/bsd/dev/macan_firmware.c:rawpackfs fw lookup",
+    "xnu-src/xnu-8796.121.2/bsd/kern/kern_exec.c:/sbin/launchd"
+  ],
+  "hypotheses": [
+    {
+      "id": "E27-H1",
+      "claim": "a realstaticuserprocess can open a gatedcdev, cause demandGPUcontextbegin, submit3inlineimages, compareactualreturnedGPUdata, report andclose beforehalt",
+      "checks": [
+        "secondopenEBUSY",
+        "unknownioctlENOTTY",
+        "badversion/countEINVAL",
+        "baduserpointerEFAULT fromsyscallboundary",
+        "3distinctGPUfences/768pixelsusercheck",
+        "reportacceptedonlyafter3jobs",
+        "closefullstop beforeuserhalt"
+      ],
+      "expected": "kernel logs correctpid/ABIvalidation plusactualGPUreadback/fences anduserreport; Android1",
+      "not_claimed": "iOSSpringBoard/Mesa/IOSurface/IOKitGPUacceleration"
+    }
+  ]
+}

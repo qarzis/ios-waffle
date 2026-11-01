@@ -1,0 +1,2252 @@
+== XNULOADER run (usb) ==
+payload entry 'kernel' size ef35f8
+payload entry 'ramdisk' size 48000
+payload entry 'cmdline' size cd
+payload entry 'usb' size 2
+payload entry 'checkpoint' size 2
+FW_HOLD preflight resource=/vcs/vdd_cx query=0 state=100 valid=1
+FW_HOLD preflight resource=/vcs/vdd_cx query=1 state=1e0 valid=1
+FW_HOLD preflight resource=/vcs/vdd_cx query=2 state=1e0 valid=1
+FW_HOLD preflight resource=/vcs/vdd_mx query=0 state=100 valid=1
+FW_HOLD preflight resource=/vcs/vdd_mx query=1 state=1e0 valid=1
+FW_HOLD preflight resource=/vcs/vdd_mx query=2 state=1e0 valid=1
+FW_HOLD create resource=/vcs/vdd_cx status=0 handle=cf266304
+FW_HOLD request resource=/vcs/vdd_cx level=100 status=0
+FW_HOLD create resource=/vcs/vdd_mx status=0 handle=cf26626c
+FW_HOLD request resource=/vcs/vdd_mx level=100 status=0
+FW_HOLD verify resource=/vcs/vdd_cx state=100 valid=1
+FW_HOLD verify resource=/vcs/vdd_mx state=100 valid=1
+FW_HOLD verified CX=100 MX=100; dedicated clients retained until reset; no clock writes
+kernel va fffffff007004000..fffffff0082ab5f8 entry fffffff00744d4a8
+kernel loaded at pa 8c9004000..8ca2ac000
+ramdisk at pa 8ca2ac000 size 48000
+resident image at pa 8ce000000 size 48000: it is the root (md0), the payload ramdisk is md1
+return slot patched at 8c944e7f0, checkpoint 0
+device tree 8ce048000 len 3828, boot_args 8ce058000, top 8ce05c000
+cmdline: debug=0x8 waffle=1 cpus=1 rd=md0 bootcpu=7 loader_return_after=90 fbscale=2 epoch=1793521044 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=6 waffle_fw_cxmx=256
+the kernel will run on core 700 (this is core 0)
+jumping to 8c944d4a8
+core 700: the firmware answers 0 to the request to start it
+kernel returned: log at 8c9ba49c4, 132930 bytes
+
+== KERNEL LOG ==
+waffle-gpu: PLL94 verified firmware CX/MX256 handoff
+waffle-gpu: USERDEV registered abi=1 pixels=256 mode=0600; no GPU opened
+waffle-touch: RSC drv2 version=30200 config=800c8104
+waffle-touch: idle TCS0 control=1010000 irq=0
+waffle-buttons: arbiter version=70010000 bus0 APIDs=896
+buttons: step 2: look through the arbiter's table for the channels of the two peripherals
+buttons: channel 533 is the PMK8550's power-on block (0x1001300); written by system 0, which also gets its interrupts
+buttons: channel 559 is GPIO6 of the PM8550 (0x1018d00); written by system 0, which also gets its interrupts
+buttons: step 3: the first transfers on the SPMI bus
+buttons: next: read the type of the PMK8550's power-on block through channel 533 (2 registers, 0x1304)
+buttons: the PMK8550's power-on block says type 0x1, subtype 0x9 (the read took 6 us)
+buttons: next: read the type of GPIO6 of the PM8550 through channel 559 (2 registers, 0x8d04)
+buttons: GPIO6 of the PM8550 says type 0x10, subtype 0x13 (the read took 6 us)
+buttons: step 4: how the keys' inputs are set up
+buttons: next: read the status and the interrupt setup of the PMK8550's power-on block (registers 0x1310 to 0x1319)
+buttons: power-on block: status 0x10 (power released, volume up released); interrupts: edge 0, high 0, low 0, enabled 0, latched 0, pending 0
+buttons: next: read the setup and the level of GPIO6 of the PM8550 (registers 0x8d40 to 0x8d47, 0x8d10)
+buttons: volume down's pin: mode 0 (input), supply 1, pull 0 (up), enabled; registers 0x40.. = 00 01 00 00 00 01 80 00; level high (released)
+buttons: step 5: watching power volume-up volume-down, every 16 ms: power is the side button
+waffle-touch: VDD command0 status=10101
+waffle-touch: VDD command1 status=10101
+waffle-touch: VDD command2 status=10101
+waffle-touch: VDD ldob4 1800mV HPM enabled=1
+waffle-touch: GPIO48 cfg=1 io=0
+waffle-touch: GPIO49 cfg=1 io=0
+waffle-touch: GPIO50 cfg=1 io=0
+waffle-touch: GPIO51 cfg=1 io=0
+waffle-touch: GPIO108 cfg=1 io=0
+waffle-touch: GPIO161 cfg=1 io=1
+waffle-touch: GPIO162 cfg=1 io=0
+waffle-touch: configured GPIO48 cfg=80 io=1
+waffle-touch: configured GPIO49 cfg=280 io=3
+waffle-touch: configured GPIO50 cfg=280 io=0
+waffle-touch: configured GPIO51 cfg=280 io=3
+waffle-touch: configured GPIO108 cfg=2c0 io=3
+waffle-touch: configured GPIO161 cfg=2c0 io=0
+waffle-touch: configured GPIO162 cfg=c0 io=1
+waffle-user: started pid=1 uid=0
+waffle-gpu: Adreno750 Gen7.9.1 profile-chipid=43051401 stage=94; polled CP init only
+waffle-gpu: read GPU_CFG_AHB_CBCR @00171004
+waffle-gpu: GPU_CFG_AHB_CBCR=80000003
+waffle-gpu: read GPU_MEMNOC_GFX_CBCR @00171010
+waffle-gpu: GPU_MEMNOC_GFX_CBCR=80000003
+waffle-gpu: force CFG_AHB branch, disable HW gating; prior=80000003
+waffle-gpu: read CX_GDSCR @03d99108
+waffle-gpu: CX_GDSCR=0022f801
+waffle-gpu: read CX_GDS_HW_CTRL @03d99168
+waffle-gpu: CX_GDS_HW_CTRL=2800010a
+waffle-gpu: read GX_GDSCR @03d9905c
+waffle-gpu: GX_GDSCR=00888801
+waffle-gpu: read AHB_CBCR @03d9911c
+waffle-gpu: AHB_CBCR=00000000
+waffle-gpu: read CX_GMU_CBCR @03d9913c
+waffle-gpu: CX_GMU_CBCR=80002001
+waffle-gpu: read HUB_CLK_SRC @03d993ec
+waffle-gpu: HUB_CLK_SRC=00000000
+waffle-gpu: read GMU_CLK_SRC @03d99318
+waffle-gpu: GMU_CLK_SRC=80000000
+waffle-gpu: stage 2 register inspection complete
+waffle-gpu: deassert CX collapse; prior=0022f801
+waffle-gpu: CX power ON; GDSCR=f822f800 HW_CTRL=80000202
+waffle-gpu: CX clocks ready; GMU 200MHz GPLL0, hub 200MHz requested; GMU_CFG=00000505 valid=1
+waffle-gpu: read CM3_SYSRESET @03d7e000
+waffle-gpu: CM3_SYSRESET=00000001
+waffle-gpu: read CM3_FW_INIT_RESULT @03d7e070
+waffle-gpu: CM3_FW_INIT_RESULT=00000000
+waffle-gpu: CX AO counter 131ff6c9 -> 13204b83 delta=21690 (1000us interval)
+waffle-gpu: NATIVE94 startup GMU625 PLL1250 ready=1 CFG=00000303 MODE=e0000005 L=44440041 ALPHA=00001aaa
+waffle-gpu: read SMMU_IDR0 @03da0020
+waffle-gpu: SMMU_IDR0=4c017e18
+waffle-gpu: read SMMU_IDR1 @03da0024
+waffle-gpu: SMMU_IDR1=40000016
+waffle-gpu: read SMMU_IDR2 @03da0028
+waffle-gpu: SMMU_IDR2=00005511
+waffle-gpu: SMMU layout page=1000 pages=32 CB=22 SMR=24; read only
+waffle-gpu: read SMMU_SCR0 @03da0000
+waffle-gpu: SMMU_SCR0=002f0406
+waffle-gpu: read SMMU_SGFSR @03da0048
+waffle-gpu: SMMU_SGFSR=00000000
+waffle-gpu: read SMR @03da0800
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c00
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0804
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c04
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0808
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c08
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da080c
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c0c
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0810
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c10
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0814
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c14
+waffle-gpu: S2CR=00020000
+waffle-gpu: read CB_SCTLR @03dc0000
+waffle-gpu: CB_SCTLR=3fffe71e
+waffle-gpu: read CB_TTBR0_LO @03dc0020
+waffle-gpu: CB_TTBR0_LO=dbffffdb
+waffle-gpu: read CB_TTBR0_HI @03dc0024
+waffle-gpu: CB_TTBR0_HI=ffeff7ff
+waffle-gpu: read CB_TCR @03dc0030
+waffle-gpu: CB_TCR=7abf7aff
+waffle-gpu: read CB_FSR @03dc0058
+waffle-gpu: CB_FSR=00000000
+waffle-gpu: read CB_SCTLR @03dc1000
+waffle-gpu: CB_SCTLR=3fffe71e
+waffle-gpu: read CB_TTBR0_LO @03dc1020
+waffle-gpu: CB_TTBR0_LO=fff7fffb
+waffle-gpu: read CB_TTBR0_HI @03dc1024
+waffle-gpu: CB_TTBR0_HI=fefbfffd
+waffle-gpu: read CB_TCR @03dc1030
+waffle-gpu: CB_TCR=7bbf7fff
+waffle-gpu: read CB_FSR @03dc1058
+waffle-gpu: CB_FSR=00000000
+waffle-gpu: SMMU inspection complete; no translation registers written
+waffle-iommu: map QTB500 @03de8000
+waffle-iommu: SWID=003567e0 fence=0 ack=0 trigger=0 status=0
+waffle-gmu: allocate GMU 00004000..00016fff (77824 bytes)
+waffle-gmu: allocate GMU 00100000..0011afff (110592 bytes)
+waffle-gmu: allocate GMU 00200000..00212fff (77824 bytes)
+waffle-gmu: allocate GMU 00300000..00324fff (151552 bytes)
+waffle-gmu: allocate GMU 60000000..60000fff (4096 bytes)
+waffle-gmu: allocate GMU 60001000..60001fff (4096 bytes)
+waffle-gmu: GPU ucode gen70900_sqe.fw VA=80010000 payload=85360 mapped=86016 version=01520181
+waffle-gmu: GPU ucode gen70900_aqe.fw VA=80030000 payload=33172 mapped=36864 version=01520023
+waffle-gmu: firmware parsed, 15 external regions prepared; CM3 remains reset
+waffle-iommu: compact GPU globals window=20MiB normal_pool=15MiB
+waffle-iommu: test IOVA=7ff00000 expected PA=8d1eb0000 root=8d1eac000 tables=25; halt QTB
+waffle-iommu: GPU context0/SID0 enabled=1
+waffle-iommu: GPU split TTBR1 enabled=1 TCR=b5193519 TTBR=10008d1eac000
+waffle-iommu: ECATS SID=0 VA=1ff8000400000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80000000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: GPU SID0 translation matches allocated PA
+waffle-iommu: GPU context1/SID1 enabled=1
+waffle-iommu: GPU split TTBR1 enabled=1 TCR=b5193519 TTBR=20008d1eac000
+waffle-iommu: ECATS SID=1 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000411000 expected=8d1001000 PA=8d1001000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000411000 expected=8d1001000 PA=8d1001000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000412000 expected=8d1002000 PA=8d1002000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000412000 expected=8d1002000 PA=8d1002000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000413000 expected=8d1003000 PA=8d1003000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000413000 expected=8d1003000 PA=8d1003000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000414000 expected=8d0f7c000 PA=8d0f7c000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000414000 expected=8d0f7c000 PA=8d0f7c000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000415000 expected=8d0f7d000 PA=8d0f7d000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000415000 expected=8d0f7d000 PA=8d0f7d000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000416000 expected=8d0f7e000 PA=8d0f7e000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000416000 expected=8d0f7e000 PA=8d0f7e000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000417000 expected=8d0f7f000 PA=8d0f7f000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000417000 expected=8d0f7f000 PA=8d0f7f000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000418000 expected=8d0f78000 PA=8d0f78000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000418000 expected=8d0f78000 PA=8d0f78000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000419000 expected=8d0f79000 PA=8d0f79000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000419000 expected=8d0f79000 PA=8d0f79000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041a000 expected=8d0f7a000 PA=8d0f7a000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041a000 expected=8d0f7a000 PA=8d0f7a000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041b000 expected=8d0f7b000 PA=8d0f7b000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041b000 expected=8d0f7b000 PA=8d0f7b000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041c000 expected=8d0f74000 PA=8d0f74000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041c000 expected=8d0f74000 PA=8d0f74000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041d000 expected=8d0f75000 PA=8d0f75000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041d000 expected=8d0f75000 PA=8d0f75000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041e000 expected=8d0f76000 PA=8d0f76000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041e000 expected=8d0f76000 PA=8d0f76000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041f000 expected=8d0f77000 PA=8d0f77000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041f000 expected=8d0f77000 PA=8d0f77000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000420000 expected=8d0f70000 PA=8d0f70000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000420000 expected=8d0f70000 PA=8d0f70000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000421000 expected=8d0f71000 PA=8d0f71000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000421000 expected=8d0f71000 PA=8d0f71000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000422000 expected=8d0f72000 PA=8d0f72000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000422000 expected=8d0f72000 PA=8d0f72000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000423000 expected=8d0f73000 PA=8d0f73000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000423000 expected=8d0f73000 PA=8d0f73000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-gmu: SCM CP SMMU aperture availability status=0 value=1
+waffle-gmu: SCM CP SMMU aperture selector=1 CB1 status=0 result=0 ready=1
+waffle-iommu: LPAC_MAP routing=1 checks=42 SID1/CB1 GMU_SID5/CB3; translation only
+waffle-iommu: ECATS SID=5 VA=7ff00000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: HARDWARE TRANSLATION MATCHES allocated PA
+waffle-gmu: SCM pages mode=2 count=4 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-iommu: GPU context2/SID2 enabled=1
+waffle-iommu: ECATS SID=2 VA=100000000 expected=8d2398000 PA=8d2398000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=2 VA=1003ff000 expected=8d1f9f000 PA=8d1f9f000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: protected pool ready VA=100000000 bytes=4194304 pages=256 SID2
+waffle-gmu: SCM CP SMMU aperture availability status=0 value=1
+waffle-gmu: SCM CP SMMU aperture selector=0 CB0 status=0 result=0 ready=1
+waffle-iommu: diagnostic stall context=fffffff1ba3aa000 SCTLR=000000a7 ready=1
+waffle-iommu: SEC_STALL94 CB2 SCTLR=000000a7; CFIE masked
+waffle-iommu: ECATS SID=5 VA=4000 expected=8d0ee0000 PA=8d0ee0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=16000 expected=8d0ed2000 PA=8d0ed2000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=100000 expected=8d0efc000 PA=8d0efc000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=11a000 expected=8d0ee6000 PA=8d0ee6000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=200000 expected=8d0f90000 PA=8d0f90000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=212000 expected=8d0f82000 PA=8d0f82000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=300000 expected=8d0f38000 PA=8d0f38000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=324000 expected=8d0f94000 PA=8d0f94000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60000000 expected=8d0f3c000 PA=8d0f3c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60001000 expected=8d0f40000 PA=8d0f40000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60004000 expected=8d0f50000 PA=8d0f50000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60013000 expected=8d0f47000 PA=8d0f47000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60014000 expected=8d0f68000 PA=8d0f68000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60025000 expected=8d0f59000 PA=8d0f59000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80010000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80024000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000430000 expected=8d100c000 PA=8d100c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000438000 expected=8d1004000 PA=8d1004000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80030000 expected=8d100c000 PA=8d100c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80038000 expected=8d1004000 PA=8d1004000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000450000 expected=8d1014000 PA=8d1014000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000457000 expected=8d1013000 PA=8d1013000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80050000 expected=8d1014000 PA=8d1014000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80057000 expected=8d1013000 PA=8d1013000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000460000 expected=8d1018000 PA=8d1018000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80060000 expected=8d1018000 PA=8d1018000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000470000 expected=8d101c000 PA=8d101c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80070000 expected=8d101c000 PA=8d101c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000500000 expected=8d1f1c000 PA=8d1f1c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff80013ff000 expected=8d0fa3000 PA=8d0fa3000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=61000000 expected=8d1f1c000 PA=8d1f1c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=61eff000 expected=8d0fa3000 PA=8d0fa3000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000474000 expected=8d1ea8000 PA=8d1ea8000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000477000 expected=8d1eab000 PA=8d1eab000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80074000 expected=8d1ea8000 PA=8d1ea8000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80077000 expected=8d1eab000 PA=8d1eab000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: fault-continue CB0 SCTLR=00000127 ready=1; CFIE masked
+waffle-iommu: SMMU94 CB0 SCTLR=00000127 ACTLR=0000032b TCR2=00038071 TCR=b5193519 CONTEXTIDR=fffef7ff
+waffle-iommu: SMMU94 TTBR0=10008d1eac000 TTBR1=10008d1eac000 MAIR0=00000044 MAIR1=00000000 CBAR=0001f300 CBA2R=00000001 S2CR=00000000
+waffle-iommu: HUPCF94 RAW fault readback armed; no fault clear/resume
+waffle-gmu: TCM 00000000 bytes=476 readback=matches
+waffle-gmu: TCM 10007f98 bytes=40 readback=matches
+waffle-gmu: TCM 10007fdc bytes=24 readback=matches
+waffle-gmu: RSC status=00000000 busy=00000000 PDC enable=00000101
+waffle-gmu: PDC start=00000000 enable=80000001 (vendor write80000001)
+waffle-gmu: RSC/PDC Gen7.9 sequence readback=matches; no sleep/wake trigger
+waffle-gmu: SCM query GPU_INIT_REGS availability (SMC64 STD)
+waffle-gmu: SCM availability status=0 answer=1
+waffle-gmu: SCM GPU_INIT_REGS request=0000000b
+waffle-gmu: SCM GPU_INIT_REGS status=0 result=0
+waffle-gmu: release CM3 reset, wait for firmware readiness (2s cap)
+waffle-gmu: FW_INIT=00000100 ready=1 hostIRQ=00000000 AOIRQ=00000000
+waffle-gmu: HFI init status=00000001 ready=1 hostIRQ=00000000 AOIRQ=00000000
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0001040c req=0010030c value=00000001
+waffle-gmu: GET_VALUE122 ACK matched seq1 value=00000001 valid=1
+waffle-gmu: HFI firmware version=20060001; PERF table only, no START/DCVS
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0011030f req=0020340f value=00000000
+waffle-gmu: PERF_TABLE ACK matched seq2 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=00210303 req=0030a003 value=00000000
+waffle-gmu: BW_TABLE ACK matched seq3 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0031040b req=0240040b value=00000000
+waffle-gmu: ACD_ON ACK matched seq36 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=00410307 req=02504507 value=00000000
+waffle-gmu: ACD_TABLE ACK matched seq37 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0051030d req=0270040d value=00000000
+waffle-gmu: ACD_LOG_EVENT_ON ACK matched seq39 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0061040b req=0040040b value=00000000
+waffle-gmu: BCL_ON ACK matched seq4 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0071040b req=0060040b value=00000000
+waffle-gmu: HWSCHED_ON ACK matched seq6 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0081040b req=0070040b value=00000000
+waffle-gmu: KPROF_ON ACK matched seq7 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0091040b req=0080040b value=00000000
+waffle-gmu: DMS_CAPABILITY_ON ACK matched seq8 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=00a1040b req=0260040b value=00000000
+waffle-gmu: BAILOUT_TIMER_ON ACK matched seq38 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=00b1030e req=0090020e value=00000000
+waffle-gmu: CORE_FW_START ACK matched seq9 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=00c1040b req=00c0040b value=00000000
+waffle-gmu: AQE_ON ACK matched seq12 value=00000000 valid=1
+waffle-gmu: HWSCHED feature preflight result=1; no START10 or GPU commands
+waffle-gmu: native ACD-first HFI order active
+waffle-gmu: native optional-off profile: NAP/PREEMPTION/LPAC messages omitted
+waffle-gmu: START first message words=11 hdr=00d00b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=00d00b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000033f
+waffle-gmu: START word5=00000002
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000002
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=2 flags=0000033f size=4096 align=00000000 handle=2; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000500000 size=4096 flags=33f applied
+waffle-gmu: START allocation replied GPU=1ff8000500000 GMU=61000000 host_handle=2 reserved=4096
+waffle-gmu: START first message words=11 hdr=00e00b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=00e00b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000033f
+waffle-gmu: START word5=0000000e
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=0000000e
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=14 flags=0000033f size=4096 align=00000000 handle=14; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000501000 size=4096 flags=33f applied
+waffle-gmu: START allocation replied GPU=1ff8000501000 GMU=61001000 host_handle=14 reserved=8192
+waffle-gmu: START first message words=11 hdr=00f00b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=00f00b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00000339
+waffle-gmu: START word5=0000000f
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=0000000f
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=15 flags=00000339 size=4096 align=00000000 handle=15; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000502000 size=4096 flags=339 applied
+waffle-gmu: START allocation replied GPU=1ff8000502000 GMU=61002000 host_handle=15 reserved=12288
+waffle-gmu: START first message words=11 hdr=01000b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01000b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00000178
+waffle-gmu: START word5=00000010
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000010
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00008000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=16 flags=00000178 size=32768 align=00000000 handle=16; request parsed
+waffle-gmu: START allocation replied GPU=0 GMU=61003000 host_handle=16 reserved=45056
+waffle-gmu: START first message words=11 hdr=01100b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01100b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000037b
+waffle-gmu: START word5=00000001
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=0000001a
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00008000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=1 flags=0000037b size=32768 align=00000000 handle=26; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff800050b000 size=32768 flags=37b applied
+waffle-gmu: START allocation replied GPU=1ff800050b000 GMU=6100b000 host_handle=26 reserved=77824
+waffle-gmu: START first message words=11 hdr=01200b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01200b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000017f
+waffle-gmu: START word5=00000003
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000003
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00000018
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=3 flags=0000017f size=24 align=00000000 handle=3; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000513000 size=24 flags=17f applied
+waffle-gmu: START allocation replied GPU=1ff8000513000 GMU=61013000 host_handle=3 reserved=81920
+waffle-gmu: START first message words=11 hdr=01300b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01300b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000037f
+waffle-gmu: START word5=00000004
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000004
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=0037d000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=4 flags=0000037f size=3657728 align=00000000 handle=4; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000514000 size=3657728 flags=37f applied
+waffle-gmu: START allocation replied GPU=1ff8000514000 GMU=61014000 host_handle=4 reserved=3739648
+waffle-gmu: START first message words=11 hdr=01400b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01400b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00001007
+waffle-gmu: START word5=00000005
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000005
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=0037d000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=5 flags=00001007 size=3657728 align=00000000 handle=5; request parsed
+waffle-gmu: START allocation replied GPU=100000000 GMU=00000000 host_handle=5 reserved=7397376
+waffle-gmu: START first message words=11 hdr=01500b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01500b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00000147
+waffle-gmu: START word5=00000007
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000007
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=7 flags=00000147 size=4096 align=00000000 handle=7; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000891000 size=4096 flags=147 applied
+waffle-gmu: START allocation replied GPU=1ff8000891000 GMU=00000000 host_handle=7 reserved=7401472
+waffle-gmu: START first message words=11 hdr=01600b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01600b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000033f
+waffle-gmu: START word5=00000018
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000018
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=24 flags=0000033f size=4096 align=00000000 handle=24; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000892000 size=4096 flags=33f applied
+waffle-gmu: START allocation replied GPU=1ff8000892000 GMU=61392000 host_handle=24 reserved=7405568
+waffle-gmu: HWSCHED START ACK status=00000000 allocations=10 bytes=7405568 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0181031e req=0200041e value=00000000
+waffle-gmu: MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0191031e req=0290041e value=00000000
+waffle-gmu: NATIVE_DDR_AB ACK matched seq41 value=00000000 valid=1
+waffle-gmu: after minimum vote GXstatus=00000000 GDSCR=f8222000 DCVSreturn=00000000
+waffle-gpu: NATIVE94 runtime GMU260 PLL520 CFG=00000303 MODE=e0000005 L=4444001b ALPHA=00001555
+waffle-gmu: OOB_GPU request at lowest stock frequency
+waffle-gmu: OOB_GPU ack=1 GXon=1 status=00000000 GDSCR=f8222800
+waffle-gmu: read powered GX RBBM_STATUS/CP_STATUS1/SQE_CNTL
+waffle-gmu: GX registers RBBM=00000001 CP=00000000 SQE=00000000
+waffle-gmu: native trusted window base=f0000000 size=fffff000 protected_VA=100000000
+waffle-gmu: native global GPU VA SQE=1ff8000410000 AQE=1ff8000430000 restore=1ff8000470000
+waffle-gmu: Gen7 busy-mask read=00000000
+waffle-gmu: Gen7 busy-mask write=ffffffff
+waffle-gmu: Gen7 busy-mask read=002f7fff
+waffle-gmu: PRE_RAW_SNAPSHOT words=11 CPstate=00000000 AO_busy=71000000
+waffle-gmu: PRE_RAW packet[0]=02a00b83
+waffle-gmu: PRE_RAW packet[1]=70970001
+waffle-gmu: PRE_RAW packet[2]=08000000
+waffle-gmu: PRE_RAW packet[3]=70c80007
+waffle-gmu: PRE_RAW packet[4]=0000094b
+waffle-gmu: PRE_RAW packet[5]=00000003
+waffle-gmu: PRE_RAW packet[6]=20000000
+waffle-gmu: PRE_RAW packet[7]=00000002
+waffle-gmu: PRE_RAW p
+== KERNEL LOG ==
+waffle-gpu: PLL94 verified firmware CX/MX256 handoff
+waffle-gpu: USERDEV registered abi=1 pixels=256 mode=0600; no GPU opened
+waffle-touch: RSC drv2 version=30200 config=800c8104
+waffle-touch: idle TCS0 control=1010000 irq=0
+waffle-buttons: arbiter version=70010000 bus0 APIDs=896
+buttons: step 2: look through the arbiter's table for the channels of the two peripherals
+buttons: channel 533 is the PMK8550's power-on block (0x1001300); written by system 0, which also gets its interrupts
+buttons: channel 559 is GPIO6 of the PM8550 (0x1018d00); written by system 0, which also gets its interrupts
+buttons: step 3: the first transfers on the SPMI bus
+buttons: next: read the type of the PMK8550's power-on block through channel 533 (2 registers, 0x1304)
+buttons: the PMK8550's power-on block says type 0x1, subtype 0x9 (the read took 6 us)
+buttons: next: read the type of GPIO6 of the PM8550 through channel 559 (2 registers, 0x8d04)
+buttons: GPIO6 of the PM8550 says type 0x10, subtype 0x13 (the read took 6 us)
+buttons: step 4: how the keys' inputs are set up
+buttons: next: read the status and the interrupt setup of the PMK8550's power-on block (registers 0x1310 to 0x1319)
+buttons: power-on block: status 0x10 (power released, volume up released); interrupts: edge 0, high 0, low 0, enabled 0, latched 0, pending 0
+buttons: next: read the setup and the level of GPIO6 of the PM8550 (registers 0x8d40 to 0x8d47, 0x8d10)
+buttons: volume down's pin: mode 0 (input), supply 1, pull 0 (up), enabled; registers 0x40.. = 00 01 00 00 00 01 80 00; level high (released)
+buttons: step 5: watching power volume-up volume-down, every 16 ms: power is the side button
+waffle-touch: VDD command0 status=10101
+waffle-touch: VDD command1 status=10101
+waffle-touch: VDD command2 status=10101
+waffle-touch: VDD ldob4 1800mV HPM enabled=1
+waffle-touch: GPIO48 cfg=1 io=0
+waffle-touch: GPIO49 cfg=1 io=0
+waffle-touch: GPIO50 cfg=1 io=0
+waffle-touch: GPIO51 cfg=1 io=0
+waffle-touch: GPIO108 cfg=1 io=0
+waffle-touch: GPIO161 cfg=1 io=1
+waffle-touch: GPIO162 cfg=1 io=0
+waffle-touch: configured GPIO48 cfg=80 io=1
+waffle-touch: configured GPIO49 cfg=280 io=3
+waffle-touch: configured GPIO50 cfg=280 io=0
+waffle-touch: configured GPIO51 cfg=280 io=3
+waffle-touch: configured GPIO108 cfg=2c0 io=3
+waffle-touch: configured GPIO161 cfg=2c0 io=0
+waffle-touch: configured GPIO162 cfg=c0 io=1
+waffle-user: started pid=1 uid=0
+waffle-gpu: Adreno750 Gen7.9.1 profile-chipid=43051401 stage=94; polled CP init only
+waffle-gpu: read GPU_CFG_AHB_CBCR @00171004
+waffle-gpu: GPU_CFG_AHB_CBCR=80000003
+waffle-gpu: read GPU_MEMNOC_GFX_CBCR @00171010
+waffle-gpu: GPU_MEMNOC_GFX_CBCR=80000003
+waffle-gpu: force CFG_AHB branch, disable HW gating; prior=80000003
+waffle-gpu: read CX_GDSCR @03d99108
+waffle-gpu: CX_GDSCR=0022f801
+waffle-gpu: read CX_GDS_HW_CTRL @03d99168
+waffle-gpu: CX_GDS_HW_CTRL=2800010a
+waffle-gpu: read GX_GDSCR @03d9905c
+waffle-gpu: GX_GDSCR=00888801
+waffle-gpu: read AHB_CBCR @03d9911c
+waffle-gpu: AHB_CBCR=00000000
+waffle-gpu: read CX_GMU_CBCR @03d9913c
+waffle-gpu: CX_GMU_CBCR=80002001
+waffle-gpu: read HUB_CLK_SRC @03d993ec
+waffle-gpu: HUB_CLK_SRC=00000000
+waffle-gpu: read GMU_CLK_SRC @03d99318
+waffle-gpu: GMU_CLK_SRC=80000000
+waffle-gpu: stage 2 register inspection complete
+waffle-gpu: deassert CX collapse; prior=0022f801
+waffle-gpu: CX power ON; GDSCR=f822f800 HW_CTRL=80000202
+waffle-gpu: CX clocks ready; GMU 200MHz GPLL0, hub 200MHz requested; GMU_CFG=00000505 valid=1
+waffle-gpu: read CM3_SYSRESET @03d7e000
+waffle-gpu: CM3_SYSRESET=00000001
+waffle-gpu: read CM3_FW_INIT_RESULT @03d7e070
+waffle-gpu: CM3_FW_INIT_RESULT=00000000
+waffle-gpu: CX AO counter 131ff6c9 -> 13204b83 delta=21690 (1000us interval)
+waffle-gpu: NATIVE94 startup GMU625 PLL1250 ready=1 CFG=00000303 MODE=e0000005 L=44440041 ALPHA=00001aaa
+waffle-gpu: read SMMU_IDR0 @03da0020
+waffle-gpu: SMMU_IDR0=4c017e18
+waffle-gpu: read SMMU_IDR1 @03da0024
+waffle-gpu: SMMU_IDR1=40000016
+waffle-gpu: read SMMU_IDR2 @03da0028
+waffle-gpu: SMMU_IDR2=00005511
+waffle-gpu: SMMU layout page=1000 pages=32 CB=22 SMR=24; read only
+waffle-gpu: read SMMU_SCR0 @03da0000
+waffle-gpu: SMMU_SCR0=002f0406
+waffle-gpu: read SMMU_SGFSR @03da0048
+waffle-gpu: SMMU_SGFSR=00000000
+waffle-gpu: read SMR @03da0800
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c00
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0804
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c04
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0808
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c08
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da080c
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c0c
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0810
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c10
+waffle-gpu: S2CR=00020000
+waffle-gpu: read SMR @03da0814
+waffle-gpu: SMR=00000000
+waffle-gpu: read S2CR @03da0c14
+waffle-gpu: S2CR=00020000
+waffle-gpu: read CB_SCTLR @03dc0000
+waffle-gpu: CB_SCTLR=3fffe71e
+waffle-gpu: read CB_TTBR0_LO @03dc0020
+waffle-gpu: CB_TTBR0_LO=dbffffdb
+waffle-gpu: read CB_TTBR0_HI @03dc0024
+waffle-gpu: CB_TTBR0_HI=ffeff7ff
+waffle-gpu: read CB_TCR @03dc0030
+waffle-gpu: CB_TCR=7abf7aff
+waffle-gpu: read CB_FSR @03dc0058
+waffle-gpu: CB_FSR=00000000
+waffle-gpu: read CB_SCTLR @03dc1000
+waffle-gpu: CB_SCTLR=3fffe71e
+waffle-gpu: read CB_TTBR0_LO @03dc1020
+waffle-gpu: CB_TTBR0_LO=fff7fffb
+waffle-gpu: read CB_TTBR0_HI @03dc1024
+waffle-gpu: CB_TTBR0_HI=fefbfffd
+waffle-gpu: read CB_TCR @03dc1030
+waffle-gpu: CB_TCR=7bbf7fff
+waffle-gpu: read CB_FSR @03dc1058
+waffle-gpu: CB_FSR=00000000
+waffle-gpu: SMMU inspection complete; no translation registers written
+waffle-iommu: map QTB500 @03de8000
+waffle-iommu: SWID=003567e0 fence=0 ack=0 trigger=0 status=0
+waffle-gmu: allocate GMU 00004000..00016fff (77824 bytes)
+waffle-gmu: allocate GMU 00100000..0011afff (110592 bytes)
+waffle-gmu: allocate GMU 00200000..00212fff (77824 bytes)
+waffle-gmu: allocate GMU 00300000..00324fff (151552 bytes)
+waffle-gmu: allocate GMU 60000000..60000fff (4096 bytes)
+waffle-gmu: allocate GMU 60001000..60001fff (4096 bytes)
+waffle-gmu: GPU ucode gen70900_sqe.fw VA=80010000 payload=85360 mapped=86016 version=01520181
+waffle-gmu: GPU ucode gen70900_aqe.fw VA=80030000 payload=33172 mapped=36864 version=01520023
+waffle-gmu: firmware parsed, 15 external regions prepared; CM3 remains reset
+waffle-iommu: compact GPU globals window=20MiB normal_pool=15MiB
+waffle-iommu: test IOVA=7ff00000 expected PA=8d1eb0000 root=8d1eac000 tables=25; halt QTB
+waffle-iommu: GPU context0/SID0 enabled=1
+waffle-iommu: GPU split TTBR1 enabled=1 TCR=b5193519 TTBR=10008d1eac000
+waffle-iommu: ECATS SID=0 VA=1ff8000400000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80000000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: GPU SID0 translation matches allocated PA
+waffle-iommu: GPU context1/SID1 enabled=1
+waffle-iommu: GPU split TTBR1 enabled=1 TCR=b5193519 TTBR=20008d1eac000
+waffle-iommu: ECATS SID=1 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000411000 expected=8d1001000 PA=8d1001000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000411000 expected=8d1001000 PA=8d1001000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000412000 expected=8d1002000 PA=8d1002000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000412000 expected=8d1002000 PA=8d1002000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000413000 expected=8d1003000 PA=8d1003000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000413000 expected=8d1003000 PA=8d1003000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000414000 expected=8d0f7c000 PA=8d0f7c000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000414000 expected=8d0f7c000 PA=8d0f7c000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000415000 expected=8d0f7d000 PA=8d0f7d000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000415000 expected=8d0f7d000 PA=8d0f7d000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000416000 expected=8d0f7e000 PA=8d0f7e000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000416000 expected=8d0f7e000 PA=8d0f7e000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000417000 expected=8d0f7f000 PA=8d0f7f000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000417000 expected=8d0f7f000 PA=8d0f7f000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000418000 expected=8d0f78000 PA=8d0f78000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000418000 expected=8d0f78000 PA=8d0f78000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000419000 expected=8d0f79000 PA=8d0f79000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000419000 expected=8d0f79000 PA=8d0f79000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041a000 expected=8d0f7a000 PA=8d0f7a000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041a000 expected=8d0f7a000 PA=8d0f7a000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041b000 expected=8d0f7b000 PA=8d0f7b000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041b000 expected=8d0f7b000 PA=8d0f7b000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041c000 expected=8d0f74000 PA=8d0f74000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041c000 expected=8d0f74000 PA=8d0f74000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041d000 expected=8d0f75000 PA=8d0f75000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041d000 expected=8d0f75000 PA=8d0f75000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041e000 expected=8d0f76000 PA=8d0f76000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041e000 expected=8d0f76000 PA=8d0f76000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff800041f000 expected=8d0f77000 PA=8d0f77000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff800041f000 expected=8d0f77000 PA=8d0f77000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000420000 expected=8d0f70000 PA=8d0f70000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000420000 expected=8d0f70000 PA=8d0f70000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000421000 expected=8d0f71000 PA=8d0f71000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000421000 expected=8d0f71000 PA=8d0f71000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000422000 expected=8d0f72000 PA=8d0f72000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000422000 expected=8d0f72000 PA=8d0f72000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000423000 expected=8d0f73000 PA=8d0f73000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000423000 expected=8d0f73000 PA=8d0f73000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-iommu: ECATS SID=1 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=0
+waffle-iommu: ECATS SID=1 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=2
+waffle-gmu: SCM CP SMMU aperture availability status=0 value=1
+waffle-gmu: SCM CP SMMU aperture selector=1 CB1 status=0 result=0 ready=1
+waffle-iommu: LPAC_MAP routing=1 checks=42 SID1/CB1 GMU_SID5/CB3; translation only
+waffle-iommu: ECATS SID=5 VA=7ff00000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: HARDWARE TRANSLATION MATCHES allocated PA
+waffle-gmu: SCM pages mode=2 count=4 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+waffle-iommu: GPU context2/SID2 enabled=1
+waffle-iommu: ECATS SID=2 VA=100000000 expected=8d2398000 PA=8d2398000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=2 VA=1003ff000 expected=8d1f9f000 PA=8d1f9f000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: protected pool ready VA=100000000 bytes=4194304 pages=256 SID2
+waffle-gmu: SCM CP SMMU aperture availability status=0 value=1
+waffle-gmu: SCM CP SMMU aperture selector=0 CB0 status=0 result=0 ready=1
+waffle-iommu: diagnostic stall context=fffffff1ba3aa000 SCTLR=000000a7 ready=1
+waffle-iommu: SEC_STALL94 CB2 SCTLR=000000a7; CFIE masked
+waffle-iommu: ECATS SID=5 VA=4000 expected=8d0ee0000 PA=8d0ee0000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=16000 expected=8d0ed2000 PA=8d0ed2000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=100000 expected=8d0efc000 PA=8d0efc000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=11a000 expected=8d0ee6000 PA=8d0ee6000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=200000 expected=8d0f90000 PA=8d0f90000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=212000 expected=8d0f82000 PA=8d0f82000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=300000 expected=8d0f38000 PA=8d0f38000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=324000 expected=8d0f94000 PA=8d0f94000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60000000 expected=8d0f3c000 PA=8d0f3c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60001000 expected=8d0f40000 PA=8d0f40000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60004000 expected=8d0f50000 PA=8d0f50000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60013000 expected=8d0f47000 PA=8d0f47000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60014000 expected=8d0f68000 PA=8d0f68000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=60025000 expected=8d0f59000 PA=8d0f59000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80010000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80024000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000430000 expected=8d100c000 PA=8d100c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000438000 expected=8d1004000 PA=8d1004000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80030000 expected=8d100c000 PA=8d100c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80038000 expected=8d1004000 PA=8d1004000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000450000 expected=8d1014000 PA=8d1014000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000457000 expected=8d1013000 PA=8d1013000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80050000 expected=8d1014000 PA=8d1014000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80057000 expected=8d1013000 PA=8d1013000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000460000 expected=8d1018000 PA=8d1018000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80060000 expected=8d1018000 PA=8d1018000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000470000 expected=8d101c000 PA=8d101c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80070000 expected=8d101c000 PA=8d101c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000500000 expected=8d1f1c000 PA=8d1f1c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff80013ff000 expected=8d0fa3000 PA=8d0fa3000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=61000000 expected=8d1f1c000 PA=8d1f1c000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=5 VA=61eff000 expected=8d0fa3000 PA=8d0fa3000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000474000 expected=8d1ea8000 PA=8d1ea8000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=1ff8000477000 expected=8d1eab000 PA=8d1eab000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80074000 expected=8d1ea8000 PA=8d1ea8000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: ECATS SID=0 VA=80077000 expected=8d1eab000 PA=8d1eab000 done=1 FSRraw=00000400 faults=00000000 access=1
+waffle-iommu: fault-continue CB0 SCTLR=00000127 ready=1; CFIE masked
+waffle-iommu: SMMU94 CB0 SCTLR=00000127 ACTLR=0000032b TCR2=00038071 TCR=b5193519 CONTEXTIDR=fffef7ff
+waffle-iommu: SMMU94 TTBR0=10008d1eac000 TTBR1=10008d1eac000 MAIR0=00000044 MAIR1=00000000 CBAR=0001f300 CBA2R=00000001 S2CR=00000000
+waffle-iommu: HUPCF94 RAW fault readback armed; no fault clear/resume
+waffle-gmu: TCM 00000000 bytes=476 readback=matches
+waffle-gmu: TCM 10007f98 bytes=40 readback=matches
+waffle-gmu: TCM 10007fdc bytes=24 readback=matches
+waffle-gmu: RSC status=00000000 busy=00000000 PDC enable=00000101
+waffle-gmu: PDC start=00000000 enable=80000001 (vendor write80000001)
+waffle-gmu: RSC/PDC Gen7.9 sequence readback=matches; no sleep/wake trigger
+waffle-gmu: SCM query GPU_INIT_REGS availability (SMC64 STD)
+waffle-gmu: SCM availability status=0 answer=1
+waffle-gmu: SCM GPU_INIT_REGS request=0000000b
+waffle-gmu: SCM GPU_INIT_REGS status=0 result=0
+waffle-gmu: release CM3 reset, wait for firmware readiness (2s cap)
+waffle-gmu: FW_INIT=00000100 ready=1 hostIRQ=00000000 AOIRQ=00000000
+waffle-gmu: HFI init status=00000001 ready=1 hostIRQ=00000000 AOIRQ=00000000
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0001040c req=0010030c value=00000001
+waffle-gmu: GET_VALUE122 ACK matched seq1 value=00000001 valid=1
+waffle-gmu: HFI firmware version=20060001; PERF table only, no START/DCVS
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0011030f req=0020340f value=00000000
+waffle-gmu: PERF_TABLE ACK matched seq2 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=00210303 req=0030a003 value=00000000
+waffle-gmu: BW_TABLE ACK matched seq3 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0031040b req=0240040b value=00000000
+waffle-gmu: ACD_ON ACK matched seq36 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=00410307 req=02504507 value=00000000
+waffle-gmu: ACD_TABLE ACK matched seq37 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0051030d req=0270040d value=00000000
+waffle-gmu: ACD_LOG_EVENT_ON ACK matched seq39 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0061040b req=0040040b value=00000000
+waffle-gmu: BCL_ON ACK matched seq4 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0071040b req=0060040b value=00000000
+waffle-gmu: HWSCHED_ON ACK matched seq6 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0081040b req=0070040b value=00000000
+waffle-gmu: KPROF_ON ACK matched seq7 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=0091040b req=0080040b value=00000000
+waffle-gmu: DMS_CAPABILITY_ON ACK matched seq8 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=00a1040b req=0260040b value=00000000
+waffle-gmu: BAILOUT_TIMER_ON ACK matched seq38 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=00b1030e req=0090020e value=00000000
+waffle-gmu: CORE_FW_START ACK matched seq9 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=4 hdr=00c1040b req=00c0040b value=00000000
+waffle-gmu: AQE_ON ACK matched seq12 value=00000000 valid=1
+waffle-gmu: HWSCHED feature preflight result=1; no START10 or GPU commands
+waffle-gmu: native ACD-first HFI order active
+waffle-gmu: native optional-off profile: NAP/PREEMPTION/LPAC messages omitted
+waffle-gmu: START first message words=11 hdr=00d00b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=00d00b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000033f
+waffle-gmu: START word5=00000002
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000002
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=2 flags=0000033f size=4096 align=00000000 handle=2; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000500000 size=4096 flags=33f applied
+waffle-gmu: START allocation replied GPU=1ff8000500000 GMU=61000000 host_handle=2 reserved=4096
+waffle-gmu: START first message words=11 hdr=00e00b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=00e00b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000033f
+waffle-gmu: START word5=0000000e
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=0000000e
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=14 flags=0000033f size=4096 align=00000000 handle=14; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000501000 size=4096 flags=33f applied
+waffle-gmu: START allocation replied GPU=1ff8000501000 GMU=61001000 host_handle=14 reserved=8192
+waffle-gmu: START first message words=11 hdr=00f00b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=00f00b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00000339
+waffle-gmu: START word5=0000000f
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=0000000f
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=15 flags=00000339 size=4096 align=00000000 handle=15; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000502000 size=4096 flags=339 applied
+waffle-gmu: START allocation replied GPU=1ff8000502000 GMU=61002000 host_handle=15 reserved=12288
+waffle-gmu: START first message words=11 hdr=01000b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01000b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00000178
+waffle-gmu: START word5=00000010
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000010
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00008000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=16 flags=00000178 size=32768 align=00000000 handle=16; request parsed
+waffle-gmu: START allocation replied GPU=0 GMU=61003000 host_handle=16 reserved=45056
+waffle-gmu: START first message words=11 hdr=01100b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01100b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000037b
+waffle-gmu: START word5=00000001
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=0000001a
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00008000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=1 flags=0000037b size=32768 align=00000000 handle=26; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff800050b000 size=32768 flags=37b applied
+waffle-gmu: START allocation replied GPU=1ff800050b000 GMU=6100b000 host_handle=26 reserved=77824
+waffle-gmu: START first message words=11 hdr=01200b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01200b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000017f
+waffle-gmu: START word5=00000003
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000003
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00000018
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=3 flags=0000017f size=24 align=00000000 handle=3; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000513000 size=24 flags=17f applied
+waffle-gmu: START allocation replied GPU=1ff8000513000 GMU=61013000 host_handle=3 reserved=81920
+waffle-gmu: START first message words=11 hdr=01300b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01300b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000037f
+waffle-gmu: START word5=00000004
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000004
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=0037d000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=4 flags=0000037f size=3657728 align=00000000 handle=4; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000514000 size=3657728 flags=37f applied
+waffle-gmu: START allocation replied GPU=1ff8000514000 GMU=61014000 host_handle=4 reserved=3739648
+waffle-gmu: START first message words=11 hdr=01400b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01400b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00001007
+waffle-gmu: START word5=00000005
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000005
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=0037d000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=5 flags=00001007 size=3657728 align=00000000 handle=5; request parsed
+waffle-gmu: START allocation replied GPU=100000000 GMU=00000000 host_handle=5 reserved=7397376
+waffle-gmu: START first message words=11 hdr=01500b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01500b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=00000147
+waffle-gmu: START word5=00000007
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000007
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=7 flags=00000147 size=4096 align=00000000 handle=7; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000891000 size=4096 flags=147 applied
+waffle-gmu: START allocation replied GPU=1ff8000891000 GMU=00000000 host_handle=7 reserved=7401472
+waffle-gmu: START first message words=11 hdr=01600b14 version=1 valid_memalloc=1
+waffle-gmu: START word0=01600b14
+waffle-gmu: START word1=00000001
+waffle-gmu: START word2=00000000
+waffle-gmu: START word3=00000000
+waffle-gmu: START word4=0000033f
+waffle-gmu: START word5=00000018
+waffle-gmu: START word6=00000000
+waffle-gmu: START word7=00000018
+waffle-gmu: START word8=00000000
+waffle-gmu: START word9=00001000
+waffle-gmu: START word10=00000000
+waffle-gmu: START allocation kind=24 flags=0000033f size=4096 align=00000000 handle=24; request parsed
+waffle-iommu: allocation GPU permissions VA=1ff8000892000 size=4096 flags=33f applied
+waffle-gmu: START allocation replied GPU=1ff8000892000 GMU=61392000 host_handle=24 reserved=7405568
+waffle-gmu: HWSCHED START ACK status=00000000 allocations=10 bytes=7405568 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0181031e req=0200041e value=00000000
+waffle-gmu: MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=0191031e req=0290041e value=00000000
+waffle-gmu: NATIVE_DDR_AB ACK matched seq41 value=00000000 valid=1
+waffle-gmu: after minimum vote GXstatus=00000000 GDSCR=f8222000 DCVSreturn=00000000
+waffle-gpu: NATIVE94 runtime GMU260 PLL520 CFG=00000303 MODE=e0000005 L=4444001b ALPHA=00001555
+waffle-gmu: OOB_GPU request at lowest stock frequency
+waffle-gmu: OOB_GPU ack=1 GXon=1 status=00000000 GDSCR=f8222800
+waffle-gmu: read powered GX RBBM_STATUS/CP_STATUS1/SQE_CNTL
+waffle-gmu: GX registers RBBM=00000001 CP=00000000 SQE=00000000
+waffle-gmu: native trusted window base=f0000000 size=fffff000 protected_VA=100000000
+waffle-gmu: native global GPU VA SQE=1ff8000410000 AQE=1ff8000430000 restore=1ff8000470000
+waffle-gmu: Gen7 busy-mask read=00000000
+waffle-gmu: Gen7 busy-mask write=ffffffff
+waffle-gmu: Gen7 busy-mask read=002f7fff
+waffle-gmu: PRE_RAW_SNAPSHOT words=11 CPstate=00000000 AO_busy=71000000
+waffle-gmu: PRE_RAW packet[0]=02a00b83
+waffle-gmu: PRE_RAW packet[1]=70970001
+waffle-gmu: PRE_RAW packet[2]=08000000
+waffle-gmu: PRE_RAW packet[3]=70c80007
+waffle-gmu: PRE_RAW packet[4]=0000094b
+waffle-gmu: PRE_RAW packet[5]=00000003
+waffle-gmu: PRE_RAW packet[6]=20000000
+waffle-gmu: PRE_RAW packet[7]=00000002
+waffle-gmu: PRE_RAW packet[8]=00470000
+waffle-gmu: PRE_RAW packet[9]=0001ff80
+waffle-gmu: PRE_RAW packet[10]=80000000
+waffle-gmu: PRE_RAW restore[0]=00000000
+waffle-gmu: PRE_RAW restore[1]=00000000
+waffle-gmu: PRE_RAW restore[2]=00000000
+waffle-gmu: PRE_RAW restore[3]=0000113a
+waffle-gmu: PRE_RAW restore[4]=0000b604
+waffle-gmu: PRE_RAW restore[5]=00000006
+waffle-gmu: PRE_RAW restore[6]=0000ae02
+waffle-gmu: PRE_RAW restore[7]=00000026
+waffle-gmu: PRE_RAW restore[8]=00000843
+waffle-gmu: PRE_RAW restore[9]=00000000
+waffle-gmu: PRE_RAW restore[10]=0000084f
+waffle-gmu: PRE_RAW restore[11]=0000000b
+waffle-gmu: PRE_RAW restore[12]=00000b09
+waffle-gmu: PRE_RAW restore[13]=00000000
+waffle-gmu: PRE_RAW restore[14]=00000850
+waffle-gmu: PRE_RAW restore[15]=13fc0000
+waffle-gmu: RAW checkpoint 0-preflight-begin
+waffle-gmu: RAW checkpoint 1-smmu-read-done
+waffle-gmu: RAW checkpoint 2-debug-read-done
+waffle-gmu: RAW checkpoint 3-packet-staged
+waffle-gmu: RAW_EDGE68 staged hold 5s; index unpublished
+waffle-touch: RX a5 10 1c 00 irq=0
+waffle-touch: identify version=1 application=1
+waffle-touch: RX a5 01 2e 00 irq=0
+waffle-touch: CMD 20 status=01 len=46
+waffle-touch: application x=14399 y=31679 objects=10 config=128
+waffle-touch: RX a5 01 00 00 irq=1
+waffle-touch: CMD 06 status=01 len=0
+waffle-touch: RX a5 01 00 00 irq=1
+waffle-touch: CMD 24 status=01 len=0
+waffle-touch: RX a5 01 00 00 irq=1
+waffle-touch: CMD 06 status=01 len=0
+waffle-touch: RX a5 01 00 00 irq=1
+waffle-touch: CMD 26 status=01 len=0
+waffle-touch: RX a5 01 80 00 irq=0
+waffle-touch: CMD 25 status=01 len=128
+waffle-touch: RX a5 01 00 00 irq=1
+waffle-touch: CMD 05 status=01 len=0
+waffle-touch: native coordinate polling started
+waffle-gmu: RAW checkpoint 4-doorbell-sent
+waffle-gmu: RAW_EDGE68 notified hold 5s; no diagnostic polling
+waffle-gmu: RAW checkpoint 5-first-poll-done
+waffle-gmu: HFI message words=3 hdr=01a10383 req=02a00b83 value=00000000
+waffle-gmu: CP_INIT_RAW ACK matched seq42 value=00000000 valid=1
+waffle-gmu: Gen7 polled CP start result=0 detail=0 phase=3 index=0 HWCG=3 ACK=1 busy=71000000 polls=1; no ZAP or draw
+waffle-gmu: ZAP_PAS function=42000207 transport=0 service=1
+waffle-gmu: ZAP_PAS function=42000201 transport=0 service=0
+waffle-gmu: ZAP_PAS function=42000202 transport=0 service=0
+waffle-gmu: ZAP_PAYLOAD copied=1072 reserved=9b09a000 readback=1
+waffle-gmu: ZAP_PAS function=42000205 transport=0 service=0
+waffle-gmu: ZAP_LOAD authenticated=1 stage=4 metadata retained until reset
+waffle-gmu: RAW checkpoint 0-preflight-begin
+waffle-gmu: RAW checkpoint 1-smmu-read-done
+waffle-gmu: RAW checkpoint 2-debug-read-done
+waffle-gmu: RAW checkpoint 3-packet-staged
+waffle-gmu: RAW_EDGE68 staged hold 5s; index unpublished
+buttons: so far 0 presses of power, 0 of volume up, 0 of volume down; now none held; 1256 reads of the bus, 6 us each (the longest 11), 0 failed
+waffle-gmu: RAW checkpoint 4-doorbell-sent
+waffle-gmu: RAW_EDGE68 notified hold 5s; no diagnostic polling
+waffle-gmu: RAW checkpoint 5-first-poll-done
+waffle-gmu: HFI message words=3 hdr=01b10383 req=02b00383 value=00000000
+waffle-gmu: ZAP_UNSECURE ACK matched seq43 value=00000000 valid=1
+waffle-gmu: ZAP_TRANSITION result=1 TRUST=00000000; no draw
+waffle-gmu: SESSION opened heap=1 OOB=1 BO_alias=1 next_sequence=44
+waffle-gmu: SESSION OOB ownership transferred; init returned with GX retained
+waffle-gmu: GMU_OWNER begin returned heap=1; state retained
+waffle-gmu: TCM_OWNER begin returned snapshot=32768 heap=1 OOB=1
+waffle-iommu: GMU component returned live; parent owns SMMU and firmware
+waffle-iommu: SMMU_OWNER begin returned heap=1 callback_owned=1 child_live=1
+waffle-gpu: SMMU component returned live to clock owner
+waffle-gpu: CLOCK_OWNER begin returned heap=1 child_live=1 journal=14
+waffle-gpu: POWER_OWNER begin returned heap=1 clock_live=1 acquired_cx=1 cfg_changed=1
+waffle-gpu: AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1
+waffle-gpu: full GPU owner returned live to init caller; no mutex held
+waffle-gpu: SERVICE begin root_live=1 serialized=1
+waffle-gpu: USERDEV open pid=1 demand_context=1
+waffle-gmu: COPY_SEQUENCE begin jobs=3 kernel_caller=1
+waffle-gpu: USERDEV busy_open refused=1 pid=1
+waffle-gpu: USERDEV invalid_copy refused=1 pid=1 version=2 words=256
+waffle-gpu: USERDEV invalid_copy refused=1 pid=1 version=1 words=255
+waffle-gpu: USERDEV unknown_ioctl refused=1 pid=1
+waffle-gmu: SESSION rebound BO VA=1ff8000478000 PA=8d236c000 idle=1 outstanding=0
+waffle-iommu: DYNAMIC_BO published after GPU startup VA=80078000 pages=4 aliases=2 unprivileged=1
+waffle-gmu: COPY_JOB begin fence=1 seq=44 pixels=256
+waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256
+waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=1
+waffle-gmu: COMPUTE begin mode=2 dispatch=1 words=184 output_poison=1
+waffle-gmu: RAW checkpoint 0-preflight-begin
+waffle-gmu: RAW checkpoint 1-smmu-read-done
+waffle-gmu: RAW checkpoint 2-debug-read-done
+waffle-gmu: RAW checkpoint 3-packet-staged
+waffle-gmu: RAW checkpoint 4-doorbell-sent
+waffle-gmu: RAW checkpoint 5-first-poll-done
+waffle-gmu: HFI message words=3 hdr=01c10383 req=02c00583 value=00000000
+waffle-gmu: COMPUTE_IB ACK matched seq44 value=00000000 valid=1
+waffle-gmu: COMPUTE values=ff18520a/ff186131/ff186c54/ff187b7b/fffe869e/fffe95c5/fffea0e8/fffeaf0f control=00000001 checked=4096 wrong_words=0 mode=2
+waffle-gmu: COPY_JOB done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+waffle-gmu: COPY_JOB pixels fence=1 offset=0 values=ff18520a/ff186131/ff186c54/ff187b7b/fffe869e/fffe95c5/fffea0e8/fffeaf0f
+waffle-gmu: COPY_JOB pixels fence=1 offset=8 values=ff18ba32/ff18c959/ff18d47c/ff18e3a3/fffeeec6/fffefded/fffe0810/fffe1737
+waffle-gmu: COPY_JOB pixels fence=1 offset=16 values=ff18831f/ff188e42/ff189d69/ff18a88c/fffeb7b3/fffec2d6/fffed1fd/fffedc20
+waffle-gmu: COPY_JOB pixels fence=1 offset=24 values=ff18eb47/ff18f66a/ff180591/ff1810b4/fffe1fdb/fffe2afe/fffe3925/fffe4448
+waffle-gmu: COPY_JOB pixels fence=1 offset=32 values=ff18b030/ff18bf57/ff18ca7a/ff18d9a1/fffee4c4/fffef3eb/fffefe0e/fffe0d35
+waffle-gmu: COPY_JOB pixels fence=1 offset=40 values=ff181858/ff18277f/ff1832a2/ff1841c9/fffe4cec/fffe5b13/fffe6636/fffe755d
+waffle-gmu: COPY_JOB pixels fence=1 offset=48 values=ff18e145/ff18ec68/ff18fb8f/ff1806b2/fffe15d9/fffe20fc/fffe2f23/fffe3a46
+waffle-gmu: COPY_JOB pixels fence=1 offset=56 values=ff18496d/ff185490/ff1863b7/ff186eda/fffe7d01/fffe8824/fffe974b/fffea26e
+waffle-gmu: COPY_JOB pixels fence=1 offset=64 values=fffe0e56/fffe1d7d/fffe28a0/fffe37c7/ff1842ea/ff185111/ff185c34/ff186b5b
+waffle-gmu: COPY_JOB pixels fence=1 offset=72 values=fffe767e/fffe85a5/fffe90c8/fffe9fef/ff18aa12/ff18b939/ff18c45c/ff18d383
+waffle-gmu: COPY_JOB pixels fence=1 offset=80 values=fffe3f6b/fffe4a8e/fffe59b5/fffe64d8/ff1873ff/ff187e22/ff188d49/ff18986c
+waffle-gmu: COPY_JOB pixels fence=1 offset=88 values=fffea793/fffeb2b6/fffec1dd/fffecc00/ff18db27/ff18e64a/ff18f571/ff180094
+waffle-gmu: COPY_JOB pixels fence=1 offset=96 values=fffe6c7c/fffe7ba3/fffe86c6/fffe95ed/ff18a010/ff18af37/ff18ba5a/ff18c981
+waffle-gmu: COPY_JOB pixels fence=1 offset=104 values=fffed4a4/fffee3cb/fffeeeee/fffefd15/ff180838/ff18175f/ff182282/ff1831a9
+waffle-gmu: COPY_JOB pixels fence=1 offset=112 values=fffe9d91/fffea8b4/fffeb7db/fffec2fe/ff18d125/ff18dc48/ff18eb6f/ff18f692
+waffle-gmu: COPY_JOB pixels fence=1 offset=120 values=fffe05b9/fffe10dc/fffe1f03/fffe2a26/ff18394d/ff184470/ff185397/ff185eba
+waffle-gmu: COPY_JOB pixels fence=1 offset=128 values=ff18caa2/ff18d9c9/ff18e4ec/ff18f313/fffefe36/fffe0d5d/fffe1880/fffe27a7
+waffle-gmu: COPY_JOB pixels fence=1 offset=136 values=ff1832ca/ff1841f1/ff184c14/ff185b3b/fffe665e/fffe7585/fffe80a8/fffe8fcf
+waffle-gmu: COPY_JOB pixels fence=1 offset=144 values=ff18fbb7/ff1806da/ff181501/ff182024/fffe2f4b/fffe3a6e/fffe4995/fffe54b8
+waffle-gmu: COPY_JOB pixels fence=1 offset=152 values=ff1863df/ff186e02/ff187d29/ff18884c/fffe9773/fffea296/fffeb1bd/fffebce0
+waffle-gmu: COPY_JOB pixels fence=1 offset=160 values=ff1828c8/ff1837ef/ff184212/ff185139/fffe5c5c/fffe6b83/fffe76a6/fffe85cd
+waffle-gmu: COPY_JOB pixels fence=1 offset=168 values=ff1890f0/ff189f17/ff18aa3a/ff18b961/fffec484/fffed3ab/fffedece/fffeedf5
+waffle-gmu: COPY_JOB pixels fence=1 offset=176 values=ff1859dd/ff186400/ff187327/ff187e4a/fffe8d71/fffe9894/fffea7bb/fffeb2de
+waffle-gmu: COPY_JOB pixels fence=1 offset=184 values=ff18c105/ff18cc28/ff18db4f/ff18e672/fffef599/fffe00bc/fffe0fe3/fffe1a06
+waffle-gmu: COPY_JOB pixels fence=1 offset=192 values=fffe86ee/fffe9515/fffea038/fffeaf5f/ff18ba82/ff18c9a9/ff18d4cc/ff18e3f3
+waffle-gmu: COPY_JOB pixels fence=1 offset=200 values=fffeee16/fffefd3d/fffe0860/fffe1787/ff1822aa/ff1831d1/ff183cf4/ff184b1b
+waffle-gmu: COPY_JOB pixels fence=1 offset=208 values=fffeb703/fffec226/fffed14d/fffedc70/ff18eb97/ff18f6ba/ff1805e1/ff181004
+waffle-gmu: COPY_JOB pixels fence=1 offset=216 values=fffe1f2b/fffe2a4e/fffe3975/fffe4498/ff1853bf/ff185ee2/ff186d09/ff18782c
+waffle-gmu: COPY_JOB pixels fence=1 offset=224 values=fffee414/fffef33b/fffefe5e/fffe0d85/ff1818a8/ff1827cf/ff1832f2/ff184119
+waffle-gmu: COPY_JOB pixels fence=1 offset=232 values=fffe4c3c/fffe5b63/fffe6686/fffe75ad/ff1880d0/ff188ff7/ff189a1a/ff18a941
+waffle-gmu: COPY_JOB pixels fence=1 offset=240 values=fffe1529/fffe204c/fffe2f73/fffe3a96/ff1849bd/ff1854e0/ff186307/ff186e2a
+waffle-gmu: COPY_JOB pixels fence=1 offset=248 values=fffe7d51/fffe8874/fffe979b/fffea2be/ff18b1e5/ff18bc08/ff18cb2f/ff18d652
+waffle-gmu: COPY_CALLER fence=1 checked=256 wrong=0
+waffle-gpu: USERDEV returned pid=1 fence=1 words=256
+waffle-user: fence=1 checks=256 wrong=0
+waffle-gmu: COPY_JOB begin fence=2 seq=45 pixels=256
+waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256
+waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=1
+waffle-gmu: COMPUTE begin mode=2 dispatch=1 words=184 output_poison=1
+waffle-gmu: RAW checkpoint 0-preflight-begin
+waffle-gmu: RAW checkpoint 1-smmu-read-done
+waffle-gmu: RAW checkpoint 2-debug-read-done
+waffle-gmu: RAW checkpoint 3-packet-staged
+waffle-gmu: RAW checkpoint 4-doorbell-sent
+waffle-gmu: RAW checkpoint 5-first-poll-done
+waffle-gmu: HFI message words=3 hdr=01d10383 req=02d00583 value=00000000
+waffle-gmu: COMPUTE_IB ACK matched seq45 value=00000000 valid=1
+waffle-gmu: COMPUTE values=ff334437/ff33770c/ff337a69/ff336d46/ffd590a3/ffd583f8/ffd5b6d5/ffd5b932 control=00000002 checked=4096 wrong_words=0 mode=2
+waffle-gmu: COPY_JOB done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+waffle-gmu: COPY_JOB pixels fence=2 offset=0 values=ff334437/ff33770c/ff337a69/ff336d46/ffd590a3/ffd583f8/ffd5b6d5/ffd5b932
+waffle-gmu: COPY_JOB pixels fence=2 offset=8 values=ff33ac0f/ff33df64/ff33c241/ff33f59e/ffd5f8fb/ffd5ebd0/ffd51e2d/ffd5010a
+waffle-gmu: COPY_JOB pixels fence=2 offset=16 values=ff339522/ff33987f/ff338b54/ff33beb1/ffd5a18e/ffd5d4eb/ffd5c7c0/ffd5ca1d
+waffle-gmu: COPY_JOB pixels fence=2 offset=24 values=ff33fd7a/ff33e057/ff3313ac/ff330689/ffd509e6/ffd53cc3/ffd52f18/ffd55275
+waffle-gmu: COPY_JOB pixels fence=2 offset=32 values=ff33a60d/ff33a96a/ff33dc47/ff33cf9c/ffd5f2f9/ffd5e5d6/ffd5e833/ffd51b08
+waffle-gmu: COPY_JOB pixels fence=2 offset=40 values=ff330e65/ff333142/ff33249f/ff3357f4/ffd55ad1/ffd54d2e/ffd5700b/ffd56360
+waffle-gmu: COPY_JOB pixels fence=2 offset=48 values=ff33f778/ff33fa55/ff33edb2/ff33108f/ffd503e4/ffd536c1/ffd5391e/ffd52c7b
+waffle-gmu: COPY_JOB pixels fence=2 offset=56 values=ff335f50/ff3342ad/ff33758a/ff3378e7/ffd56b3c/ffd59e19/ffd58176/ffd5b453
+waffle-gmu: COPY_JOB pixels fence=2 offset=64 values=ffd5186b/ffd50b40/ffd53e9d/ffd521fa/ff3354d7/ff33472c/ff334a09/ff337d66
+waffle-gmu: COPY_JOB pixels fence=2 offset=72 values=ffd56043/ffd59398/ffd586f5/ffd589d2/ff33bc2f/ff33af04/ff33d261/ff33c5be
+waffle-gmu: COPY_JOB pixels fence=2 offset=80 values=ffd52956/ffd55cb3/ffd54f88/ffd572e5/ff3365c2/ff33681f/ff339b74/ff338e51
+waffle-gmu: COPY_JOB pixels fence=2 offset=88 values=ffd5b1ae/ffd5a48b/ffd5d7e0/ffd5da3d/ff33cd1a/ff33f077/ff33e34c/ff3316a9
+waffle-gmu: COPY_JOB pixels fence=2 offset=96 values=ffd57a41/ffd56d9e/ffd590fb/ffd583d0/ff33b62d/ff33b90a/ff33ac67/ff33dfbc
+waffle-gmu: COPY_JOB pixels fence=2 offset=104 values=ffd5c299/ffd5f5f6/ffd5f8d3/ffd5eb28/ff331e05/ff330162/ff3334bf/ff332794
+waffle-gmu: COPY_JOB pixels fence=2 offset=112 values=ffd58bac/ffd5be89/ffd5a1e6/ffd5d4c3/ff33c718/ff33ca75/ff33fd52/ff33e0af
+waffle-gmu: COPY_JOB pixels fence=2 offset=120 values=ffd51384/ffd506e1/ffd5093e/ffd53c1b/ff332f70/ff33524d/ff3345aa/ff334887
+waffle-gmu: COPY_JOB pixels fence=2 offset=128 values=ff33dc9f/ff33cff4/ff33f2d1/ff33e52e/ffd5e80b/ffd51b60/ffd50ebd/ffd5319a
+waffle-gmu: COPY_JOB pixels fence=2 offset=136 values=ff3324f7/ff3357cc/ff335a29/ff334d06/ffd57063/ffd563b8/ffd59695/ffd599f2
+waffle-gmu: COPY_JOB pixels fence=2 offset=144 values=ff33ed8a/ff3310e7/ff33033c/ff333619/ffd53976/ffd52c53/ffd55fa8/ffd54285
+waffle-gmu: COPY_JOB pixels fence=2 offset=152 values=ff3375e2/ff33783f/ff336b14/ff339e71/ffd5814e/ffd5b4ab/ffd5a780/ffd5aadd
+waffle-gmu: COPY_JOB pixels fence=2 offset=160 values=ff333ef5/ff3321d2/ff33542f/ff334704/ffd54a61/ffd57dbe/ffd5609b/ffd593f0
+waffle-gmu: COPY_JOB pixels fence=2 offset=168 values=ff3386cd/ff33892a/ff33bc07/ff33af5c/ffd5d2b9/ffd5c596/ffd5c8f3/ffd5fbc8
+waffle-gmu: COPY_JOB pixels fence=2 offset=176 values=ff334fe0/ff33723d/ff33651a/ff336877/ffd59b4c/ffd58ea9/ffd5b186/ffd5a4e3
+waffle-gmu: COPY_JOB pixels fence=2 offset=184 values=ff33d738/ff33da15/ff33cd72/ff33f04f/ffd5e3a4/ffd51681/ffd519de/ffd50c3b
+waffle-gmu: COPY_JOB pixels fence=2 offset=192 values=ffd590d3/ffd58328/ffd5b605/ffd5b962/ff33acbf/ff33df94/ff33c2f1/ff33f5ce
+waffle-gmu: COPY_JOB pixels fence=2 offset=200 values=ffd5f82b/ffd5eb00/ffd51e5d/ffd501ba/ff333497/ff3327ec/ff332ac9/ff335d26
+waffle-gmu: COPY_JOB pixels fence=2 offset=208 values=ffd5a13e/ffd5d41b/ffd5c770/ffd5ca4d/ff33fdaa/ff33e087/ff3313dc/ff330639
+waffle-gmu: COPY_JOB pixels fence=2 offset=216 values=ffd50916/ffd53c73/ffd52f48/ffd552a5/ff334582/ff3348df/ff337b34/ff336e11
+waffle-gmu: COPY_JOB pixels fence=2 offset=224 values=ffd5f229/ffd5e506/ffd5e863/ffd51bb8/ff330e95/ff3331f2/ff3324cf/ff335724
+waffle-gmu: COPY_JOB pixels fence=2 offset=232 values=ffd55a01/ffd54d5e/ffd570bb/ffd56390/ff3396ed/ff3399ca/ff338c27/ff33bf7c
+waffle-gmu: COPY_JOB pixels fence=2 offset=240 values=ffd50314/ffd53671/ffd5394e/ffd52cab/ff335f80/ff3342dd/ff33753a/ff337817
+waffle-gmu: COPY_JOB pixels fence=2 offset=248 values=ffd56b6c/ffd59e49/ffd581a6/ffd5b483/ff33a7d8/ff33aa35/ff33dd12/ff33c06f
+waffle-gmu: COPY_CALLER fence=2 checked=256 wrong=0
+waffle-gpu: USERDEV returned pid=1 fence=2 words=256
+waffle-user: fence=2 checks=512 wrong=0
+waffle-gmu: COPY_JOB begin fence=3 seq=46 pixels=256
+waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256
+waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=1
+waffle-gmu: COMPUTE begin mode=2 dispatch=1 words=184 output_poison=1
+waffle-gmu: RAW checkpoint 0-preflight-begin
+waffle-gmu: RAW checkpoint 1-smmu-read-done
+waffle-gmu: RAW checkpoint 2-debug-read-done
+waffle-gmu: RAW checkpoint 3-packet-staged
+waffle-gmu: RAW checkpoint 4-doorbell-sent
+waffle-gmu: RAW checkpoint 5-first-poll-done
+waffle-gmu: HFI message words=3 hdr=01e10383 req=02e00583 value=00000000
+waffle-gmu: COMPUTE_IB ACK matched seq46 value=00000000 valid=1
+waffle-gmu: COMPUTE values=ff7cf812/ff7ccb29/ff7cc64c/ff7cd163/ff9a2c86/ff9a3fdd/ff9a0af0/ff9a0517 control=00000003 checked=4096 wrong_words=0 mode=2
+waffle-gmu: COPY_JOB done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+waffle-gmu: COPY_JOB pixels fence=3 offset=0 values=ff7cf812/ff7ccb29/ff7cc64c/ff7cd163/ff9a2c86/ff9a3fdd/ff9a0af0/ff9a0517
+waffle-gmu: COPY_JOB pixels fence=3 offset=8 values=ff7c102a/ff7c6341/ff7c7e64/ff7c49bb/ff9a44de/ff9a57f5/ff9aa208/ff9abd2f
+waffle-gmu: COPY_JOB pixels fence=3 offset=16 values=ff7c2907/ff7c245a/ff7c3771/ff7c0294/ff9a1dab/ff9a68ce/ff9a7be5/ff9a7638
+waffle-gmu: COPY_JOB pixels fence=3 offset=24 values=ff7c415f/ff7c5c72/ff7caf89/ff7cbaac/ff9ab5c3/ff9a80e6/ff9a933d/ff9aee50
+waffle-gmu: COPY_JOB pixels fence=3 offset=32 values=ff7c1a28/ff7c154f/ff7c6062/ff7c73b9/ff9a4edc/ff9a59f3/ff9a5416/ff9aa72d
+waffle-gmu: COPY_JOB pixels fence=3 offset=40 values=ff7cb240/ff7c8d67/ff7c98ba/ff7cebd1/ff9ae6f4/ff9af10b/ff9acc2e/ff9adf45
+waffle-gmu: COPY_JOB pixels fence=3 offset=48 values=ff7c4b5d/ff7c4670/ff7c5197/ff7cacaa/ff9abfc1/ff9a8ae4/ff9a853b/ff9a905e
+waffle-gmu: COPY_JOB pixels fence=3 offset=56 values=ff7ce375/ff7cfe88/ff7cc9af/ff7cc4c2/ff9ad719/ff9a223c/ff9a3d53/ff9a0876
+waffle-gmu: COPY_JOB pixels fence=3 offset=64 values=ff9aa44e/ff9ab765/ff9a82b8/ff9a9ddf/ff7ce8f2/ff7cfb09/ff7cf62c/ff7cc143
+waffle-gmu: COPY_JOB pixels fence=3 offset=72 values=ff9adc66/ff9a2fbd/ff9a3ad0/ff9a35f7/ff7c000a/ff7c1321/ff7c6e44/ff7c799b
+waffle-gmu: COPY_JOB pixels fence=3 offset=80 values=ff9a9573/ff9ae096/ff9af3ad/ff9acec0/ff7cd9e7/ff7cd43a/ff7c2751/ff7c3274
+waffle-gmu: COPY_JOB pixels fence=3 offset=88 values=ff9a0d8b/ff9a18ae/ff9a6bc5/ff9a6618/ff7c713f/ff7c4c52/ff7c5f69/ff7caa8c
+waffle-gmu: COPY_JOB pixels fence=3 offset=96 values=ff9ac664/ff9ad1bb/ff9a2cde/ff9a3ff5/ff7c0a08/ff7c052f/ff7c1042/ff7c6399
+waffle-gmu: COPY_JOB pixels fence=3 offset=104 values=ff9a7ebc/ff9a49d3/ff9a44f6/ff9a570d/ff7ca220/ff7cbd47/ff7c889a/ff7c9bb1
+waffle-gmu: COPY_JOB pixels fence=3 offset=112 values=ff9a3789/ff9a02ac/ff9a1dc3/ff9a68e6/ff7c7b3d/ff7c7650/ff7c4177/ff7c5c8a
+waffle-gmu: COPY_JOB pixels fence=3 offset=120 values=ff9aafa1/ff9abac4/ff9ab51b/ff9a803e/ff7c9355/ff7cee68/ff7cf98f/ff7cf4a2
+waffle-gmu: COPY_JOB pixels fence=3 offset=128 values=ff7c60ba/ff7c73d1/ff7c4ef4/ff7c590b/ff9a542e/ff9aa745/ff9ab298/ff9a8dbf
+waffle-gmu: COPY_JOB pixels fence=3 offset=136 values=ff7c98d2/ff7cebe9/ff7ce60c/ff7cf123/ff9acc46/ff9adf9d/ff9a2ab0/ff9a25d7
+waffle-gmu: COPY_JOB pixels fence=3 offset=144 values=ff7c51af/ff7cacc2/ff7cbf19/ff7c8a3c/ff9a8553/ff9a9076/ff9ae38d/ff9afea0
+waffle-gmu: COPY_JOB pixels fence=3 offset=152 values=ff7cc9c7/ff7cc41a/ff7cd731/ff7c2254/ff9a3d6b/ff9a088e/ff9a1ba5/ff9a16f8
+waffle-gmu: COPY_JOB pixels fence=3 offset=160 values=ff7c82d0/ff7c9df7/ff7ce80a/ff7cfb21/ff9af644/ff9ac19b/ff9adcbe/ff9a2fd5
+waffle-gmu: COPY_JOB pixels fence=3 offset=168 values=ff7c3ae8/ff7c350f/ff7c0022/ff7c1379/ff9a6e9c/ff9a79b3/ff9a74d6/ff9a47ed
+waffle-gmu: COPY_JOB pixels fence=3 offset=176 values=ff7cf3c5/ff7cce18/ff7cd93f/ff7cd452/ff9a2769/ff9a328c/ff9a0da3/ff9a18c6
+waffle-gmu: COPY_JOB pixels fence=3 offset=184 values=ff7c6b1d/ff7c6630/ff7c7157/ff7c4c6a/ff9a5f81/ff9aaaa4/ff9aa5fb/ff9ab01e
+waffle-gmu: COPY_JOB pixels fence=3 offset=192 values=ff9a2cf6/ff9a3f0d/ff9a0a20/ff9a0547/ff7c109a/ff7c63b1/ff7c7ed4/ff7c49eb
+waffle-gmu: COPY_JOB pixels fence=3 offset=200 values=ff9a440e/ff9a5725/ff9aa278/ff9abd9f/ff7c88b2/ff7c9bc9/ff7c96ec/ff7ce103
+waffle-gmu: COPY_JOB pixels fence=3 offset=208 values=ff9a1d1b/ff9a683e/ff9a7b55/ff9a7668/ff7c418f/ff7c5ca2/ff7caff9/ff7cba1c
+waffle-gmu: COPY_JOB pixels fence=3 offset=216 values=ff9ab533/ff9a8056/ff9a936d/ff9aee80/ff7cf9a7/ff7cf4fa/ff7cc711/ff7cd234
+waffle-gmu: COPY_JOB pixels fence=3 offset=224 values=ff9a4e0c/ff9a5923/ff9a5446/ff9aa79d/ff7cb2b0/ff7c8dd7/ff7c98ea/ff7ceb01
+waffle-gmu: COPY_JOB pixels fence=3 offset=232 values=ff9ae624/ff9af17b/ff9acc9e/ff9adfb5/ff7c2ac8/ff7c25ef/ff7c3002/ff7c0359
+waffle-gmu: COPY_JOB pixels fence=3 offset=240 values=ff9abf31/ff9a8a54/ff9a856b/ff9a908e/ff7ce3a5/ff7cfef8/ff7cc91f/ff7cc432
+waffle-gmu: COPY_JOB pixels fence=3 offset=248 values=ff9ad749/ff9a226c/ff9a3d83/ff9a08a6/ff7c1bfd/ff7c1610/ff7c6137/ff7c7c4a
+waffle-gmu: COPY_CALLER fence=3 checked=256 wrong=0
+waffle-gpu: USERDEV returned pid=1 fence=3 words=256
+waffle-user: fence=3 checks=768 wrong=0
+waffle-gpu: USERDEV report pid=1 checks=768 wrong=0 fence=3 negative=5
+waffle-gmu: SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session
+waffle-gmu: SESSION closed OOB_released=1 outstanding=0
+waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+waffle-gmu: HFI message words=3 hdr=01f10321 req=02f00321 value=00000000
+waffle-gmu: PREPARE_SLUMBER ACK matched seq47 value=00000000 valid=1
+waffle-gmu: slumber idle=1 busy=30000000 powerstate=0000000f
+waffle-gmu: RSC sleep complete=1 busy=00000001 status=01010006
+waffle-gmu: GX power/clock status=00000003 GDSCR=00222801
+waffle-gmu: Gen7 CP lifecycle released after full collapse; no gated GX access
+waffle-gmu: SESSION destroyed after full stop; aliases and heap released
+waffle-gmu: CM3 held reset again; GBIF/QTB drained; FW readiness=1
+waffle-gmu: log header 00000021 1326e424 00000001 00000000 00000000 1326e458 00000007 002d003e
+waffle-gmu: RSC/PDC retained in native asleep state; Android reset required before retry
+waffle-gmu: TCM restore readback=matches; boot_test=1 CM3 held reset
+waffle-gmu: TCM_OWNER released after GMU stop and snapshot restoration result=1
+waffle-iommu: GMU test passed, boot_test=1; CM3 held reset again
+waffle-iommu: LPAC_MAP lifecycle=1 checks=42; CP control completed
+waffle-iommu: GPU context2 restored TLB=done faults=00000000
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+waffle-gmu: SCM pages mode=3 count=4 status=0 result=0
+waffle-iommu: protected pool released, all pages HLOS-owned
+waffle-iommu: GPU context1 restored TLB=done faults=00000000
+waffle-iommu: GPU context0 restored TLB=done faults=00000000
+waffle-iommu: LPAC_MAP restored=1
+waffle-iommu: inactive CBAR reset type0 is not writable; keep supported stage1 type
+waffle-iommu: context/stream restored, TLB sync=done
+waffle-iommu: DYNAMIC_BO released after GPU stop and context detach
+waffle-iommu: SMMU_OWNER released after child stop and context detach
+waffle-gpu: SMMU component ended before clock restore result=1
+waffle-gpu: NATIVE94 detached and PLL scalar restore=1 owned=0 CFG=00000505
+waffle-gpu: clock controls restored
+waffle-gpu: NATIVE94 clock control passed=1; GMU stopped and PLL restored
+waffle-gpu: CLOCK_OWNER released before CX restore result=1
+waffle-gpu: restored CX collapse=1; power status=0
+waffle-gpu: restored CFG_AHB enable/gating=3
+waffle-gpu: POWER_OWNER released after clock child, CX and CFG restore result=1
+waffle-gpu: AOP_OWNER released after power child and channel restore result=1 transport=0
+waffle-gpu: SERVICE end consumed=1 result=1
+waffle-gpu: USERDEV close pid=1 passed=1 report=1 context_null=1
+waffle-user: passed=1 negative=5; halting
+
+--- kernel message buffer ---
+[   16.591113]:  vm_cache_geometry_colors: 0
+[   16.591116]: do_cacheid() - 512 bytes Unknown cache (I:256 D:256 (separate)), 12-way assoc, 64 bytes/line
+[   16.591294]: kprintf initialized
+[   16.591316]: initialize_screen: b=D5100000, w=000005A0, h=00000C60, r=00001680, d=00000000
+[   16.591327]: pe_arm_init_interrupts: args: 0xfffffff007b52720
+[   16.591328]: pe_arm_map_interrupt_controller: soc_phys:  0x400000
+[   16.591330]: pe_arm_map_interrupt_controller: failed to find the interrupt-controller.
+[   16.591332]: pe_arm_init_debug: failed to find cpu-debug-interface
+[   16.591360]: gic: v3, distributor 0xfffffff1b53e8000, cpu 0's redistributor 0xfffffff1b55b8000, virtual timer on PPI 27
+[   16.591367]: Darwin Kernel Version 22.5.0: Sun Nov  1 11:11:58 +03 2026; qarzis:xnu-8796.121.2[xnu-8796.121.2-dirty]/BUILD/obj/DEVELOPMENT_ARM64_BCM2837
+[   16.595223]: pmap_startup() init/release time: 3121 microsec
+[   16.595227]: pmap_startup() delayed init/release of 0 pages
+[   16.595230]: vm_page_bootstrap: 383416 free pages, 9800 wired pages, (up to 0 of which are delayed free)
+[   16.597110]: VM boostrap: 102 maps, 204 entries and 512 holes available
+[   16.597125]: Maximum number of VM swap files: 5
+[   16.597169]: ipc_kernel_map          : 0xfffffff1b8000000 - 0xfffffff1ba000000 (32M)
+[   16.597172]: io_submap               : 0xfffffff1ba000000 - 0xfffffff1ba800000 (8M)
+[   16.597174]: kmem_sprayqtn_range     : 0xfffffff1ba800000 - 0xfffffff259378000 (2539M)
+[   16.597175]: zone_meta               : 0xfffffff259378000 - 0xfffffff25bd38000 (41M)
+[   16.597176]: gIOKitPageableFixed2    : 0xfffffff25bd38000 - 0xfffffff261d38000 (96M)
+[   16.597178]: mb                      : 0xfffffff261d38000 - 0xfffffff267d38000 (96M)
+[   16.597179]: bsd_pageable            : 0xfffffff267d38000 - 0xfffffff268f80000 (18M)
+[   16.597181]: gIOKitPageableFixed0    : 0xfffffff268f80000 - 0xfffffff26ef80000 (96M)
+[   16.597182]: ipc_kernel_copy_map     : 0xfffffff26ef80000 - 0xfffffff26f780000 (8M)
+[   16.597183]: kmem_ptr_range          : 0xfffffff26f780000 - 0xfffffff30e260000 (2538M)
+[   16.597184]: zones                   : 0xfffffff30e260000 - 0xfffffff90e260000 (24G)
+[   16.597186]: bufferhdr               : 0xfffffff90e260000 - 0xfffffff90e638000 (3936K)
+[   16.597187]: gIOKitPageableFixed3    : 0xfffffff90e638000 - 0xfffffff914638000 (96M)
+[   16.597188]: gIOKitPageableFixed1    : 0xfffffff914638000 - 0xfffffff91a638000 (96M)
+[   16.597190]: kmem_data_range         : 0xfffffff91a638000 - 0xfffffffa57d44000 (5079M)
+[   16.597191]: kmem_ptr_range_meta     : 0xfffffffa57d44000 - 0xfffffffa57dbc000 (480K)
+[   16.597192]: compressor              : 0xfffffffa57dbc000 - 0xfffffffbffdfc000 (6G)
+[   16.597214]: kmem_large_ranges[1]    : 0 - 0 (0B)
+[   16.597216]: kmem_large_ranges[2]    : 0 - 0 (0B)
+[   16.597216]: kmem_large_ranges[3]    : 0 - 0 (0B)
+[   16.597218]: kmem_large_ranges[4]    : 0xfffffff1ce56f000 - 0xfffffff259378000 (2222M)
+[   16.597219]: kmem_large_ranges[5]    : 0xfffffff942119800 - 0xfffffffa57d44000 (4444M)
+[   16.597225]: "vm_compressor_mode" is 2
+[   16.597228]: zone_init: pgzalloc  0xfffffff30e260000:0xfffffff31115c000 (46M) [1503 slots]
+[   16.597231]: zone_init: map VM    0xfffffff31115c000:0xfffffff3f70b4000 (3679M)
+[   16.597234]: zone_init: map RO    0xfffffff3f70b4000:0xfffffff443b24000 (1226M)
+[   16.597236]: zone_init: map GEN0  0xfffffff443b24000:0xfffffff529a7c000 (3679M)
+[   16.597238]: zone_init: map GEN1  0xfffffff529a7c000:0xfffffff60f9d8000 (3679M)
+[   16.597240]: zone_init: map GEN2  0xfffffff60f9d8000:0xfffffff6f5934000 (3679M)
+[   16.597242]: zone_init: map GEN3  0xfffffff6f5934000:0xfffffff7db890000 (3679M)
+[   16.597245]: zone_init: map DATA  0xfffffff7db890000:0xfffffff90e260000 (4905M)
+[   16.597247]: zone_init: metadata  0xfffffff259388000:0xfffffff25ab88000 (24M)
+[   16.597248]: zone_init: metabits  0xfffffff25ab88000:0xfffffff25bd28000 (17M)
+[   16.597249]: zone_init: extra     0:0 (0B)
+[   16.597336]: VM bootstrap done: 90 maps, 163 entries and 500 holes left
+[   16.598476]: IOKit IOMD setownership ENABLED
+[   16.598478]: ATM subsystem is initialized
+[   16.598704]: Long logs support configured: size: 16384
+[   16.598705]: OSLog stream configured: stream: 8192 bytes, cache: 2112 bytes
+[   16.598706]: OSLog stream verification: 0
+[   16.598763]: Firehose configured: 16 chunks, 8 io pages
+[   16.598786]: Log queues configured: slot count: 8, per-slot size: 32768, total size: 262144
+[   16.598790]: Telemetry: Sampling all tasks once per 1 second
+[   16.598794]: Scheduler: Default of clutch
+[   16.598796]: Setting scheduler priority decay band limit 18
+[   16.598799]: standard timeslicing quantum is 10000 us
+[   16.598800]: standard background quantum is 2500 us
+[   16.598862]: BANK subsystem is initialized
+[   16.598870]: mig_table_max_displ = 54 mach_kobj_count = 371
+[   16.599794]: panic_trace: PE_arm_debug_enable_trace enter
+[   16.599796]: panic_trace: PE_arm_debug_enable_trace exit
+[   16.599799]: kdp_core zlib memory 0x8000
+[   16.599836]: Registered coredump handler for kernel
+[   16.599838]: Serial requested, consistent debug disabled or debug boot arg not present, configuring debugging over serial
+[   16.599839]: Initializing serial KDP
+[   16.600121]: iBoot version: iBoot-8422.100.650
+[   16.600122]: iBoot Stage 2 version: 
+[   16.600987]: IONVRAM.cpp:initImageFormat:1364 - NVRAM size is 8192 bytes
+[   16.601049]: IONVRAM.cpp:getNVRAMProperties:1176 - _bankSize=0x2000, _bankCount=0x1, _currentBank=0
+[   16.601077]: IONVRAMCHRPHandler.cpp:unserializeImage:479 - NVRAM : commonPartitionOffset - 0x30, commonPartitionSize - 0x1fd0, systemPartitionOffset - 0xffffffff, systemPartitionSize - 0
+[   16.601151]: minicrypto: registered (md5, sha1, sha2, hmac, aes-ecb/cbc/ctr, hmac-drbg prng); no xts/gcm, no RSA
+[   16.601154]: ulock_initialize>thread_max=5120, ull_hash_buckets=2048
+[   16.601316]: calling mpo_policy_init for vnguard
+[   16.601317]: Security policy loaded: Guarded vnode policy (vnguard)
+[   16.601319]: calling mpo_policy_init for AMFI
+[   16.601320]: Security policy loaded: Apple Mobile File Integrity (stand-in) (AMFI)
+[   16.601322]: calling mpo_policy_init for Sandbox
+[   16.601323]: Security policy loaded: Seatbelt sandbox policy (stand-in) (Sandbox)
+[   16.602400]: No POST boot-arg set.
+[   16.602574]: PMRD: PMTraceWorker 0xfdbed707f8f5c381
+[   16.602667]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 10001)
+[   16.602770]: GenericARMPE: platform "D22AP"
+[   16.602777]: [0]ml_processor_register>pset_find(cluster_id=0) returned pset 0
+[   16.602778]: [0]ml_processor_register>cpu_id 0xfffffff60f7be440 cluster_id 0 cpu_number 0 is type 0
+[   16.602783]: GenericARMCPU: cpu 0 (phys id 0x700) registered
+[   16.602822]: Copyright (c) 1982, 1986, 1989, 1991, 1993
+	The Regents of the University of California. All rights reserved.
+
+[   16.602823]: bsd_init: calling kauth_init
+[   16.602834]: bsd_init: calling process_name
+[   16.602835]: bsd_init: calling get_bsdthread_info
+[   16.602836]: MAC Framework successfully initialized
+[   16.602884]: bsd_init: calling kauth_cred_create
+[   16.602885]: bsd_init: calling chgproccnt
+[   16.602886]: bsd_init: calling kmem_suballoc
+[   16.602888]: bsd_init: calling bsd_bufferinit
+[   16.603714]: using 7699 buffer headers and 5897 cluster IO buffer headers
+[   16.603727]: bsd_init: calling IOKitInitializeTime
+[   16.603744]: clock_initialize_calendar system does not have monotonic clock
+[   16.603746]: bsd_init: calling vfsinit
+[   16.603856]: ktriage_register_subsystem_strings: set subsystem 8 strings
+[   16.603857]: bsd_init: calling proc_uuid_policy_init()
+[   16.603912]: mcache: 1 CPU(s), 64 bytes CPU cache line size
+[   16.603912]: bsd_init: calling mbinit
+[   16.604051]: mbinit: done [96 MB total pool size, (64/32) split]
+[   16.604053]: bsd_init: calling knote_init
+[   16.604054]: bsd_init: calling eventhandler_init
+[   16.604055]: bsd_init: calling aio_init
+[   16.604066]: bsd_init: calling pshm_cache_init
+[   16.604067]: bsd_init: calling psem_cache_init
+[   16.604069]: bsd_init: calling nwk_wq_init
+[   16.604073]: bsd_init: calling dlil_init
+[   16.604076]: SK: netagent is enabled by default for this platform
+[   16.604167]: DLIL: running SUM16 self-tests ... PASSED
+[   16.604249]: dlil_init: Waiting for all the create dlil kernel threads to get scheduled at least once.
+[   16.604291]: PMRD: power event 7 args 0xfdbed707f8f281b1 0x0
+[   16.604294]: PMRD: power event 7 args 0xfdbed707f8f25731 0x0
+[   16.604363]: PMRD: PowerChangeOverride (OFF_STATE->ON_STATE, f, 0x2) tag 0x20064
+[   16.604370]: PMRD: sysPowerDownHandler message kIOMessageSystemCapabilityChange
+[   16.604372]: PMRD: sysPowerDownHandler cap f -> f (flags 1)
+[   16.604387]: dlil_init: All the created dlil kernel threads have been scheduled at least once. Proceeding.
+[   16.604388]: bsd_init: calling socketinit
+[   16.604393]: bsd_init: calling domaininit
+[   16.604508]: bsd_init: calling skywalk_init
+[   16.604525]: SK[0]: skmem_region_init              seg_size 16384, md_seg_size 16384, drv_buf_seg_size 65536 [eff 65536], usr_buf_seg_size 16384
+[   16.604946]: Skywalk: running self-tests
+[   16.604947]: Skywalk: sk_copy64_8 ... PASSED
+[   16.604947]: Skywalk: sk_copy32_8 ... PASSED
+[   16.604948]: Skywalk: sk_copy64_16 ... PASSED
+[   16.604949]: Skywalk: sk_copy32_16 ... PASSED
+[   16.604949]: Skywalk: sk_copy64_20 ... PASSED
+[   16.604950]: Skywalk: sk_copy64_24 ... PASSED
+[   16.604951]: Skywalk: sk_copy64_32 ... PASSED
+[   16.604951]: Skywalk: sk_copy32_32 ... PASSED
+[   16.604952]: Skywalk: sk_copy64_40 ... PASSED
+[   16.604952]: Skywalk: sk_copy64_64x ... PASSED
+[   16.604953]: Skywalk: sk_copy64_32x ... PASSED
+[   16.604954]: Skywalk: sk_copy64_8x ... PASSED
+[   16.604954]: Skywalk: sk_copy64_4x ... PASSED
+[   16.604955]: Skywalk: sk_zero_16 ... PASSED
+[   16.604956]: Skywalk: sk_zero_32 ... PASSED
+[   16.604957]: Skywalk: sk_zero_48 ... PASSED
+[   16.604957]: Skywalk: sk_zero_128 ... PASSED
+[   16.604968]: Skywalk: memcmp mask ... PASSED
+[   16.605249]: bsd_init: calling memorystatus_freeze_init
+[   16.605250]: bsd_init: calling memorystatus_init
+[   16.605277]: bsd_init: calling sysctl_mib_init
+[   16.605278]: bsd_init: calling bsd_autoconf
+[   16.605279]: bsd_autoconf: calling kminit
+[   16.605976]: bsd_init: calling loopattach
+[   16.606114]: ifnet_attach: All kernel threads created for interface lo0 have been scheduled at least once. Proceeding.
+[   16.606118]: bsd_init: calling ether_family_init
+[   16.606149]: bsd_init: calling net_init_run
+[   16.606176]: skip attaching fsw to lo0 using legacy TX modelReinit'd ND information for interface lo0
+[   16.606441]: bsd_init: calling inittodr
+[   16.606442]: bsd_init: calling setconf
+[   16.606469]: PMRD: sysPowerDownHandler message kIOMessageSystemCapabilityChange
+[   16.606470]: PMRD: sysPowerDownHandler cap f -> f (flags 2)
+[   16.606472]: PMRD: tellChangeUp OFF_STATE->ON_STATE
+[   16.606475]: PMRD: PowerChangeDone: OFF_STATE->ON_STATE
+[   16.606476]: PMRD: Force re-evaluating aggressiveness
+[   16.606477]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 30002)
+[   16.606480]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x10001
+[   16.606481]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   16.606482]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x302) tag 0x40064
+[   16.606484]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   16.606485]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x302) tag 0x50064
+[   16.606486]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   16.606488]: PMRD: adjustPowerState ON_STATE, asap 0, idleSleepEnabled 0
+[   16.606489]: PMRD: changePowerStateWithTagToPriv(ON_STATE, 60008)
+[   16.606491]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x30002
+[   16.606492]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   16.606493]: PMRD: PowerChangeOverride (ON_STATE->ON_STATE, f, 0x2) tag 0x60008
+[   16.606493]: PMRD: PowerChangeDone: ON_STATE->ON_STATE
+[   16.606517]: cpu_start() cpu: 0
+[   16.606612]: MiniIOMobileFramebuffer: display 750x1624 on a panel of 1440x3168 (5760 bytes per row)
+[   16.708525]: !BSD
+[   16.708535]: Added memory device md0/rmd0 (01000000/0D000000) at FFFFFFF00C000000 for 0000000000048000
+[   16.708539]: Added memory device md1/rmd1 (01000001/0D000001) at FFFFFFF0082AC000 for 0000000000048000
+[   16.708541]: BSD root: md0, major 1, minor 0
+[   16.708542]: bsd_init: vfs_mountroot
+[   16.708585]: packfs: image with 12 nodes, 288 KB, read in place
+[   16.708592]: bsd_init: calling VFS_ROOT
+[   16.708596]: bsd_init: calling devfs_kernel_mount
+[   16.708690]: waffle-gpu: PLL94 verified firmware CX/MX256 handoff
+[   16.708701]: bsd_init: calling siginit
+[   16.708702]: bsd_init: calling bsd_utaskbootstrap
+[   16.708776]: waffle-touch: RSC drv2 version=30200 config=800c8104
+[   16.708783]: waffle-touch: idle TCS0 control=1010000 irq=0
+[   16.708799]: waffle-buttons: arbiter version=70010000 bus0 APIDs=896
+[   16.708802]: buttons: step 2: look through the arbiter's table for the channels of the two peripherals
+[   16.709784]: bsd_init: calling mountroot_post_hook
+[   16.709785]: bsd_init: done
+[   16.709786]: vm_free_delayed_pages: initialized 0 free pages
+[   16.709830]: VM Swap Subsystem is ON
+[   16.709857]: Failed to open swap file 2
+[   16.709858]: vm_swap_create_file failed @ 16 secs
+[   16.709858]: vm_swap_create_file failed @ 16 secs
+[   16.709908]: buttons: channel 533 is the PMK8550's power-on block (0x1001300); written by system 0, which also gets its interrupts
+[   16.711660]: buttons: channel 559 is GPIO6 of the PM8550 (0x1018d00); written by system 0, which also gets its interrupts
+[   16.712299]: buttons: step 3: the first transfers on the SPMI bus
+[   16.712302]: buttons: next: read the type of the PMK8550's power-on block through channel 533 (2 registers, 0x1304)
+[   16.712316]: buttons: the PMK8550's power-on block says type 0x1, subtype 0x9 (the read took 6 us)
+[   16.712319]: buttons: next: read the type of GPIO6 of the PM8550 through channel 559 (2 registers, 0x8d04)
+[   16.712331]: buttons: GPIO6 of the PM8550 says type 0x10, subtype 0x13 (the read took 6 us)
+[   16.712333]: buttons: step 4: how the keys' inputs are set up
+[   16.712337]: buttons: next: read the status and the interrupt setup of the PMK8550's power-on block (registers 0x1310 to 0x1319)
+[   16.712366]: buttons: power-on block: status 0x10 (power released, volume up released); interrupts: edge 0, high 0, low 0, enabled 0, latched 0, pending 0
+[   16.712370]: buttons: next: read the setup and the level of GPIO6 of the PM8550 (registers 0x8d40 to 0x8d47, 0x8d10)
+[   16.712399]: buttons: volume down's pin: mode 0 (input), supply 1, pull 0 (up), enabled; registers 0x40.. = 00 01 00 00 00 01 80 00; level high (released)
+[   16.712402]: buttons: step 5: watching power volume-up volume-down, every 16 ms: power is the side button
+[   16.712428]: waffle-touch: VDD command0 status=10101
+[   16.712430]: waffle-touch: VDD command1 status=10101
+[   16.712431]: waffle-touch: VDD command2 status=10101
+[   16.712438]: waffle-touch: VDD ldob4 1800mV HPM enabled=1
+[   16.712441]: waffle-touch: GPIO48 cfg=1 io=0
+[   16.712443]: waffle-touch: GPIO49 cfg=1 io=0
+[   16.712445]: waffle-touch: GPIO50 cfg=1 io=0
+[   16.712447]: waffle-touch: GPIO51 cfg=1 io=0
+[   16.712448]: waffle-touch: GPIO108 cfg=1 io=0
+[   16.712451]: waffle-touch: GPIO161 cfg=1 io=1
+[   16.712452]: waffle-touch: GPIO162 cfg=1 io=0
+[   16.712463]: waffle-touch: configured GPIO48 cfg=80 io=1
+[   16.712465]: waffle-touch: configured GPIO49 cfg=280 io=3
+[   16.712467]: waffle-touch: configured GPIO50 cfg=280 io=0
+[   16.712469]: waffle-touch: configured GPIO51 cfg=280 io=3
+[   16.712471]: waffle-touch: configured GPIO108 cfg=2c0 io=3
+[   16.712473]: waffle-touch: configured GPIO161 cfg=2c0 io=0
+[   16.712475]: waffle-touch: configured GPIO162 cfg=c0 io=1
+[   16.712488]: No POST boot-arg set.
+[   16.712490]: bsd_init: bsd_do_post - doneload_init_program: attempting to load /usr/appleinternal/sbin/launchd.development
+[   16.712579]: load_init_program: attempting to load /sbin/launchd
+[   16.715410]: waffle-gpu: Adreno750 Gen7.9.1 profile-chipid=43051401 stage=94; polled CP init only
+[   16.715423]: waffle-gpu: read GPU_CFG_AHB_CBCR @00171004
+[   16.715425]: waffle-gpu: GPU_CFG_AHB_CBCR=80000003
+[   16.715427]: waffle-gpu: read GPU_MEMNOC_GFX_CBCR @00171010
+[   16.715429]: waffle-gpu: GPU_MEMNOC_GFX_CBCR=80000003
+[   16.715432]: waffle-gpu: force CFG_AHB branch, disable HW gating; prior=80000003
+[   16.715436]: waffle-gpu: read CX_GDSCR @03d99108
+[   16.715439]: waffle-gpu: CX_GDSCR=0022f801
+[   16.715440]: waffle-gpu: read CX_GDS_HW_CTRL @03d99168
+[   16.715443]: waffle-gpu: CX_GDS_HW_CTRL=2800010a
+[   16.715445]: waffle-gpu: read GX_GDSCR @03d9905c
+[   16.715448]: waffle-gpu: GX_GDSCR=00888801
+[   16.715449]: waffle-gpu: read AHB_CBCR @03d9911c
+[   16.715452]: waffle-gpu: AHB_CBCR=00000000
+[   16.715454]: waffle-gpu: read CX_GMU_CBCR @03d9913c
+[   16.715457]: waffle-gpu: CX_GMU_CBCR=80002001
+[   16.715458]: waffle-gpu: read HUB_CLK_SRC @03d993ec
+[   16.715462]: waffle-gpu: HUB_CLK_SRC=00000000
+[   16.715464]: waffle-gpu: read GMU_CLK_SRC @03d99318
+[   16.715467]: waffle-gpu: GMU_CLK_SRC=80000000
+[   16.715469]: waffle-gpu: stage 2 register inspection complete
+[   16.715474]: waffle-gpu: deassert CX collapse; prior=0022f801
+[   16.715605]: waffle-gpu: CX power ON; GDSCR=f822f800 HW_CTRL=80000202
+[   16.715772]: waffle-gpu: CX clocks ready; GMU 200MHz GPLL0, hub 200MHz requested; GMU_CFG=00000505 valid=1
+[   16.715775]: waffle-gpu: read CM3_SYSRESET @03d7e000
+[   16.715777]: waffle-gpu: CM3_SYSRESET=00000001
+[   16.715779]: waffle-gpu: read CM3_FW_INIT_RESULT @03d7e070
+[   16.715781]: waffle-gpu: CM3_FW_INIT_RESULT=00000000
+[   16.716926]: waffle-gpu: CX AO counter 131ff6c9 -> 13204b83 delta=21690 (1000us interval)
+[   16.717030]: waffle-gpu: NATIVE94 startup GMU625 PLL1250 ready=1 CFG=00000303 MODE=e0000005 L=44440041 ALPHA=00001aaa
+[   16.717056]: waffle-gpu: read SMMU_IDR0 @03da0020
+[   16.717079]: waffle-gpu: SMMU_IDR0=4c017e18
+[   16.717080]: waffle-gpu: read SMMU_IDR1 @03da0024
+[   16.717091]: waffle-gpu: SMMU_IDR1=40000016
+[   16.717093]: waffle-gpu: read SMMU_IDR2 @03da0028
+[   16.717103]: waffle-gpu: SMMU_IDR2=00005511
+[   16.717125]: waffle-gpu: SMMU layout page=1000 pages=32 CB=22 SMR=24; read only
+[   16.717126]: waffle-gpu: read SMMU_SCR0 @03da0000
+[   16.717138]: waffle-gpu: SMMU_SCR0=002f0406
+[   16.717139]: waffle-gpu: read SMMU_SGFSR @03da0048
+[   16.717150]: waffle-gpu: SMMU_SGFSR=00000000
+[   16.717151]: waffle-gpu: read SMR @03da0800
+[   16.717162]: waffle-gpu: SMR=00000000
+[   16.717164]: waffle-gpu: read S2CR @03da0c00
+[   16.717175]: waffle-gpu: S2CR=00020000
+[   16.717177]: waffle-gpu: read SMR @03da0804
+[   16.717188]: waffle-gpu: SMR=00000000
+[   16.717190]: waffle-gpu: read S2CR @03da0c04
+[   16.717202]: waffle-gpu: S2CR=00020000
+[   16.717203]: waffle-gpu: read SMR @03da0808
+[   16.717215]: waffle-gpu: SMR=00000000
+[   16.717216]: waffle-gpu: read S2CR @03da0c08
+[   16.717227]: waffle-gpu: S2CR=00020000
+[   16.717229]: waffle-gpu: read SMR @03da080c
+[   16.717240]: waffle-gpu: SMR=00000000
+[   16.717241]: waffle-gpu: read S2CR @03da0c0c
+[   16.717253]: waffle-gpu: S2CR=00020000
+[   16.717254]: waffle-gpu: read SMR @03da0810
+[   16.717266]: waffle-gpu: SMR=00000000
+[   16.717268]: waffle-gpu: read S2CR @03da0c10
+[   16.717279]: waffle-gpu: S2CR=00020000
+[   16.717280]: waffle-gpu: read SMR @03da0814
+[   16.717292]: waffle-gpu: SMR=00000000
+[   16.717293]: waffle-gpu: read S2CR @03da0c14
+[   16.717305]: waffle-gpu: S2CR=00020000
+[   16.717306]: waffle-gpu: read CB_SCTLR @03dc0000
+[   16.717308]: waffle-gpu: CB_SCTLR=3fffe71e
+[   16.717310]: waffle-gpu: read CB_TTBR0_LO @03dc0020
+[   16.717312]: waffle-gpu: CB_TTBR0_LO=dbffffdb
+[   16.717314]: waffle-gpu: read CB_TTBR0_HI @03dc0024
+[   16.717316]: waffle-gpu: CB_TTBR0_HI=ffeff7ff
+[   16.717317]: waffle-gpu: read CB_TCR @03dc0030
+[   16.717319]: waffle-gpu: CB_TCR=7abf7aff
+[   16.717321]: waffle-gpu: read CB_FSR @03dc0058
+[   16.717323]: waffle-gpu: CB_FSR=00000000
+[   16.717324]: waffle-gpu: read CB_SCTLR @03dc1000
+[   16.717326]: waffle-gpu: CB_SCTLR=3fffe71e
+[   16.717328]: waffle-gpu: read CB_TTBR0_LO @03dc1020
+[   16.717330]: waffle-gpu: CB_TTBR0_LO=fff7fffb
+[   16.717331]: waffle-gpu: read CB_TTBR0_HI @03dc1024
+[   16.717333]: waffle-gpu: CB_TTBR0_HI=fefbfffd
+[   16.717335]: waffle-gpu: read CB_TCR @03dc1030
+[   16.717337]: waffle-gpu: CB_TCR=7bbf7fff
+[   16.717338]: waffle-gpu: read CB_FSR @03dc1058
+[   16.717340]: waffle-gpu: CB_FSR=00000000
+[   16.717342]: waffle-gpu: SMMU inspection complete; no translation registers written
+[   16.717349]: waffle-iommu: map QTB500 @03de8000
+[   16.717355]: waffle-iommu: SWID=003567e0 fence=0 ack=0 trigger=0 status=0
+[   16.717916]: waffle-gmu: allocate GMU 00004000..00016fff (77824 bytes)
+[   16.717923]: waffle-gmu: allocate GMU 00100000..0011afff (110592 bytes)
+[   16.717929]: waffle-gmu: allocate GMU 00200000..00212fff (77824 bytes)
+[   16.717938]: waffle-gmu: allocate GMU 00300000..00324fff (151552 bytes)
+[   16.717941]: waffle-gmu: allocate GMU 60000000..60000fff (4096 bytes)
+[   16.717944]: waffle-gmu: allocate GMU 60001000..60001fff (4096 bytes)
+[   16.718008]: waffle-gmu: GPU ucode gen70900_sqe.fw VA=80010000 payload=85360 mapped=86016 version=01520181
+[   16.718031]: waffle-gmu: GPU ucode gen70900_aqe.fw VA=80030000 payload=33172 mapped=36864 version=01520023
+[   16.718943]: waffle-gmu: firmware parsed, 15 external regions prepared; CM3 remains reset
+[   16.719278]: waffle-iommu: compact GPU globals window=20MiB normal_pool=15MiB
+[   16.719287]: waffle-iommu: test IOVA=7ff00000 expected PA=8d1eb0000 root=8d1eac000 tables=25; halt QTB
+[   16.720062]: waffle-iommu: GPU context0/SID0 enabled=1
+[   16.720076]: waffle-iommu: GPU split TTBR1 enabled=1 TCR=b5193519 TTBR=10008d1eac000
+[   16.720093]: waffle-iommu: ECATS SID=0 VA=1ff8000400000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.720104]: waffle-iommu: ECATS SID=0 VA=80000000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.720107]: waffle-iommu: GPU SID0 translation matches allocated PA
+[   16.720760]: waffle-iommu: GPU context1/SID1 enabled=1
+[   16.720773]: waffle-iommu: GPU split TTBR1 enabled=1 TCR=b5193519 TTBR=20008d1eac000
+[   16.720782]: waffle-iommu: ECATS SID=1 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720793]: waffle-iommu: ECATS SID=1 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720803]: waffle-iommu: ECATS SID=1 VA=1ff8000411000 expected=8d1001000 PA=8d1001000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720813]: waffle-iommu: ECATS SID=1 VA=1ff8000411000 expected=8d1001000 PA=8d1001000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720824]: waffle-iommu: ECATS SID=1 VA=1ff8000412000 expected=8d1002000 PA=8d1002000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720834]: waffle-iommu: ECATS SID=1 VA=1ff8000412000 expected=8d1002000 PA=8d1002000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720844]: waffle-iommu: ECATS SID=1 VA=1ff8000413000 expected=8d1003000 PA=8d1003000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720856]: waffle-iommu: ECATS SID=1 VA=1ff8000413000 expected=8d1003000 PA=8d1003000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720866]: waffle-iommu: ECATS SID=1 VA=1ff8000414000 expected=8d0f7c000 PA=8d0f7c000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720876]: waffle-iommu: ECATS SID=1 VA=1ff8000414000 expected=8d0f7c000 PA=8d0f7c000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720885]: waffle-iommu: ECATS SID=1 VA=1ff8000415000 expected=8d0f7d000 PA=8d0f7d000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720895]: waffle-iommu: ECATS SID=1 VA=1ff8000415000 expected=8d0f7d000 PA=8d0f7d000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720904]: waffle-iommu: ECATS SID=1 VA=1ff8000416000 expected=8d0f7e000 PA=8d0f7e000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720915]: waffle-iommu: ECATS SID=1 VA=1ff8000416000 expected=8d0f7e000 PA=8d0f7e000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720925]: waffle-iommu: ECATS SID=1 VA=1ff8000417000 expected=8d0f7f000 PA=8d0f7f000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720934]: waffle-iommu: ECATS SID=1 VA=1ff8000417000 expected=8d0f7f000 PA=8d0f7f000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720944]: waffle-iommu: ECATS SID=1 VA=1ff8000418000 expected=8d0f78000 PA=8d0f78000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720954]: waffle-iommu: ECATS SID=1 VA=1ff8000418000 expected=8d0f78000 PA=8d0f78000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720964]: waffle-iommu: ECATS SID=1 VA=1ff8000419000 expected=8d0f79000 PA=8d0f79000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720974]: waffle-iommu: ECATS SID=1 VA=1ff8000419000 expected=8d0f79000 PA=8d0f79000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.720983]: waffle-iommu: ECATS SID=1 VA=1ff800041a000 expected=8d0f7a000 PA=8d0f7a000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.720993]: waffle-iommu: ECATS SID=1 VA=1ff800041a000 expected=8d0f7a000 PA=8d0f7a000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721003]: waffle-iommu: ECATS SID=1 VA=1ff800041b000 expected=8d0f7b000 PA=8d0f7b000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721013]: waffle-iommu: ECATS SID=1 VA=1ff800041b000 expected=8d0f7b000 PA=8d0f7b000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721022]: waffle-iommu: ECATS SID=1 VA=1ff800041c000 expected=8d0f74000 PA=8d0f74000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721032]: waffle-iommu: ECATS SID=1 VA=1ff800041c000 expected=8d0f74000 PA=8d0f74000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721043]: waffle-iommu: ECATS SID=1 VA=1ff800041d000 expected=8d0f75000 PA=8d0f75000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721053]: waffle-iommu: ECATS SID=1 VA=1ff800041d000 expected=8d0f75000 PA=8d0f75000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721062]: waffle-iommu: ECATS SID=1 VA=1ff800041e000 expected=8d0f76000 PA=8d0f76000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721072]: waffle-iommu: ECATS SID=1 VA=1ff800041e000 expected=8d0f76000 PA=8d0f76000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721082]: waffle-iommu: ECATS SID=1 VA=1ff800041f000 expected=8d0f77000 PA=8d0f77000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721092]: waffle-iommu: ECATS SID=1 VA=1ff800041f000 expected=8d0f77000 PA=8d0f77000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721102]: waffle-iommu: ECATS SID=1 VA=1ff8000420000 expected=8d0f70000 PA=8d0f70000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721112]: waffle-iommu: ECATS SID=1 VA=1ff8000420000 expected=8d0f70000 PA=8d0f70000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721122]: waffle-iommu: ECATS SID=1 VA=1ff8000421000 expected=8d0f71000 PA=8d0f71000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721132]: waffle-iommu: ECATS SID=1 VA=1ff8000421000 expected=8d0f71000 PA=8d0f71000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721142]: waffle-iommu: ECATS SID=1 VA=1ff8000422000 expected=8d0f72000 PA=8d0f72000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721152]: waffle-iommu: ECATS SID=1 VA=1ff8000422000 expected=8d0f72000 PA=8d0f72000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721162]: waffle-iommu: ECATS SID=1 VA=1ff8000423000 expected=8d0f73000 PA=8d0f73000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721172]: waffle-iommu: ECATS SID=1 VA=1ff8000423000 expected=8d0f73000 PA=8d0f73000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721182]: waffle-iommu: ECATS SID=1 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=0
+[   16.721192]: waffle-iommu: ECATS SID=1 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=2
+[   16.721251]: waffle-gmu: SCM CP SMMU aperture availability status=0 value=1
+[   16.721306]: waffle-gmu: SCM CP SMMU aperture selector=1 CB1 status=0 result=0 ready=1
+[   16.721317]: waffle-iommu: LPAC_MAP routing=1 checks=42 SID1/CB1 GMU_SID5/CB3; translation only
+[   16.721326]: waffle-iommu: ECATS SID=5 VA=7ff00000 expected=8d1eb0000 PA=8d1eb0000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.721329]: waffle-iommu: HARDWARE TRANSLATION MATCHES allocated PA
+[   16.722008]: waffle-gmu: SCM pages mode=2 count=4 status=0 result=0
+[   16.723669]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.725323]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.726978]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.728649]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.730308]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.731960]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.733613]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.735263]: waffle-gmu: SCM pages mode=0 count=32 status=0 result=0
+[   16.735916]: waffle-iommu: GPU context2/SID2 enabled=1
+[   16.735953]: waffle-iommu: ECATS SID=2 VA=100000000 expected=8d2398000 PA=8d2398000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.735970]: waffle-iommu: ECATS SID=2 VA=1003ff000 expected=8d1f9f000 PA=8d1f9f000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.735975]: waffle-iommu: protected pool ready VA=100000000 bytes=4194304 pages=256 SID2
+[   16.735990]: waffle-gmu: SCM CP SMMU aperture availability status=0 value=1
+[   16.736025]: waffle-gmu: SCM CP SMMU aperture selector=0 CB0 status=0 result=0 ready=1
+[   16.736036]: waffle-iommu: diagnostic stall context=fffffff1ba3aa000 SCTLR=000000a7 ready=1
+[   16.736039]: waffle-iommu: SEC_STALL94 CB2 SCTLR=000000a7; CFIE masked
+[   16.736055]: waffle-iommu: ECATS SID=5 VA=4000 expected=8d0ee0000 PA=8d0ee0000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736065]: waffle-iommu: ECATS SID=5 VA=16000 expected=8d0ed2000 PA=8d0ed2000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736074]: waffle-iommu: ECATS SID=5 VA=100000 expected=8d0efc000 PA=8d0efc000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736084]: waffle-iommu: ECATS SID=5 VA=11a000 expected=8d0ee6000 PA=8d0ee6000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736094]: waffle-iommu: ECATS SID=5 VA=200000 expected=8d0f90000 PA=8d0f90000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736104]: waffle-iommu: ECATS SID=5 VA=212000 expected=8d0f82000 PA=8d0f82000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736114]: waffle-iommu: ECATS SID=5 VA=300000 expected=8d0f38000 PA=8d0f38000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736124]: waffle-iommu: ECATS SID=5 VA=324000 expected=8d0f94000 PA=8d0f94000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736134]: waffle-iommu: ECATS SID=5 VA=60000000 expected=8d0f3c000 PA=8d0f3c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736144]: waffle-iommu: ECATS SID=5 VA=60001000 expected=8d0f40000 PA=8d0f40000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736155]: waffle-iommu: ECATS SID=5 VA=60004000 expected=8d0f50000 PA=8d0f50000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736165]: waffle-iommu: ECATS SID=5 VA=60013000 expected=8d0f47000 PA=8d0f47000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736175]: waffle-iommu: ECATS SID=5 VA=60014000 expected=8d0f68000 PA=8d0f68000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736185]: waffle-iommu: ECATS SID=5 VA=60025000 expected=8d0f59000 PA=8d0f59000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736195]: waffle-iommu: ECATS SID=0 VA=1ff8000410000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736205]: waffle-iommu: ECATS SID=0 VA=1ff8000424000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736215]: waffle-iommu: ECATS SID=0 VA=80010000 expected=8d1000000 PA=8d1000000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736226]: waffle-iommu: ECATS SID=0 VA=80024000 expected=8d0f6c000 PA=8d0f6c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736236]: waffle-iommu: ECATS SID=0 VA=1ff8000430000 expected=8d100c000 PA=8d100c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736246]: waffle-iommu: ECATS SID=0 VA=1ff8000438000 expected=8d1004000 PA=8d1004000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736256]: waffle-iommu: ECATS SID=0 VA=80030000 expected=8d100c000 PA=8d100c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736266]: waffle-iommu: ECATS SID=0 VA=80038000 expected=8d1004000 PA=8d1004000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736276]: waffle-iommu: ECATS SID=0 VA=1ff8000450000 expected=8d1014000 PA=8d1014000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736286]: waffle-iommu: ECATS SID=0 VA=1ff8000457000 expected=8d1013000 PA=8d1013000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736296]: waffle-iommu: ECATS SID=0 VA=80050000 expected=8d1014000 PA=8d1014000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736306]: waffle-iommu: ECATS SID=0 VA=80057000 expected=8d1013000 PA=8d1013000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736316]: waffle-iommu: ECATS SID=0 VA=1ff8000460000 expected=8d1018000 PA=8d1018000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736326]: waffle-iommu: ECATS SID=0 VA=80060000 expected=8d1018000 PA=8d1018000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736336]: waffle-iommu: ECATS SID=0 VA=1ff8000470000 expected=8d101c000 PA=8d101c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736345]: waffle-iommu: ECATS SID=0 VA=80070000 expected=8d101c000 PA=8d101c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736356]: waffle-iommu: ECATS SID=0 VA=1ff8000500000 expected=8d1f1c000 PA=8d1f1c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736366]: waffle-iommu: ECATS SID=0 VA=1ff80013ff000 expected=8d0fa3000 PA=8d0fa3000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736376]: waffle-iommu: ECATS SID=5 VA=61000000 expected=8d1f1c000 PA=8d1f1c000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736386]: waffle-iommu: ECATS SID=5 VA=61eff000 expected=8d0fa3000 PA=8d0fa3000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736397]: waffle-iommu: ECATS SID=0 VA=1ff8000474000 expected=8d1ea8000 PA=8d1ea8000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736407]: waffle-iommu: ECATS SID=0 VA=1ff8000477000 expected=8d1eab000 PA=8d1eab000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736417]: waffle-iommu: ECATS SID=0 VA=80074000 expected=8d1ea8000 PA=8d1ea8000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736427]: waffle-iommu: ECATS SID=0 VA=80077000 expected=8d1eab000 PA=8d1eab000 done=1 FSRraw=00000400 faults=00000000 access=1
+[   16.736438]: waffle-iommu: fault-continue CB0 SCTLR=00000127 ready=1; CFIE masked
+[   16.736442]: waffle-iommu: SMMU94 CB0 SCTLR=00000127 ACTLR=0000032b TCR2=00038071 TCR=b5193519 CONTEXTIDR=fffef7ff
+[   16.736480]: waffle-iommu: SMMU94 TTBR0=10008d1eac000 TTBR1=10008d1eac000 MAIR0=00000044 MAIR1=00000000 CBAR=0001f300 CBA2R=00000001 S2CR=00000000
+[   16.736483]: waffle-iommu: HUPCF94 RAW fault readback armed; no fault clear/resume
+[   16.737393]: waffle-gmu: TCM 00000000 bytes=476 readback=matches
+[   16.737398]: waffle-gmu: TCM 10007f98 bytes=40 readback=matches
+[   16.737403]: waffle-gmu: TCM 10007fdc bytes=24 readback=matches
+[   16.737412]: waffle-gmu: RSC status=00000000 busy=00000000 PDC enable=00000101
+[   16.737442]: waffle-gmu: PDC start=00000000 enable=80000001 (vendor write80000001)
+[   16.737460]: waffle-gmu: RSC/PDC Gen7.9 sequence readback=matches; no sleep/wake trigger
+[   16.737462]: waffle-gmu: SCM query GPU_INIT_REGS availability (SMC64 STD)
+[   16.737477]: waffle-gmu: SCM availability status=0 answer=1
+[   16.737479]: waffle-gmu: SCM GPU_INIT_REGS request=0000000b
+[   16.737510]: waffle-gmu: SCM GPU_INIT_REGS status=0 result=0
+[   16.737543]: waffle-gmu: release CM3 reset, wait for firmware readiness (2s cap)
+[   16.740388]: waffle-gmu: FW_INIT=00000100 ready=1 hostIRQ=00000000 AOIRQ=00000000
+[   16.740394]: waffle-gmu: HFI init status=00000001 ready=1 hostIRQ=00000000 AOIRQ=00000000
+[   16.740398]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.740520]: waffle-gmu: HFI message words=4 hdr=0001040c req=0010030c value=00000001
+[   16.740522]: waffle-gmu: GET_VALUE122 ACK matched seq1 value=00000001 valid=1
+[   16.740525]: waffle-gmu: HFI firmware version=20060001; PERF table only, no START/DCVS
+[   16.740529]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.740649]: waffle-gmu: HFI message words=3 hdr=0011030f req=0020340f value=00000000
+[   16.740651]: waffle-gmu: PERF_TABLE ACK matched seq2 value=00000000 valid=1
+[   16.740655]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.740776]: waffle-gmu: HFI message words=3 hdr=00210303 req=0030a003 value=00000000
+[   16.740778]: waffle-gmu: BW_TABLE ACK matched seq3 value=00000000 valid=1
+[   16.740782]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.740903]: waffle-gmu: HFI message words=4 hdr=0031040b req=0240040b value=00000000
+[   16.740905]: waffle-gmu: ACD_ON ACK matched seq36 value=00000000 valid=1
+[   16.740908]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741029]: waffle-gmu: HFI message words=3 hdr=00410307 req=02504507 value=00000000
+[   16.741031]: waffle-gmu: ACD_TABLE ACK matched seq37 value=00000000 valid=1
+[   16.741034]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741154]: waffle-gmu: HFI message words=3 hdr=0051030d req=0270040d value=00000000
+[   16.741157]: waffle-gmu: ACD_LOG_EVENT_ON ACK matched seq39 value=00000000 valid=1
+[   16.741161]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741281]: waffle-gmu: HFI message words=4 hdr=0061040b req=0040040b value=00000000
+[   16.741283]: waffle-gmu: BCL_ON ACK matched seq4 value=00000000 valid=1
+[   16.741287]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741407]: waffle-gmu: HFI message words=4 hdr=0071040b req=0060040b value=00000000
+[   16.741409]: waffle-gmu: HWSCHED_ON ACK matched seq6 value=00000000 valid=1
+[   16.741413]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741534]: waffle-gmu: HFI message words=4 hdr=0081040b req=0070040b value=00000000
+[   16.741536]: waffle-gmu: KPROF_ON ACK matched seq7 value=00000000 valid=1
+[   16.741540]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741660]: waffle-gmu: HFI message words=4 hdr=0091040b req=0080040b value=00000000
+[   16.741662]: waffle-gmu: DMS_CAPABILITY_ON ACK matched seq8 value=00000000 valid=1
+[   16.741666]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741787]: waffle-gmu: HFI message words=4 hdr=00a1040b req=0260040b value=00000000
+[   16.741789]: waffle-gmu: BAILOUT_TIMER_ON ACK matched seq38 value=00000000 valid=1
+[   16.741793]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.741914]: waffle-gmu: HFI message words=3 hdr=00b1030e req=0090020e value=00000000
+[   16.741916]: waffle-gmu: CORE_FW_START ACK matched seq9 value=00000000 valid=1
+[   16.741920]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.742041]: waffle-gmu: HFI message words=4 hdr=00c1040b req=00c0040b value=00000000
+[   16.742043]: waffle-gmu: AQE_ON ACK matched seq12 value=00000000 valid=1
+[   16.742045]: waffle-gmu: HWSCHED feature preflight result=1; no START10 or GPU commands
+[   16.742047]: waffle-gmu: native ACD-first HFI order active
+[   16.742049]: waffle-gmu: native optional-off profile: NAP/PREEMPTION/LPAC messages omitted
+[   16.742172]: waffle-gmu: START first message words=11 hdr=00d00b14 version=1 valid_memalloc=1
+[   16.742173]: waffle-gmu: START word0=00d00b14
+[   16.742175]: waffle-gmu: START word1=00000001
+[   16.742176]: waffle-gmu: START word2=00000000
+[   16.742178]: waffle-gmu: START word3=00000000
+[   16.742179]: waffle-gmu: START word4=0000033f
+[   16.742181]: waffle-gmu: START word5=00000002
+[   16.742182]: waffle-gmu: START word6=00000000
+[   16.742184]: waffle-gmu: START word7=00000002
+[   16.742185]: waffle-gmu: START word8=00000000
+[   16.742187]: waffle-gmu: START word9=00001000
+[   16.742188]: waffle-gmu: START word10=00000000
+[   16.742191]: waffle-gmu: START allocation kind=2 flags=0000033f size=4096 align=00000000 handle=2; request parsed
+[   16.742194]: waffle-iommu: allocation GPU permissions VA=1ff8000500000 size=4096 flags=33f applied
+[   16.742199]: waffle-gmu: START allocation replied GPU=1ff8000500000 GMU=61000000 host_handle=2 reserved=4096
+[   16.742320]: waffle-gmu: START first message words=11 hdr=00e00b14 version=1 valid_memalloc=1
+[   16.742321]: waffle-gmu: START word0=00e00b14
+[   16.742323]: waffle-gmu: START word1=00000001
+[   16.742324]: waffle-gmu: START word2=00000000
+[   16.742326]: waffle-gmu: START word3=00000000
+[   16.742327]: waffle-gmu: START word4=0000033f
+[   16.742328]: waffle-gmu: START word5=0000000e
+[   16.742330]: waffle-gmu: START word6=00000000
+[   16.742331]: waffle-gmu: START word7=0000000e
+[   16.742333]: waffle-gmu: START word8=00000000
+[   16.742334]: waffle-gmu: START word9=00001000
+[   16.742336]: waffle-gmu: START word10=00000000
+[   16.742339]: waffle-gmu: START allocation kind=14 flags=0000033f size=4096 align=00000000 handle=14; request parsed
+[   16.742341]: waffle-iommu: allocation GPU permissions VA=1ff8000501000 size=4096 flags=33f applied
+[   16.742346]: waffle-gmu: START allocation replied GPU=1ff8000501000 GMU=61001000 host_handle=14 reserved=8192
+[   16.742467]: waffle-gmu: START first message words=11 hdr=00f00b14 version=1 valid_memalloc=1
+[   16.742468]: waffle-gmu: START word0=00f00b14
+[   16.742470]: waffle-gmu: START word1=00000001
+[   16.742471]: waffle-gmu: START word2=00000000
+[   16.742473]: waffle-gmu: START word3=00000000
+[   16.742474]: waffle-gmu: START word4=00000339
+[   16.742476]: waffle-gmu: START word5=0000000f
+[   16.742477]: waffle-gmu: START word6=00000000
+[   16.742478]: waffle-gmu: START word7=0000000f
+[   16.742480]: waffle-gmu: START word8=00000000
+[   16.742481]: waffle-gmu: START word9=00001000
+[   16.742483]: waffle-gmu: START word10=00000000
+[   16.742486]: waffle-gmu: START allocation kind=15 flags=00000339 size=4096 align=00000000 handle=15; request parsed
+[   16.742502]: waffle-iommu: allocation GPU permissions VA=1ff8000502000 size=4096 flags=339 applied
+[   16.742507]: waffle-gmu: START allocation replied GPU=1ff8000502000 GMU=61002000 host_handle=15 reserved=12288
+[   16.742627]: waffle-gmu: START first message words=11 hdr=01000b14 version=1 valid_memalloc=1
+[   16.742629]: waffle-gmu: START word0=01000b14
+[   16.742630]: waffle-gmu: START word1=00000001
+[   16.742632]: waffle-gmu: START word2=00000000
+[   16.742633]: waffle-gmu: START word3=00000000
+[   16.742635]: waffle-gmu: START word4=00000178
+[   16.742636]: waffle-gmu: START word5=00000010
+[   16.742638]: waffle-gmu: START word6=00000000
+[   16.742639]: waffle-gmu: START word7=00000010
+[   16.742641]: waffle-gmu: START word8=00000000
+[   16.742642]: waffle-gmu: START word9=00008000
+[   16.742644]: waffle-gmu: START word10=00000000
+[   16.742646]: waffle-gmu: START allocation kind=16 flags=00000178 size=32768 align=00000000 handle=16; request parsed
+[   16.742652]: waffle-gmu: START allocation replied GPU=0 GMU=61003000 host_handle=16 reserved=45056
+[   16.742772]: waffle-gmu: START first message words=11 hdr=01100b14 version=1 valid_memalloc=1
+[   16.742774]: waffle-gmu: START word0=01100b14
+[   16.742775]: waffle-gmu: START word1=00000001
+[   16.742777]: waffle-gmu: START word2=00000000
+[   16.742778]: waffle-gmu: START word3=00000000
+[   16.742779]: waffle-gmu: START word4=0000037b
+[   16.742781]: waffle-gmu: START word5=00000001
+[   16.742782]: waffle-gmu: START word6=00000000
+[   16.742784]: waffle-gmu: START word7=0000001a
+[   16.742785]: waffle-gmu: START word8=00000000
+[   16.742786]: waffle-gmu: START word9=00008000
+[   16.742788]: waffle-gmu: START word10=00000000
+[   16.742791]: waffle-gmu: START allocation kind=1 flags=0000037b size=32768 align=00000000 handle=26; request parsed
+[   16.742897]: waffle-iommu: allocation GPU permissions VA=1ff800050b000 size=32768 flags=37b applied
+[   16.742902]: waffle-gmu: START allocation replied GPU=1ff800050b000 GMU=6100b000 host_handle=26 reserved=77824
+[   16.743023]: waffle-gmu: START first message words=11 hdr=01200b14 version=1 valid_memalloc=1
+[   16.743024]: waffle-gmu: START word0=01200b14
+[   16.743026]: waffle-gmu: START word1=00000001
+[   16.743027]: waffle-gmu: START word2=00000000
+[   16.743029]: waffle-gmu: START word3=00000000
+[   16.743030]: waffle-gmu: START word4=0000017f
+[   16.743032]: waffle-gmu: START word5=00000003
+[   16.743033]: waffle-gmu: START word6=00000000
+[   16.743034]: waffle-gmu: START word7=00000003
+[   16.743036]: waffle-gmu: START word8=00000000
+[   16.743038]: waffle-gmu: START word9=00000018
+[   16.743039]: waffle-gmu: START word10=00000000
+[   16.743042]: waffle-gmu: START allocation kind=3 flags=0000017f size=24 align=00000000 handle=3; request parsed
+[   16.743045]: waffle-iommu: allocation GPU permissions VA=1ff8000513000 size=24 flags=17f applied
+[   16.743049]: waffle-gmu: START allocation replied GPU=1ff8000513000 GMU=61013000 host_handle=3 reserved=81920
+[   16.743170]: waffle-gmu: START first message words=11 hdr=01300b14 version=1 valid_memalloc=1
+[   16.743172]: waffle-gmu: START word0=01300b14
+[   16.743173]: waffle-gmu: START word1=00000001
+[   16.743174]: waffle-gmu: START word2=00000000
+[   16.743176]: waffle-gmu: START word3=00000000
+[   16.743177]: waffle-gmu: START word4=0000037f
+[   16.743179]: waffle-gmu: START word5=00000004
+[   16.743180]: waffle-gmu: START word6=00000000
+[   16.743182]: waffle-gmu: START word7=00000004
+[   16.743183]: waffle-gmu: START word8=00000000
+[   16.743185]: waffle-gmu: START word9=0037d000
+[   16.743186]: waffle-gmu: START word10=00000000
+[   16.743189]: waffle-gmu: START allocation kind=4 flags=0000037f size=3657728 align=00000000 handle=4; request parsed
+[   16.743201]: waffle-iommu: allocation GPU permissions VA=1ff8000514000 size=3657728 flags=37f applied
+[   16.743206]: waffle-gmu: START allocation replied GPU=1ff8000514000 GMU=61014000 host_handle=4 reserved=3739648
+[   16.743326]: waffle-gmu: START first message words=11 hdr=01400b14 version=1 valid_memalloc=1
+[   16.743328]: waffle-gmu: START word0=01400b14
+[   16.743329]: waffle-gmu: START word1=00000001
+[   16.743331]: waffle-gmu: START word2=00000000
+[   16.743332]: waffle-gmu: START word3=00000000
+[   16.743334]: waffle-gmu: START word4=00001007
+[   16.743335]: waffle-gmu: START word5=00000005
+[   16.743337]: waffle-gmu: START word6=00000000
+[   16.743338]: waffle-gmu: START word7=00000005
+[   16.743340]: waffle-gmu: START word8=00000000
+[   16.743341]: waffle-gmu: START word9=0037d000
+[   16.743343]: waffle-gmu: START word10=00000000
+[   16.743346]: waffle-gmu: START allocation kind=5 flags=00001007 size=3657728 align=00000000 handle=5; request parsed
+[   16.743350]: waffle-gmu: START allocation replied GPU=100000000 GMU=00000000 host_handle=5 reserved=7397376
+[   16.743471]: waffle-gmu: START first message words=11 hdr=01500b14 version=1 valid_memalloc=1
+[   16.743473]: waffle-gmu: START word0=01500b14
+[   16.743474]: waffle-gmu: START word1=00000001
+[   16.743476]: waffle-gmu: START word2=00000000
+[   16.743477]: waffle-gmu: START word3=00000000
+[   16.743478]: waffle-gmu: START word4=00000147
+[   16.743480]: waffle-gmu: START word5=00000007
+[   16.743482]: waffle-gmu: START word6=00000000
+[   16.743483]: waffle-gmu: START word7=00000007
+[   16.743485]: waffle-gmu: START word8=00000000
+[   16.743486]: waffle-gmu: START word9=00001000
+[   16.743487]: waffle-gmu: START word10=00000000
+[   16.743490]: waffle-gmu: START allocation kind=7 flags=00000147 size=4096 align=00000000 handle=7; request parsed
+[   16.743493]: waffle-iommu: allocation GPU permissions VA=1ff8000891000 size=4096 flags=147 applied
+[   16.743498]: waffle-gmu: START allocation replied GPU=1ff8000891000 GMU=00000000 host_handle=7 reserved=7401472
+[   16.743618]: waffle-gmu: START first message words=11 hdr=01600b14 version=1 valid_memalloc=1
+[   16.743620]: waffle-gmu: START word0=01600b14
+[   16.743622]: waffle-gmu: START word1=00000001
+[   16.743623]: waffle-gmu: START word2=00000000
+[   16.743625]: waffle-gmu: START word3=00000000
+[   16.743626]: waffle-gmu: START word4=0000033f
+[   16.743628]: waffle-gmu: START word5=00000018
+[   16.743629]: waffle-gmu: START word6=00000000
+[   16.743631]: waffle-gmu: START word7=00000018
+[   16.743632]: waffle-gmu: START word8=00000000
+[   16.743634]: waffle-gmu: START word9=00001000
+[   16.743635]: waffle-gmu: START word10=00000000
+[   16.743638]: waffle-gmu: START allocation kind=24 flags=0000033f size=4096 align=00000000 handle=24; request parsed
+[   16.743641]: waffle-iommu: allocation GPU permissions VA=1ff8000892000 size=4096 flags=33f applied
+[   16.743645]: waffle-gmu: START allocation replied GPU=1ff8000892000 GMU=61392000 host_handle=24 reserved=7405568
+[   16.743766]: waffle-gmu: HWSCHED START ACK status=00000000 allocations=10 bytes=7405568 valid=1
+[   16.743770]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.759294]: waffle-gmu: HFI message words=3 hdr=0181031e req=0200041e value=00000000
+[   16.759296]: waffle-gmu: MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1
+[   16.759301]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   16.759421]: waffle-gmu: HFI message words=3 hdr=0191031e req=0290041e value=00000000
+[   16.759423]: waffle-gmu: NATIVE_DDR_AB ACK matched seq41 value=00000000 valid=1
+[   16.759427]: waffle-gmu: after minimum vote GXstatus=00000000 GDSCR=f8222000 DCVSreturn=00000000
+[   16.759451]: waffle-gpu: NATIVE94 runtime GMU260 PLL520 CFG=00000303 MODE=e0000005 L=4444001b ALPHA=00001555
+[   16.759454]: waffle-gmu: OOB_GPU request at lowest stock frequency
+[   16.759578]: waffle-gmu: OOB_GPU ack=1 GXon=1 status=00000000 GDSCR=f8222800
+[   16.759583]: waffle-gmu: read powered GX RBBM_STATUS/CP_STATUS1/SQE_CNTL
+[   16.759587]: waffle-gmu: GX registers RBBM=00000001 CP=00000000 SQE=00000000
+[   16.759590]: waffle-gmu: native trusted window base=f0000000 size=fffff000 protected_VA=100000000
+[   16.759593]: waffle-gmu: native global GPU VA SQE=1ff8000410000 AQE=1ff8000430000 restore=1ff8000470000
+[   16.759601]: waffle-gmu: Gen7 busy-mask read=00000000
+[   16.759627]: waffle-gmu: Gen7 busy-mask write=ffffffff
+[   16.759630]: waffle-gmu: Gen7 busy-mask read=002f7fff
+[   16.759818]: waffle-gmu: PRE_RAW_SNAPSHOT words=11 CPstate=00000000 AO_busy=71000000
+[   16.759820]: waffle-gmu: PRE_RAW packet[0]=02a00b83
+[   16.759822]: waffle-gmu: PRE_RAW packet[1]=70970001
+[   16.759823]: waffle-gmu: PRE_RAW packet[2]=08000000
+[   16.759825]: waffle-gmu: PRE_RAW packet[3]=70c80007
+[   16.759827]: waffle-gmu: PRE_RAW packet[4]=0000094b
+[   16.759828]: waffle-gmu: PRE_RAW packet[5]=00000003
+[   16.759830]: waffle-gmu: PRE_RAW packet[6]=20000000
+[   16.759831]: waffle-gmu: PRE_RAW packet[7]=00000002
+[   16.759833]: waffle-gmu: PRE_RAW packet[8]=00470000
+[   16.759835]: waffle-gmu: PRE_RAW packet[9]=0001ff80
+[   16.759837]: waffle-gmu: PRE_RAW packet[10]=80000000
+[   16.759838]: waffle-gmu: PRE_RAW restore[0]=00000000
+[   16.759840]: waffle-gmu: PRE_RAW restore[1]=00000000
+[   16.759842]: waffle-gmu: PRE_RAW restore[2]=00000000
+[   16.759843]: waffle-gmu: PRE_RAW restore[3]=0000113a
+[   16.759845]: waffle-gmu: PRE_RAW restore[4]=0000b604
+[   16.759847]: waffle-gmu: PRE_RAW restore[5]=00000006
+[   16.759848]: waffle-gmu: PRE_RAW restore[6]=0000ae02
+[   16.759850]: waffle-gmu: PRE_RAW restore[7]=00000026
+[   16.759852]: waffle-gmu: PRE_RAW restore[8]=00000843
+[   16.759853]: waffle-gmu: PRE_RAW restore[9]=00000000
+[   16.759855]: waffle-gmu: PRE_RAW restore[10]=0000084f
+[   16.759857]: waffle-gmu: PRE_RAW restore[11]=0000000b
+[   16.759859]: waffle-gmu: PRE_RAW restore[12]=00000b09
+[   16.759860]: waffle-gmu: PRE_RAW restore[13]=00000000
+[   16.759862]: waffle-gmu: PRE_RAW restore[14]=00000850
+[   16.759864]: waffle-gmu: PRE_RAW restore[15]=13fc0000
+[   16.759865]: waffle-gmu: RAW checkpoint 0-preflight-begin
+[   16.759870]: waffle-gmu: RAW checkpoint 1-smmu-read-done
+[   16.759872]: waffle-gmu: RAW checkpoint 2-debug-read-done
+[   16.759874]: waffle-gmu: RAW checkpoint 3-packet-staged
+[   16.759876]: waffle-gmu: RAW_EDGE68 staged hold 5s; index unpublished
+[   16.997902]: waffle-touch: RX a5 10 1c 00 irq=0
+[   16.1001231]: waffle-touch: identify version=1 application=1
+[   17.002852]: waffle-touch: RX a5 01 2e 00 irq=0
+[   17.008090]: waffle-touch: CMD 20 status=01 len=46
+[   17.008092]: waffle-touch: application x=14399 y=31679 objects=10 config=128
+[   17.014660]: waffle-touch: RX a5 01 00 00 irq=1
+[   17.014662]: waffle-touch: CMD 06 status=01 len=0
+[   17.021431]: waffle-touch: RX a5 01 00 00 irq=1
+[   17.021433]: waffle-touch: CMD 24 status=01 len=0
+[   17.027993]: waffle-touch: RX a5 01 00 00 irq=1
+[   17.027995]: waffle-touch: CMD 06 status=01 len=0
+[   17.047861]: waffle-touch: RX a5 01 00 00 irq=1
+[   17.047863]: waffle-touch: CMD 26 status=01 len=0
+[   17.054305]: waffle-touch: RX a5 01 80 00 irq=0
+[   17.067925]: waffle-touch: CMD 25 status=01 len=128
+[   17.074478]: waffle-touch: RX a5 01 00 00 irq=1
+[   17.074479]: waffle-touch: CMD 05 status=01 len=0
+[   17.074481]: waffle-touch: native coordinate polling started
+[   21.760896]: waffle-gmu: RAW checkpoint 4-doorbell-sent
+[   21.760898]: waffle-gmu: RAW_EDGE68 notified hold 5s; no diagnostic polling
+[   26.761918]: waffle-gmu: RAW checkpoint 5-first-poll-done
+[   26.761922]: waffle-gmu: HFI message words=3 hdr=01a10383 req=02a00b83 value=00000000
+[   26.761924]: waffle-gmu: CP_INIT_RAW ACK matched seq42 value=00000000 valid=1
+[   26.761929]: waffle-gmu: Gen7 polled CP start result=0 detail=0 phase=3 index=0 HWCG=3 ACK=1 busy=71000000 polls=1; no ZAP or draw
+[   26.761947]: waffle-gmu: ZAP_PAS function=42000207 transport=0 service=1
+[   26.777967]: waffle-gmu: ZAP_PAS function=42000201 transport=0 service=0
+[   26.777995]: waffle-gmu: ZAP_PAS function=42000202 transport=0 service=0
+[   26.778061]: waffle-gmu: ZAP_PAYLOAD copied=1072 reserved=9b09a000 readback=1
+[   26.778836]: waffle-gmu: ZAP_PAS function=42000205 transport=0 service=0
+[   26.778839]: waffle-gmu: ZAP_LOAD authenticated=1 stage=4 metadata retained until reset
+[   26.778841]: waffle-gmu: RAW checkpoint 0-preflight-begin
+[   26.778845]: waffle-gmu: RAW checkpoint 1-smmu-read-done
+[   26.778848]: waffle-gmu: RAW checkpoint 2-debug-read-done
+[   26.778850]: waffle-gmu: RAW checkpoint 3-packet-staged
+[   26.778852]: waffle-gmu: RAW_EDGE68 staged hold 5s; index unpublished
+[   27.263934]: buttons: so far 0 presses of power, 0 of volume up, 0 of volume down; now none held; 1256 reads of the bus, 6 us each (the longest 11), 0 failed
+[   31.779870]: waffle-gmu: RAW checkpoint 4-doorbell-sent
+[   31.779872]: waffle-gmu: RAW_EDGE68 notified hold 5s; no diagnostic polling
+[   36.780783]: waffle-gmu: RAW checkpoint 5-first-poll-done
+[   36.780786]: waffle-gmu: HFI message words=3 hdr=01b10383 req=02b00383 value=00000000
+[   36.780789]: waffle-gmu: ZAP_UNSECURE ACK matched seq43 value=00000000 valid=1
+[   36.780794]: waffle-gmu: ZAP_TRANSITION result=1 TRUST=00000000; no draw
+[   36.780802]: waffle-gmu: SESSION opened heap=1 OOB=1 BO_alias=1 next_sequence=44
+[   36.780804]: waffle-gmu: SESSION OOB ownership transferred; init returned with GX retained
+[   36.780807]: waffle-gmu: GMU_OWNER begin returned heap=1; state retained
+[   36.780809]: waffle-gmu: TCM_OWNER begin returned snapshot=32768 heap=1 OOB=1
+[   36.780812]: waffle-iommu: GMU component returned live; parent owns SMMU and firmware
+[   36.780815]: waffle-iommu: SMMU_OWNER begin returned heap=1 callback_owned=1 child_live=1
+[   36.780817]: waffle-gpu: SMMU component returned live to clock owner
+[   36.780820]: waffle-gpu: CLOCK_OWNER begin returned heap=1 child_live=1 journal=14
+[   36.780823]: waffle-gpu: POWER_OWNER begin returned heap=1 clock_live=1 acquired_cx=1 cfg_changed=1
+[   36.780826]: waffle-gpu: AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1
+[   36.780829]: waffle-gpu: full GPU owner returned live to init caller; no mutex held
+[   36.780831]: waffle-gpu: SERVICE begin root_live=1 serialized=1
+[   36.780899]: waffle-gmu: SESSION rebound BO VA=1ff8000478000 PA=8d236c000 idle=1 outstanding=0
+[   36.780903]: waffle-iommu: DYNAMIC_BO published after GPU startup VA=80078000 pages=4 aliases=2 unprivileged=1
+[   36.780972]: waffle-gmu: COPY_JOB begin fence=1 seq=44 pixels=256
+[   36.780974]: waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256
+[   36.780976]: waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=1
+[   36.780979]: waffle-gmu: COMPUTE begin mode=2 dispatch=1 words=184 output_poison=1
+[   36.780981]: waffle-gmu: RAW checkpoint 0-preflight-begin
+[   36.780985]: waffle-gmu: RAW checkpoint 1-smmu-read-done
+[   36.780988]: waffle-gmu: RAW checkpoint 2-debug-read-done
+[   36.780990]: waffle-gmu: RAW checkpoint 3-packet-staged
+[   36.780993]: waffle-gmu: RAW checkpoint 4-doorbell-sent
+[   36.780998]: waffle-gmu: RAW checkpoint 5-first-poll-done
+[   36.781122]: waffle-gmu: HFI message words=3 hdr=01c10383 req=02c00583 value=00000000
+[   36.781124]: waffle-gmu: COMPUTE_IB ACK matched seq44 value=00000000 valid=1
+[   36.781201]: waffle-gmu: COMPUTE values=ff18520a/ff186131/ff186c54/ff187b7b/fffe869e/fffe95c5/fffea0e8/fffeaf0f control=00000001 checked=4096 wrong_words=0 mode=2
+[   36.781207]: waffle-gmu: COPY_JOB done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+[   36.781210]: waffle-gmu: COPY_JOB pixels fence=1 offset=0 values=ff18520a/ff186131/ff186c54/ff187b7b/fffe869e/fffe95c5/fffea0e8/fffeaf0f
+[   36.781214]: waffle-gmu: COPY_JOB pixels fence=1 offset=8 values=ff18ba32/ff18c959/ff18d47c/ff18e3a3/fffeeec6/fffefded/fffe0810/fffe1737
+[   36.781218]: waffle-gmu: COPY_JOB pixels fence=1 offset=16 values=ff18831f/ff188e42/ff189d69/ff18a88c/fffeb7b3/fffec2d6/fffed1fd/fffedc20
+[   36.781222]: waffle-gmu: COPY_JOB pixels fence=1 offset=24 values=ff18eb47/ff18f66a/ff180591/ff1810b4/fffe1fdb/fffe2afe/fffe3925/fffe4448
+[   36.781226]: waffle-gmu: COPY_JOB pixels fence=1 offset=32 values=ff18b030/ff18bf57/ff18ca7a/ff18d9a1/fffee4c4/fffef3eb/fffefe0e/fffe0d35
+[   36.781230]: waffle-gmu: COPY_JOB pixels fence=1 offset=40 values=ff181858/ff18277f/ff1832a2/ff1841c9/fffe4cec/fffe5b13/fffe6636/fffe755d
+[   36.781234]: waffle-gmu: COPY_JOB pixels fence=1 offset=48 values=ff18e145/ff18ec68/ff18fb8f/ff1806b2/fffe15d9/fffe20fc/fffe2f23/fffe3a46
+[   36.781238]: waffle-gmu: COPY_JOB pixels fence=1 offset=56 values=ff18496d/ff185490/ff1863b7/ff186eda/fffe7d01/fffe8824/fffe974b/fffea26e
+[   36.781242]: waffle-gmu: COPY_JOB pixels fence=1 offset=64 values=fffe0e56/fffe1d7d/fffe28a0/fffe37c7/ff1842ea/ff185111/ff185c34/ff186b5b
+[   36.781246]: waffle-gmu: COPY_JOB pixels fence=1 offset=72 values=fffe767e/fffe85a5/fffe90c8/fffe9fef/ff18aa12/ff18b939/ff18c45c/ff18d383
+[   36.781250]: waffle-gmu: COPY_JOB pixels fence=1 offset=80 values=fffe3f6b/fffe4a8e/fffe59b5/fffe64d8/ff1873ff/ff187e22/ff188d49/ff18986c
+[   36.781253]: waffle-gmu: COPY_JOB pixels fence=1 offset=88 values=fffea793/fffeb2b6/fffec1dd/fffecc00/ff18db27/ff18e64a/ff18f571/ff180094
+[   36.781257]: waffle-gmu: COPY_JOB pixels fence=1 offset=96 values=fffe6c7c/fffe7ba3/fffe86c6/fffe95ed/ff18a010/ff18af37/ff18ba5a/ff18c981
+[   36.781261]: waffle-gmu: COPY_JOB pixels fence=1 offset=104 values=fffed4a4/fffee3cb/fffeeeee/fffefd15/ff180838/ff18175f/ff182282/ff1831a9
+[   36.781265]: waffle-gmu: COPY_JOB pixels fence=1 offset=112 values=fffe9d91/fffea8b4/fffeb7db/fffec2fe/ff18d125/ff18dc48/ff18eb6f/ff18f692
+[   36.781269]: waffle-gmu: COPY_JOB pixels fence=1 offset=120 values=fffe05b9/fffe10dc/fffe1f03/fffe2a26/ff18394d/ff184470/ff185397/ff185eba
+[   36.781272]: waffle-gmu: COPY_JOB pixels fence=1 offset=128 values=ff18caa2/ff18d9c9/ff18e4ec/ff18f313/fffefe36/fffe0d5d/fffe1880/fffe27a7
+[   36.781276]: waffle-gmu: COPY_JOB pixels fence=1 offset=136 values=ff1832ca/ff1841f1/ff184c14/ff185b3b/fffe665e/fffe7585/fffe80a8/fffe8fcf
+[   36.781280]: waffle-gmu: COPY_JOB pixels fence=1 offset=144 values=ff18fbb7/ff1806da/ff181501/ff182024/fffe2f4b/fffe3a6e/fffe4995/fffe54b8
+[   36.781284]: waffle-gmu: COPY_JOB pixels fence=1 offset=152 values=ff1863df/ff186e02/ff187d29/ff18884c/fffe9773/fffea296/fffeb1bd/fffebce0
+[   36.781288]: waffle-gmu: COPY_JOB pixels fence=1 offset=160 values=ff1828c8/ff1837ef/ff184212/ff185139/fffe5c5c/fffe6b83/fffe76a6/fffe85cd
+[   36.781292]: waffle-gmu: COPY_JOB pixels fence=1 offset=168 values=ff1890f0/ff189f17/ff18aa3a/ff18b961/fffec484/fffed3ab/fffedece/fffeedf5
+[   36.781296]: waffle-gmu: COPY_JOB pixels fence=1 offset=176 values=ff1859dd/ff186400/ff187327/ff187e4a/fffe8d71/fffe9894/fffea7bb/fffeb2de
+[   36.781300]: waffle-gmu: COPY_JOB pixels fence=1 offset=184 values=ff18c105/ff18cc28/ff18db4f/ff18e672/fffef599/fffe00bc/fffe0fe3/fffe1a06
+[   36.781304]: waffle-gmu: COPY_JOB pixels fence=1 offset=192 values=fffe86ee/fffe9515/fffea038/fffeaf5f/ff18ba82/ff18c9a9/ff18d4cc/ff18e3f3
+[   36.781308]: waffle-gmu: COPY_JOB pixels fence=1 offset=200 values=fffeee16/fffefd3d/fffe0860/fffe1787/ff1822aa/ff1831d1/ff183cf4/ff184b1b
+[   36.781311]: waffle-gmu: COPY_JOB pixels fence=1 offset=208 values=fffeb703/fffec226/fffed14d/fffedc70/ff18eb97/ff18f6ba/ff1805e1/ff181004
+[   36.781315]: waffle-gmu: COPY_JOB pixels fence=1 offset=216 values=fffe1f2b/fffe2a4e/fffe3975/fffe4498/ff1853bf/ff185ee2/ff186d09/ff18782c
+[   36.781319]: waffle-gmu: COPY_JOB pixels fence=1 offset=224 values=fffee414/fffef33b/fffefe5e/fffe0d85/ff1818a8/ff1827cf/ff1832f2/ff184119
+[   36.781323]: waffle-gmu: COPY_JOB pixels fence=1 offset=232 values=fffe4c3c/fffe5b63/fffe6686/fffe75ad/ff1880d0/ff188ff7/ff189a1a/ff18a941
+[   36.781327]: waffle-gmu: COPY_JOB pixels fence=1 offset=240 values=fffe1529/fffe204c/fffe2f73/fffe3a96/ff1849bd/ff1854e0/ff186307/ff186e2a
+[   36.781331]: waffle-gmu: COPY_JOB pixels fence=1 offset=248 values=fffe7d51/fffe8874/fffe979b/fffea2be/ff18b1e5/ff18bc08/ff18cb2f/ff18d652
+[   36.781410]: waffle-gmu: COPY_JOB begin fence=2 seq=45 pixels=256
+[   36.781412]: waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256
+[   36.781415]: waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=1
+[   36.781417]: waffle-gmu: COMPUTE begin mode=2 dispatch=1 words=184 output_poison=1
+[   36.781419]: waffle-gmu: RAW checkpoint 0-preflight-begin
+[   36.781423]: waffle-gmu: RAW checkpoint 1-smmu-read-done
+[   36.781426]: waffle-gmu: RAW checkpoint 2-debug-read-done
+[   36.781429]: waffle-gmu: RAW checkpoint 3-packet-staged
+[   36.781432]: waffle-gmu: RAW checkpoint 4-doorbell-sent
+[   36.781436]: waffle-gmu: RAW checkpoint 5-first-poll-done
+[   36.781560]: waffle-gmu: HFI message words=3 hdr=01d10383 req=02d00583 value=00000000
+[   36.781563]: waffle-gmu: COMPUTE_IB ACK matched seq45 value=00000000 valid=1
+[   36.781636]: waffle-gmu: COMPUTE values=ff334437/ff33770c/ff337a69/ff336d46/ffd590a3/ffd583f8/ffd5b6d5/ffd5b932 control=00000002 checked=4096 wrong_words=0 mode=2
+[   36.781641]: waffle-gmu: COPY_JOB done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+[   36.781645]: waffle-gmu: COPY_JOB pixels fence=2 offset=0 values=ff334437/ff33770c/ff337a69/ff336d46/ffd590a3/ffd583f8/ffd5b6d5/ffd5b932
+[   36.781649]: waffle-gmu: COPY_JOB pixels fence=2 offset=8 values=ff33ac0f/ff33df64/ff33c241/ff33f59e/ffd5f8fb/ffd5ebd0/ffd51e2d/ffd5010a
+[   36.781652]: waffle-gmu: COPY_JOB pixels fence=2 offset=16 values=ff339522/ff33987f/ff338b54/ff33beb1/ffd5a18e/ffd5d4eb/ffd5c7c0/ffd5ca1d
+[   36.781656]: waffle-gmu: COPY_JOB pixels fence=2 offset=24 values=ff33fd7a/ff33e057/ff3313ac/ff330689/ffd509e6/ffd53cc3/ffd52f18/ffd55275
+[   36.781660]: waffle-gmu: COPY_JOB pixels fence=2 offset=32 values=ff33a60d/ff33a96a/ff33dc47/ff33cf9c/ffd5f2f9/ffd5e5d6/ffd5e833/ffd51b08
+[   36.781664]: waffle-gmu: COPY_JOB pixels fence=2 offset=40 values=ff330e65/ff333142/ff33249f/ff3357f4/ffd55ad1/ffd54d2e/ffd5700b/ffd56360
+[   36.781668]: waffle-gmu: COPY_JOB pixels fence=2 offset=48 values=ff33f778/ff33fa55/ff33edb2/ff33108f/ffd503e4/ffd536c1/ffd5391e/ffd52c7b
+[   36.781672]: waffle-gmu: COPY_JOB pixels fence=2 offset=56 values=ff335f50/ff3342ad/ff33758a/ff3378e7/ffd56b3c/ffd59e19/ffd58176/ffd5b453
+[   36.781675]: waffle-gmu: COPY_JOB pixels fence=2 offset=64 values=ffd5186b/ffd50b40/ffd53e9d/ffd521fa/ff3354d7/ff33472c/ff334a09/ff337d66
+[   36.781679]: waffle-gmu: COPY_JOB pixels fence=2 offset=72 values=ffd56043/ffd59398/ffd586f5/ffd589d2/ff33bc2f/ff33af04/ff33d261/ff33c5be
+[   36.781683]: waffle-gmu: COPY_JOB pixels fence=2 offset=80 values=ffd52956/ffd55cb3/ffd54f88/ffd572e5/ff3365c2/ff33681f/ff339b74/ff338e51
+[   36.781687]: waffle-gmu: COPY_JOB pixels fence=2 offset=88 values=ffd5b1ae/ffd5a48b/ffd5d7e0/ffd5da3d/ff33cd1a/ff33f077/ff33e34c/ff3316a9
+[   36.781691]: waffle-gmu: COPY_JOB pixels fence=2 offset=96 values=ffd57a41/ffd56d9e/ffd590fb/ffd583d0/ff33b62d/ff33b90a/ff33ac67/ff33dfbc
+[   36.781694]: waffle-gmu: COPY_JOB pixels fence=2 offset=104 values=ffd5c299/ffd5f5f6/ffd5f8d3/ffd5eb28/ff331e05/ff330162/ff3334bf/ff332794
+[   36.781698]: waffle-gmu: COPY_JOB pixels fence=2 offset=112 values=ffd58bac/ffd5be89/ffd5a1e6/ffd5d4c3/ff33c718/ff33ca75/ff33fd52/ff33e0af
+[   36.781702]: waffle-gmu: COPY_JOB pixels fence=2 offset=120 values=ffd51384/ffd506e1/ffd5093e/ffd53c1b/ff332f70/ff33524d/ff3345aa/ff334887
+[   36.781706]: waffle-gmu: COPY_JOB pixels fence=2 offset=128 values=ff33dc9f/ff33cff4/ff33f2d1/ff33e52e/ffd5e80b/ffd51b60/ffd50ebd/ffd5319a
+[   36.781710]: waffle-gmu: COPY_JOB pixels fence=2 offset=136 values=ff3324f7/ff3357cc/ff335a29/ff334d06/ffd57063/ffd563b8/ffd59695/ffd599f2
+[   36.781714]: waffle-gmu: COPY_JOB pixels fence=2 offset=144 values=ff33ed8a/ff3310e7/ff33033c/ff333619/ffd53976/ffd52c53/ffd55fa8/ffd54285
+[   36.781718]: waffle-gmu: COPY_JOB pixels fence=2 offset=152 values=ff3375e2/ff33783f/ff336b14/ff339e71/ffd5814e/ffd5b4ab/ffd5a780/ffd5aadd
+[   36.781722]: waffle-gmu: COPY_JOB pixels fence=2 offset=160 values=ff333ef5/ff3321d2/ff33542f/ff334704/ffd54a61/ffd57dbe/ffd5609b/ffd593f0
+[   36.781726]: waffle-gmu: COPY_JOB pixels fence=2 offset=168 values=ff3386cd/ff33892a/ff33bc07/ff33af5c/ffd5d2b9/ffd5c596/ffd5c8f3/ffd5fbc8
+[   36.781730]: waffle-gmu: COPY_JOB pixels fence=2 offset=176 values=ff334fe0/ff33723d/ff33651a/ff336877/ffd59b4c/ffd58ea9/ffd5b186/ffd5a4e3
+[   36.781734]: waffle-gmu: COPY_JOB pixels fence=2 offset=184 values=ff33d738/ff33da15/ff33cd72/ff33f04f/ffd5e3a4/ffd51681/ffd519de/ffd50c3b
+[   36.781738]: waffle-gmu: COPY_JOB pixels fence=2 offset=192 values=ffd590d3/ffd58328/ffd5b605/ffd5b962/ff33acbf/ff33df94/ff33c2f1/ff33f5ce
+[   36.781742]: waffle-gmu: COPY_JOB pixels fence=2 offset=200 values=ffd5f82b/ffd5eb00/ffd51e5d/ffd501ba/ff333497/ff3327ec/ff332ac9/ff335d26
+[   36.781746]: waffle-gmu: COPY_JOB pixels fence=2 offset=208 values=ffd5a13e/ffd5d41b/ffd5c770/ffd5ca4d/ff33fdaa/ff33e087/ff3313dc/ff330639
+[   36.781750]: waffle-gmu: COPY_JOB pixels fence=2 offset=216 values=ffd50916/ffd53c73/ffd52f48/ffd552a5/ff334582/ff3348df/ff337b34/ff336e11
+[   36.781754]: waffle-gmu: COPY_JOB pixels fence=2 offset=224 values=ffd5f229/ffd5e506/ffd5e863/ffd51bb8/ff330e95/ff3331f2/ff3324cf/ff335724
+[   36.781758]: waffle-gmu: COPY_JOB pixels fence=2 offset=232 values=ffd55a01/ffd54d5e/ffd570bb/ffd56390/ff3396ed/ff3399ca/ff338c27/ff33bf7c
+[   36.781761]: waffle-gmu: COPY_JOB pixels fence=2 offset=240 values=ffd50314/ffd53671/ffd5394e/ffd52cab/ff335f80/ff3342dd/ff33753a/ff337817
+[   36.781765]: waffle-gmu: COPY_JOB pixels fence=2 offset=248 values=ffd56b6c/ffd59e49/ffd581a6/ffd5b483/ff33a7d8/ff33aa35/ff33dd12/ff33c06f
+[   36.781838]: waffle-gmu: COPY_JOB begin fence=3 seq=46 pixels=256
+[   36.781841]: waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256
+[   36.781843]: waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=1
+[   36.781846]: waffle-gmu: COMPUTE begin mode=2 dispatch=1 words=184 output_poison=1
+[   36.781848]: waffle-gmu: RAW checkpoint 0-preflight-begin
+[   36.781852]: waffle-gmu: RAW checkpoint 1-smmu-read-done
+[   36.781855]: waffle-gmu: RAW checkpoint 2-debug-read-done
+[   36.781857]: waffle-gmu: RAW checkpoint 3-packet-staged
+[   36.781860]: waffle-gmu: RAW checkpoint 4-doorbell-sent
+[   36.781865]: waffle-gmu: RAW checkpoint 5-first-poll-done
+[   36.781989]: waffle-gmu: HFI message words=3 hdr=01e10383 req=02e00583 value=00000000
+[   36.781991]: waffle-gmu: COMPUTE_IB ACK matched seq46 value=00000000 valid=1
+[   36.782064]: waffle-gmu: COMPUTE values=ff7cf812/ff7ccb29/ff7cc64c/ff7cd163/ff9a2c86/ff9a3fdd/ff9a0af0/ff9a0517 control=00000003 checked=4096 wrong_words=0 mode=2
+[   36.782070]: waffle-gmu: COPY_JOB done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+[   36.782073]: waffle-gmu: COPY_JOB pixels fence=3 offset=0 values=ff7cf812/ff7ccb29/ff7cc64c/ff7cd163/ff9a2c86/ff9a3fdd/ff9a0af0/ff9a0517
+[   36.782077]: waffle-gmu: COPY_JOB pixels fence=3 offset=8 values=ff7c102a/ff7c6341/ff7c7e64/ff7c49bb/ff9a44de/ff9a57f5/ff9aa208/ff9abd2f
+[   36.782081]: waffle-gmu: COPY_JOB pixels fence=3 offset=16 values=ff7c2907/ff7c245a/ff7c3771/ff7c0294/ff9a1dab/ff9a68ce/ff9a7be5/ff9a7638
+[   36.782085]: waffle-gmu: COPY_JOB pixels fence=3 offset=24 values=ff7c415f/ff7c5c72/ff7caf89/ff7cbaac/ff9ab5c3/ff9a80e6/ff9a933d/ff9aee50
+[   36.782088]: waffle-gmu: COPY_JOB pixels fence=3 offset=32 values=ff7c1a28/ff7c154f/ff7c6062/ff7c73b9/ff9a4edc/ff9a59f3/ff9a5416/ff9aa72d
+[   36.782092]: waffle-gmu: COPY_JOB pixels fence=3 offset=40 values=ff7cb240/ff7c8d67/ff7c98ba/ff7cebd1/ff9ae6f4/ff9af10b/ff9acc2e/ff9adf45
+[   36.782096]: waffle-gmu: COPY_JOB pixels fence=3 offset=48 values=ff7c4b5d/ff7c4670/ff7c5197/ff7cacaa/ff9abfc1/ff9a8ae4/ff9a853b/ff9a905e
+[   36.782099]: waffle-gmu: COPY_JOB pixels fence=3 offset=56 values=ff7ce375/ff7cfe88/ff7cc9af/ff7cc4c2/ff9ad719/ff9a223c/ff9a3d53/ff9a0876
+[   36.782103]: waffle-gmu: COPY_JOB pixels fence=3 offset=64 values=ff9aa44e/ff9ab765/ff9a82b8/ff9a9ddf/ff7ce8f2/ff7cfb09/ff7cf62c/ff7cc143
+[   36.782107]: waffle-gmu: COPY_JOB pixels fence=3 offset=72 values=ff9adc66/ff9a2fbd/ff9a3ad0/ff9a35f7/ff7c000a/ff7c1321/ff7c6e44/ff7c799b
+[   36.782110]: waffle-gmu: COPY_JOB pixels fence=3 offset=80 values=ff9a9573/ff9ae096/ff9af3ad/ff9acec0/ff7cd9e7/ff7cd43a/ff7c2751/ff7c3274
+[   36.782114]: waffle-gmu: COPY_JOB pixels fence=3 offset=88 values=ff9a0d8b/ff9a18ae/ff9a6bc5/ff9a6618/ff7c713f/ff7c4c52/ff7c5f69/ff7caa8c
+[   36.782117]: waffle-gmu: COPY_JOB pixels fence=3 offset=96 values=ff9ac664/ff9ad1bb/ff9a2cde/ff9a3ff5/ff7c0a08/ff7c052f/ff7c1042/ff7c6399
+[   36.782121]: waffle-gmu: COPY_JOB pixels fence=3 offset=104 values=ff9a7ebc/ff9a49d3/ff9a44f6/ff9a570d/ff7ca220/ff7cbd47/ff7c889a/ff7c9bb1
+[   36.782125]: waffle-gmu: COPY_JOB pixels fence=3 offset=112 values=ff9a3789/ff9a02ac/ff9a1dc3/ff9a68e6/ff7c7b3d/ff7c7650/ff7c4177/ff7c5c8a
+[   36.782129]: waffle-gmu: COPY_JOB pixels fence=3 offset=120 values=ff9aafa1/ff9abac4/ff9ab51b/ff9a803e/ff7c9355/ff7cee68/ff7cf98f/ff7cf4a2
+[   36.782132]: waffle-gmu: COPY_JOB pixels fence=3 offset=128 values=ff7c60ba/ff7c73d1/ff7c4ef4/ff7c590b/ff9a542e/ff9aa745/ff9ab298/ff9a8dbf
+[   36.782136]: waffle-gmu: COPY_JOB pixels fence=3 offset=136 values=ff7c98d2/ff7cebe9/ff7ce60c/ff7cf123/ff9acc46/ff9adf9d/ff9a2ab0/ff9a25d7
+[   36.782140]: waffle-gmu: COPY_JOB pixels fence=3 offset=144 values=ff7c51af/ff7cacc2/ff7cbf19/ff7c8a3c/ff9a8553/ff9a9076/ff9ae38d/ff9afea0
+[   36.782143]: waffle-gmu: COPY_JOB pixels fence=3 offset=152 values=ff7cc9c7/ff7cc41a/ff7cd731/ff7c2254/ff9a3d6b/ff9a088e/ff9a1ba5/ff9a16f8
+[   36.782147]: waffle-gmu: COPY_JOB pixels fence=3 offset=160 values=ff7c82d0/ff7c9df7/ff7ce80a/ff7cfb21/ff9af644/ff9ac19b/ff9adcbe/ff9a2fd5
+[   36.782151]: waffle-gmu: COPY_JOB pixels fence=3 offset=168 values=ff7c3ae8/ff7c350f/ff7c0022/ff7c1379/ff9a6e9c/ff9a79b3/ff9a74d6/ff9a47ed
+[   36.782154]: waffle-gmu: COPY_JOB pixels fence=3 offset=176 values=ff7cf3c5/ff7cce18/ff7cd93f/ff7cd452/ff9a2769/ff9a328c/ff9a0da3/ff9a18c6
+[   36.782158]: waffle-gmu: COPY_JOB pixels fence=3 offset=184 values=ff7c6b1d/ff7c6630/ff7c7157/ff7c4c6a/ff9a5f81/ff9aaaa4/ff9aa5fb/ff9ab01e
+[   36.782162]: waffle-gmu: COPY_JOB pixels fence=3 offset=192 values=ff9a2cf6/ff9a3f0d/ff9a0a20/ff9a0547/ff7c109a/ff7c63b1/ff7c7ed4/ff7c49eb
+[   36.782165]: waffle-gmu: COPY_JOB pixels fence=3 offset=200 values=ff9a440e/ff9a5725/ff9aa278/ff9abd9f/ff7c88b2/ff7c9bc9/ff7c96ec/ff7ce103
+[   36.782169]: waffle-gmu: COPY_JOB pixels fence=3 offset=208 values=ff9a1d1b/ff9a683e/ff9a7b55/ff9a7668/ff7c418f/ff7c5ca2/ff7caff9/ff7cba1c
+[   36.782173]: waffle-gmu: COPY_JOB pixels fence=3 offset=216 values=ff9ab533/ff9a8056/ff9a936d/ff9aee80/ff7cf9a7/ff7cf4fa/ff7cc711/ff7cd234
+[   36.782176]: waffle-gmu: COPY_JOB pixels fence=3 offset=224 values=ff9a4e0c/ff9a5923/ff9a5446/ff9aa79d/ff7cb2b0/ff7c8dd7/ff7c98ea/ff7ceb01
+[   36.782180]: waffle-gmu: COPY_JOB pixels fence=3 offset=232 values=ff9ae624/ff9af17b/ff9acc9e/ff9adfb5/ff7c2ac8/ff7c25ef/ff7c3002/ff7c0359
+[   36.782184]: waffle-gmu: COPY_JOB pixels fence=3 offset=240 values=ff9abf31/ff9a8a54/ff9a856b/ff9a908e/ff7ce3a5/ff7cfef8/ff7cc91f/ff7cc432
+[   36.782188]: waffle-gmu: COPY_JOB pixels fence=3 offset=248 values=ff9ad749/ff9a226c/ff9a3d83/ff9a08a6/ff7c1bfd/ff7c1610/ff7c6137/ff7c7c4a
+[   36.782203]: waffle-gmu: SESSION closed OOB_released=1 outstanding=0
+[   36.782208]: waffle-gmu: HFI cmdq type=00000000 addr=60014350 notified
+[   36.782446]: waffle-gmu: HFI message words=3 hdr=01f10321 req=02f00321 value=00000000
+[   36.782449]: waffle-gmu: PREPARE_SLUMBER ACK matched seq47 value=00000000 valid=1
+[   36.782453]: waffle-gmu: slumber idle=1 busy=30000000 powerstate=0000000f
+[   36.782581]: waffle-gmu: RSC sleep complete=1 busy=00000001 status=01010006
+[   36.782584]: waffle-gmu: GX power/clock status=00000003 GDSCR=00222801
+[   36.782606]: waffle-gmu: Gen7 CP lifecycle released after full collapse; no gated GX access
+[   36.782612]: waffle-gmu: SESSION destroyed after full stop; aliases and heap released
+[   36.782890]: waffle-gmu: CM3 held reset again; GBIF/QTB drained; FW readiness=1
+[   36.782894]: waffle-gmu: log header 00000021 1326e424 00000001 00000000 00000000 1326e458 00000007 002d003e
+[   36.782899]: waffle-gmu: RSC/PDC retained in native asleep state; Android reset required before retry
+[   36.795613]: waffle-gmu: TCM restore readback=matches; boot_test=1 CM3 held reset
+[   36.795617]: waffle-gmu: TCM_OWNER released after GMU stop and snapshot restoration result=1
+[   36.795619]: waffle-iommu: GMU test passed, boot_test=1; CM3 held reset again
+[   36.795622]: waffle-iommu: LPAC_MAP lifecycle=1 checks=42; CP control completed
+[   36.795727]: waffle-iommu: GPU context2 restored TLB=done faults=00000000
+[   36.797567]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.799407]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.801214]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.803025]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.804874]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.806726]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.808552]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.810386]: waffle-gmu: SCM pages mode=1 count=32 status=0 result=0
+[   36.810740]: waffle-gmu: SCM pages mode=3 count=4 status=0 result=0
+[   36.810930]: waffle-iommu: protected pool released, all pages HLOS-owned
+[   36.811034]: waffle-iommu: GPU context1 restored TLB=done faults=00000000
+[   36.811137]: waffle-iommu: GPU context0 restored TLB=done faults=00000000
+[   36.811139]: waffle-iommu: LPAC_MAP restored=1
+[   36.811201]: waffle-iommu: inactive CBAR reset type0 is not writable; keep supported stage1 type
+[   36.811246]: waffle-iommu: context/stream restored, TLB sync=done
+[   36.811574]: waffle-iommu: DYNAMIC_BO released after GPU stop and context detach
+[   36.811578]: waffle-iommu: SMMU_OWNER released after child stop and context detach
+[   36.811580]: waffle-gpu: SMMU component ended before clock restore result=1
+[   36.811620]: waffle-gpu: NATIVE94 detached and PLL scalar restore=1 owned=0 CFG=00000505
+[   36.811778]: waffle-gpu: clock controls restored
+[   36.811781]: waffle-gpu: NATIVE94 clock control passed=1; GMU stopped and PLL restored
+[   36.811784]: waffle-gpu: CLOCK_OWNER released before CX restore result=1
+[   36.811912]: waffle-gpu: restored CX collapse=1; power status=0
+[   36.811916]: waffle-gpu: restored CFG_AHB enable/gating=3
+[   36.811920]: waffle-gpu: POWER_OWNER released after clock child, CX and CFG restore result=1
+[   36.813644]: waffle-gpu: AOP_OWNER released after power child and channel restore result=1 transport=0
+[   36.813647]: waffle-gpu: SERVICE end consumed=1 result=1
+[   36.813661]: Kext loading now disabled.
+[   36.813662]: Kext unloading now disabled.
+[   36.813677]: PMRD: sysPowerDownHandler message kIOMessageSystemPagingOff
+[   36.813680]: PMRD: PagingOff all drivers took 0 ms
+[   36.813681]: PMRD: PagingOff total 0 ms
+[   36.813683]: syncing disks... Killing all processes 
+[   36.813689]: 
+[   36.813693]: vfs_unmountall(nonsystem) start
+[   36.813696]: unmount(1) /dev skipped
+[   36.813698]: unmount(1) / skipped
+[   36.813700]: vfs_unmountall(nonsystem) end
+[   36.813703]: IOServicePH::systemHalt took 0 ms
+[   36.813705]: Killing all processes 
+[   36.813708]: 
+[   36.813711]: continuing
+[   36.813712]: vfs_unmountall(system) start
+[   36.813714]: unmount(0) /dev
+[   36.813760]: unmount(0) /
+[   36.813783]: vfs_unmountall(system) end
+[   36.813785]: done
+[   36.813815]: CPU halted
+[   36.813824]: [System Event] [706662644] [INFO] [Subsystem: nvram] [Event: sync] triggered
+[   36.813827]: IONVRAMCHRPHandler.cpp:serializeVariables:615 - No _nvramController
+[   36.813829]: IONVRAMCHRPHandler.cpp:sync:894 - serializeVariables failed, ret=0xe00002d8PMRD: sysPowerDownHandler message kIOMessageSystemWillPowerOff
+[   36.813840]: PMRD: notifySystemShutdown msgType = 0xe0000250
+[   36.813848]: PMRD: notifySystemShutdown done
+[   36.813864]: PMRD: PM quiesce took 0 ms
+[   36.813866]: PMRD: PowerOff all drivers took 0 ms
+[   36.813867]: PMRD: PowerOff total 0 ms
+
+== END OF LOG ==

@@ -1,0 +1,19 @@
+{
+  "experiment": "E27 legacy worker5 control",
+  "run": "work/waffle/runs/20261101T081556Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T081532Z",
+  "actual_pixels_verified": 768,
+  "gpu_written_fences": [
+    1,
+    2,
+    3
+  ],
+  "word_checks": 12288,
+  "wrong_words": 0,
+  "busy_close_refusal": true,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "0b09b928f20b3cb70eed8d99ec9c3fe32fe9ef50a5e39cf5e22bc13d3f9aedc1"
+}

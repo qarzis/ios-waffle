@@ -1,0 +1,28 @@
+{
+  "experiment": "E27 real user process GPU ioctl boundary",
+  "base": "bcc7bbb19b999bfaa6192f74d50f308b6c58ae1b",
+  "unchanged_files": [
+    "kernel/files/bsd/dev/waffle_gmu.c",
+    "kernel/files/bsd/dev/waffle_gpu_service.c",
+    "kernel/files/bsd/sys/waffle_gmu.h",
+    "kernel/files/bsd/sys/waffle_gpu_job.h",
+    "kernel/files/bsd/sys/waffle_gpu_copy.h",
+    "kernel/files/bsd/sys/waffle_gpu_compute.h",
+    "kernel/files/bsd/sys/waffle_aop.h",
+    "kernel/files/bsd/sys/waffle_gen7_boot.h",
+    "loader/loader.c",
+    "userland/libmini/mini.c",
+    "userland/libmini/mini.h",
+    "userland/libmini/start.S"
+  ],
+  "all_gpu_commands_boot_power_security_mapping_stop_and_service_context_unchanged": true,
+  "new_kernel_component": "root0600 diagnosticcdev with2064byteversionedinlineinput/output and20byteresultreport",
+  "new_user_component": "freestandingstaticARM64PID1 onisolatedFWpackfsroot",
+  "new_image_kind": 6,
+  "gpu_context_created_only_on_user_open": true,
+  "separate_poisoned_user_output": true,
+  "no_user_pointer_or_gpu_address_forwarded": true,
+  "three_jobs_and_five_negative_checks": true,
+  "ios_graphics_acceleration": false,
+  "hardware_tested": false
+}

@@ -1,0 +1,34 @@
+{
+  "experiment": "E27 real Darwin PID1 -> ioctl -> GPU -> separate user output",
+  "run": "work/waffle/runs/20261101T081724Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T081700Z",
+  "real_user_pid": 1,
+  "demand_context_on_open": true,
+  "separate_poisoned_user_output": true,
+  "jobs": 3,
+  "actual_gpu_pixels_verified": 768,
+  "gpu_fences": [
+    1,
+    2,
+    3
+  ],
+  "kernel_word_checks": 12288,
+  "wrong_words": 0,
+  "user_report_checks": 768,
+  "user_report_wrong": 0,
+  "negative_checks": 5,
+  "negative_cases": [
+    "second open EBUSY",
+    "bad version EINVAL",
+    "bad size EINVAL",
+    "bad user address EFAULT",
+    "unknown ioctl ENOTTY"
+  ],
+  "close_full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "ios_mesa_acceleration": false,
+  "user_requested_stop": true,
+  "log_sha256": "84360c67a29eb57f59c6104da71c18f7d3c978bd3bb964e1bd1e54a137b73e21"
+}

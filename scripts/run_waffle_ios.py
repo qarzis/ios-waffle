@@ -124,6 +124,19 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         at=markers.index("SMMU_OWNER released after child stop and context detach")
         markers.insert(at,"SERVICE worker finished result=1")
         markers += ["SERVICE end consumed=1 result=1","SERVICE probe passed=1 context_null=1"]
+    if image==6:
+        markers.insert(0,"USERDEV registered abi=1 pixels=256 mode=0600; no GPU opened")
+        at=markers.index("COPY_SEQUENCE begin jobs=3 kernel_caller=1")
+        markers[at:at]=["SERVICE begin root_live=1 serialized=1","USERDEV open pid=1 demand_context=1"]
+        at=markers.index("COPY_JOB begin fence=1 seq=44 pixels=256")
+        markers[at:at]=["USERDEV busy_open refused=1 pid=1","USERDEV invalid_copy refused=1 pid=1 version=2 words=256",
+                       "USERDEV invalid_copy refused=1 pid=1 version=1 words=255","USERDEV unknown_ioctl refused=1 pid=1"]
+        for fence in (1,2,3):
+            at=markers.index(f"COPY_CALLER fence={fence} checked=256 wrong=0")
+            markers.insert(at+1,f"USERDEV returned pid=1 fence={fence} words=256")
+        at=markers.index("SESSION result=1 submitted=3 completed=3 next_sequence=47 OOB=1; bounded kernel session")
+        markers.insert(at,"USERDEV report pid=1 checks=768 wrong=0 fence=3 negative=5")
+        markers += ["SERVICE end consumed=1 result=1","USERDEV close pid=1 passed=1 report=1 context_null=1"]
     positions=[text.find(marker) for marker in markers]
     if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
         raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
@@ -144,6 +157,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-user-copy",action="store_true",help="E27 static Darwin user process -> fixed-copy ioctl -> GPU")
     parser.add_argument("--gpu-worker",action="store_true",help="E26 parent-owned kernel worker and busy close refusal")
     parser.add_argument("--gpu-copy-jobs",action="store_true",help="E25 three caller-input copy jobs with GPU fences")
     parser.add_argument("--gpu-image-present",action="store_true",help="E24 CPU-present verified GPU image then restore framebuffer")
@@ -156,8 +170,8 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
-    if sum((args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
-    image_kind=5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    if sum((args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
+    image_kind=6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
     if image_kind>=3 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
     args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:

@@ -10,6 +10,7 @@ struct waffle_gpu_context *waffle_gpu_context_begin(void);
 bool waffle_gpu_context_copy(struct waffle_gpu_context *,struct waffle_gpu_copy_job *);
 bool waffle_gpu_context_end(struct waffle_gpu_context **);
 bool waffle_gpu_service_probe(void);
+bool waffle_gpu_user_register(void);
 /* Internal parent transport, called only with the service lock held. */
 struct waffle_gpu_parent;
 struct waffle_gpu_parent *waffle_gpu_parent_begin(void);

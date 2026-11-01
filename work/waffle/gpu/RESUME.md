@@ -1,3 +1,58 @@
+# STOPPED at user request — phone returned to Android
+
+LATESTUSER: «стопай и верни телефон». Do notstartbuilds/tests/GPUwork until
+explicitresume. Noactiveworker. PhoneAndroid confirmedindependently ADB1.
+
+E27 hardwarePASS beforestop/recovery: realstaticDarwinPID1 userprocess ->
+versionedcdevioctl -> demandGPUcontext ->3GPUcopies -> separatepoisoneduser
+output checked768pixelswrong0; GPUfences1/2/3/kernel12288checkswrong0.
+Userreport5negativechecks confirmed, closefullstop47/contextnull beforehalt.
+Run20261101T081724Z/auto081700Z runner0/autosuccess/independentAndroid1.
+Old93control081431Z/auto081407Z andworker5control081556Z/auto081532Z passed.
+Artifactdiagnostic-gpu-user-e27 source/kernel/EFI/container/rootbound;
+user-probe/user-probe.packfs hasownstaticARM64PID1+4rawFWfiles, no dynamic
+libraries. OldFWroot unchanged. E27-result.json andactualGPUdata under
+runs/20261101T081724Z/gpu-user-jobs.json.
+
+Newroot0600cdev /dev/waffle-gpu-copy hasfixedinline2064byteinput/output
+_IOWR requestand20bytereport; no embeddeduser/GPUaddresses. Image6requires
+compute2, registersdeviceandcontinuesBSDinit, GPUcreatedonlyonuseropen.
+Userstaticprogram comparesactualseparateoutput andclosesbeforeRB_HALT.
+AllGPUcommands/boot/power/security/mapper/stop andserviceCsourceunchanged.
+ThisisdiagnosticBSDABI, notexistingMesaIOKitGEMABI/IOSurface/generalBO/
+acceleratediOS. Nextblockerafterexplicitresume is generalBO/graphicsABI
+integration; do notrepeatownership-onlyloops orclaimGPUacceleratedUI.
+NoGitHubpushrequested. RAM-only/no flash/erase. PreserveE26 bcc7bbb.
+
+Older chronology below is superseded by this STOP entry.
+
+# Active E27: first real Darwin user-process GPU ioctl test pending
+
+Safe E26 bcc7bbb retained. E27newroot0600 /dev/waffle-gpu-copy cdev,
+newversion1fixedinline2064byteinput/output ioctl and20bytereport. Static
+ARM64freestanding PID1 /sbin/launchd usesexistingmini/start.S SYS_ioctl54,
+5negativechecks,3jobs/768outputpixels comparedfromseparatepoisonedoutput,
+reportandclosebeforeRB_HALT. No pointers/PM4/GPUVApassedfromuser; allold
+GPUcommand/shader/BO/power/security/stop andserviceCsource unchanged.
+Newimage6dispatchonly registersdevice thencontinuesBSDinit (noGPUyet).
+Opencreatesparentondemand; closeendsit. ThisisdiagnosticBSD ioctl, NOT
+existingMesaIOKitGEM ABI/IOSurface/acceleratedSpringBoard.
+
+Allhost/staticclient/XNU/EFI/container/sourcebindingPASS artifact
+diagnostic-gpu-user-e27. root user-probe/user-probe.packfs hasownprogram
+and4rawFWhashes, no dynloader/libs; oldFWprobe root untouched. Userroot
+hashboundinoutermanifest. Canonicalkernelpatch/newcdevbuildentryadded.
+93control run20261101T081431Z/auto081407Z PASS query42/access27/alloc8/
+Android1. Oldworker5control run081556Z/auto081532Z PASS3jobs/busyrefusal/
+fullstop/Android1. Currentworker exec45312 isone --user-copy experiment,
+log auto-user-e27-client.log. Inspectlatestactualrun/auto; requirestrict
+image6acceptance(realpid1return/reportnegative5/close),3actualGPUgroups,
+fullshutdown/runner0/autosuccess/independentADB1. Preservefirstfailure;
+no blindretry. Sourceuncommittedpendinghardware outcome. RAM-only/no
+flash/erase; autoUEFI no physicalBootiOSchoice. NoGitHubpushrequested.
+
+Older chronology below is superseded by latest entry.
+
 # Current: E26 hardware PASS — top-level context, real worker, busy close refusal
 
 SafeE25 f3bdaa9 retained. New opaque kernelcontext begin/copy/end passed
