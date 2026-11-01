@@ -306,6 +306,12 @@ def validate_gl_log(text):
             if at<0:raise RuntimeError("GL GPU fence not confirmed: "+marker)
             cursor=at+len(marker)
     buffers,release_marker=validate_gl_bo_lifetimes(text,capacity,budget,gl_va_budget(text,1,capacity,budget))
+    if 'waffle-gl-recycle:' in text:
+        begin='waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1'
+        done=re.search(r'waffle-gl-recycle: result=1 cycles=9000 checked=4 wrong=0 fence=(\d+) existing_Mesa_context=1',text)
+        if (begin not in text or not done or 'waffle-gl-recycle: result=0' in text or
+            not gl_generation_handles(text) or len(buffers)<9000 or not 0<int(done[1])<count):
+            raise RuntimeError('Recycled BO GPU writeback and later Mesa drawing not proved')
     markers=["waffle-gl-user: checked=256 wrong=0 filled=128 GL_error=0",
        release_marker,
        "SMMU_OWNER released after child stop and context detach","CLOCK_OWNER released before CX restore result=1",
@@ -425,7 +431,7 @@ def validate_ui_workload_log(text):
     selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1(?: stop_seconds=(\d+))?",text)
     if not selected or int(selected[1])<=1:raise RuntimeError("Actual mobile backboardd GPU selection missing")
     seconds=int(selected[2]) if selected[2] else 30
-    if seconds not in (30,60,240):raise RuntimeError("Unsupported bounded UI observation window")
+    if seconds not in (30,60,240,600):raise RuntimeError("Unsupported bounded UI observation window")
     pid=int(selected[1]);count=gl_completed_fences(text)
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
@@ -466,7 +472,7 @@ def validate_ui_workload_log(text):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--seconds", type=int, default=60, choices=range(1, 301), metavar="1..300")
+    parser.add_argument("--seconds", type=int, default=60, choices=range(1, 661), metavar="1..660")
     parser.add_argument("--bootcpu", type=int, default=7, choices=range(1, 8))
     parser.add_argument("--fbscale", type=int, default=2, choices=(1, 2, 3), help="Render scale: 1 is faster, 2 is sharper")
     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
@@ -500,6 +506,7 @@ def main():
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
     if args.gpu_ui and not args.gpu_gl_context:parser.error("--gpu-ui requires --gpu-gl-context")
+    if args.seconds>300 and not (args.seconds==660 and args.gpu_ui and args.gpu_gl_context):parser.error("660 seconds is reserved for the bounded UI soak")
     if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
     if args.gpu_mesa_transport and not args.gpu_msm:parser.error("--gpu-mesa-transport requires --gpu-msm")
     if args.gpu_mapped and not (args.gpu_msm and args.gpu_mesa_transport):parser.error("--gpu-mapped requires MSM Mesa transport")
@@ -884,7 +891,7 @@ def main():
                 print(f"GPU image: {out/'first-gpu-frame.png'}",flush=True)
             return
         if args.gpu_ui:
-            for seconds in (15,30,32,35,40,45,60,120,180,230):
+            for seconds in (15,30,32,35,40,45,60,120,180,230,300,450,590):
                 if seconds not in ui_screenshots and time.monotonic()-ui_started>=seconds:
                     command("oem", "screenshot")
                     command("get_staged", out / f"ui-screen-{seconds}.raw")

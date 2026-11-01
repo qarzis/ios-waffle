@@ -1613,8 +1613,8 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
   }
  }
 #if defined(XNU_PLATFORM_WAFFLE)
- if (checkpoint == 0 && (kernel_budget == 0 || kernel_budget > WAFFLE_RETURN_LIMIT)) {
-  print("waffle: userland test requires loader_return_after=1..%d\n", (uint64_t)WAFFLE_RETURN_LIMIT);
+ if (checkpoint == 0 && !waffle_return_seconds_allowed(kernel_budget)) {
+  print("waffle: userland test return policy rejected\n");
   return 0;
  }
 #endif

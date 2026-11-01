@@ -63,6 +63,20 @@ static void crash_log(int sig,siginfo_t *info,void *context)
  raw_call(55,8,0,0);for(;;){}
 }
 #define printf direct_log
+#ifdef WAFFLE_GL_RECYCLE_BO
+#include <sys/stat.h>
+#include "waffle_gl_recycle_probe.h"
+static int existing_gpu_fd(void)
+{
+ struct stat device;
+ if(stat("/dev/waffle-gpu-drm",&device) || !S_ISCHR(device.st_mode))return -1;
+ for(int fd=0;fd<256;fd++){
+  struct stat candidate;
+  if(!fstat(fd,&candidate) && S_ISCHR(candidate.st_mode) && candidate.st_rdev==device.st_rdev)return dup(fd);
+ }
+ return -1;
+}
+#endif
 #ifdef WAFFLE_GL_HOOK
 #include "waffle_eagl_dispatch.h"
 static IOSurfaceRef hook_surface;
@@ -304,6 +318,12 @@ int main(void)
  const char *renderer=(const char *)glGetString(GL_RENDERER);
  printf("waffle-gl-user: renderer=%s version=%s\n",renderer?renderer:"NULL",glGetString(GL_VERSION));
  if(!renderer || !strstr(renderer,"FD750")){printf("waffle-gl-user: GPU renderer not selected\n");goto finish;}
+#ifdef WAFFLE_GL_RECYCLE_BO
+ int recycle_fd=existing_gpu_fd();
+ if(recycle_fd<0){printf("waffle-gl-recycle: existing device FD missing\n");goto finish;}
+ bool recycled=waffle_gl_recycle_buffers(recycle_fd,9000);close(recycle_fd);
+ if(!recycled)goto finish;
+#endif
 #ifdef WAFFLE_GL_EAGL
  const char *version=(const char *)glGetString(GL_VERSION);
  if(!version || !strstr(version,"OpenGL ES")){printf("waffle-gl-eagl: ES profile missing\n");goto finish;}

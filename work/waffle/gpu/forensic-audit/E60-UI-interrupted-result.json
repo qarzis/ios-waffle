@@ -1,0 +1,22 @@
+{
+  "run": "work/waffle/runs/20261101T215722Z",
+  "auto": "work/waffle/auto-runs/20261101T215658Z",
+  "outcome": "interrupted by user cable disconnection",
+  "user_confirmed_manual_disconnection": true,
+  "GPU_fences_observed": 9527,
+  "all_observed_completion_tokens_contiguous": true,
+  "planned_UI_seconds": 240,
+  "planned_stop_verified": false,
+  "full_GPU_teardown_verified": false,
+  "allocation_budget_refusals_observed": false,
+  "submission_refusals_observed": false,
+  "runner_exit": 1,
+  "independent_android": "1",
+  "raw_sha256": {
+    "kernel-244.log": "a03d73d78624c15395fae3e7ba664b0641afe0435e99a97effef95fa03580b0c",
+    "ui-gpu-events.log": "601849ad01b950d46c9b6e4821163929aff40e402d6c58d05fa779ef39bb86a2"
+  },
+  "observed_generation_handle_max_in_last_snapshot": 25306,
+  "issued_serial_max_in_last_snapshot": 2923,
+  "public_handle_generation_reuse_observed": true
+}

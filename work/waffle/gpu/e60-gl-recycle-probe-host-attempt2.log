@@ -1,0 +1,29 @@
+=================================================================
+==134441==ERROR: AddressSanitizer: attempting double-free on 0x7dd9ec5e0200 in thread T0:
+    #0 0x7f49ee554931  (/usr/lib/libasan.so.8+0x154931) (BuildId: e95622bb18c43e12235346b293dbdb9798953153)
+    #1 0x560a00d3c71d in waffle_gpu_context_end (/tmp/tmpehzrr5cs/test+0x1971d) (BuildId: ad7afdb4dd33689889d3258dee1c48a5b1659403)
+    #2 0x560a00d3c8d0 in drm_close (/tmp/tmpehzrr5cs/test+0x198d0) (BuildId: ad7afdb4dd33689889d3258dee1c48a5b1659403)
+    #3 0x560a00d3cf82 in main (/tmp/tmpehzrr5cs/test+0x19f82) (BuildId: ad7afdb4dd33689889d3258dee1c48a5b1659403)
+    #4 0x7f49ed827ccd  (/usr/lib/libc.so.6+0x27ccd) (BuildId: 78e50f499365f967d6249585154c0ade819bfba8)
+    #5 0x7f49ed827e0a in __libc_start_main (/usr/lib/libc.so.6+0x27e0a) (BuildId: 78e50f499365f967d6249585154c0ade819bfba8)
+    #6 0x560a00d33274 in _start (/tmp/tmpehzrr5cs/test+0x10274) (BuildId: ad7afdb4dd33689889d3258dee1c48a5b1659403)
+
+0x7dd9ec5e0200 is located 0 bytes inside of 16384-byte region [0x7dd9ec5e0200,0x7dd9ec5e4200)
+freed by thread T0 here:
+    #0 0x7f49ee554931  (/usr/lib/libasan.so.8+0x154931) (BuildId: e95622bb18c43e12235346b293dbdb9798953153)
+    #1 0x560a00d3c71d in waffle_gpu_context_end (/tmp/tmpehzrr5cs/test+0x1971d) (BuildId: ad7afdb4dd33689889d3258dee1c48a5b1659403)
+
+previously allocated by thread T0 here:
+    #0 0x7f49ee556179 in calloc (/usr/lib/libasan.so.8+0x156179) (BuildId: e95622bb18c43e12235346b293dbdb9798953153)
+    #1 0x560a00d3417b in waffle_gpu_context_memory_new (/tmp/tmpehzrr5cs/test+0x1117b) (BuildId: ad7afdb4dd33689889d3258dee1c48a5b1659403)
+
+SUMMARY: AddressSanitizer: double-free (/tmp/tmpehzrr5cs/test+0x1971d) (BuildId: ad7afdb4dd33689889d3258dee1c48a5b1659403) in waffle_gpu_context_end
+==134441==ABORTING
+Traceback (most recent call last):
+  File "/home/qarzis/ios-macan/tools/tests/waffle-gl-recycle-probe-host.py", line 64, in <module>
+    subprocess.run([str(p/'test')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/tmpehzrr5cs/test']' returned non-zero exit status 1.

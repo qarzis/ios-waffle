@@ -1,3 +1,110 @@
+# E62-r2 ten-minute UI ACTIVE; E60 BO generation reuse now wired and hardware checked
+
+Latest user: continue GPU until continuous, FPS optimization, later hakios-metal,
+periodically update GitHub. No STOP. User manually unplugged during first E60 UI,
+then phone reappeared and Android independently1; current test authorized/running.
+No agents/formal goal. RAM-only, never flash/erase. No concurrent fastboot with runner.
+
+ACTIVE exec_command session11098: tools/run-waffle-auto.py artifact
+work/waffle/diagnostic-gpu-ui-soak-e62-r2 --lpac-map --lpac-cp-init --zap
+--writeback --ib --session --dynamic-bo --compute dispatch --gl-context
+--ui-workload --ui-soak-test. stdoutgpu/auto-ui-soak-e62-r2.log.
+Auto20261101T221321Z, run20261101T221345Z. Actualbackboardd83 stop600 selected,
+knownE60kernel byte-identical, E61batchhook byte-identical qualified675594ac...
+As of22:18:52UTC:1660contiguousGPUfences/idle desktop plus laterclock update,
+noalloc/refusal/earlyclose, nativeGOP60 inspected desktop/icons/Calendartext.
+Need full600s stop/fullclose/release/accounting/Android; do NOT claim finished.
+Kernel return660; inner1060/outer1140. More screenshots300/450/590 now enabled.
+No kernel edits while active. No stopping/final status instead of ongoing work.
+
+E62 attempt1 auto220849Z/run220913Z NEVER STARTED XNU: oldloader300s guard
+rejected660. Original228bytefinal/runner1 preserved E62-launch-attempt1.json.
+IndependentAndroid1. Fixed only loader policy/host transport, NOT GPU: optional
+WAFFLE_UI_SOAK_TEST header permits exact660 ONLYcompleteGPU94/mode13/one
+returntoken. Normal300/60 unchanged,301/659/661/0/duplicates/incompletechains
+refused. Threepolicybuildtestsdefault/userland/soakPASS ASAN/UBSAN. Rebuiltloader+
+Mu only, sameE60kernelCRC89c3b47e; source/image/container bindingsPASS. Host
+requires manifestui_soak_loader=true,UIroot600,generation_handles. Builder now
+supports--ui-soak-loader with--userland; future fullbuild wanting10min MUSTsetit.
+Currentmu/loaderbuiltwithsoakflag, oldartifactimages remainunchanged.
+
+E60 runtime IS NOW WIRED (unlike older notes): memory.serial, registry.count=slot
+highwater vsissuedmonotonic; reclaimedtombstonesreused, publichandles advance
+8192/slot and quarantinebefore32bitwrap. cdevclearsretiredmemorypointer, exact
+livegenerationchecks, duplicatebitmapdecodedslot. SMMU publication/reclaim use
+serial; parentclose honest issued/live/early counts. sizeofmemory now48 bytes,
+metadata384KiB offstack, noGPUbudget/init changes. Actualcdev100000cycles and
+actualregistry/SMMU100000cycles PASS, staleINFO/CLOSE/MAP/SUBMIT, highduplicates,
+allocationfailure/generationoverflow,retiredpointeralias negative. Fullbuild third
+attemptPASS; firsttwofailures recordedC++serialinitializer/obsoleteempty-slot
+exhaustionfixture. Actualdrm_submit ARM64frame1232unchanged.
+
+E60 smallGL auto215339Z/run215403Z strictPASS256pixels/2GPUfences/handle8193
+reusesretiredslot0/registryserial2+sameVA;23issued=1earlyGC+22stop/fullclose1/
+runner0/autosuccess/independentAndroid1. E60-control-result.json.
+E60firstUI auto215658Z/run215722Z 9527completedcontiguousGPUtokens before
+USERMANUALcableunplug. No plannedstop/fullcloseproof; originalrunner1 retained,
+Androidlaterindependent1. E60-UI-interrupted-result.json. Maxobservedpublichandle
+25306/issuedserial2923 alreadyprovesgenerationreuseinactualUI, not600sproof.
+
+E60 focused9000recycle: auto220349Z/run220412Z, artifactdiagnostic-gpu-recycle9000-e60.
+9000realcreate/closecycles within EXISTINGMesaGPUcontext; matchingcdevFDfound
+by stat/fstat then dup, no secondowner. FinalBOmapped/poisoned, qualified8word
+CP_MEM_WRITE+WAIT writes4words at+4096, guardsuntouched, GPUfence1. ThenMesa
+triangleall256pixelcorrect,3physicalfences,total9023BO=9001earlyGC+22stop,
+fullclosepassed1/contextnull/independentAndroid1. ALL9023pubserial/9001reclaimIDs
+observed acrossraw; old8192cumulativecapcrossed. IMPORTANToriginalrunner1 and
+posthocstrictlifetimecollectorFAIL duefirstobservedrevocationbeforepub from
+interleavedconsole/ring fragments. Do NOTsort orfabricate completechronological
+PASS. E60-recycle9000-result.json recordscomponentproofs+limits. Newuserprobe
+compileflag--recycle-bo only; defaultunchanged. Hostactualdiagnostic/cdev9000
+positive andNEW/INFO/MAP/SUBMIT/WAIT/UNMAP/CLOSE/stalehandle/badGPUresult
+negativesPASS. Hostfakeenddoublefreefixedzeroingfake descriptorsbetweencontexts,
+notrealruntimebug; allattemptlogsretained. Sourcebuildercopiesnewheader/tests.
+
+Evidencecollector tools/collect-waffle-ui-evidence.py --kind ui|gl preserves
+literalfirstobservedlineorderandfilename:line, hashesrawsnapshots, leavesoriginal
+runnerresults. E61UI4626publicationsallpresent but firstobserved1339before1335;
+collectorcorrectlyFAIL. ExistingE61UI result componentcounts17525fences/240s/
+4626BO=4316early+310stop/fullclose1/Android1. pid83 ONLYmode=rows reads=1;
+noinvertedbatchpath observed, so fullsizeoneframe12.6xreadbackspeedup NOTUIFPS.
+Oneop42EINVALunknownrequestsize/flagscause remains unknown, noheaprefusal.
+
+NEXT independentlyconfirmedpersistentgap E63: currentqueue IDs cumulative32,
+32NEW/CLOSE leaveszeroactive,nextENOSPC. Actualcurrentcdevhostreproduction
+waffle-queue-issued-limit-host.py PASS. E61only3queues, NOTcauseclaimedforold
+resprings. Temporarycandidatewaffle-queue-generations-candidate-host.py100000
+cycles/32livebound/highgen33submitwaitquery/stale1refusal/default0/overflow
+quarantinePASS. RUNTIMEQUEUEFIXNOTWIREDYET; finishE62+Android first. Thenminimal
+queuegenerationintegration,convertcandidateactual-source, pinoldreprofixture,
+fullbuild/controlfocusedGPUwritebackonreusedqueue. E63-queue-lifetime-review.md.
+
+Metalread-onlypinnedclone /home/qarzis/hakios-metal-waffle 642fe419 clean;259fake
+hosttestsPASSpreviouslyMESAcompilerdisabled. METAL-WAFFLE-GAP-REVIEW.md: upstream
+kPipe3D1vsactualWaffle0x10,IOkitHakiosGPUvsourcdev/customMAP/UNMAP,selector0x7e
+surfaceimportmissing,A635chip06030500/A6xxreg+shaderlayoutsvsA75043051401,
+AIRnir_air.h/libairsourceNOTFOUNDcurrentMesa/tools,1536wordrootbound,oneowningPID
+EBUSYsecondcontext blocks concurrentapp/compositor,PARAM9faultunsupportedwhere
+upstreamsilentlyreturns0. DoNOTjustchangechipID/claimMetalready. NoMetaleditsyet.
+
+PublicGitHub latest8b68b4deaec826c5f1a8f62e506083e7e5022e70 pushed+remoteverified
+forkhttps://github.com/qarzis/ios-waffle branchwaffle/gpu-bringup; publicworktree
+/home/qarzis/ios-waffle-publish clean. CuratedE59/E61source/reports+twofullsize
+rawlogs; E60newruntimeNOTYETpublished. READMEGPUconcise4minstatusunchanged,
+docsnewreadbacktimingqualifiesoneframe/nofps. NextperiodicupdateafterE62result.
+MainHEADc0ec663 indexmustremainunchanged; usealternativeGIT_INDEX_FILE and
+explicitpathsforarchive. Archivebranchwaffle/hakios-uefi latest4bff498b305af98b2b6aac46688bc75b986d30c7
+containsinitialE60runtime/models andE61UIresult; NEWreports/9000test/loaderE62/
+queueprototype neednextsnapshot. verifiedbranchstillE45a14b658; don'tadvanceon
+failedouterrunner/partialUI. Noimages/SDK/firmware/iOSassets inGit.
+
+OldE59VAboundarycaveatstillvalid:256MiBVA modelpassedbuthardwareBOplacements
+not>128MiB. ProposedE59bforced64x2MiB/closealternating/3MiBbeyondoldboundary
+GPUwritebacktestNOTimplemented. Currentphysical128MiB/VA256/TABLE160/8192slots/
+perBO8MiB/root1536words/window16 unchanged. RAWtraces~18GBdiskfree as22:18.
+
+--- Historical notes below; latest section above supersedes old STOP/status ---
+
 # E61 optimized UI active exec38143 — A/B fullsize pixel/timing proof PASS
 
 Noactivekernelbuild. USERleftagentworkingforGPUcontinuous, FPSopt, thenMetal; periodicGitHubupdatesexplicit. NoSTOP/agents/formalgoal. PaircodeforCodexwasissuedchatonly;nativeRemoteenabled'tufchik', noauthcodeproject/Git.

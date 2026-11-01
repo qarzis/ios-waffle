@@ -1,0 +1,8 @@
+{
+  "run": "work/waffle/runs/20261101T220913Z",
+  "auto": "work/waffle/auto-runs/20261101T220849Z",
+  "kernel_started": false,
+  "cause": "Existing UEFI loader policy rejected660-second request before XNU; loader limit300",
+  "GPU_failure": false,
+  "independent_android": "1"
+}

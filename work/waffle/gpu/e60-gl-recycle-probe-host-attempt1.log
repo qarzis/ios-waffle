@@ -1,0 +1,25 @@
+/tmp/tmp9prgs6gh/test.c:3:9: error: ‘_DEFAULT_SOURCE’ redefined [-Werror]
+    3 | #define _DEFAULT_SOURCE
+      |         ^~~~~~~~~~~~~~~
+In file included from /usr/include/bits/libc-header-start.h:33,
+                 from /usr/include/stdint.h:26,
+                 from /usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h:11,
+                 from /home/qarzis/ios-macan/kernel/files/bsd/sys/waffle_gpu_va.h:4,
+                 from /home/qarzis/ios-macan/kernel/files/bsd/sys/waffle_gpu_writeback.h:3,
+                 from /tmp/tmp9prgs6gh/test.c:2:
+/usr/include/features.h:256:10: note: this is the location of the previous definition
+  256 | # define _DEFAULT_SOURCE        1
+      |          ^~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+Traceback (most recent call last):
+  File "/home/qarzis/ios-macan/tools/tests/waffle-gl-recycle-probe-host.py", line 60, in <module>
+    subprocess.run(['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-Wno-unused-function',
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     '-Wno-unused-variable','-Wno-misleading-indentation','-fsanitize=address,undefined',
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     '-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cc', '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-Wno-unused-variable', '-Wno-misleading-indentation', '-fsanitize=address,undefined', '-I', '/home/qarzis/ios-macan/kernel/files/bsd/sys', '/tmp/tmp9prgs6gh/test.c', '-o', '/tmp/tmp9prgs6gh/test']' returned non-zero exit status 1.

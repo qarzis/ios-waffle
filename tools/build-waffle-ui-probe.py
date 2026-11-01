@@ -20,7 +20,7 @@ import assemble
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--output',type=Path,required=True)
- parser.add_argument('--stop-seconds',type=int,choices=(30,60,240),default=30)
+ parser.add_argument('--stop-seconds',type=int,choices=(30,60,240,600),default=30)
  parser.add_argument('--hook-library',type=Path,help='Use a source-bound hook previously qualified by the fullsize pixel probe')
  parser.add_argument('--base-kit',type=Path,default=ROOT/'work/waffle/posterboard/client-gl-kit')
  args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)

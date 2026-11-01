@@ -724,7 +724,7 @@ container_manager_fixes(void)
 #ifndef WAFFLE_UI_GPU_STOP_SECONDS
 #define WAFFLE_UI_GPU_STOP_SECONDS 30
 #endif
-#if WAFFLE_UI_GPU_STOP_SECONDS != 30 && WAFFLE_UI_GPU_STOP_SECONDS != 60 && WAFFLE_UI_GPU_STOP_SECONDS != 240
+#if WAFFLE_UI_GPU_STOP_SECONDS != 30 && WAFFLE_UI_GPU_STOP_SECONDS != 60 && WAFFLE_UI_GPU_STOP_SECONDS != 240 && WAFFLE_UI_GPU_STOP_SECONDS != 600
 #error Unsupported bounded UI GPU observation window
 #endif
 static void *

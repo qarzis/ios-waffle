@@ -30,7 +30,9 @@ def main():
     parser.add_argument("--output", type=Path, default=ROOT / "work/waffle/diagnostic")
     parser.add_argument("--jobs", type=int, default=6)
     parser.add_argument("--userland", action="store_true", help="Enable bounded RAM userland tests")
+    parser.add_argument("--ui-soak-loader",action="store_true",help="Allow exact660-second return for the qualified mode13 chain")
     args = parser.parse_args()
+    if args.ui_soak_loader and not args.userland:parser.error("--ui-soak-loader requires --userland")
     mu, output = args.mu.resolve(), args.output.resolve()
     loader_dir = mu / "Platforms/OnePlus/wafflePkg/Applications/XnuRamLoader"
     if not (loader_dir / "XnuRamLoader.inf").is_file():
@@ -50,6 +52,10 @@ def main():
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
          ROOT / "tools/tests/waffle-policy.c", "-o", output / "test-policy"], cwd=ROOT)
     run([output / "test-policy"])
+    for variant,flags in (("user",["-DWAFFLE_USERLAND=1"]),("soak",["-DWAFFLE_USERLAND=1","-DWAFFLE_UI_SOAK_TEST=1"])):
+        run(["cc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",*flags,
+             ROOT / "tools/tests/waffle-policy.c","-o",output / f"test-policy-{variant}"])
+        run([output / f"test-policy-{variant}"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
          ROOT / "tools/tests/waffle-touch.c", "-o", output / "test-touch"], cwd=ROOT)
     run([output / "test-touch"])
@@ -137,6 +143,7 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-generation-handles-candidate-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-registry-reuse-candidate-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-generation-log-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-gl-recycle-probe-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-issued-record-limit-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-live-heap-candidate-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-va-fragmentation-host.py"])
@@ -210,7 +217,8 @@ def main():
     header = output / "waffle-kernel.h"
     header.write_text(f"#define WAFFLE_KERNEL_SIZE {len(data)}u\n"
                       f"#define WAFFLE_KERNEL_CRC32 0x{zlib.crc32(data):08x}u\n" +
-                      ("#define WAFFLE_USERLAND 1\n" if args.userland else ""))
+                      ("#define WAFFLE_USERLAND 1\n" if args.userland else "")+
+                      ("#define WAFFLE_UI_SOAK_TEST 1\n" if args.ui_soak_loader else ""))
     run(["bash", ROOT / "loader/build.sh"], cwd=ROOT,
         env=os.environ | {"XNU_PLATFORM": "waffle", "WAFFLE_KERNEL_HEADER": str(header)})
     shutil.copyfile(ROOT / "loader/loader-waffle.efi", loader_dir / "loader-waffle.efi")
@@ -256,7 +264,7 @@ def main():
                      "loader/waffle-memory.h", "loader/waffle-memory-map.h",
                      "kernel/kernel.patch", "kernel/files/bsd/dev/macan_input.c", "kernel/files/bsd/dev/macan_audio.c",
                      "kernel/files/bsd/dev/waffle_synaptics.c", "kernel/files/bsd/dev/macan_touch_report.h",
-                     "kernel/files/iokit/Kernel/WaffleGPUMemory.cpp", "tools/tests/waffle-general-submit-host.py", "tools/tests/waffle-submit-lifetime-host.py", "tools/tests/waffle-ui-root-host.py", "tools/tests/waffle-ui-window-host.py", "tools/tests/waffle-ui-request-host.py", "work/waffle/gpu/forensic-audit/E53-first-submit.json", "kernel/files/bsd/sys/waffle_gpu_submit.h", "kernel/files/bsd/sys/waffle_gpu_memory.h", "kernel/files/bsd/sys/waffle_gpu_registry.h", "kernel/files/bsd/sys/waffle_gpu_handles.h", "tools/tests/waffle-generation-handles-candidate-host.py", "tools/tests/waffle-registry-reuse-candidate-host.py", "tools/tests/waffle-generation-log-host.py", "tools/tests/waffle-issued-record-limit-host.py", "tools/tests/fixtures/waffle-drm-before-generations.c", "kernel/files/bsd/sys/waffle_gpu_reclaim.h", "tools/tests/waffle-reclaim-host.py", "tools/tests/waffle-reclaim-smmu-host.py", "tools/tests/waffle-reclaim-cdev-host.py", "tools/tests/waffle-reclaim-owner-host.py", "work/waffle/gpu/forensic-audit/E54-memory-timeline.json", "work/waffle/gpu/forensic-audit/E55-memory-timeline.json", "tools/tests/waffle-live-heap-candidate-host.py", "tools/tests/waffle-va-fragmentation-host.py", "tools/tests/waffle-runner-options-host.py", "work/waffle/gpu/forensic-audit/E58-fragmented-state.json", "tools/tests/waffle-memory-host.py", "tools/tests/waffle-registry-host.py", "tools/tests/waffle-registry-smmu-host.py", "tools/tests/waffle-registry-storage-host.py", "tools/tests/waffle-table-budget-host.py", "tools/tests/waffle-fullsize-budget-host.py", "tools/tests/waffle-ui-bo-budget-host.py", "tools/tests/waffle-ui-context-pool-host.py", "tools/tests/waffle-ui-heap-candidate-host.py", "kernel/files/iokit/Kernel/WaffleGPUMap.cpp", "kernel/files/bsd/sys/waffle_gpu_map.h", "kernel/files/bsd/dev/waffle_adreno.c", "kernel/files/bsd/dev/waffle_gpu_service.c", "tools/tests/waffle-gl-log-host.py", "tools/tests/waffle-msm-abi.c", "tools/build-waffle-gl-probe.py", "userland/src/waffle_gl_probe.c", "userland/src/waffle_gl_init.c", "tools/tests/waffle-general-drm-host.py", "tools/mesa/drm-shim/waffle_msm_transport.h", "kernel/files/bsd/dev/waffle_gpu_drm.c", "kernel/files/bsd/dev/waffle_gpu_msm.c", "kernel/files/bsd/sys/waffle_gpu_msm.h", "kernel/files/bsd/dev/waffle_gpu_user.c", "kernel/files/bsd/sys/waffle_gpu_user.h", "kernel/files/bsd/sys/waffle_gpu_service.h", "kernel/files/bsd/sys/waffle_gpu.h", "kernel/files/bsd/sys/waffle_aop.h",
+                     "kernel/files/iokit/Kernel/WaffleGPUMemory.cpp", "tools/tests/waffle-general-submit-host.py", "tools/tests/waffle-submit-lifetime-host.py", "tools/tests/waffle-ui-root-host.py", "tools/tests/waffle-ui-window-host.py", "tools/tests/waffle-ui-request-host.py", "work/waffle/gpu/forensic-audit/E53-first-submit.json", "kernel/files/bsd/sys/waffle_gpu_submit.h", "kernel/files/bsd/sys/waffle_gpu_memory.h", "kernel/files/bsd/sys/waffle_gpu_registry.h", "kernel/files/bsd/sys/waffle_gpu_handles.h", "tools/tests/waffle-generation-handles-candidate-host.py", "tools/tests/waffle-registry-reuse-candidate-host.py", "tools/tests/waffle-generation-log-host.py", "tools/tests/waffle-issued-record-limit-host.py", "tools/tests/fixtures/waffle-drm-before-generations.c", "kernel/files/bsd/sys/waffle_gpu_reclaim.h", "tools/tests/waffle-reclaim-host.py", "tools/tests/waffle-reclaim-smmu-host.py", "tools/tests/waffle-reclaim-cdev-host.py", "tools/tests/waffle-reclaim-owner-host.py", "work/waffle/gpu/forensic-audit/E54-memory-timeline.json", "work/waffle/gpu/forensic-audit/E55-memory-timeline.json", "tools/tests/waffle-live-heap-candidate-host.py", "tools/tests/waffle-va-fragmentation-host.py", "tools/tests/waffle-runner-options-host.py", "work/waffle/gpu/forensic-audit/E58-fragmented-state.json", "tools/tests/waffle-memory-host.py", "tools/tests/waffle-registry-host.py", "tools/tests/waffle-registry-smmu-host.py", "tools/tests/waffle-registry-storage-host.py", "tools/tests/waffle-table-budget-host.py", "tools/tests/waffle-fullsize-budget-host.py", "tools/tests/waffle-ui-bo-budget-host.py", "tools/tests/waffle-ui-context-pool-host.py", "tools/tests/waffle-ui-heap-candidate-host.py", "kernel/files/iokit/Kernel/WaffleGPUMap.cpp", "kernel/files/bsd/sys/waffle_gpu_map.h", "kernel/files/bsd/dev/waffle_adreno.c", "kernel/files/bsd/dev/waffle_gpu_service.c", "tools/tests/waffle-gl-log-host.py", "tools/tests/waffle-msm-abi.c", "tools/build-waffle-gl-probe.py", "userland/src/waffle_gl_probe.c", "userland/src/waffle_gl_recycle_probe.h", "tools/tests/waffle-gl-recycle-probe-host.py", "userland/src/waffle_gl_init.c", "tools/tests/waffle-general-drm-host.py", "tools/mesa/drm-shim/waffle_msm_transport.h", "kernel/files/bsd/dev/waffle_gpu_drm.c", "kernel/files/bsd/dev/waffle_gpu_msm.c", "kernel/files/bsd/sys/waffle_gpu_msm.h", "kernel/files/bsd/dev/waffle_gpu_user.c", "kernel/files/bsd/sys/waffle_gpu_user.h", "kernel/files/bsd/sys/waffle_gpu_service.h", "kernel/files/bsd/sys/waffle_gpu.h", "kernel/files/bsd/sys/waffle_aop.h",
                      "kernel/files/bsd/dev/waffle_smmu.c",
                      "kernel/files/bsd/dev/waffle_gmu.c", "kernel/files/bsd/sys/waffle_gmu.h", "kernel/files/bsd/sys/waffle_smmu.h",
                      "kernel/files/bsd/sys/waffle_gmu_firmware.h", "kernel/files/bsd/sys/waffle_scm.h", "tools/tests/waffle-scm-host.py", "tools/tests/waffle-secure-context-host.py", "tools/tests/waffle-protected-pool-host.py", "tools/tests/waffle-gmu-fw.c",

@@ -1,0 +1,23 @@
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=1 cycles=9000 checked=4 wrong=0 fence=1 existing_Mesa_context=1
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=new cycles=0 checked=0 wrong=0 errno=5
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=info cycles=0 checked=0 wrong=0 errno=5
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=map cycles=8999 checked=0 wrong=0 errno=5
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=submit cycles=8999 checked=0 wrong=0 errno=5
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=wait cycles=8999 checked=0 wrong=0 errno=5
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=unmap cycles=8999 checked=4 wrong=0 errno=5
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=close cycles=0 checked=0 wrong=0 errno=5
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=GPU_values cycles=8999 checked=4 wrong=1 errno=22
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=stale_info cycles=1 checked=0 wrong=0 errno=0
+waffle-gl-recycle: begin cycles=1 existing_Mesa_context=1
+waffle-gl-recycle: result=0 stage=count cycles=0 checked=0 wrong=0 errno=0
+HOST actual diagnostic/cdev:9000 recycle cycles with persistent readonly anchor; last recycled BO submits exact qualified writeback packet and checks poisoned output/guards; allocation/info/map/submit/wait/unmap/close/stale-handle/wrong-result failures reject and clean mappings. GPU/storage mocked; not a hardware result.

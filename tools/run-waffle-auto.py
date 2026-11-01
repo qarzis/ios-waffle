@@ -47,9 +47,12 @@ def main():
     parser.add_argument('--adb', default=str(ROOT.parent / 'platform-tools/adb'))
     parser.add_argument('--ui-workload',action='store_true',help='E46 isolated actual backboardd GPU workload; requires controlled GL root')
     parser.add_argument('--ui-long-test',action='store_true',help='Four-minute bounded UI with300-second kernel return; requires matching240-second UI root')
+    parser.add_argument('--ui-soak-test',action='store_true',help='Ten-minute UI with660-second return; requires matching600-second root and generation handles')
     args = parser.parse_args()
     if args.ui_workload and not args.gl_context:parser.error('--ui-workload requires --gl-context')
     if args.ui_long_test and not args.ui_workload:parser.error('--ui-long-test requires --ui-workload')
+    if args.ui_soak_test and not args.ui_workload:parser.error('--ui-soak-test requires --ui-workload')
+    if args.ui_soak_test and args.ui_long_test:parser.error('Select exactly one UI duration')
     if sum((args.gl_context,args.msm,args.user_va,args.glsl,args.data_bo,args.user_copy,args.worker,args.copy_jobs,args.image_present,args.image_copy,args.image))>1:parser.error('Choose image ramp or uploaded image copy')
     if (args.image_present or args.copy_jobs or args.worker or args.user_copy or args.data_bo or args.user_va or args.msm or args.gl_context) and args.compute!='dispatch':parser.error('--image-present requires --compute dispatch')
     args.image=args.gl_context or args.msm or args.image or args.image_copy or args.image_present or args.copy_jobs or args.worker or args.user_copy or args.data_bo or args.glsl or args.user_va
@@ -82,6 +85,7 @@ def main():
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if args.ui_workload and not manifest.get('ui_workload'):parser.error('Artifact lacks isolated UI workload manifest')
     if args.ui_long_test and manifest.get('ui_stop_seconds')!=240:parser.error('Long UI test requires a bound240-second root')
+    if args.ui_soak_test and (manifest.get('ui_stop_seconds')!=600 or not manifest.get('generation_handles') or not manifest.get('ui_soak_loader')):parser.error('Soak UI requires a bound600-second root, generation handles and a matching soak loader')
     if args.gl_context:
         if not manifest.get('gl_context'):parser.error('Artifact lacks controlled GL probe')
         glroot=artifact/'gl-probe/root.packfs'
@@ -189,7 +193,8 @@ def main():
             if args.mapped:items.append('--mapped')
             if args.ui_workload:items.append('--ui-workload')
             if args.ui_long_test:items.append('--ui-long-test')
-            result = command(items, timeout=780 if args.ui_long_test else 420 if args.gl_context else 240)
+            if args.ui_soak_test:items.append('--ui-soak-test')
+            result = command(items, timeout=1140 if args.ui_soak_test else 780 if args.ui_long_test else 420 if args.gl_context else 240)
             report['runner_exit'] = result.returncode
             if result.returncode:
                 raise RuntimeError('GPU test failed; preserve original result and inspect recovery log')

@@ -34,6 +34,13 @@ int main(void){
   struct waffle_msm_submit_bo refs[2]={{.handle=n.handle,.flags=3},{.handle=n.handle,.flags=3}};
   struct waffle_msm_submit_cmd cmd={.type=1,.size=1240};
   struct waffle_msm_submit submit={.flags=0x10,.nr_bos=2,.nr_cmds=1,.bos=(uintptr_t)refs,.cmds=(uintptr_t)&cmd};
+  if(i==1){
+   struct waffle_msm_map stale_map={.handle=previous,.bytes=16384};
+   assert(drm_ioctl(0,WAFFLE_MSM_MAP,(char *)&stale_map,0,&owner)==EINVAL && !mapped);
+   refs[0].handle=previous;submit.nr_bos=1;
+   assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&submit,0,&owner)==EINVAL && copies==i && !snapshot_live);
+   refs[0].handle=n.handle;submit.nr_bos=2;
+  }
   assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&submit,0,&owner)==EINVAL && !snapshot_live);
   submit.nr_bos=1;
   assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&submit,0,&owner) && submit.fence==i+1 && !snapshot_live);
@@ -54,6 +61,10 @@ int main(void){
  assert(!drm_bos[0].memory && drm_bos[1].memory==&storage[0]);
  drm_allocation_refused(16384,WAFFLE_GPU_BO_WC,"test");
  close.handle=n.handle;assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&close,0,&owner));
+ unsigned issued=drm_issued;drm_issued=UINT32_MAX;
+ n=(struct waffle_msm_gem_new){.size=16384,.flags=WAFFLE_GPU_BO_WC};
+ assert(drm_ioctl(0,WAFFLE_MSM_NEW,(char *)&n,0,&owner)==ENOSPC && !n.handle);
+ drm_issued=issued;
  assert(!drm_close(0,0,0,&owner) && !stored);return 0;
 }
 '''

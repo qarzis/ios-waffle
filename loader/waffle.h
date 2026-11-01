@@ -44,16 +44,34 @@ static inline int waffle_number(const char *word, size_t size, const char *key,
     return number >= minimum;
 }
 
+static inline int waffle_return_seconds_allowed(uint64_t seconds)
+{
+#if defined(WAFFLE_USERLAND) && defined(WAFFLE_UI_SOAK_TEST)
+    if (seconds == 660) return 1;
+#endif
+    return seconds >= 1 && seconds <= WAFFLE_RETURN_LIMIT;
+}
+static inline int waffle_return_token_allowed(const char *word,size_t size)
+{
+#if defined(WAFFLE_USERLAND) && defined(WAFFLE_UI_SOAK_TEST)
+    if (waffle_number(word,size,"loader_return_after=",660,660)) return 1;
+#endif
+    return waffle_number(word,size,"loader_return_after=",1,WAFFLE_RETURN_LIMIT);
+}
 static inline int waffle_cmdline_allowed(const char *line)
 {
     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
+    unsigned soak=0,returns=0,gl_image=0;
     while (*line) {
         while (*line == ' ') line++;
         const char *end = line;
         while (*end && *end != ' ') end++;
         size_t size = (size_t)(end - line);
         if (!size) break;
+        soak+=waffle_number(line,size,"loader_return_after=",660,660);
+        returns+=waffle_return_token_allowed(line,size);
+        gl_image+=waffle_token_equal(line,size,"waffle_image=13");
         matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
         measure+=waffle_token_equal(line,size,"waffle_gpu_measure=1");
         lpac+=waffle_token_equal(line,size,"waffle_lpac_map=1");
@@ -75,7 +93,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         if (!waffle_token_equal(line, size, "-v") &&
             !waffle_number(line, size, "bootcpu=", 0, 7) &&
             !waffle_number(line, size, "epoch=", 0, UINT32_MAX) &&
-            !waffle_number(line, size, "loader_return_after=", 1, WAFFLE_RETURN_LIMIT) &&
+            !waffle_return_token_allowed(line, size) &&
             !waffle_number(line, size, "fbscale=", 1, 3) &&
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
@@ -92,7 +110,8 @@ static inline int waffle_cmdline_allowed(const char *line)
         (!glsl_prepare || (glsl_prepare==1 && prepare_count==1)) &&
         (!repeated || (repeated==1 && dispatch==1)) &&
         (!present || (present==1 && dispatch==1)) &&
-        (!image || (image==1 && compute==1 && dynamic_bo==1 && session==1 && gpu_count==1 && native94));
+        (!image || (image==1 && compute==1 && dynamic_bo==1 && session==1 && gpu_count==1 && native94)) &&
+        (!soak || (soak==1 && returns==1 && native94 && gl_image==1));
 }
 static inline int waffle_pll_control_requested(const char *line)
 {

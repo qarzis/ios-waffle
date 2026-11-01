@@ -1,0 +1,1 @@
+HOST actual current cdev:32 create/close queue cycles leave zero live queues,33rd NEW returns ENOSPC; no GPU jobs or BOs. Persistent-lifetime gap, not an observed hardware failure; runtime unchanged.

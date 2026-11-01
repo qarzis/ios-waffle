@@ -1,0 +1,1 @@
+HOST queue prototype:100000 create/close cycles,32-live bound retained; generation33 submits/waits/queries, stale1 refused before GPU work; generation overflow quarantines instead of wrapping,default0 valid. Temporary cdev adaptations only, runtime unchanged; GPU mocked.
