@@ -12,7 +12,9 @@
   "gl_context": true,
   "gl_system_sha256": "564709e25c30e66d839391a4773aa485b4c3e2db7c3fdcfc19c6d88f30c38744",
   "gl_system_bytes": 2318401536,
-  "gl_probe_root_sha256": "96839f72ced499b56d5719b4ae684729fd230f120dd8bc51e679e68eb5ef5020",
+  "gl_probe_root_sha256": "3dcc51a60b9a8eb1b020aa3bcd58e2f9188bbc192511c9a984583065bcb62484",
   "bo_reclaim": true,
-  "experiment": "E56 liveGPUheap128MiB/tablepool128, GC unchanged; user-observed E55 desktop then live64MiB exhaustion"
+  "experiment": "E56 liveGPUheap128MiB/tablepool128, GC unchanged; user-observed E55 desktop then live64MiB exhaustion",
+  "ui_workload": true,
+  "ui_stop_seconds": 60
 }

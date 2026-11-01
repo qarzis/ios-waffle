@@ -1,0 +1,20 @@
+{
+  "run": "work/waffle/runs/20261101T203631Z",
+  "auto": "work/waffle/auto-runs/20261101T203607Z",
+  "runner_exit": 0,
+  "checked_pixels": 256,
+  "wrong_pixels": 0,
+  "renderer": "FD750",
+  "heap_bytes": 134217728,
+  "record_limit": 8192,
+  "GPU_fences": 2,
+  "total_BO_count": 23,
+  "reclaimed_early": 1,
+  "released_after_detach": 22,
+  "reused_VA": "100000000",
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "raw_log_sha256": "d8e5036d799e260e75b7ace016db1b443aa08b66512966c446cb1d1961d2de40"
+}

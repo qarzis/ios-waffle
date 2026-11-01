@@ -819,7 +819,7 @@ def main():
                 print(f"GPU image: {out/'first-gpu-frame.png'}",flush=True)
             return
         if args.gpu_ui:
-            for seconds in (15,30,45,60):
+            for seconds in (15,30,32,35,40,45,60):
                 if seconds not in ui_screenshots and time.monotonic()-ui_started>=seconds:
                     command("oem", "screenshot")
                     command("get_staged", out / f"ui-screen-{seconds}.raw")
