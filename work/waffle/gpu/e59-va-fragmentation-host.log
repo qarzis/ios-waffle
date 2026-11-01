@@ -1,0 +1,1 @@
+HOST candidate:exact1840 live BO ranges reproduce3MiB VA fragmentation refusal in128MiB,256MiB VA admits same request with unchanged128MiB physical budget/neighbors/PA/AP; all256MiB virtual leaves fit154of160tables after25bootstrap; actualowner/protected structs fit16KiB. Synthetic PA/GPU only; runtime unchanged by comparison.

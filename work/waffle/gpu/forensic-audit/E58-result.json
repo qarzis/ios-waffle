@@ -1,0 +1,30 @@
+{
+  "run": "work/waffle/runs/20261101T210014Z",
+  "auto": "work/waffle/auto-runs/20261101T205950Z",
+  "duration_seconds": 240,
+  "planned_stop": true,
+  "actual_GPU_fences": 16351,
+  "all_fences_contiguous_and_matching": true,
+  "HFI_tag_wraps": 4,
+  "total_BO_count": 4379,
+  "remaining": 1697,
+  "reclaimed": 2682,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "observed_crash_or_early_respring": false,
+  "known_allocation_refusals": 5,
+  "first_refusal_reason": "VA fragmentation:3MiB request,free17,137,664B but largest hole2,605,056B; continuedsubmissionafterrefusals",
+  "runner_exit": 1,
+  "runner_failure": "rolling finalconsole losesstartup markers; original strictresult retained",
+  "independent_android": "1",
+  "desktop_and_Sileo_dialog_framebuffer_captured": true,
+  "raw_proof_sha256": {
+    "kernel-773.log": "9d9839d9409be88230c5d0bcd1aa7477a1b10c5bbe23c8ac3c53e5c8f7c9aeb2",
+    "kernel-777.log": "0bf78838b91a1a96b1f4daae30dbeddcdd933a9615f9499fa1aa48e89be54a7d",
+    "kernel-910.log": "3e901efbd30b96d79bc49e37cd4fab0c13362f4e72597058c6146a473f03b3ef",
+    "kernel-928.log": "89040525ecb2bd7ae3d6ad63eaeb36e60a2260940205eb842b8f0e8a64c751a5",
+    "ui-gpu-events.log": "37c45933340a8e41f3a75b1c5625e7a29140ae91c8a5261b162fd22553dae0f2",
+    "ui-screen-120.raw": "0059e9eb097db457d8d821a6f0ef147fa1b9c10650593a7922af8ffefae7d30b",
+    "ui-screen-230.raw": "17eb78a935c8ab4aa3a0eb9fe26bfdec20f4134e6b3815f0ff608306b916f4a0"
+  }
+}
