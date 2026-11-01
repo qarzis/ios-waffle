@@ -99,8 +99,13 @@ int main(void){
 '''
 with tempfile.TemporaryDirectory() as directory:
  p=Path(directory)
- (p/'test.c').write_text(h+ns['parts']['mapping']+types+ns['parts']['dynamic']+extra+fixture+test)
+ header=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text()
+ header=re.sub(r'#define WAFFLE_GPU_BO_HEAP_BYTES .*','#define WAFFLE_GPU_BO_HEAP_BYTES 67108864u',header)
+ (p/'waffle_gpu_memory.h').write_text(header)
+ for name in ['waffle_gpu_registry.h','waffle_gpu_reclaim.h']:(p/name).write_text((root/'kernel/files/bsd/sys'/name).read_text())
+ mapping=re.sub(r'#define TABLE_LIMIT \d+','#define TABLE_LIMIT 64',ns['parts']['mapping'])
+ (p/'test.c').write_text(h+mapping+types+ns['parts']['dynamic']+extra+fixture+test)
  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-misleading-indentation',
-  '-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+  '-fsanitize=address,undefined','-I',str(p),'-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
 print('HOST actual SMMU adapter:owned PA/AP leaf validation,clear+clean+both-ASID sync before release;busy/CPU-mapped/absent-LPAC/AP-corrupt/changed-PTE/GPU-TLB/LPAC-TLB/post-idle failures retain backing; revoked-hole replacement preserves neighbors and new PA/AP. Exact800 allocations/10closes fit unchanged64MiB/64tables after25 bootstrap and admit next16KiB only with eligible reclaim. Owner API tested separately; no actual GPU claim.')

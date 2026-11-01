@@ -41,6 +41,13 @@ assert m.validate_gl_log(updated)==pixels
 try:m.validate_gl_log(updated.replace('heap_bytes=67108864','heap_bytes=33554432'))
 except RuntimeError:pass
 else:raise AssertionError('Inconsistent capacity/physical budget accepted')
+larger=updated.replace('BO_limit=4096','BO_limit=8192').replace('heap_bytes=67108864','heap_bytes=134217728')
+assert m.validate_gl_log(larger)==pixels
+for bad in [larger.replace('heap_bytes=134217728','heap_bytes=67108864'),
+            larger.replace('BO_limit=8192','BO_limit=4096')]:
+ try:m.validate_gl_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Inconsistent128MiB descriptor capacity accepted')
 
 # UI acceptance remains independent of off-screen GL pixel proofs. A declared
 # observation window must match the actual stop, with real presentation markers.

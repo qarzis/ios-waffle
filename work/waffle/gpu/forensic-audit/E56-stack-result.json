@@ -1,0 +1,47 @@
+{
+  "_drm_submit": {
+    "prologue": [
+      "<_drm_submit>:",
+      "     a94:      \tstp\tx28, x27, [sp, #-0x60]!",
+      "     a98:      \tstp\tx26, x25, [sp, #0x10]",
+      "     a9c:      \tstp\tx24, x23, [sp, #0x20]",
+      "     aa0:      \tstp\tx22, x21, [sp, #0x30]",
+      "     aa4:      \tstp\tx20, x19, [sp, #0x40]",
+      "     aa8:      \tstp\tx29, x30, [sp, #0x50]",
+      "     aac:      \tadd\tx29, sp, #0x50",
+      "     ab0:      \tsub\tsp, sp, #0x470",
+      "     ab4:      \tmov\tx19, x0",
+      "     ab8:      \tadrp\tx8, 0x0 <ltmp0>",
+      "     abc:      \tldr\tx8, [x8]",
+      "     ac0:      \tldr\tx8, [x8]",
+      "     ac4:      \tstur\tx8, [x29, #-0x60]",
+      "     ac8:      \tldp\tw8, w9, [x0]"
+    ],
+    "object_sha256": "6e3f220e08d378158b3a62fd3896682cf7341e2dc9821605403a34a5efb3eb5f"
+  },
+  "_waffle_gmu_owner_submit": {
+    "prologue": [
+      "<_waffle_gmu_owner_submit>:",
+      "    7770:      \tstp\tx28, x27, [sp, #-0x60]!",
+      "    7774:      \tstp\tx26, x25, [sp, #0x10]",
+      "    7778:      \tstp\tx24, x23, [sp, #0x20]",
+      "    777c:      \tstp\tx22, x21, [sp, #0x30]",
+      "    7780:      \tstp\tx20, x19, [sp, #0x40]",
+      "    7784:      \tstp\tx29, x30, [sp, #0x50]",
+      "    7788:      \tadd\tx29, sp, #0x50",
+      "    778c:      \tsub\tsp, sp, #0x1, lsl #12   ; =0x1000",
+      "    7790:      \tsub\tsp, sp, #0x850",
+      "    7794:      \tadrp\tx8, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>",
+      "    7798:      \tldr\tx8, [x8]",
+      "    779c:      \tldr\tx8, [x8]",
+      "    77a0:      \tstur\tx8, [x29, #-0x60]",
+      "    77a4:      \tcbz\tx1, 0x77ac <_waffle_gmu_owner_submit+0x3c>"
+    ],
+    "object_sha256": "57f8c8fb3be1c0fcd105afaf2b6112f6a4899a9479ef8ca07f56d85921522799"
+  },
+  "cdev_frame_bytes": 1232,
+  "owner_frame_bytes": 6320,
+  "combined_two_frames_bytes": 7552,
+  "default_kernel_stack_bytes": 16384,
+  "whole_callgraph_verified": false
+}

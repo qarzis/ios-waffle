@@ -1,6 +1,6 @@
 """E55 generic lifetime/allocator model; SMMU/owner paths tested separately."""
 from pathlib import Path
-import json,subprocess,tempfile
+import json,re,subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 ledger=json.loads((root/'work/waffle/gpu/forensic-audit/E54-memory-timeline.json').read_text())
 fixture='static const uint64_t events[][5]={'+','.join(
@@ -99,8 +99,13 @@ int main(void){
 }
 '''
 with tempfile.TemporaryDirectory() as directory:
- p=Path(directory);(p/'test.c').write_text(code+fixture+test)
+ p=Path(directory)
+ header=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text()
+ header=re.sub(r'#define WAFFLE_GPU_BO_HEAP_BYTES .*','#define WAFFLE_GPU_BO_HEAP_BYTES 67108864u',header)
+ (p/'waffle_gpu_memory.h').write_text(header)
+ for name in ['waffle_gpu_registry.h','waffle_gpu_reclaim.h']:(p/name).write_text((root/'kernel/files/bsd/sys'/name).read_text())
+ (p/'test.c').write_text(code+fixture+test)
  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',
-  '-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+  '-I',str(p),'-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
 print('HOST ONLY generic reclaim: CPU mapping/busy/foreign/ownership/partial-clear/GPU-TLB/LPAC-TLB/post-idle/release-failure retention; no free before both modeled TLB syncs; readonly/live-neighbor integrity, monotonic handle and revoked-hole reuse. All800 actual allocation sizes/10closes reproduce64MiB failure under retention and admit failed16KiB under hypothetical eligible reclamation. SMMU/owner paths tested separately; no hardware claim.')

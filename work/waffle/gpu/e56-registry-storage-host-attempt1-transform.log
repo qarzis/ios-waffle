@@ -1,0 +1,4 @@
+  File "/home/qarzis/ios-macan/tools/tests/waffle-registry-storage-host.py", line 7
+    exec(s[:s.index('\nwith tempfile.TemporaryDirectory() as directory:
+                    ^
+SyntaxError: unterminated string literal (detected at line 7)

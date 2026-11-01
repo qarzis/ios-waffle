@@ -1,0 +1,1 @@
+Actual registry/SMMU metadata ownership:allocation/empty/partial-failure retention and BO-before-storage teardown; both4096/64MiB/64tables and8192/128MiB/128tables minimumBO spans/all PTEs pass with stable offstack descriptors and synthetic36bit physical pages; host model only

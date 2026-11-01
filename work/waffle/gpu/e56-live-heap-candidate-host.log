@@ -1,0 +1,1 @@
+HOST candidate:all906 measured allocations/13reclaims reproduce live64MiB refusal and admit next16KiB at128MiB; old64 tables fail/retain during128MiB fill,128tables cover all32768PTEs using90tables after25bootstrap; extra page refuses without mutation; actual owner/protected structs still fit16KiB. Runtime not changed by this test, no GPU claim.

@@ -210,13 +210,13 @@ def validate_gl_log(text):
     if "Library not loaded:" in text:
         raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
-    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096)\b",text)
+    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded GL BO capacity")
     capacity=int(capacity[1])
-    budget=re.search(rf"GENERAL open pid=1 BO_limit={capacity} heap_bytes=(33554432|67108864)\b",text)
+    budget=re.search(rf"GENERAL open pid=1 BO_limit={capacity} heap_bytes=(33554432|67108864|134217728)\b",text)
     if not budget:raise RuntimeError("Missing bounded GL heap declaration")
     budget=int(budget[1])
-    if capacity==4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
+    if capacity>=4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
     if "REBOOT REQUIRED" in text or "GENERAL_SUBMIT mismatch" in text:raise RuntimeError("GL GPU ownership or completion failed")
     markers=[f"GENERAL registered root_only=1 gated=1 BO_limit={capacity}",
        "waffle-gl-init: exec actual Darwin Mesa probe pid=1",
@@ -362,13 +362,13 @@ def validate_ui_workload_log(text):
     seconds=int(selected[2]) if selected[2] else 30
     if seconds not in (30,60):raise RuntimeError("Unsupported bounded UI observation window")
     pid=int(selected[1]);count=gl_completed_fences(text)
-    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096)\b",text)
+    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
     capacity=int(capacity[1])
-    budget=re.search(rf"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=(33554432|67108864)\b",text)
+    budget=re.search(rf"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=(33554432|67108864|134217728)\b",text)
     if not budget:raise RuntimeError("Missing bounded UI heap declaration")
     budget=int(budget[1])
-    if capacity==4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
+    if capacity>=4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
     for marker in (
         "waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1",
         f"GENERAL open pid={pid} BO_limit={capacity} heap_bytes={budget}",
