@@ -1,0 +1,5 @@
+HOST audit dimensions=750x1624
+HOST ONLY: no-op MSM adapter; GL success does not prove GPU execution
+Initializing DRM shim on /dev/dri/renderD128
+renderer=FD750 version=OpenGL ES 3.2 Mesa 26.3.0-rc1
+frontend submitted triangle, GL error=0; NO GPU correctness or pixel readback claim
