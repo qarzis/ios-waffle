@@ -10,7 +10,8 @@ from pathlib import Path
 import re
 
 
-def validate(text, eagl=False, frames=False, hook=False):
+def validate(text, eagl=False, frames=False, hook=False, fullsize=False):
+    hook = hook or fullsize
     root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("waffle_runner", root / "scripts/run_waffle_ios.py")
     runner = importlib.util.module_from_spec(spec)
@@ -48,13 +49,15 @@ def validate(text, eagl=False, frames=False, hook=False):
     ):
         if marker not in text:
             raise RuntimeError("Presentation proof missing: " + marker)
-    s = re.search(r"waffle-gl-present: surface=(\d+) width=16 height=16 stride=(\d+) bytes=(\d+)", text)
-    p = re.search(r"waffle-gl-present: swap=(\d+) surface=(\d+) display=(\d+)x(\d+) destination=(\d+),(\d+),256,256", text)
+    s = re.search(r"waffle-gl-present: surface=(\d+) width=(\d+) height=(\d+) stride=(\d+) bytes=(\d+)", text)
+    p = re.search(r"waffle-gl-present: swap=(\d+) surface=(\d+) display=(\d+)x(\d+) destination=(\d+),(\d+),(\d+),(\d+)", text)
     if not s or not p:
         raise RuntimeError("Missing surface or swap geometry")
-    sid, stride, size = map(int, s.groups())
-    swap, presented, width, height, x, y = map(int, p.groups())
-    if not sid or presented != sid or stride < 64 or stride > 4096 or stride % 4 or size < stride * 16:
+    sid, sw, sh, stride, size = map(int, s.groups())
+    expected_surface = (750, 1624) if fullsize else (16, 16)
+    expected_destination = (750, 1624) if fullsize else (256, 256)
+    swap, presented, width, height, x, y, dw, dh = map(int, p.groups())
+    if not sid or presented != sid or (sw, sh) != expected_surface or stride < sw * 4 or stride > 16384 or stride % 4 or size < stride * sh:
         raise RuntimeError("Invalid IOSurface identity or allocation")
     if hook:
         for marker in (
@@ -69,15 +72,17 @@ def validate(text, eagl=False, frames=False, hook=False):
         ):
             if marker not in text:
                 raise RuntimeError("Actual EAGL hook proof missing: " + marker)
-    if width < 256 or height < 256 or (x, y) != ((width - 256) // 2, (height - 256) // 2):
+    if (dw, dh) != expected_destination or width < dw or height < dh or (x, y) != ((width - dw) // 2, (height - dh) // 2):
         raise RuntimeError("Invalid display destination")
-    worker = (f"MiniIOMobileFramebuffer: swap {swap} layer 0: surface {sid} (16x16 'BGRA') "
-              f"from 0,0 16x16 to {x},{y} 256x256, layers set 0x1")
+    worker = (f"MiniIOMobileFramebuffer: swap {swap} layer 0: surface {sid} ({sw}x{sh} 'BGRA') "
+              f"from 0,0 {sw}x{sh} to {x},{y} {dw}x{dh}, layers set 0x1")
     if worker not in text:
         raise RuntimeError("Display worker did not resolve the exact submitted IOSurface")
     if f"GPU is not done with surface {sid}" in text:
         raise RuntimeError("Display worker timed out waiting for surface")
-    return dict(surface=sid, swap=swap, stride=stride, pixels_checked=256, pixels_wrong=0,
+    if fullsize and "waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1" not in text:
+        raise RuntimeError("Full surface pixel correctness not established")
+    return dict(full_surface_pixels_checked=1218000 if fullsize else 256, surface=sid, swap=swap, stride=stride, pixels_checked=256, pixels_wrong=0,
                 actual_EAGL_GL_adapter=eagl or frames or hook, actual_EAGL_hook=hook,
                 consecutive_frames=64 if frames else 1,
                 display_worker_resolved_surface=True, CPU_readback=True,
@@ -90,5 +95,6 @@ if __name__ == "__main__":
     parser.add_argument("--eagl", action="store_true", help="Require the actual EAGL API2 GL adapter and texture FBO")
     parser.add_argument("--frames", action="store_true", help="Require64 correct alternating frames and actual GPU completions")
     parser.add_argument("--hook", action="store_true", help="Require the actual EAGL private table and hook-owned IOSurface readback")
+    parser.add_argument("--fullsize", action="store_true", help="Require all750x1624 actual hook-owned pixels and fullscreen display")
     args = parser.parse_args()
-    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl, args.frames, args.hook), indent=2))
+    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl, args.frames, args.hook, args.fullsize), indent=2))

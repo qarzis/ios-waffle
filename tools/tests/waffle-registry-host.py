@@ -45,7 +45,7 @@ t=r'''
  assert(r.count==13 && allocs==13 && tlbs==13 && cleans==13 && r.used<WAFFLE_GPU_BO_HEAP_BYTES);
  unsigned old_allocs=allocs;
  assert(!waffle_gpu_registry_new(&r,&ops,4096,0x80000) && allocs==old_allocs);
- assert(!waffle_gpu_registry_new(&r,&ops,4194305,WAFFLE_GPU_BO_WC));
+ assert(!waffle_gpu_registry_new(&r,&ops,WAFFLE_GPU_BO_MAX_BYTES+1,WAFFLE_GPU_BO_WC));
  assert(!waffle_gpu_registry_destroy(&r,false) && !frees);
  assert(waffle_gpu_registry_destroy(&r,true) && frees==13);
  /* Both slot and heap exhaustion refuse without allocating/reusing any VA. */

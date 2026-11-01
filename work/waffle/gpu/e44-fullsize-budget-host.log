@@ -1,0 +1,1 @@
+Actual C++ BO adapter and SMMU:4MiB reproduces5MiB refusal;8MiB accepts5/8MiB with noncontiguous physical pages, rejects cap+1; actual24fullscreen allocations fit32MiB heap and64tables after25-table bootstrap; host only

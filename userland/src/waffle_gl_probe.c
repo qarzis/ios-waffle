@@ -30,6 +30,13 @@
 #endif
 extern int reboot(int);
 #define RB_HALT 8
+#ifdef WAFFLE_GL_FULLSIZE
+#define WAFFLE_TARGET_WIDTH 750u
+#define WAFFLE_TARGET_HEIGHT 1624u
+#else
+#define WAFFLE_TARGET_WIDTH 16u
+#define WAFFLE_TARGET_HEIGHT 16u
+#endif
 /* Direct console writes remain visible without stdio/launchd initialization. */
 static long raw_call(long number,long a,long b,long c)
 {
@@ -61,6 +68,34 @@ static void crash_log(int sig,siginfo_t *info,void *context)
 static IOSurfaceRef hook_surface;
 #endif
 static uint32_t pixels[256];
+#ifdef WAFFLE_GL_FULLSIZE
+static bool check_full_surface(void)
+{
+ if(!hook_surface || IOSurfaceGetWidth(hook_surface)!=750 || IOSurfaceGetHeight(hook_surface)!=1624 || IOSurfaceGetBytesPerRow(hook_surface)<3000)return false;
+ if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS)return false;
+ const uint8_t *base=IOSurfaceGetBaseAddress(hook_surface);size_t stride=IOSurfaceGetBytesPerRow(hook_surface);
+ if(!base || stride>16384 || IOSurfaceGetAllocSize(hook_surface)<stride*1624){IOSurfaceUnlock(hook_surface,0,NULL);return false;}
+ unsigned wrong=0,filled=0,padding=0;
+ for(unsigned y=0;y<1624;y++){
+  const uint32_t *row=(const uint32_t *)(base+y*stride);unsigned gy=1623-y;
+  for(unsigned x=0;x<750;x++){
+   bool inside=(2*x+1)*3248>750*(2*gy+1) && (2*x+1)*3248<4872000-750*(2*gy+1);
+   filled+=inside;wrong+=row[x]!=(inside?0xffff4000u:0xff000000u);
+  }
+  for(size_t x=3000;x<stride;x++)padding+=base[y*stride+x]!=0;
+ }
+ /* Keep the existing independent16x16 diagnostic proof using actual samples
+  * of the full GPU result, with RGBA and GL bottom-up orientation. */
+ for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+  unsigned sx=(x*750+375)/16,sy=((15-y)*1624+812)/16;
+  uint32_t p=*(const uint32_t *)(base+sy*stride+sx*4);
+  pixels[y*16+x]=(p&0xff00ff00u)|((p&0xffu)<<16)|((p>>16)&0xffu);
+ }
+ kern_return_t unlock=IOSurfaceUnlock(hook_surface,0,NULL);GLenum error=glGetError();
+ printf("waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=%u filled=%u padding_wrong=%u GL_error=%x hook_owned=1\n",wrong,filled,padding,error);
+ return !wrong && !padding && !error && !unlock && filled==609000;
+}
+#endif
 #ifdef WAFFLE_GL_FRAMES
 static bool repeat_triangles(void)
 {
@@ -92,7 +127,7 @@ static IOSurfaceRef make_triangle_surface(void)
  CFMutableDictionaryRef props=CFDictionaryCreateMutable(NULL,0,&kCFTypeDictionaryKeyCallBacks,&kCFTypeDictionaryValueCallBacks);
  if(!props)return NULL;
  const CFStringRef keys[]={kIOSurfaceWidth,kIOSurfaceHeight,kIOSurfacePixelFormat,kIOSurfaceBytesPerElement};
- const int values[]={16,16,0x42475241,4};
+ const int values[]={WAFFLE_TARGET_WIDTH,WAFFLE_TARGET_HEIGHT,0x42475241,4};
  for(unsigned i=0;i<4;i++){
   CFNumberRef n=CFNumberCreate(NULL,kCFNumberIntType,&values[i]);
   if(!n){CFRelease(props);return NULL;}CFDictionarySetValue(props,keys[i],n);CFRelease(n);
@@ -113,9 +148,9 @@ static bool present_triangle(void)
  size_t row=IOSurfaceGetBytesPerRow(surface),size=IOSurfaceGetAllocSize(surface);
  uint32_t sid=IOSurfaceGetID(surface);
  printf("waffle-gl-present: surface=%u width=%zu height=%zu stride=%zu bytes=%zu\n",sid,IOSurfaceGetWidth(surface),IOSurfaceGetHeight(surface),row,size);
- if(!sid || IOSurfaceGetWidth(surface)!=16 || IOSurfaceGetHeight(surface)!=16 ||
+ if(!sid || IOSurfaceGetWidth(surface)!=WAFFLE_TARGET_WIDTH || IOSurfaceGetHeight(surface)!=WAFFLE_TARGET_HEIGHT ||
     IOSurfaceGetPixelFormat(surface)!=0x42475241 || IOSurfaceGetPlaneCount(surface) ||
-    row<64 || row>4096 || (row&3) || size<row*16)goto done;
+    row<WAFFLE_TARGET_WIDTH*4 || row>16384 || (row&3) || size<row*WAFFLE_TARGET_HEIGHT)goto done;
  if(IOSurfaceLock(surface,0,NULL)!=KERN_SUCCESS)goto done;
  locked=true;uint8_t *base=IOSurfaceGetBaseAddress(surface);if(!base)goto done;
 #ifndef WAFFLE_GL_HOOK
@@ -125,13 +160,15 @@ static bool present_triangle(void)
 #endif
  GLenum error=glGetError();unsigned wrong=0,padding=0;
  for(unsigned y=0;y<16;y++){
-  uint32_t *words=(uint32_t *)(base+y*row);
+  unsigned sy=(y*WAFFLE_TARGET_HEIGHT+WAFFLE_TARGET_HEIGHT/2)/16;
+  uint32_t *words=(uint32_t *)(base+sy*row);
   for(unsigned x=0;x<16;x++){
    uint32_t p=pixels[(15-y)*16+x];
    uint32_t bgra=(p&0xff00ff00u)|((p&0xffu)<<16)|((p>>16)&0xffu);
-   wrong+=words[x]!=bgra;
+   unsigned sx=(x*WAFFLE_TARGET_WIDTH+WAFFLE_TARGET_WIDTH/2)/16;
+   wrong+=words[sx]!=bgra;
   }
-  for(size_t x=64;x<row;x++)padding+=base[y*row+x]!=
+  for(size_t x=WAFFLE_TARGET_WIDTH*4;x<row;x++)padding+=base[sy*row+x]!=
 #ifdef WAFFLE_GL_HOOK
    0;
 #else
@@ -148,16 +185,20 @@ static bool present_triangle(void)
  if(kr){printf("waffle-gl-present: display open error=%x\n",kr);goto done;}
  uint64_t dimensions[2]={0},swapid=0;uint32_t count=2;
  kr=IOConnectCallScalarMethod(display,8,NULL,0,dimensions,&count);
- if(kr || count!=2 || dimensions[0]<256 || dimensions[1]<256 || dimensions[0]>4096 || dimensions[1]>8192)goto done;
+ unsigned dw=256,dh=256;
+#ifdef WAFFLE_GL_FULLSIZE
+ dw=750;dh=1624;
+#endif
+ if(kr || count!=2 || dimensions[0]<dw || dimensions[1]<dh || dimensions[0]>4096 || dimensions[1]>8192)goto done;
  count=1;kr=IOConnectCallScalarMethod(display,4,NULL,0,&swapid,&count);
  if(kr || count!=1 || !swapid || swapid>UINT32_MAX)goto done;
  /* MiniIOMobileFramebuffer.cpp's existing swap packet, not an inferred ABI. */
  uint32_t swap[0x46c/4]={0};
  swap[0x50/4]=(uint32_t)swapid;swap[0x54/4]=sid;
- swap[0x64/4+2]=16;swap[0x64/4+3]=16;swap[0xa4/4]=1;
- swap[0xc4/4]=(uint32_t)(dimensions[0]-256)/2;swap[0xc4/4+1]=(uint32_t)(dimensions[1]-256)/2;
- swap[0xc4/4+2]=256;swap[0xc4/4+3]=256;swap[0x104/4]=1;
- printf("waffle-gl-present: swap=%u surface=%u display=%llux%llu destination=%u,%u,256,256\n",(unsigned)swapid,sid,(unsigned long long)dimensions[0],(unsigned long long)dimensions[1],swap[0xc4/4],swap[0xc4/4+1]);
+ swap[0x64/4+2]=WAFFLE_TARGET_WIDTH;swap[0x64/4+3]=WAFFLE_TARGET_HEIGHT;swap[0xa4/4]=1;
+ swap[0xc4/4]=(uint32_t)(dimensions[0]-dw)/2;swap[0xc4/4+1]=(uint32_t)(dimensions[1]-dh)/2;
+ swap[0xc4/4+2]=dw;swap[0xc4/4+3]=dh;swap[0x104/4]=1;
+ printf("waffle-gl-present: swap=%u surface=%u display=%llux%llu destination=%u,%u,%u,%u\n",(unsigned)swapid,sid,(unsigned long long)dimensions[0],(unsigned long long)dimensions[1],swap[0xc4/4],swap[0xc4/4+1],dw,dh);
  kr=IOConnectCallStructMethod(display,5,swap,sizeof(swap),NULL,NULL);
  printf("waffle-gl-present: swap_accepted=%u error=%x hold_seconds=5\n",kr==KERN_SUCCESS,kr);
  if(kr)goto done;
@@ -255,7 +296,7 @@ int main(void)
  glVertexAttribPointer((GLuint)attribute,2,GL_FLOAT,GL_FALSE,0,NULL);glEnableVertexAttribArray((GLuint)attribute);
  glGenTextures(1,&texture);glBindTexture(GL_TEXTURE_2D,texture);
  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
- glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,16,16,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+ glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,WAFFLE_TARGET_WIDTH,WAFFLE_TARGET_HEIGHT,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
 #ifdef WAFFLE_GL_HOOK
  hook_surface=make_triangle_surface();if(!hook_surface)goto finish;
  SEL attach=sel_registerName("attachImage:toCoreSurface:invertedRender:");
@@ -271,9 +312,13 @@ int main(void)
 #else
  GLuint vao;glGenVertexArrays(1,&vao);glBindVertexArray(vao);
 #endif
- glDisable(GL_DITHER);glViewport(0,0,16,16);glClearColor(0,0,0,1);glClear(GL_COLOR_BUFFER_BIT);glUseProgram(program);glDrawArrays(GL_TRIANGLES,0,3);glFinish();
+ glDisable(GL_DITHER);glViewport(0,0,WAFFLE_TARGET_WIDTH,WAFFLE_TARGET_HEIGHT);glClearColor(0,0,0,1);glClear(GL_COLOR_BUFFER_BIT);glUseProgram(program);glDrawArrays(GL_TRIANGLES,0,3);glFinish();
 #ifdef WAFFLE_GL_EAGL
+#ifdef WAFFLE_GL_FULLSIZE
+ if(!check_full_surface())goto finish;
+#else
  glReadPixels(0,0,16,16,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+#endif
 #endif
 #ifdef WAFFLE_GL_FRAMES
  if(!repeat_triangles())goto finish;

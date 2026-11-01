@@ -194,7 +194,7 @@ def validate_gl_log(text):
     expected_va=0x100000000
     for key in sorted(buffers):
         va,logical,allocated,flags,pages=buffers[key]
-        if va!=expected_va or not 0<logical<=4*1024*1024 or allocated!=(logical+16383)&~16383 or flags not in (0x20000,0x20002) or pages!=allocated//4096:
+        if va!=expected_va or not 0<logical<=8*1024*1024 or allocated!=(logical+16383)&~16383 or flags not in (0x20000,0x20002) or pages!=allocated//4096:
             raise RuntimeError("Invalid GL BO range/permission publication")
         expected_va+=allocated
     if expected_va>0x102000000:raise RuntimeError("GL BO heap budget exceeded")

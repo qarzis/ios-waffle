@@ -41,7 +41,7 @@ IOBufferMemoryDescriptor *IOBufferMemoryDescriptor::inTaskWithOptions(int task,u
 '''
 t=r'''
 int main(){
- for(unsigned bytes:{4096u,8192u,16384u,4194304u}){
+ for(unsigned bytes:{4096u,8192u,16384u,4194304u,5242880u,WAFFLE_GPU_BO_MAX_BYTES}){
   for(unsigned flags:{WAFFLE_GPU_BO_WC,WAFFLE_GPU_BO_WC|WAFFLE_GPU_BO_READONLY}){
    struct waffle_gpu_memory bo={};mode=0;assert(waffle_gpu_memory_create(bytes,flags,&bo));
    assert(bo.bytes==bytes && bo.flags==flags && bo.allocation_bytes==((bytes+16383)&~16383u));
@@ -57,7 +57,7 @@ int main(){
   struct waffle_gpu_memory bo={};assert(!waffle_gpu_memory_create(16384,WAFFLE_GPU_BO_WC,&bo) && !bo.object && !descriptor.memory);
  }
  mode=0;struct waffle_gpu_memory bo={};
- assert(!waffle_gpu_memory_create(0,WAFFLE_GPU_BO_WC,&bo));assert(!waffle_gpu_memory_create(4194305,WAFFLE_GPU_BO_WC,&bo));
+ assert(!waffle_gpu_memory_create(0,WAFFLE_GPU_BO_WC,&bo));assert(!waffle_gpu_memory_create(WAFFLE_GPU_BO_MAX_BYTES+1,WAFFLE_GPU_BO_WC,&bo));
  assert(!waffle_gpu_memory_create(4096,0x80000,&bo));assert(!waffle_gpu_memory_create(4096,WAFFLE_GPU_BO_WC|1,&bo));
  assert(waffle_gpu_memory_create(4096,WAFFLE_GPU_BO_WC,&bo));
  uintptr_t token=0;uint64_t address=0;mode=7;assert(!waffle_gpu_memory_map(&bo,false,&address,&token));mode=8;assert(!waffle_gpu_memory_map(&bo,false,&address,&token));mode=0;
