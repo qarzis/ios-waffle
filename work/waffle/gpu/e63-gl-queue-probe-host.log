@@ -1,0 +1,6 @@
+waffle-gl-queue: begin cycles=100 existing_Mesa_context=1
+waffle-gl-queue: begin cycles=100 existing_Mesa_context=1
+waffle-gl-recycle: begin cycles=9000 existing_Mesa_context=1
+waffle-gl-recycle: result=1 cycles=9000 checked=4 wrong=0 fence=1 existing_Mesa_context=1
+waffle-gl-queue: result=1 cycles=100 queue=3170 stale=2 stale_submit_refused=1
+HOST actual diagnostic:current cdev fails queue churn with anchored queue; temporary candidate passes100 queue generations plus9000 BOcycles, stalequeue2 submit refused before GPU, activequeue3170 submits exact writeback/waits/checks poison+guards, anchor preserved/cleanup balanced. Runtime queue code unchanged; GPU mocked.

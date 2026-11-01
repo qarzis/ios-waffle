@@ -1,10 +1,11 @@
-"""Reproduce cumulative queue-ID exhaustion using the actual current cdev."""
+"""Reproduce historical queue exhaustion with a pinned pre-queue-fix cdev."""
 from pathlib import Path
 import subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 ns={'__file__':str(root/'tools/tests/waffle-general-drm-host.py')}
 s=(root/'tools/tests/waffle-general-drm-host.py').read_text()
 exec(s[:s.index('\nwith tempfile.TemporaryDirectory()')],ns)
+ns['source']=ns['strip']((root/'tools/tests/fixtures/waffle-drm-before-queue-reuse.c').read_text()).replace('__asm__ volatile("dsb sy":::"memory");','')
 test=r'''
 int main(void){
  assert(waffle_gpu_drm_register());assert(!drm_open(0,0,0,&owner));
@@ -27,4 +28,4 @@ with tempfile.TemporaryDirectory() as directory:
   '-Wno-unused-variable','-Wno-misleading-indentation','-fsanitize=address,undefined',
   '-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('HOST actual current cdev:32 create/close queue cycles leave zero live queues,33rd NEW returns ENOSPC; no GPU jobs or BOs. Persistent-lifetime gap, not an observed hardware failure; runtime unchanged.')
+print('HOST pinned pre-queue-fix cdev:32 create/close queue cycles leave zero live queues,33rd NEW returns ENOSPC; no GPU jobs or BOs. Persistent-lifetime gap, not an observed hardware failure; runtime unchanged.')

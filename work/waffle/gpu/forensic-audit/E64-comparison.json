@@ -1,0 +1,18 @@
+{
+  "experiment": "E64 noninverted readback staging A/B",
+  "baseline_run": "work/waffle/runs/20261101T224132Z",
+  "candidate_run": "work/waffle/runs/20261101T224432Z",
+  "both_strict_GL_proof_passed": true,
+  "pixels_per_policy": 292320000,
+  "warmup_frames": 40,
+  "measured_frames_per_policy": 200,
+  "baseline_median_us": 4110.0,
+  "candidate_median_us": 5173.5,
+  "candidate_latency_increase_percent": 25.875912408759127,
+  "baseline_p95_us": 4174,
+  "candidate_p95_us": 5238,
+  "hypothesis": "Packed RAM staging would speed the direct padded IOSurface readback",
+  "hypothesis_refuted": true,
+  "decision": "Remove experimental staging path; retain original direct readback. Do not repeat without new evidence.",
+  "panel_FPS_measured": false
+}

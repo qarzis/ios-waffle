@@ -31,10 +31,12 @@ static struct waffle_gpu_context *drm_context;
 static unsigned drm_count,drm_issued,drm_fence;
 static int drm_pid;
 static uint32_t drm_queues;
-static unsigned drm_next_queue;
+static uint32_t drm_queue_generations[32];
 static bool drm_queue_valid(uint32_t id)
 {
- return id==0 || (id<=32 && (drm_queues&(1u<<(id-1))));
+ if(!id)return true;
+ unsigned slot=(id-1)%32;
+ return (drm_queues&(1u<<slot)) && drm_queue_generations[slot]==id;
 }
 static struct drm_bo *drm_buffer(unsigned handle)
 {
@@ -64,8 +66,8 @@ static int drm_open(dev_t dev,int flags,int type,struct proc *p)
  (void)dev;(void)flags;(void)type;lck_mtx_lock(&drm_lock);int error=0;
  if(drm_context){error=EBUSY;goto done;}
  drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
- drm_count=drm_issued=drm_fence=0;drm_queues=0;drm_next_queue=0;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
- redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u VA_bytes=%u generation_handles=1\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES,WAFFLE_GPU_BO_VA_BYTES);
+ drm_count=drm_issued=drm_fence=0;drm_queues=0;bzero(drm_queue_generations,sizeof(drm_queue_generations));drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
+ redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u VA_bytes=%u generation_handles=1 queue_generations=1\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES,WAFFLE_GPU_BO_VA_BYTES);
 done:lck_mtx_unlock(&drm_lock);return error;
 }
 static int drm_param(struct waffle_msm_param *r)
@@ -202,12 +204,15 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   struct waffle_msm_madvise *r=(void *)data;if(!drm_buffer(r->handle) || r->madv>1){error=EINVAL;goto done;}r->retained=1;
  }else if(command==WAFFLE_MSM_QUEUE_NEW){
   struct waffle_msm_queue *r=(void *)data;if(r->flags || r->prio || r->id){error=EINVAL;goto done;}
-  if(drm_next_queue==32){error=ENOSPC;goto done;}
-  r->id=++drm_next_queue;drm_queues|=1u<<(r->id-1);
+  unsigned slot=0;
+  for(;slot<32;slot++)if(!(drm_queues&(1u<<slot)) && drm_queue_generations[slot]<=UINT32_MAX-32)break;
+  if(slot==32){error=ENOSPC;goto done;}
+  r->id=drm_queue_generations[slot]?drm_queue_generations[slot]+32:slot+1;
+  drm_queue_generations[slot]=r->id;drm_queues|=1u<<slot;
   redwood_tl("waffle-gpu: GENERAL queue_new id=%u priority=0 serialized=1\n",r->id);
  }else if(command==WAFFLE_MSM_QUEUE_CLOSE){uint32_t id=*(uint32_t *)data;
   if(!id || !drm_queue_valid(id)){error=EINVAL;goto done;}
-  drm_queues&=~(1u<<(id-1));
+  drm_queues&=~(1u<<((id-1)%32));
  }else if(command==WAFFLE_MSM_QUEUE_QUERY){
   struct waffle_msm_queue_query *r=(void *)data;uint64_t zero=0;
   if(!r->id || !drm_queue_valid(r->id) || r->param || r->pad || r->len!=8){error=EINVAL;goto done;}

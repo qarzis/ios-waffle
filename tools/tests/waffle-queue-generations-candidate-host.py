@@ -1,26 +1,11 @@
-"""Proposed queue slot/generation recycling; temporary cdev adaptations only."""
+"""Queue slot/generation recycling against unmodified actual cdev."""
 from pathlib import Path
 import subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
 ns={'__file__':str(root/'tools/tests/waffle-general-drm-host.py')}
 s=(root/'tools/tests/waffle-general-drm-host.py').read_text()
 exec(s[:s.index('\nwith tempfile.TemporaryDirectory()')],ns)
-source=ns['source'].replace('static unsigned drm_next_queue;','static uint32_t drm_queue_generations[32];')
-old='return id==0 || (id<=32 && (drm_queues&(1u<<(id-1))));'
-assert old in source
-source=source.replace(old,'''if(!id)return true;
- unsigned slot=(id-1)%32;
- return (drm_queues&(1u<<slot)) && drm_queue_generations[slot]==id;''')
-source=source.replace('drm_next_queue=0;','bzero(drm_queue_generations,sizeof(drm_queue_generations));')
-old='''  if(drm_next_queue==32){error=ENOSPC;goto done;}
-  r->id=++drm_next_queue;drm_queues|=1u<<(r->id-1);'''
-assert old in source
-source=source.replace(old,'''  unsigned slot=0;
-  for(;slot<32;slot++)if(!(drm_queues&(1u<<slot)) && drm_queue_generations[slot]<=UINT32_MAX-32)break;
-  if(slot==32){error=ENOSPC;goto done;}
-  r->id=drm_queue_generations[slot]?drm_queue_generations[slot]+32:slot+1;
-  drm_queue_generations[slot]=r->id;drm_queues|=1u<<slot;''')
-source=source.replace('drm_queues&=~(1u<<(id-1));','drm_queues&=~(1u<<((id-1)%32));')
+source=ns['source']
 test=r'''
 int main(void){
  assert(waffle_gpu_drm_register());assert(!drm_open(0,0,0,&owner));
@@ -70,4 +55,4 @@ with tempfile.TemporaryDirectory() as directory:
   '-Wno-unused-variable','-Wno-misleading-indentation','-fsanitize=address,undefined',
   '-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('HOST queue prototype:100000 create/close cycles,32-live bound retained; generation33 submits/waits/queries, stale1 refused before GPU work; generation overflow quarantines instead of wrapping,default0 valid. Temporary cdev adaptations only, runtime unchanged; GPU mocked.')
+print('HOST actual cdev queues:100000 create/close cycles,32-live bound retained; generation33 submits/waits/queries, stale1 refused before GPU work; generation overflow quarantines instead of wrapping,default0 valid. Unmodified current cdev; GPU mocked.')

@@ -1,0 +1,23 @@
+{
+  "run": "work/waffle/runs/20261101T223047Z",
+  "auto": "work/waffle/auto-runs/20261101T223023Z",
+  "queue_create_close_cycles": 100,
+  "reused_queue": 3171,
+  "stale_queue": 3,
+  "stale_submit_refused_before_GPU": true,
+  "strict_queue_probe_proof_passed": true,
+  "recycled_BO_cycles": 9000,
+  "GPU_writeback_words_correct": 4,
+  "GL_reference_pixels_correct": 256,
+  "GPU_fences": 3,
+  "total_BO_issued": 9023,
+  "early_reclaimed": 9001,
+  "after_detach_released": 22,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "runner_exit": 1,
+  "automatic_success": false,
+  "independent_android": "1",
+  "limitation": "Focused queue/GPU/pixel/teardown checks pass; full chronological BO proof incomplete in final rolling console; original failed outer result retained",
+  "raw_final_sha256": "ddb16866aacb50b0b7f05c23c0708ffe078a4dd79f07595e52419e12d2eefc3f"
+}

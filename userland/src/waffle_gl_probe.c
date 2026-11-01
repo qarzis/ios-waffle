@@ -37,6 +37,12 @@ extern int reboot(int);
 #define WAFFLE_TARGET_WIDTH 16u
 #define WAFFLE_TARGET_HEIGHT 16u
 #endif
+#ifdef WAFFLE_GL_READBACK_BENCH
+#include <mach/mach_time.h>
+#define WAFFLE_PROBE_INVERTED 0
+#else
+#define WAFFLE_PROBE_INVERTED 1
+#endif
 /* Direct console writes remain visible without stdio/launchd initialization. */
 static long raw_call(long number,long a,long b,long c)
 {
@@ -117,6 +123,9 @@ done:
 #endif
 #endif
 static uint32_t pixels[256];
+#ifdef WAFFLE_GL_READBACK_BENCH
+static bool benchmark_blue;
+#endif
 #ifdef WAFFLE_GL_FULLSIZE
 static bool check_full_surface(void)
 {
@@ -126,23 +135,50 @@ static bool check_full_surface(void)
  if(!base || stride>16384 || IOSurfaceGetAllocSize(hook_surface)<stride*1624){IOSurfaceUnlock(hook_surface,0,NULL);return false;}
  unsigned wrong=0,filled=0,padding=0;
  for(unsigned y=0;y<1624;y++){
-  const uint32_t *row=(const uint32_t *)(base+y*stride);unsigned gy=1623-y;
+  const uint32_t *row=(const uint32_t *)(base+y*stride);unsigned gy=WAFFLE_PROBE_INVERTED?1623-y:y;
   for(unsigned x=0;x<750;x++){
    bool inside=(2*x+1)*3248>750*(2*gy+1) && (2*x+1)*3248<4872000-750*(2*gy+1);
-   filled+=inside;wrong+=row[x]!=(inside?0xffff4000u:0xff000000u);
+   uint32_t outside=0xff000000u;
+#ifdef WAFFLE_GL_READBACK_BENCH
+   if(benchmark_blue)outside=0xff0000ffu;
+#endif
+   filled+=inside;wrong+=row[x]!=(inside?0xffff4000u:outside);
   }
   for(size_t x=3000;x<stride;x++)padding+=base[y*stride+x]!=0;
  }
  /* Keep the existing independent16x16 diagnostic proof using actual samples
   * of the full GPU result, with RGBA and GL bottom-up orientation. */
  for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
-  unsigned sx=(x*750+375)/16,sy=((15-y)*1624+812)/16;
+  unsigned sx=(x*750+375)/16,sy=((WAFFLE_PROBE_INVERTED?15-y:y)*1624+812)/16;
   uint32_t p=*(const uint32_t *)(base+sy*stride+sx*4);
   pixels[y*16+x]=(p&0xff00ff00u)|((p&0xffu)<<16)|((p>>16)&0xffu);
  }
  kern_return_t unlock=IOSurfaceUnlock(hook_surface,0,NULL);GLenum error=glGetError();
  printf("waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=%u filled=%u padding_wrong=%u GL_error=%x hook_owned=1\n",wrong,filled,padding,error);
  return !wrong && !padding && !error && !unlock && filled==609000;
+}
+#endif
+#ifdef WAFFLE_GL_READBACK_BENCH
+static uint64_t benchmark_now_us(void)
+{
+ static mach_timebase_info_data_t timebase;
+ if(!timebase.denom)mach_timebase_info(&timebase);
+ return mach_absolute_time()*timebase.numer/timebase.denom/1000;
+}
+static bool benchmark_readback(void)
+{
+ printf("waffle-gl-bench: begin frames=240 width=750 height=1624 inverted=0 CPU_reference_outside_timing=1 panel_FPS=0\n");
+ for(unsigned frame=0;frame<240;frame++){
+  benchmark_blue=!(frame&1);
+  uint64_t before=benchmark_now_us();
+  glClearColor(0,0,benchmark_blue?1:0,1);glClear(GL_COLOR_BUFFER_BIT);
+  glDrawArrays(GL_TRIANGLES,0,3);glFinish();
+  uint64_t elapsed=benchmark_now_us()-before;
+  if(!check_full_surface())return false;
+  printf("waffle-gl-bench: frame=%u render_and_readback_us=%llu checked=1218000 wrong=0 blue=%u\n",frame,(unsigned long long)elapsed,benchmark_blue);
+ }
+ printf("waffle-gl-bench: result=1 frames=240 checked=292320000 wrong=0 inverted=0 panel_FPS=0\n");
+ return true;
 }
 #endif
 #ifdef WAFFLE_GL_FRAMES
@@ -321,7 +357,14 @@ int main(void)
 #ifdef WAFFLE_GL_RECYCLE_BO
  int recycle_fd=existing_gpu_fd();
  if(recycle_fd<0){printf("waffle-gl-recycle: existing device FD missing\n");goto finish;}
- bool recycled=waffle_gl_recycle_buffers(recycle_fd,9000);close(recycle_fd);
+#ifdef WAFFLE_GL_QUEUE_RECYCLE
+ if(!waffle_gl_queue_probe_begin(recycle_fd)){printf("waffle-gl-queue: result=0 begin failed\n");close(recycle_fd);goto finish;}
+#endif
+ bool recycled=waffle_gl_recycle_buffers(recycle_fd,9000);
+#ifdef WAFFLE_GL_QUEUE_RECYCLE
+ if(recycled)recycled=waffle_gl_queue_probe_end(recycle_fd);
+#endif
+ close(recycle_fd);
  if(!recycled)goto finish;
 #endif
 #ifdef WAFFLE_GL_EAGL
@@ -356,8 +399,8 @@ int main(void)
  hook_surface=make_triangle_surface();if(!hook_surface)goto finish;
  SEL attach=sel_registerName("attachImage:toCoreSurface:invertedRender:");
  if(!class_getInstanceMethod(cls,attach))goto finish;
- BOOL attached=((BOOL (*)(id,SEL,unsigned long,IOSurfaceRef,BOOL))objc_msgSend)(ctx,attach,GL_TEXTURE_2D,hook_surface,YES);
- printf("waffle-gl-hook: attachImage=%u surface=%u inverted=1\n",attached,IOSurfaceGetID(hook_surface));
+ BOOL attached=((BOOL (*)(id,SEL,unsigned long,IOSurfaceRef,BOOL))objc_msgSend)(ctx,attach,GL_TEXTURE_2D,hook_surface,WAFFLE_PROBE_INVERTED?YES:NO);
+ printf("waffle-gl-hook: attachImage=%u surface=%u inverted=%u\n",attached,IOSurfaceGetID(hook_surface),WAFFLE_PROBE_INVERTED);
  if(!attached)goto finish;
 #endif
  glGenFramebuffers(1,&framebuffer);glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
@@ -375,6 +418,9 @@ int main(void)
  glReadPixels(0,0,16,16,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
 #endif
 #endif
+#ifdef WAFFLE_GL_READBACK_BENCH
+ if(!benchmark_readback())goto finish;
+#endif
 #ifdef WAFFLE_GL_FRAMES
  if(!repeat_triangles())goto finish;
 #endif
@@ -388,7 +434,7 @@ int main(void)
 #ifdef WAFFLE_GL_CONTEXTS
  if(ok)ok=check_context_switch();
 #endif
-#ifdef WAFFLE_GL_PRESENT
+#if defined(WAFFLE_GL_PRESENT) && !defined(WAFFLE_GL_READBACK_BENCH)
  if(ok)ok=present_triangle();
 #endif
  printf("waffle-gl-user: checked=256 wrong=%u filled=%u GL_error=%x\n",wrong,inside,error);

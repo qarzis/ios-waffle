@@ -90,15 +90,20 @@ int main(void){
  fail_alloc=false;target_to_surface(&e,&image);assert(e.readback && e.readback_bytes==60);
  void *previous=e.readback;size_t previous_bytes=e.readback_bytes;fail_alloc=true;image.width=8;reads=0;
  target_to_surface(&e,&image);assert(reads==5 && e.readback==previous && e.readback_bytes==previous_bytes);check(&surface,8,5,true);
+#ifdef WAFFLE_GL_STAGE_READBACK
+ image.invert=false;reads=0;target_to_surface(&e,&image);
+ assert(reads==1 && e.readback==previous && e.readback_bytes==previous_bytes);check(&surface,8,5,false);
+#endif
 #endif
  free(e.readback);return 0;
 }
 '''
 with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);(p/'test.c').write_text(h+code+test)
- for batch in [False,True]:
+ for batch,stage in [(False,False),(True,False),(True,True)]:
   subprocess.run(['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-Wno-unused-function',
    '-DWAFFLE_GL_PROFILE_READBACK',*(['-DWAFFLE_GL_BATCH_READBACK'] if batch else []),
+   *(['-DWAFFLE_GL_STAGE_READBACK'] if stage else []),
    '-fsanitize=address,undefined',str(p/'test.c'),'-o',str(p/'test')],check=True)
   subprocess.run([str(p/'test')],check=True)
 print('HOST actual EAGL readback:legacy1624 row reads vs one packed read at750x1624, independent per-pixel orientation/BGRA/padding/canary checks, non-inverted path/state restore/scratch reuse/lockfailure and first/growth allocationfailure fallback. GL and IOSurface mocked; no GPU/FPS claim.')
