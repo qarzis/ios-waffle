@@ -1,3 +1,15 @@
+# STOP — user «стопай»; phone Android independently confirmed1
+
+Do NOT build/test/editdriver/continueGPUuntilnewexplicitresume. CurrentE56autoexec65688finished; noactivehardwareworker. AutomaticAndroidconfirmedandindependent ADB sys.boot_completed=1. Saveonlywrapup/docs/localGit; noGitHubpushrequested.
+
+E56 actualUI run20261101T203958Z/auto203934Z reached1024 realGPUfences(lastACKseq1067/control00000400/privateguardswrong0). Userreporteddesktopicons/animationsagainandworkedLONGERbefore respring. FIRSTfailure133 isnextvalid934word/tworoot/59BOsubmit EIO causedby existingSOFTWAREdiagnostic s->submitted>=1024 inwaffle_gmu_owner_submit. Notfirmwarelimit; nextseq1068belowguard4095.128MiB passedold906/live64Mblocker:917BOissued,908live73,564,160B<128MiB,9earlyreclaims/0heldclosedbytes. LaterGEM_NEW ENOMEM isSECONDARY afterfailedsubmit disablesgmu_ok; doNOTincreaseheapagainforthat. Close134passed0completed1024buffers917contextnull1 andSERVICE/ownerendresult0, notqualifiedfullparentteardownpass. PhonefreshAndroidboot1confirmed. Originalrunner1/autofalse preserved.
+
+E56-result.json hashesraw125/133/134/ui-gpu-events andallnativeGOPscreenshots15/30/32/35/40/45/60. Do NOTstartimageanalysisafterSTOP; savedforresume. UseropticalconfirmationfirstdesktopE55andlongerE56, noindependentFPS/referencepixelcorrectnessforUI. E56actualGLcontrol203631Zall256pixelscorrect/2GPUfences/23BO/1earlyfree+22afterstop/reusedVA100000000/fullclosepassed1/runner0/Android1, E56-control-result.json.
+
+OnEXPLICITRESUME nextfirstcause: review1024-jobdiagnosticguard andHFIsequence/ACK/fencebudget, errorpoisonhandling; hostnegativeboundary/sequence/ownershiptests beforeminimalchange/fullbuild/matchingcurrentAUTOcontrol/UI. DoNOTblindlyremove1024orclaimpermanentGPUUI. Currentkernel128MiB/TABLE128/derived8192BO/CPUmetadata320KiB/cdevstack1232B/owner6320B, perBO8MiB/root1536/window16/jobs1024/queue32/init/GCunchanged. Fullymodeled128MiB32768PTEs/90tablesafter25bootstrap andrealownerPAGEguard; allhost/fullbuild/container/sourcebindingsPASS.
+
+Localarchive4d4fcbd beforeUIresult; snapshotresult/STOPnow. E55source64withuserdesktopconfirmedcheckpoint db5b2d7a, E55result422GPUjobs/13GCthen893live64MiBENOMEM. E56fixlivebudget64->128provenfirstfailuremovedtojobcap. MandatoryreviewE54beforeE55done; E56secondUIexperimentsincereview, nextthirdfailurethenmandatoryreview. VerifiedE45a14b658 remainsolderqualified2EAGLcontexts. GitHub3644994alreadypublished/noadditionalpushrequested. Noagents/formalgoal/flash/erase/manualBootiOS. STOPstatusquerydoesnotresume.
+
 # E56 actual UI running — exec65688, auto203934Z, run203958Z
 
 E56 actual128MiB/8192record GLcontrol run20261101T203631Z/auto203607Z PASS:FD750/all256pixelscorrect/2GPUfences/23BOs, index1CPU-unmap+dualTLBIreclaim andVA100000000 reusedindex2,22remaining+1earlier=23/fullparentclosepassed1/contextnull/runner0/autosuccess/independentAndroid1. E56-control-result.json. Samekernel/sourcebinding asfullbuild; source64/128 regressionsallpass.
