@@ -1,0 +1,35 @@
+{
+  "experiment": "E24 repeated presentation for user optical confirmation",
+  "reason_for_repeat": "user explicitly requested show again after missing first 5-second window",
+  "unchanged_kernel": true,
+  "run": "work/waffle/runs/20261101T072750Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T072726Z",
+  "actual_gpu_pixels_verified": 256,
+  "gpu_words_checked": 4096,
+  "gpu_wrong_words": 0,
+  "framebuffer_roi": [
+    592,
+    1456,
+    256,
+    256
+  ],
+  "cpu_bgra_conversion_and_scaling": true,
+  "framebuffer_write_words_checked": 65536,
+  "framebuffer_write_wrong": 0,
+  "original_framebuffer_restore_words_checked": 65536,
+  "original_framebuffer_restore_wrong": 0,
+  "hold_seconds": 5,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "optical_panel_confirmation": true,
+  "optical_evidence": "user message: \u0434\u0430 \u043f\u043e\u044f\u0432\u0438\u043b\u0441\u044f",
+  "ios_acceleration": false,
+  "gpu_direct_scanout": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T072750Z/kernel-final.log": "d2f17637de3b7f9250b353ba526e8f1fdd1b2781caf0eed7bc72b07c62714b77",
+    "work/waffle/runs/20261101T072750Z/gpu-pixels.json": "354cf49a91f7a7d1ec7bf5062318803b3a7211e0ad59e65abb9581708c0ce8f5",
+    "work/waffle/runs/20261101T072750Z/first-gpu-frame.png": "fef18baab29ca409712227d50a8806e3d6f7c8000e96bc4cdbdd4cc1e95d449d"
+  }
+}

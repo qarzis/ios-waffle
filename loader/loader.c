@@ -1369,6 +1369,9 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
         print("waffle: unsupported RAM test request\n");
         return 0;
     }
+    if(waffle_present_requested(pi.cmdline) && (!GOP || !GOP->mode || !GOP->mode->info || GOP->mode->info->pixel_format!=1)) {
+        print("waffle: presentation requires verified BGRA GOP\n");return 0;
+    }
 #if defined(WAFFLE_KERNEL_SIZE) && defined(WAFFLE_KERNEL_CRC32)
     if (pi.kernel_size != WAFFLE_KERNEL_SIZE ||
         payload_crc32(pi.kernel, pi.kernel_size) != WAFFLE_KERNEL_CRC32) {

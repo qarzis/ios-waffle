@@ -72,6 +72,7 @@ static bool wait_for(uintptr_t gmu,unsigned off,unsigned mask,unsigned expected,
 }
 static void say(const char *fmt,...){(void)fmt;}
 static void stop_unsafe(const char *reason){assert(reason);longjmp(trap,1);}
+static bool present_gpu_pixels(const volatile uint32_t *pixels){assert(pixels==active_arena+3072);for(unsigned i=0;i<256;i++)assert(pixels[i]==waffle_copy_expected(2,3072+i));return mode!=27;}
 static bool hfi_exchange_watch(uintptr_t,uintptr_t,const uint32_t *,unsigned,const char *,bool,struct waffle_gmu_plan *);
 '''
 callback=r'''
@@ -84,10 +85,10 @@ static bool hfi_exchange_watch(uintptr_t gmu,uintptr_t hfi,const uint32_t *p,uns
   assert(watch->compute_mode==1 || watch->compute_mode==2);
   assert(p[4]==WAFFLE_COMPUTE_WORDS && ((uint64_t)p[3]<<32|p[2])==waffle_gpu_compact_alias(0x80078400));
   assert(session->submitted==1 && session->completed==0 && session->next_sequence==45);
-  for(unsigned i=0;i<4096;i++)assert(active_arena[i]==(watch->compute_image==2?waffle_copy_initial:watch->compute_image?waffle_image_initial:waffle_compute_initial)(watch->compute_mode,i));
+  for(unsigned i=0;i<4096;i++)assert(active_arena[i]==(watch->compute_image>=2?waffle_copy_initial:watch->compute_image?waffle_image_initial:waffle_compute_initial)(watch->compute_mode,i));
   sends++;
   if(mode!=20)active_arena[2048]=1;
-  if(watch->compute_mode==2 && mode!=21)for(unsigned i=0;i<(watch->compute_image?256u:8u);i++)active_arena[(watch->compute_image?3072:64)+i]=watch->compute_image==2?active_arena[3328+i]:watch->compute_image?(0xff000000u|i):i;
+  if(watch->compute_mode==2 && mode!=21)for(unsigned i=0;i<(watch->compute_image?256u:8u);i++)active_arena[(watch->compute_image?3072:64)+i]=watch->compute_image>=2?active_arena[3328+i]:watch->compute_image?(0xff000000u|i):i;
   if(mode==22)active_arena[4095]^=1;
   if(mode==26)active_arena[3328]^=1;
   return mode!=23;
@@ -172,7 +173,8 @@ int main(void){
   assert(frees==1 && unmaps==(failure?1u:2u));
  }
  compute_case=true;
- for(unsigned image=0;image<3;image++)for(unsigned dispatch=1;dispatch<=2;dispatch++)for(unsigned failure=0;failure<8;failure++){
+ for(unsigned image=0;image<4;image++)for(unsigned dispatch=1;dispatch<=2;dispatch++)for(unsigned failure=0;failure<9;failure++){
+  if(image==3 && dispatch==1)continue;
   mode=0;sends=allocs=frees=maps=unmaps=releases=waits=delays=0;after_open=false;
   struct waffle_gmu_plan plan={.raw_stage_pause=true,.compute_mode=dispatch,.compute_image=image};
   assert(submit_session_open(1,2,3,&plan));after_open=true;
@@ -181,9 +183,10 @@ int main(void){
   assert(waffle_gmu_owner_bind_bo(&owner,&fresh));active_arena=dynamic_arena;active_address=0x80078400;
   mode=failure?19+failure:0;
   if(mode==25)plan.submit_session->ib_va=waffle_gpu_compact_alias(0x80074400);
-  bool success=mode==0 || (dispatch==1 && mode==21);
+  bool success=mode==0 || (dispatch==1 && mode==21) || (mode==27 && image!=3);
   assert(submit_session_run(&plan)==success);
   if(success){assert(plan.submit_session->completed==1 && plan.session_slumber_sequence==45 && sends==1);assert(submit_session_close(&plan));submit_session_destroy(&plan,63);assert(frees==1 && unmaps==2);}
+  else if(mode==27 && image==3){assert(plan.submit_session->phase==SUBMIT_READY && plan.submit_session->completed==1 && plan.session_slumber_sequence==45);assert(submit_session_close(&plan));submit_session_destroy(&plan,63);assert(frees==1 && unmaps==2);}
   else if(mode==25){assert(!sends && plan.submit_session->phase==SUBMIT_READY);mode=0;assert(submit_session_close(&plan));submit_session_destroy(&plan,63);}
   else{assert(sends==1 && plan.submit_session->phase==SUBMIT_POISONED && !submit_session_close(&plan) && !frees && unmaps==1);}
  }

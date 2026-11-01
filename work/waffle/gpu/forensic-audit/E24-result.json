@@ -1,0 +1,28 @@
+{
+  "experiment": "E24 CPU presentation of GPU-produced pixels",
+  "run": "work/waffle/runs/20261101T072614Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T072550Z",
+  "actual_gpu_pixels_verified": 256,
+  "gpu_words_checked": 4096,
+  "gpu_wrong_words": 0,
+  "framebuffer_roi": [
+    592,
+    1456,
+    256,
+    256
+  ],
+  "cpu_bgra_conversion_and_scaling": true,
+  "framebuffer_write_words_checked": 65536,
+  "framebuffer_write_wrong": 0,
+  "original_framebuffer_restore_words_checked": 65536,
+  "original_framebuffer_restore_wrong": 0,
+  "hold_seconds": 5,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "optical_panel_confirmation": false,
+  "user_observation": "did not have time to look",
+  "ios_acceleration": false,
+  "log_sha256": "94ecd81805954753cdb8911d53b31f88679bdaee5e2fff9915ef18deda5ca0c7"
+}

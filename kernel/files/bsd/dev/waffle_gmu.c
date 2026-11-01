@@ -21,6 +21,9 @@
 #include <sys/waffle_gpu_compute.h>
 #include <sys/waffle_gpu_image.h>
 #include <sys/waffle_gpu_copy.h>
+#include <sys/waffle_gpu_present.h>
+#include <console/video_console.h>
+extern struct vc_info vinfo;
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
@@ -1854,6 +1857,33 @@ static void gpu_gen7_live_finish(struct gen7_live_probe *live,unsigned evidence)
 
 /* Owned submission session: no borrowed callee stack, and no user queue yet.
  * Outer diagnostic retains plan/tables/power until close and verified stop. */
+static bool present_gpu_pixels(const volatile uint32_t *pixels)
+{
+    /* The image3 loader gate verified BGRA GOP; do not guess geometry or PA. */
+    uintptr_t base=vinfo.v_baseaddr;
+    if(!waffle_present_valid(base,vinfo.v_physaddr,vinfo.v_width,vinfo.v_height,vinfo.v_depth,vinfo.v_rowbytes)) {
+        say("waffle-gmu: PRESENT refused base=%llx physical=%llx width=%u height=%u depth=%u stride=%u\n",
+            (uint64_t)base,vinfo.v_physaddr,vinfo.v_width,vinfo.v_height,vinfo.v_depth,vinfo.v_rowbytes);
+        return false;
+    }
+    vm_offset_t backup=0;
+    if(kmem_alloc(kernel_map,&backup,WAFFLE_PRESENT_BYTES,KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS) {
+        say("waffle-gmu: PRESENT backup allocation failed\n");return false;
+    }
+    say("waffle-gmu: PRESENT begin format=BGRA8 x=592 y=1456 width=256 height=256 cpu_blit=1\n");
+    volatile uint32_t *fb=(volatile uint32_t *)base;
+    waffle_present_transfer(fb,vinfo.v_rowbytes,pixels,(uint32_t *)backup,0);
+    __asm__ volatile("dsb sy":::"memory");
+    unsigned wrong=waffle_present_transfer(fb,vinfo.v_rowbytes,pixels,(uint32_t *)backup,1);
+    say("waffle-gmu: PRESENT write checked=65536 wrong=%u\n",wrong);
+    if(!wrong)delay_for_interval(5000000,NSEC_PER_USEC);
+    waffle_present_transfer(fb,vinfo.v_rowbytes,pixels,(uint32_t *)backup,2);
+    __asm__ volatile("dsb sy":::"memory");
+    unsigned restored=waffle_present_transfer(fb,vinfo.v_rowbytes,pixels,(uint32_t *)backup,3);
+    say("waffle-gmu: PRESENT restore checked=65536 wrong=%u\n",restored);
+    kmem_free(kernel_map,backup,WAFFLE_PRESENT_BYTES);
+    return !wrong && !restored;
+}
 enum submit_phase { SUBMIT_READY=1,SUBMIT_BUSY,SUBMIT_POISONED,SUBMIT_CLOSED };
 struct waffle_submit_session {
     enum submit_phase phase;
@@ -1945,20 +1975,20 @@ static bool submit_session_submit(struct waffle_submit_session *s)
 }
 static bool submit_session_compute(struct waffle_submit_session *s,unsigned mode,unsigned image)
 {
-    if(!s || (mode!=1 && mode!=2) || image>2 || s->phase!=SUBMIT_READY || !s->owns_oob ||
+    if(!s || (mode!=1 && mode!=2) || image>3 || (image==3 && mode!=2) || s->phase!=SUBMIT_READY || !s->owns_oob ||
         s->submitted || s->completed || s->next_sequence!=44 ||
         s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024 ||
         rd(s->gpu,0xf400*4) || (rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3))return false;
     _Static_assert(WAFFLE_IMAGE_WORDS==WAFFLE_COMPUTE_WORDS,"image command layout changed");
-    uint32_t (*initial)(unsigned,unsigned)=image==2?waffle_copy_initial:image?waffle_image_initial:waffle_compute_initial;
-    uint32_t (*expected)(unsigned,unsigned)=image==2?waffle_copy_expected:image?waffle_image_expected:waffle_compute_expected;
+    uint32_t (*initial)(unsigned,unsigned)=image>=2?waffle_copy_initial:image?waffle_image_initial:waffle_compute_initial;
+    uint32_t (*expected)(unsigned,unsigned)=image>=2?waffle_copy_expected:image?waffle_image_expected:waffle_compute_expected;
     _Static_assert(WAFFLE_COPY_WORDS==WAFFLE_COMPUTE_WORDS,"copy command layout changed");
     unsigned first=image?3072:64,pixels=image?256:8;
     volatile uint32_t *out=(volatile uint32_t *)s->alias;
     for(unsigned i=0;i<4096;i++)out[i]=initial(mode,i);
     __asm__ volatile("dsb sy":::"memory");
     for(unsigned i=0;i<4096;i++)if(out[i]!=initial(mode,i))return false;
-    if(image==2)say("waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256\n");
+    if(image>=2)say("waffle-gmu: IMAGE_COPY input_word=3328 output_word=3072 pixels=256\n");
     if(image)say("waffle-gmu: IMAGE begin width=16 height=16 pixels=256 dispatch=%u\n",mode==2);
     say("waffle-gmu: COMPUTE begin mode=%u dispatch=%u words=%u output_poison=1\n",mode,mode==2,WAFFLE_COMPUTE_WORDS);
     if(!submit_session_exchange(s,WAFFLE_COMPUTE_WORDS,"COMPUTE_IB"))return false;
@@ -1993,6 +2023,7 @@ static bool submit_session_run(struct waffle_gmu_plan *plan)
         if(i<2)delay_for_interval(1000000,NSEC_PER_USEC);
     }
     plan->session_slumber_sequence=s->next_sequence;
+    if(plan->compute_image==3 && !present_gpu_pixels((volatile uint32_t *)s->alias+3072))return false;
     say("waffle-gmu: SESSION result=1 submitted=%u completed=%u next_sequence=%u OOB=1; bounded kernel session\n",
         s->submitted,s->completed,s->next_sequence);
     return true;

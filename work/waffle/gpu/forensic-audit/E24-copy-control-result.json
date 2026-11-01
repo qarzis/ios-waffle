@@ -1,0 +1,15 @@
+{
+  "experiment": "E24 old image2 GPU copy control on presentation-capable kernel",
+  "run": "work/waffle/runs/20261101T072448Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T072423Z",
+  "actual_pixels_verified": 256,
+  "framebuffer_writes": false,
+  "control_fence": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "106bf2ba786f9c4ef1c2dd780f1a5bcb5b6a956408823df9f2fe2d5763d92f9e"
+}

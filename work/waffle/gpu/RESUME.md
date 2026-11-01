@@ -1,3 +1,55 @@
+# Current: E24 PASS — GPU output visibly presented on phone
+
+User confirmed «да появился» during explicit repeat run20261101T072750Z /
+auto072726Z. ActualGPUcopied uploaded16x16 pixels, verified256pixels and
+all4096BOwordswrong0. CPU BGRA-converts/scales actualGPUoutput to center
+256x256 at592,1456. Framebufferwrite65536wrong0, hold5sec, restored all
+original65536pixels/wrong0. Fullshutdown/runner0/autosuccess/independent
+ADBAndroid1. User saw square. This is CPU presentation of GPU-processed
+pixels, notGPUdirectscanout, productionrendering or iOS acceleration.
+
+Artifact diagnostic-gpu-present-e24; fullhost/XNU/EFI/container/sourcebinding
+PASS. Source/boundedpresenthelper + loaderactualBGRA1 gate. New image3
+requirescompute2; GPUshader/payload same as image2, GPUboot/power/security/
+mapper/stop unchanged. Purehost tests geometry/PA/overflow/stride/swizzle/
+ROIguards/restore/allocationfail/corruption; normalGPUcleanup onpresentfail.
+93control run072345Z/auto072321Z passed. Oldimage2copycontrol run072448Z/
+auto072423Z passed withoutframebufferwrite. Firstpresent run072614Z/
+auto072550Z memoryPASS but usermissed; samekernel explicitly repeated only
+fornewopticalevidence. Keepbothreports. E24-result.json is first(nooptical),
+E24-visible-result.json is latest confirmedvisible.
+
+No activeworker; phone ordinaryAndroid. RAM-only/no flash/erase; return
+Android+independentADB1 aftereachtest. AutoUEFI requiresno Boot iOS choice.
+Next blocker: persistent production GPU job/service, BO/submit/completion
+interface and integration into Mesa/iOS graphics stack. Do not spendmore
+ownership-only tests or claim accelerated SpringBoard. E23 28a4e8f and
+E22 a6fd780 preserved. GitHub task complete at b4fe8be(E21); no new push
+requested. Save E24 on archive+verified refs with explicitpaths only.
+
+Older chronology below is superseded by this entry.
+
+# Active: E24 framebuffer presentation experiment, not yet hardware-qualified
+
+E23 verified checkpoint 28a4e8f remains safe. E24 artifact
+diagnostic-gpu-present-e24 passed allhost/XNU/EFI/container/sourcebinding.
+New waffle_image=3 requires compute2; shader/payload same as image2, no GPU
+commands/power/security/mapping/stop changes. Loader requires actual BGRA GOP1.
+Kernel validates console vinfo framebuffer geometry/PA, saves central256x256,
+CPU-swizzles and scales actual16x16GPUreadback, checks65536writtenwords,
+holds5sec, restores65536oldwords and checks again. This is CPU presentation
+ofGPUoutput, notGPUscanout or iOS acceleration. Optical confirmation separate.
+93control run20261101T072345Z/auto072321Z passed access27/alloc8/query42/
+fullstop/runner0/independentAndroid1. Current automatic worker is image2copy
+control (exec37773), log auto-present-e24-copy-control.log. After success and
+independentADB1 preserve94copyreport, then run --image-present instead of
+--image-copy with fullchain --compute dispatch, sameartifact. Onlyone new
+presentation experiment; save refusal/mismatch exact if fails, do notrerun.
+AutomaticRAM-only recovery; no physical Boot iOS needed. No flash/erase.
+E24source uncommitted pendinghardware outcome; E24-scope-audit.json preserved.
+
+Older chronology below (superseded by latest result above).
+
 # Current: E23 hardware PASS — uploaded image copied by Adreno750
 
 Control93 run20261101T071431Z/auto071407Z PASS. Image2prepare94 run071533Z/

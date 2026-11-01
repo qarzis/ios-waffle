@@ -1,0 +1,38 @@
+{
+  "experiment": "E24 CPU presentation of verified GPU image",
+  "base": "28a4e8f8e43a5cb37d14f89eac4f6989fab215ef",
+  "unchanged_files": [
+    "kernel/files/bsd/dev/waffle_adreno.c",
+    "kernel/files/bsd/sys/waffle_aop.h",
+    "kernel/files/bsd/sys/waffle_gen7_boot.h",
+    "kernel/files/bsd/sys/waffle_gpu_compute.h",
+    "kernel/files/bsd/sys/waffle_gpu_image.h",
+    "kernel/files/bsd/sys/waffle_gpu_copy.h",
+    "kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp"
+  ],
+  "all_gpu_commands_firmware_boot_security_power_clock_dynamic_mapping_and_stop_unchanged": true,
+  "new_image_kind": 3,
+  "requires_compute_dispatch": true,
+  "real_gop_pixel_format_required": 1,
+  "kernel_physical_reservation": [
+    "0xd5100000",
+    "0xd7c00000"
+  ],
+  "validated_panel": [
+    1440,
+    3168,
+    32
+  ],
+  "roi": [
+    592,
+    1456,
+    256,
+    256
+  ],
+  "readback_words": 65536,
+  "original_framebuffer_restored_and_verified": true,
+  "cpu_blit_and_scaling": true,
+  "hold_seconds": 5,
+  "optical_panel_confirmation": false,
+  "hardware_tested": false
+}

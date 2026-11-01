@@ -47,7 +47,7 @@ def extract_gpu_image(text, compute_mode, image=1):
     if set(blocks)!=set(range(0,256,8)):
         raise RuntimeError("Incomplete GPU pixel readback")
     pixels=[v for offset in range(0,256,8) for v in blocks[offset]]
-    expected=(uploaded_image_pixels() if image==2 else [0xff000000|i for i in range(256)]) if compute_mode==2 else [0xdead0000+i for i in range(256)]
+    expected=(uploaded_image_pixels() if image>=2 else [0xff000000|i for i in range(256)]) if compute_mode==2 else [0xdead0000+i for i in range(256)]
     if pixels!=expected:raise RuntimeError("GPU pixel pattern did not match")
     return pixels
 
@@ -69,8 +69,8 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         "full GPU owner returned live to init caller; no mutex held",
     ]
     if compute_mode:
-        expected_pixels=uploaded_image_pixels() if image==2 else [0xff000000|i for i in range(256)]
-        if image==2:markers += ["IMAGE_COPY input_word=3328 output_word=3072 pixels=256"]
+        expected_pixels=uploaded_image_pixels() if image>=2 else [0xff000000|i for i in range(256)]
+        if image>=2:markers += ["IMAGE_COPY input_word=3328 output_word=3072 pixels=256"]
         values="/".join(f"{expected_pixels[i] if image and compute_mode==2 else i if compute_mode==2 else 0xdead0000+i:08x}" for i in range(8))
         if image:markers += [f"IMAGE begin width=16 height=16 pixels=256 dispatch={int(compute_mode==2)}"]
         markers += [f"COMPUTE begin mode={compute_mode} dispatch={int(compute_mode==2)} words=184 output_poison=1",
@@ -88,6 +88,10 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         "POWER_OWNER released after clock child, CX and CFG restore result=1",
         "AOP_OWNER released after power child and channel restore result=1 transport=0",
     ]
+    if image==3:
+        start=markers.index("SESSION result=1 submitted=1 completed=1 next_sequence=45 OOB=1; bounded kernel session")
+        markers[start:start]=["PRESENT begin format=BGRA8 x=592 y=1456 width=256 height=256 cpu_blit=1",
+                             "PRESENT write checked=65536 wrong=0", "PRESENT restore checked=65536 wrong=0"]
     positions=[text.find(marker) for marker in markers]
     if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
         raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
@@ -108,6 +112,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-image-present",action="store_true",help="E24 CPU-present verified GPU image then restore framebuffer")
     parser.add_argument("--gpu-image-copy",action="store_true",help="E23 uploaded16x16 image copy; requires compute")
     parser.add_argument("--gpu-image",action="store_true",help="E22: compute-generated16x16 offscreen pixels; requires compute")
     parser.add_argument("--gpu-compute",type=int,choices=(1,2),help="E21: 1=state/control without dispatch; 2=eight-thread compute shader")
@@ -117,8 +122,9 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
-    if args.gpu_image_copy and args.gpu_image:parser.error("Choose image ramp or uploaded image copy")
-    image_kind=2 if args.gpu_image_copy else int(args.gpu_image)
+    if sum((args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
+    image_kind=3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    if image_kind==3 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
     args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
         parser.error("--gpu-access-matrix requires prepare-only --gpu-probe 93")
