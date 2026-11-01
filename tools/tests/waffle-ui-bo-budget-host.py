@@ -40,7 +40,7 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);(p/'test.c').write_text(ns['h']+ns['parts']['ioc']+ns['uapi']+ns['source']+t)
  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable','-Wno-misleading-indentation','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('Actual cdev128 context BOs versus64 per-submit references:handle128/handle65 submit,duplicatehighhandle refused,65-reference submit refused,129thcontextBO refused,close retains backing untilparentstop; host only')
+print('Actual budget-derived context handle capacity versus64 per-submit references:highest handle/handle65 submit,duplicatehighhandle refused,65-reference submit refused,context-cap+1 refused,close retains backing untilparentstop; host only')
 
 # Reuse the actual SMMU adapter harness, seeded with the observed25 boot tables.
 model={'__file__':str(root/'tools/tests/waffle-table-budget-host.py')}

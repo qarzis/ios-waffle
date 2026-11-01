@@ -13,7 +13,7 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory)
  for bound in (64,128):
   header=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text()
-  (p/'waffle_gpu_memory.h').write_text(re.sub(r'#define WAFFLE_GPU_BO_LIMIT \d+u','#define WAFFLE_GPU_BO_LIMIT '+str(bound)+'u',header))
+  (p/'waffle_gpu_memory.h').write_text(re.sub(r'#define WAFFLE_GPU_BO_LIMIT .*','#define WAFFLE_GPU_BO_LIMIT '+str(bound)+'u',header))
   (p/'waffle_gpu_registry.h').write_text((root/'kernel/files/bsd/sys/waffle_gpu_registry.h').read_text())
   t='_Static_assert(sizeof(struct smmu_owner)<=16384,"Actual SMMU owner fits one16KiB allocation");\n'
   t+='int main(void){struct smmu_owner owner={.compute_image=13,.child=&child,.permission_context={.cb=1,.lpac_cb=2}};active=&owner;for(unsigned i=0;i<25;i++)assert(new_table(&owner.pool));owner.permission_context.tables=&owner.pool;live=true;\n'

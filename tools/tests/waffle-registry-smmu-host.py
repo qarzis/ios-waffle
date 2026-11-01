@@ -30,7 +30,7 @@ t+=r'''
  /* Exact low-level failure retains backing; parent must detach before free. */
  for(unsigned failure=0;failure<2;failure++){
   allocated=objects=reclaimed=tlbs=cleans=after_start_allocs=0;live=false;memset(&owner,0,sizeof(owner));owner.compute_image=13;owner.child=&child;owner.permission_context=(struct pool_permission_context){.cb=1,.lpac_cb=2,.tables=&owner.pool};
-  assert(new_table(&owner.pool));live=true;mode=failure?7:1;
+  assert(new_table(&owner.pool));live=true;mode=0;assert(smmu_registry_prepare(&owner));mode=failure?7:1;
   if(!setjmp(reset_trap)){(void)smmu_registry_new(&owner,16384,WAFFLE_GPU_BO_WC);assert(0);}
   assert(owner.registry.poisoned && owner.registry.count==1 && objects==1 && !reclaimed);
   mode=0;assert(waffle_gpu_registry_destroy(&owner.registry,true) && reclaimed==1);

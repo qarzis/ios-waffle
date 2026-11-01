@@ -724,7 +724,7 @@ static bool smmu_owner_finish(struct smmu_owner *s)
     w64(s->qtb, 0x410, s->old_fence);
     (void)r32(s->qtb, 0); barrier();
     if (s->safe_free) {
-        if(s->registry.count){
+        if(s->registry.buffers){
             unsigned count=s->registry.count;
             if(!waffle_gpu_registry_destroy(&s->registry,true))smmu_owner_stop("general BO reclamation failed after detach");
             log_line("waffle-iommu: GENERAL_BO released after GPU stop and context detach count=%u\n",count);
@@ -781,9 +781,28 @@ static bool smmu_registry_tlb(void *context)
 {
     struct smmu_owner *s=context;return pool_permission_sync(&s->permission_context);
 }
+static void smmu_registry_release_storage(uintptr_t address,uint32_t bytes)
+{
+    kmem_free(kernel_map,address,bytes);
+}
+static bool smmu_registry_prepare(struct smmu_owner *s)
+{
+    if(s->registry.buffers)return true;
+    const uint32_t bytes=(sizeof(struct waffle_gpu_memory)*WAFFLE_GPU_BO_LIMIT+PAGE_SIZE-1)&~(PAGE_SIZE-1);
+    vm_offset_t storage=0;
+    if(kmem_alloc(kernel_map,&storage,bytes,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
+        VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
+    s->registry.buffers=(struct waffle_gpu_memory *)storage;
+    s->registry.storage_bytes=bytes;
+    s->registry.release_storage=smmu_registry_release_storage;
+    log_line("waffle-iommu: GENERAL registry_storage entries=%u bytes=%u GPU_mapped=0\n",WAFFLE_GPU_BO_LIMIT,bytes);
+    return true;
+}
 static struct waffle_gpu_memory *smmu_registry_new(struct smmu_owner *s,uint64_t bytes,uint32_t flags)
 {
     if(!s || s->compute_image!=13)return NULL;
+    if(!s->registry.buffers && (!waffle_gpu_registry_flags(bytes,flags) ||
+        !smmu_registry_idle(s) || !smmu_registry_prepare(s)))return NULL;
     const struct waffle_gpu_registry_ops ops={smmu_registry_idle,smmu_registry_vacant,
         smmu_registry_page,smmu_registry_clean,smmu_registry_tlb,s};
     struct waffle_gpu_memory *bo=waffle_gpu_registry_new(&s->registry,&ops,bytes,flags);

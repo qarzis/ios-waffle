@@ -6,7 +6,9 @@
  * reuse or GPU VA reuse until context destruction; failed publication poisons
  * the registry and retains all backing for parent-controlled GPU detach. */
 struct waffle_gpu_registry {
- struct waffle_gpu_memory buffers[WAFFLE_GPU_BO_LIMIT];
+ struct waffle_gpu_memory *buffers;
+ void (*release_storage)(uintptr_t,uint32_t);
+ uint32_t storage_bytes;
  uint32_t count,used;
  bool poisoned;
 };
@@ -26,7 +28,7 @@ static inline bool waffle_gpu_registry_flags(uint64_t bytes,uint32_t flags)
 static inline struct waffle_gpu_memory *waffle_gpu_registry_new(struct waffle_gpu_registry *r,
  const struct waffle_gpu_registry_ops *ops,uint64_t bytes,uint32_t flags)
 {
- if(!r || !ops || !ops->idle || !ops->vacant || !ops->map_page || !ops->clean || !ops->tlb ||
+ if(!r || !r->buffers || !ops || !ops->idle || !ops->vacant || !ops->map_page || !ops->clean || !ops->tlb ||
     r->poisoned || r->count>=WAFFLE_GPU_BO_LIMIT || !waffle_gpu_registry_flags(bytes,flags))return 0;
  uint32_t allocated=((uint32_t)bytes+16383)&~16383u;
  if(r->used>WAFFLE_GPU_BO_HEAP_BYTES || allocated>WAFFLE_GPU_BO_HEAP_BYTES-r->used || !ops->idle(ops->context))return 0;
@@ -52,6 +54,8 @@ static inline bool waffle_gpu_registry_destroy(struct waffle_gpu_registry *r,boo
 {
  if(!r || !gpu_detached)return false;
  for(uint32_t i=0;i<r->count;i++)if(!waffle_gpu_memory_destroy(&r->buffers[i],true))return false;
+ if(r->release_storage && r->buffers)r->release_storage((uintptr_t)r->buffers,r->storage_bytes);
+ r->buffers=0;r->release_storage=0;r->storage_bytes=0;
  r->count=r->used=0;r->poisoned=false;return true;
 }
 #endif

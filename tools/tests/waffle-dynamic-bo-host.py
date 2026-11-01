@@ -33,8 +33,11 @@ typedef uintptr_t vm_offset_t;
 static _Alignas(16384) uint8_t memory[16][16384];
 static unsigned allocated,mode,tlbs,cleans,binds,after_start_allocs;
 static bool live;
+static _Alignas(16384) unsigned char registry_storage[(WAFFLE_GPU_BO_LIMIT*sizeof(struct waffle_gpu_memory)+16383)&~16383u];
+static unsigned storage_allocs,storage_frees;
 static jmp_buf reset_trap;
-static int kmem_alloc(unsigned map,uintptr_t *out,unsigned bytes,unsigned flags,unsigned tag){assert(map==7 && bytes==16384 && flags==7 && tag==5 && allocated<16);if(live && mode==1)return 1;*out=(uintptr_t)memory[allocated++];if(live)after_start_allocs++;memset((void *)*out,0,bytes);return 0;}
+static int kmem_alloc(unsigned map,uintptr_t *out,unsigned bytes,unsigned flags,unsigned tag){assert(map==7 && flags==7 && tag==5);if(bytes>16384){assert(bytes==sizeof(registry_storage));if(mode==14)return 1;*out=(uintptr_t)registry_storage;memset(registry_storage,0,bytes);storage_allocs++;return 0;}assert(bytes==16384 && allocated<16);if(live && mode==1)return 1;*out=(uintptr_t)memory[allocated++];if(live)after_start_allocs++;memset((void *)*out,0,bytes);return 0;}
+static void kmem_free(unsigned map,uintptr_t address,unsigned bytes){assert(map==7 && address && bytes);storage_frees++;}
 static uint64_t kvtophys(uintptr_t p){for(unsigned i=0;i<allocated;i++)if(p>=(uintptr_t)memory[i] && p<(uintptr_t)memory[i]+16384){if(live && mode==6 && i==allocated-1 && p>=(uintptr_t)memory[i]+4096)return 1ULL<<36;return 0x10000000+i*16384+p-(uintptr_t)memory[i];}assert(0);return 0;}
 static void clean(uintptr_t address){assert(live && address && after_start_allocs==1);cleans++;}
 static bool tlb_sync(uintptr_t cb){assert(live && cleans && (cb==1 || cb==2));tlbs++;return !(mode==7 && cb==2);}

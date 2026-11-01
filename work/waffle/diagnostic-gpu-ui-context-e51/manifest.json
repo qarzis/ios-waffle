@@ -17,6 +17,7 @@
   "user_probe_root_sha256": "838d5264dea848c5f9b4c7bf22417c1daa2e5c767065c79533954d821bbbc507",
   "msm_probe_root_sha256": "f8341fe47b587d8b5816dc22d6b4c039b87f97d2bbeb2221521115a6788e4884",
   "mapped_probe_root_sha256": "069d0b9ac548d13e74676d4bfd722d04e2ff87844ca1dfd9cc5d39a3a41e68b4",
-  "gl_probe_root_sha256": "9249dcc7a06da8d34b7ee0bb806db4b707ec8acc5854827eadd85b88655e363f",
-  "experiment": "E51 context128 records versus64 references per submission; unchanged64MiB heap/root1536"
+  "gl_probe_root_sha256": "49559df15d3f66fc57bf5527edafb320f8bbadc23b5977a8ddf17bcddbff4473",
+  "experiment": "E51 context128 versus per-submit64 BO references; sameUIroot/64MiB/root1536",
+  "ui_workload": true
 }

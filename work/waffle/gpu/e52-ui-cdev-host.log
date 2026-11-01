@@ -1,0 +1,2 @@
+Actual budget-derived context handle capacity versus64 per-submit references:highest handle/handle65 submit,duplicatehighhandle refused,65-reference submit refused,context-cap+1 refused,close retains backing untilparentstop; host only
+Actual SMMU replays32 observed UI BOs/23625728bytes after25 boot tables, admits extra16KiB BO33 within current heap/64table bounds; extra request is host model only

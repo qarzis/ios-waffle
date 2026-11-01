@@ -91,12 +91,12 @@ static int drm_submit(struct waffle_msm_submit *r)
  struct waffle_msm_submit_bo bos[WAFFLE_GPU_SUBMIT_BUFFERS];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
  struct waffle_gpu_command roots[WAFFLE_GPU_SUBMIT_COMMANDS];
  if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands)))return EFAULT;
- bool seen[WAFFLE_GPU_BO_LIMIT]={false};uint32_t total=0;
+ uint64_t seen[(WAFFLE_GPU_BO_LIMIT+63)/64]={0};uint32_t total=0;
  for(unsigned i=0;i<r->nr_bos;i++){
   struct drm_bo *bo=drm_buffer(bos[i].handle);
-  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || seen[bos[i].handle-1] ||
+  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen[(bos[i].handle-1)/64]&(1ULL<<((bos[i].handle-1)%64))) ||
      (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va))return EINVAL;
-  seen[bos[i].handle-1]=true;
+  seen[(bos[i].handle-1)/64]|=1ULL<<((bos[i].handle-1)%64);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
   struct waffle_msm_submit_cmd *cmd=&commands[i];
