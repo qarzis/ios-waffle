@@ -1,3 +1,13 @@
+# E41 PASS — actual EAGL GL adapter with GLES texture FBO
+
+Run123341Z/auto123318Z runner0/autosuccess/Androidindependent1. API2 throughunchangedgl_osmesa, actualFD750OpenGLES3.2/GLSL100/VBO/textureFBO8cd5, exact256RGBA+BGRApixels,5GPUfences,25BO/fullstop/contextnull. Actualdisplayworker resolvescorrectIOSurface. Noactivehardwareprocess. Next64frame test beforeproduction backend/IOSurfaceimport. E41-result.json andE41-presentation-proof.json.
+
+# Active E41 — actual unchanged EAGL GL adapter/API2/FBO test
+
+E40 qualified archive+verified df2b86922720fb98219bb16dc04342454769e51c. User keepworking. E41 audit/log inGPU_DEBUG_LOG, max3hypotheses. Minimal userland --eagl implies--present, links actualunchangedgl_osmesa.c andcallsredwood_gl_create(2)/makecurrent. GLSL100+VBO+RGBAtextureFBO16x16, exact256RGBAreadback thenE40BGRAIOSurface/display. No kernel/Mesa change. Defaultdesktopprobecompile regressionPASS. Artifact diagnostic-gpu-gl-eagl-e41 source/rootbindings, sameE39kernel/image/Mesa, validationPASS. OriginalE39/E40roots untouched.
+
+Currentauto session85557, auto20261101T123318Z; logfilegpu/auto-gl-eagl-e41.log. No concurrentfastboot. Waitfullauto plusindependentAndroid1. Then tools/check-waffle-gl-presentation.py LOG --eagl demands originalGPUtokens/pixels/teardown plus actualESprofile+adapterAPI2+FBOcomplete+IOSurface+exactdisplayworkerSID/geometry. Noopticalvisibility/directscanout/UI claim. Future actualblockers beforefullUI: cdevroot0600/singlePID singleton,32BO/32MiB allocatedbackingretaineduntilstop; noIOSurfaceimport opcode7e. Don'tspeculativelychange untiltestevidence. KeepdoingauthorizedGPUwork, noSTOP/GitHubpush/flash/erase/manualBootiOS.
+
 # E40 PASS — GPU Mesa readback to actual IOSurface and display worker
 
 Run122920Z/auto122856Z runner0/success/independentAndroid1. E40-presentation-proof.json and E40-result.json. SameE39kernel/image/Mesa,5GPUfences,256pixelscorrect, exactIOSurface1 resolved bydisplayworker. CPUreadback, noopticalobservation/directGPUscanout/UI claim. Noactivehardwareprocess. Next actualgl_osmesa adapter GLES2/FBO for EAGL path. SaveE40qualifiedsourcebefore furtheredits.

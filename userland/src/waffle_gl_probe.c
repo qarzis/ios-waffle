@@ -15,6 +15,9 @@
 #include <mach-o/dyld.h>
 #include <mach/arm/thread_status.h>
 #include <stdarg.h>
+#ifdef WAFFLE_GL_EAGL
+#include "macan_gl.h"
+#endif
 #ifdef WAFFLE_GL_PRESENT
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOSurface/IOSurfaceRef.h>
@@ -133,7 +136,15 @@ int main(void)
  for(uint32_t i=0;i<_dyld_image_count();i++)direct_log("waffle-gl-image: base=%p slide=%llx name=%s\n",_dyld_get_image_header(i),(unsigned long long)_dyld_get_image_vmaddr_slide(i),_dyld_get_image_name(i));
  printf("waffle-gl-user: begin actual_OSMesa=1 target=GPU triangle=16x16\n");
  setenv("WAFFLE_GPU_DRM","1",1);setenv("OSMESA_SOFTWARE","0",1);
- int ok=0;OSMesaContext ctx=NULL;
+ int ok=0;
+#ifdef WAFFLE_GL_EAGL
+ struct redwood_gl *ctx=NULL;
+ printf("waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1\n");
+ ctx=redwood_gl_create(2);
+ if(!ctx || !redwood_gl_make_current(ctx)){printf("waffle-gl-eagl: context failed\n");goto finish;}
+ for(unsigned i=0;i<256;i++)pixels[i]=0xdead0000u+i;
+#else
+ OSMesaContext ctx=NULL;
  const int attrs[]={OSMESA_FORMAT,OSMESA_RGBA,OSMESA_PROFILE,OSMESA_CORE_PROFILE,OSMESA_CONTEXT_MAJOR_VERSION,3,OSMESA_CONTEXT_MINOR_VERSION,3,0};
  direct_log("waffle-gl-diag: before_create_context\n");
  ctx=OSMesaCreateContextAttribs(attrs,NULL);
@@ -141,16 +152,41 @@ int main(void)
  if(!ctx){printf("waffle-gl-user: context failed\n");goto finish;}
  for(unsigned i=0;i<256;i++)pixels[i]=0xdead0000u+i;
  if(!OSMesaMakeCurrent(ctx,pixels,GL_UNSIGNED_BYTE,16,16)){printf("waffle-gl-user: makecurrent failed\n");goto finish;}
+#endif
  const char *renderer=(const char *)glGetString(GL_RENDERER);
  printf("waffle-gl-user: renderer=%s version=%s\n",renderer?renderer:"NULL",glGetString(GL_VERSION));
  if(!renderer || !strstr(renderer,"FD750")){printf("waffle-gl-user: GPU renderer not selected\n");goto finish;}
+#ifdef WAFFLE_GL_EAGL
+ const char *version=(const char *)glGetString(GL_VERSION);
+ if(!version || !strstr(version,"OpenGL ES")){printf("waffle-gl-eagl: ES profile missing\n");goto finish;}
+ GLuint vs=compile(GL_VERTEX_SHADER,"#version 100\nattribute vec2 position;void main(){gl_Position=vec4(position,0,1);}");
+ GLuint fs=compile(GL_FRAGMENT_SHADER,"#version 100\nprecision mediump float;void main(){gl_FragColor=vec4(1,0.25,0,1);}");
+#else
  GLuint vs=compile(GL_VERTEX_SHADER,"#version 330 core\nconst vec2 p[3]=vec2[3](vec2(-1,-1),vec2(1,-1),vec2(0,1));void main(){gl_Position=vec4(p[gl_VertexID],0,1);}");
  GLuint fs=compile(GL_FRAGMENT_SHADER,"#version 330 core\nout vec4 color;void main(){color=vec4(1,0.25,0,1);}");
+#endif
  if(!vs || !fs)goto finish;
  GLuint program=glCreateProgram();glAttachShader(program,vs);glAttachShader(program,fs);glLinkProgram(program);GLint linked=0;glGetProgramiv(program,GL_LINK_STATUS,&linked);
  if(!linked){printf("waffle-gl-user: link failed\n");goto finish;}
+#ifdef WAFFLE_GL_EAGL
+ GLuint buffer,texture,framebuffer;const GLfloat vertices[]={-1,-1,1,-1,0,1};
+ glGenBuffers(1,&buffer);glBindBuffer(GL_ARRAY_BUFFER,buffer);glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
+ GLint attribute=glGetAttribLocation(program,"position");if(attribute<0)goto finish;
+ glVertexAttribPointer((GLuint)attribute,2,GL_FLOAT,GL_FALSE,0,NULL);glEnableVertexAttribArray((GLuint)attribute);
+ glGenTextures(1,&texture);glBindTexture(GL_TEXTURE_2D,texture);
+ glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+ glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,16,16,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+ glGenFramebuffers(1,&framebuffer);glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+ glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);
+ GLenum status=glCheckFramebufferStatus(GL_FRAMEBUFFER);
+ printf("waffle-gl-eagl: FBO_status=%x\n",status);if(status!=GL_FRAMEBUFFER_COMPLETE)goto finish;
+#else
  GLuint vao;glGenVertexArrays(1,&vao);glBindVertexArray(vao);
+#endif
  glDisable(GL_DITHER);glViewport(0,0,16,16);glClearColor(0,0,0,1);glClear(GL_COLOR_BUFFER_BIT);glUseProgram(program);glDrawArrays(GL_TRIANGLES,0,3);glFinish();
+#ifdef WAFFLE_GL_EAGL
+ glReadPixels(0,0,16,16,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+#endif
  GLenum error=glGetError();unsigned wrong=0,inside=0;
  for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
   bool filled=(4*x+2>2*y+1) && (4*x+2<63-2*y);
@@ -163,9 +199,19 @@ int main(void)
 #endif
  printf("waffle-gl-user: checked=256 wrong=%u filled=%u GL_error=%x\n",wrong,inside,error);
  for(unsigned i=0;i<256;i+=8)printf("waffle-gl-user: pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,pixels[i],pixels[i+1],pixels[i+2],pixels[i+3],pixels[i+4],pixels[i+5],pixels[i+6],pixels[i+7]);
- glDeleteVertexArrays(1,&vao);glDeleteProgram(program);glDeleteShader(vs);glDeleteShader(fs);
+#ifdef WAFFLE_GL_EAGL
+ glDeleteFramebuffers(1,&framebuffer);glDeleteTextures(1,&texture);glDeleteBuffers(1,&buffer);
+ printf("waffle-gl-eagl: result=%d actual_adapter=gl_osmesa API=2\n",ok);
+#else
+ glDeleteVertexArrays(1,&vao);
+#endif
+ glDeleteProgram(program);glDeleteShader(vs);glDeleteShader(fs);
 finish:
+#ifdef WAFFLE_GL_EAGL
+ if(ctx)redwood_gl_destroy(ctx);
+#else
  if(ctx)OSMesaDestroyContext(ctx);
+#endif
  /* dyld may close inherited0/1/2: device FDs can reuse those numbers.
   * Close every FD except the independently opened diagnostic console. */
  for(int fd=0;fd<256;fd++)if(fd!=diagnostic_console)close(fd);

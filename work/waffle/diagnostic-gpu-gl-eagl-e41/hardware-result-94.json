@@ -1,0 +1,14 @@
+{
+  "probe": 94,
+  "started_at": "2026-11-01T12:33:41.628277+00:00",
+  "variant": "E36-actual-Darwin-OSMesa-GL",
+  "runner_exit": 0,
+  "runs": [
+    "work/waffle/runs/20261101T123341Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true
+}

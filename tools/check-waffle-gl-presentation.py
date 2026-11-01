@@ -10,12 +10,21 @@ from pathlib import Path
 import re
 
 
-def validate(text):
+def validate(text, eagl=False):
     root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("waffle_runner", root / "scripts/run_waffle_ios.py")
     runner = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(runner)
     runner.validate_gl_log(text)
+    if eagl:
+        for marker in (
+            "waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1",
+            "waffle-gl-eagl: FBO_status=8cd5",
+            "waffle-gl-eagl: result=1 actual_adapter=gl_osmesa API=2",
+            "waffle-gl-user: renderer=FD750 version=OpenGL ES",
+        ):
+            if marker not in text:
+                raise RuntimeError("Actual EAGL adapter proof missing: " + marker)
     for marker in (
         "waffle-gl-present: begin CPU_readback=1 IOSurface_import=0",
         "waffle-gl-present: checked=256 wrong=0 padding_wrong=0 GL_error=0 top_down=1",
@@ -41,6 +50,7 @@ def validate(text):
     if f"GPU is not done with surface {sid}" in text:
         raise RuntimeError("Display worker timed out waiting for surface")
     return dict(surface=sid, swap=swap, stride=stride, pixels_checked=256, pixels_wrong=0,
+                actual_EAGL_GL_adapter=eagl,
                 display_worker_resolved_surface=True, CPU_readback=True,
                 optical_visibility_verified=False, direct_GPU_scanout=False)
 
@@ -48,5 +58,6 @@ def validate(text):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("log", type=Path)
+    parser.add_argument("--eagl", action="store_true", help="Require the actual EAGL API2 GL adapter and texture FBO")
     args = parser.parse_args()
-    print(json.dumps(validate(args.log.read_text(errors="replace")), indent=2))
+    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl), indent=2))
