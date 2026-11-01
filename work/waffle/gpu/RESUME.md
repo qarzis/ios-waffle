@@ -1,3 +1,23 @@
+# E45 PASS — two actual EAGL contexts switch and preserve pictures
+
+Run132808Z/auto132744Z runner0/autosuccess/independentAndroid1. 2distincttables, secondblue256correct/firstrestoredtriangle256correct,10GPUfences/30BO/fullparentstop/contextnull/actualhookIOSurface+display. Noactivehardwareprocess. E45-result.json/E45-presentation-proof.json; validator--contextsPASS+4negativeproofs. Need qualifiedarchive thenactualUIprocess/credential anddiagnostic1024jobbound/per-row205submissionreview. PublishedGitHub3644994 alreadycomplete; noadditionalpushrequested. Usercontinuationactive.
+
+# Active E45 — two actual EAGL contexts/isolation hardware test
+
+UserSTOPrevokedexplicitly: afterGitcontinueGPU. GitHubpublicationcompleteddefaultqarzis/ios-waffle waffle/gpu-bringup36449942d96e871a27f8c373d33dd2b847677346, remoteverified/worktreeclean. LocalhardwareverifiedE44ba32d4f full750x1624/1218000pixels/205fences/28BO/fullstop/Android1. No morepushwithoutrequest.
+
+E45max3hypotheseslogged: H1twoactualEAGLContext/private tables switch/isolate; H2bounded32BO/32MiBexhaustion; H3current/deletionsemantics. Newoptionalbuilder--contexts implies--hook, same16x16triangleactualhookthencreateactualsecondAPI2EAGLContext/privateTable(default16buffer), clearblue/read256pixels, restorefirsttable/readtriangle256unchanged, releasesecondthenfirst/closeallGPUfds, originalhook-ownedIOSurface+displayproof. No actualpublicGLTLS/CoreAnimation/UIclaim. EAGLenteractualcodemakescurrentoncontextchange. SamequalifiedE44kernel/image/Mesa/actualhookbinary verifiedequal, separateartifactdiagnostic-gpu-gl-contexts-e45/source/rootbinding/containerPASS. UserlandcompilePASS.
+
+CURRENThardwareauto exec75148, newestauto-runsstamp, logfilegpu/auto-gl-contexts-e45.log. No concurrentfastboot. Waitfullauto/recoverythenindependentAndroid1. Needadd--contexts validation markers tocheck-waffle-gl-presentation.py (alloriginalhook/GPU/teardown/displayproof +second256bluewrong0/distinctcontext +firstrestored256wrong0 +secondrelease). If failurepreserveexactphase/refusal, do notblindlyexpandbudgets. No codechangesaftertestlaunchyetexceptresume. MainHEAD/indexunchanged. NoSTOP/flash/erase/manualBootiOS. ContinueauthorizedGPUwork.
+
+# ACTIVE — user resumed GPU after GitHub publication
+
+STOP revokedexplicitly. Published defaultqarzis/ios-waffle waffle/gpu-bringup36449942d96e871a27f8c373d33dd2b847677346; remote verified/worktreeclean. E44qualifiedlocalba32d4f. ContinueE45 actualtwoEAGLcontexts/isolation test asloggedGPU_DEBUG_LOG, noactivehardwareworker/phoneAndroid. No furtherpush unlessrequested.
+
+# STOP — user requested pause and GitHub publication
+
+No further GPU experiments authorized until resume. Lastqualified E44 ba32d4f6b42eda971492473c2be17046150e8b7c: actualfull750x1624EAGLhook/1218000correctpixels/205GPUfences/28BO/fullstop/Android1. E45 multiplecontexts onlyplanned, noimplementation/test. Useraskedpublish toGitHub: curatedpublicationworktree /home/qarzis/ios-waffle-publish defaultbranch waffle/gpu-bringup remote fork qarzis/ios-waffle. Completepublication/verifyremote thenreportcommit. Noflash/erase/images/firmware upload.
+
 # E44 PASS — actual fullscreen750x1624 EAGL GPU frame
 
 Run20261101T130419Z/auto130355Z runner0/success/independentAndroid1. ActualEAGLhook/readbackowner(no probe writes) fullIOSurface750x1624 stride3008 alloc4898816; all1,218,000pixelswrong0/609000filled/padding0/GLerror0. Representative256sampleproofmatches;205actualGPUfences/privateguards0;28BO/23,625,728B/largest5MiB/fullstop/contextnull. Actualdisplayworker fullscreenswap0,0,750,1624. NoCoreAnimation/publicTLS/wholeUI/optical/FPS/zero-copyclaim. Source/rootboundartifactdiagnostic-gpu-gl-fullsize-e44. --fullsizecheckerPASS+5negativeproofsrefused. NewkernelruntimechangeonlyperBO4->8MiB;32MiBheap/32BO/TABLE64/perms/init unchanged. Oldmappedcontrol130229Z/auto130205Z passed beforehand. Noactivehardwareprocess;phoneAndroid1.

@@ -1,0 +1,20 @@
+{
+  "run": "work/waffle/runs/20261101T132808Z",
+  "auto": "work/waffle/auto-runs/20261101T132744Z",
+  "actual_EAGL_contexts": 2,
+  "same_PID": true,
+  "private_dispatch_tables_distinct": true,
+  "second_blue_pixels_checked": 256,
+  "second_blue_pixels_wrong": 0,
+  "first_restored_triangle_pixels_checked": 256,
+  "first_restored_triangle_pixels_wrong": 0,
+  "GPU_fences": 10,
+  "BO_count": 30,
+  "both_contexts_closed": true,
+  "full_parent_teardown": true,
+  "IOSurface_display_worker": true,
+  "runner_exit": 0,
+  "independent_android": "1",
+  "actual_CoreAnimation_tested": false,
+  "log_sha256": "ed99b51e0ec9dc59002f834bcbd4c1109c178aa3e253d5f23c5ecbdd269c086a"
+}
