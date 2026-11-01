@@ -1,0 +1,895 @@
+kernel-2.log: waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1
+kernel-2.log: waffle-ui-init: exec normal init and real launchd/UI
+kernel-11.log: waffle-ui-gpu: selected process=backboardd pid=83 uid=501 bounded=1 stop_seconds=60
+kernel-95.log: waffle-gpu: GENERAL open pid=83 BO_limit=4096 heap_bytes=67108864
+kernel-95.log: waffle-gpu: GENERAL bo_retired handle=1 bytes=16384 backing_retained=1
+kernel-95.log: waffle-gpu: GENERAL ioctl_refused op=40 error=45 pid=83
+kernel-95.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.2 Mesa 26.3.0-rc1; FD750; shaders OpenGL ES GLSL ES 3.20
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT begin fence=1 seq=44 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT begin fence=2 seq=45 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT begin fence=3 seq=46 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+kernel-122.log: waffle-gmu: GENERAL_SUBMIT begin fence=4 seq=47 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-122.log: waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+kernel-124.log: waffle-gmu: GENERAL_SUBMIT begin fence=5 seq=48 root_words=1382 kernel_tail=15 extra_IB_depth=0
+kernel-124.log: waffle-gmu: GENERAL_SUBMIT done fence=5 seq=48 control=00000005 checked=4096 wrong_words=0
+kernel-124.log: waffle-gmu: GENERAL_SUBMIT begin fence=6 seq=49 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-124.log: waffle-gmu: GENERAL_SUBMIT done fence=6 seq=49 control=00000006 checked=4096 wrong_words=0
+kernel-124.log: waffle-gmu: GENERAL_SUBMIT begin fence=7 seq=50 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-124.log: waffle-gmu: GENERAL_SUBMIT done fence=7 seq=50 control=00000007 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=8 seq=51 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=8 seq=51 control=00000008 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=9 seq=52 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=9 seq=52 control=00000009 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=10 seq=53 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=10 seq=53 control=0000000a checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=11 seq=54 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=11 seq=54 control=0000000b checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=12 seq=55 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=12 seq=55 control=0000000c checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=13 seq=56 root_words=1475 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=13 seq=56 control=0000000d checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=14 seq=57 root_words=1530 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=14 seq=57 control=0000000e checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=15 seq=58 root_words=1526 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=15 seq=58 control=0000000f checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=16 seq=59 root_words=1249 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=16 seq=59 control=00000010 checked=4096 wrong_words=0
+kernel-125.log: waffle-gpu: GENERAL bo_retired handle=37 bytes=131072 backing_retained=1
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=17 seq=60 root_words=1444 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=17 seq=60 control=00000011 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=18 seq=61 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=18 seq=61 control=00000012 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=19 seq=62 root_words=1458 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=19 seq=62 control=00000013 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=20 seq=63 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=20 seq=63 control=00000014 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=21 seq=64 root_words=1498 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=21 seq=64 control=00000015 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=22 seq=65 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=22 seq=65 control=00000016 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=23 seq=66 root_words=1045 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=23 seq=66 control=00000017 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=24 seq=67 root_words=1148 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=24 seq=67 control=00000018 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=25 seq=68 root_words=1070 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=25 seq=68 control=00000019 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=26 seq=69 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=26 seq=69 control=0000001a checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=27 seq=70 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=27 seq=70 control=0000001b checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=28 seq=71 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=28 seq=71 control=0000001c checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=29 seq=72 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=29 seq=72 control=0000001d checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=30 seq=73 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=30 seq=73 control=0000001e checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=31 seq=74 root_words=988 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=31 seq=74 control=0000001f checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=32 seq=75 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=32 seq=75 control=00000020 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=33 seq=76 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=33 seq=76 control=00000021 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=34 seq=77 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=34 seq=77 control=00000022 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=35 seq=78 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=35 seq=78 control=00000023 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=36 seq=79 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=36 seq=79 control=00000024 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=37 seq=80 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=37 seq=80 control=00000025 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=38 seq=81 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=38 seq=81 control=00000026 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=39 seq=82 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=39 seq=82 control=00000027 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=40 seq=83 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=40 seq=83 control=00000028 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=41 seq=84 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=41 seq=84 control=00000029 checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=42 seq=85 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=42 seq=85 control=0000002a checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=43 seq=86 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=43 seq=86 control=0000002b checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=44 seq=87 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=44 seq=87 control=0000002c checked=4096 wrong_words=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT begin fence=45 seq=88 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-125.log: waffle-gmu: GENERAL_SUBMIT done fence=45 seq=88 control=0000002d checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=46 seq=89 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=46 seq=89 control=0000002e checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=47 seq=90 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=47 seq=90 control=0000002f checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=48 seq=91 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=48 seq=91 control=00000030 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=49 seq=92 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=49 seq=92 control=00000031 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=50 seq=93 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=50 seq=93 control=00000032 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=51 seq=94 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=51 seq=94 control=00000033 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=52 seq=95 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=52 seq=95 control=00000034 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=53 seq=96 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=53 seq=96 control=00000035 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=54 seq=97 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=54 seq=97 control=00000036 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=55 seq=98 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=55 seq=98 control=00000037 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=56 seq=99 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=56 seq=99 control=00000038 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=57 seq=100 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=57 seq=100 control=00000039 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=58 seq=101 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=58 seq=101 control=0000003a checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=59 seq=102 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=59 seq=102 control=0000003b checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=60 seq=103 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=60 seq=103 control=0000003c checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=61 seq=104 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=61 seq=104 control=0000003d checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=62 seq=105 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=62 seq=105 control=0000003e checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=63 seq=106 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=63 seq=106 control=0000003f checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=64 seq=107 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=64 seq=107 control=00000040 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=65 seq=108 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=65 seq=108 control=00000041 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=66 seq=109 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=66 seq=109 control=00000042 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=67 seq=110 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=67 seq=110 control=00000043 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=68 seq=111 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=68 seq=111 control=00000044 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=69 seq=112 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=69 seq=112 control=00000045 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=70 seq=113 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=70 seq=113 control=00000046 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=71 seq=114 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=71 seq=114 control=00000047 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=72 seq=115 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=72 seq=115 control=00000048 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=73 seq=116 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=73 seq=116 control=00000049 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=74 seq=117 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=74 seq=117 control=0000004a checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=75 seq=118 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=75 seq=118 control=0000004b checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=76 seq=119 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=76 seq=119 control=0000004c checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=77 seq=120 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=77 seq=120 control=0000004d checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=78 seq=121 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=78 seq=121 control=0000004e checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=79 seq=122 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=79 seq=122 control=0000004f checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=80 seq=123 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=80 seq=123 control=00000050 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=81 seq=124 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=81 seq=124 control=00000051 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=82 seq=125 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=82 seq=125 control=00000052 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=83 seq=126 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=83 seq=126 control=00000053 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=84 seq=127 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=84 seq=127 control=00000054 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=85 seq=128 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=85 seq=128 control=00000055 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=86 seq=129 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=86 seq=129 control=00000056 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=87 seq=130 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=87 seq=130 control=00000057 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=88 seq=131 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=88 seq=131 control=00000058 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=89 seq=132 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=89 seq=132 control=00000059 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=90 seq=133 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=90 seq=133 control=0000005a checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=91 seq=134 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=91 seq=134 control=0000005b checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=92 seq=135 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=92 seq=135 control=0000005c checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=93 seq=136 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=93 seq=136 control=0000005d checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=94 seq=137 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=94 seq=137 control=0000005e checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=95 seq=138 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=95 seq=138 control=0000005f checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=96 seq=139 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=96 seq=139 control=00000060 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=97 seq=140 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=97 seq=140 control=00000061 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=98 seq=141 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=98 seq=141 control=00000062 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=99 seq=142 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=99 seq=142 control=00000063 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=100 seq=143 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=100 seq=143 control=00000064 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=101 seq=144 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=101 seq=144 control=00000065 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=102 seq=145 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=102 seq=145 control=00000066 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=103 seq=146 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=103 seq=146 control=00000067 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=104 seq=147 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=104 seq=147 control=00000068 checked=4096 wrong_words=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT begin fence=105 seq=148 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-126.log: waffle-gmu: GENERAL_SUBMIT done fence=105 seq=148 control=00000069 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=106 seq=149 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=106 seq=149 control=0000006a checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=107 seq=150 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=107 seq=150 control=0000006b checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=108 seq=151 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=108 seq=151 control=0000006c checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=109 seq=152 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=109 seq=152 control=0000006d checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=110 seq=153 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=110 seq=153 control=0000006e checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=111 seq=154 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=111 seq=154 control=0000006f checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=112 seq=155 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=112 seq=155 control=00000070 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=113 seq=156 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=113 seq=156 control=00000071 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=114 seq=157 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=114 seq=157 control=00000072 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=115 seq=158 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=115 seq=158 control=00000073 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=116 seq=159 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=116 seq=159 control=00000074 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=117 seq=160 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=117 seq=160 control=00000075 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=118 seq=161 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=118 seq=161 control=00000076 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=119 seq=162 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=119 seq=162 control=00000077 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=120 seq=163 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=120 seq=163 control=00000078 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=121 seq=164 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=121 seq=164 control=00000079 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=122 seq=165 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=122 seq=165 control=0000007a checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=123 seq=166 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=123 seq=166 control=0000007b checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=124 seq=167 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=124 seq=167 control=0000007c checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=125 seq=168 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=125 seq=168 control=0000007d checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=126 seq=169 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=126 seq=169 control=0000007e checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=127 seq=170 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=127 seq=170 control=0000007f checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=128 seq=171 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=128 seq=171 control=00000080 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=129 seq=172 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=129 seq=172 control=00000081 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=130 seq=173 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=130 seq=173 control=00000082 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=131 seq=174 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=131 seq=174 control=00000083 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=132 seq=175 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=132 seq=175 control=00000084 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=133 seq=176 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=133 seq=176 control=00000085 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=134 seq=177 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=134 seq=177 control=00000086 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=135 seq=178 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=135 seq=178 control=00000087 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=136 seq=179 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=136 seq=179 control=00000088 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=137 seq=180 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=137 seq=180 control=00000089 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=138 seq=181 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=138 seq=181 control=0000008a checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=139 seq=182 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=139 seq=182 control=0000008b checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=140 seq=183 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=140 seq=183 control=0000008c checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=141 seq=184 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=141 seq=184 control=0000008d checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=142 seq=185 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=142 seq=185 control=0000008e checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=143 seq=186 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=143 seq=186 control=0000008f checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=144 seq=187 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=144 seq=187 control=00000090 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=145 seq=188 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=145 seq=188 control=00000091 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=146 seq=189 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=146 seq=189 control=00000092 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=147 seq=190 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=147 seq=190 control=00000093 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=148 seq=191 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=148 seq=191 control=00000094 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=149 seq=192 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=149 seq=192 control=00000095 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=150 seq=193 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=150 seq=193 control=00000096 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=151 seq=194 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=151 seq=194 control=00000097 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=152 seq=195 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=152 seq=195 control=00000098 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=153 seq=196 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=153 seq=196 control=00000099 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=154 seq=197 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=154 seq=197 control=0000009a checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=155 seq=198 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=155 seq=198 control=0000009b checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=156 seq=199 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=156 seq=199 control=0000009c checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=157 seq=200 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=157 seq=200 control=0000009d checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=158 seq=201 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=158 seq=201 control=0000009e checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=159 seq=202 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=159 seq=202 control=0000009f checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=160 seq=203 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=160 seq=203 control=000000a0 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=161 seq=204 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=161 seq=204 control=000000a1 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=162 seq=205 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=162 seq=205 control=000000a2 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=163 seq=206 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=163 seq=206 control=000000a3 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=164 seq=207 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=164 seq=207 control=000000a4 checked=4096 wrong_words=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT begin fence=165 seq=208 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-127.log: waffle-gmu: GENERAL_SUBMIT done fence=165 seq=208 control=000000a5 checked=4096 wrong_words=0
+kernel-128.log:   -rw-waffle-gmu: GENERAL_SUBMIT done fence=227 seq=270 control=000000e3 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=166 seq=209 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=166 seq=209 control=000000a6 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=167 seq=210 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=167 seq=210 control=000000a7 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=168 seq=211 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=168 seq=211 control=000000a8 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=169 seq=212 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=169 seq=212 control=000000a9 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=170 seq=213 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=170 seq=213 control=000000aa checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=171 seq=214 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=171 seq=214 control=000000ab checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=172 seq=215 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=172 seq=215 control=000000ac checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=173 seq=216 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=173 seq=216 control=000000ad checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=174 seq=217 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=174 seq=217 control=000000ae checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=175 seq=218 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=175 seq=218 control=000000af checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=176 seq=219 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=176 seq=219 control=000000b0 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=177 seq=220 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=177 seq=220 control=000000b1 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=178 seq=221 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=178 seq=221 control=000000b2 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=179 seq=222 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=179 seq=222 control=000000b3 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=180 seq=223 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=180 seq=223 control=000000b4 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=181 seq=224 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=181 seq=224 control=000000b5 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=182 seq=225 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=182 seq=225 control=000000b6 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=183 seq=226 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=183 seq=226 control=000000b7 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=184 seq=227 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=184 seq=227 control=000000b8 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=185 seq=228 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=185 seq=228 control=000000b9 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=186 seq=229 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=186 seq=229 control=000000ba checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=187 seq=230 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=187 seq=230 control=000000bb checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=188 seq=231 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=188 seq=231 control=000000bc checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=189 seq=232 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=189 seq=232 control=000000bd checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=190 seq=233 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=190 seq=233 control=000000be checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=191 seq=234 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=191 seq=234 control=000000bf checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=192 seq=235 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=192 seq=235 control=000000c0 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=193 seq=236 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=193 seq=236 control=000000c1 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=194 seq=237 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=194 seq=237 control=000000c2 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=195 seq=238 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=195 seq=238 control=000000c3 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=196 seq=239 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=196 seq=239 control=000000c4 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=197 seq=240 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=197 seq=240 control=000000c5 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=198 seq=241 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=198 seq=241 control=000000c6 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=199 seq=242 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=199 seq=242 control=000000c7 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=200 seq=243 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=200 seq=243 control=000000c8 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=201 seq=244 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=201 seq=244 control=000000c9 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=202 seq=245 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=202 seq=245 control=000000ca checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=203 seq=246 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=203 seq=246 control=000000cb checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=204 seq=247 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=204 seq=247 control=000000cc checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=205 seq=248 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=205 seq=248 control=000000cd checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=206 seq=249 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=206 seq=249 control=000000ce checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=207 seq=250 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=207 seq=250 control=000000cf checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=208 seq=251 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=208 seq=251 control=000000d0 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=209 seq=252 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=209 seq=252 control=000000d1 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=210 seq=253 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=210 seq=253 control=000000d2 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=211 seq=254 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=211 seq=254 control=000000d3 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=212 seq=255 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=212 seq=255 control=000000d4 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=213 seq=256 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=213 seq=256 control=000000d5 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=214 seq=257 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=214 seq=257 control=000000d6 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=215 seq=258 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=215 seq=258 control=000000d7 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=216 seq=259 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=216 seq=259 control=000000d8 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=217 seq=260 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=217 seq=260 control=000000d9 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=218 seq=261 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=218 seq=261 control=000000da checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=219 seq=262 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=219 seq=262 control=000000db checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=220 seq=263 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=220 seq=263 control=000000dc checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=221 seq=264 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=221 seq=264 control=000000dd checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=222 seq=265 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=222 seq=265 control=000000de checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=223 seq=266 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=223 seq=266 control=000000df checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=224 seq=267 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=224 seq=267 control=000000e0 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=225 seq=268 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=225 seq=268 control=000000e1 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=226 seq=269 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT done fence=226 seq=269 control=000000e2 checked=4096 wrong_words=0
+kernel-128.log: waffle-gmu: GENERAL_SUBMIT begin fence=227 seq=270 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=227 seq=270 control=000000e3 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=228 seq=271 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=228 seq=271 control=000000e4 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=229 seq=272 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=229 seq=272 control=000000e5 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=230 seq=273 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=230 seq=273 control=000000e6 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=231 seq=274 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=231 seq=274 control=000000e7 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=232 seq=275 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=232 seq=275 control=000000e8 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=233 seq=276 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=233 seq=276 control=000000e9 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=234 seq=277 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=234 seq=277 control=000000ea checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=235 seq=278 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=235 seq=278 control=000000eb checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=236 seq=279 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=236 seq=279 control=000000ec checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=237 seq=280 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=237 seq=280 control=000000ed checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=238 seq=281 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=238 seq=281 control=000000ee checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=239 seq=282 root_words=1066 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=239 seq=282 control=000000ef checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=240 seq=283 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=240 seq=283 control=000000f0 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=241 seq=284 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=241 seq=284 control=000000f1 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=242 seq=285 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=242 seq=285 control=000000f2 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=243 seq=286 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=243 seq=286 control=000000f3 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=244 seq=287 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=244 seq=287 control=000000f4 checked=4096 wrong_words=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT begin fence=245 seq=288 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-129.log: waffle-gmu: GENERAL_SUBMIT done fence=245 seq=288 control=000000f5 checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=246 seq=289 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=246 seq=289 control=000000f6 checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=247 seq=290 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=247 seq=290 control=000000f7 checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=248 seq=291 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=248 seq=291 control=000000f8 checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=249 seq=292 root_words=938 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=249 seq=292 control=000000f9 checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=250 seq=293 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=250 seq=293 control=000000fa checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=251 seq=294 root_words=1066 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=251 seq=294 control=000000fb checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=252 seq=295 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=252 seq=295 control=000000fc checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=253 seq=296 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=253 seq=296 control=000000fd checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=254 seq=297 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=254 seq=297 control=000000fe checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=255 seq=298 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=255 seq=298 control=000000ff checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=256 seq=299 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=256 seq=299 control=00000100 checked=4096 wrong_words=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT begin fence=257 seq=300 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-130.log: waffle-gmu: GENERAL_SUBMIT done fence=257 seq=300 control=00000101 checked=4096 wrong_words=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT begin fence=258 seq=301 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT done fence=258 seq=301 control=00000102 checked=4096 wrong_words=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT begin fence=259 seq=302 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT done fence=259 seq=302 control=00000103 checked=4096 wrong_words=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT begin fence=260 seq=303 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT done fence=260 seq=303 control=00000104 checked=4096 wrong_words=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT begin fence=261 seq=304 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT done fence=261 seq=304 control=00000105 checked=4096 wrong_words=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT begin fence=262 seq=305 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT done fence=262 seq=305 control=00000106 checked=4096 wrong_words=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT begin fence=263 seq=306 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-131.log: waffle-gmu: GENERAL_SUBMIT done fence=263 seq=306 control=00000107 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=264 seq=307 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=264 seq=307 control=00000108 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=265 seq=308 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=265 seq=308 control=00000109 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=266 seq=309 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=266 seq=309 control=0000010a checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=267 seq=310 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=267 seq=310 control=0000010b checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=268 seq=311 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=268 seq=311 control=0000010c checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=269 seq=312 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=269 seq=312 control=0000010d checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=270 seq=313 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=270 seq=313 control=0000010e checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=271 seq=314 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=271 seq=314 control=0000010f checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=272 seq=315 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=272 seq=315 control=00000110 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=273 seq=316 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=273 seq=316 control=00000111 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=274 seq=317 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=274 seq=317 control=00000112 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=275 seq=318 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=275 seq=318 control=00000113 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=276 seq=319 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=276 seq=319 control=00000114 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=277 seq=320 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=277 seq=320 control=00000115 checked=4096 wrong_words=0
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=220 bytes=16384 backing_retained=1
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=223 bytes=16384 backing_retained=1
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=62 bytes=32768 backing_retained=1
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=209 bytes=65536 backing_retained=1
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=213 bytes=65536 backing_retained=1
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=26 bytes=131072 backing_retained=1
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=268 bytes=1310720 backing_retained=1
+kernel-132.log: waffle-gpu: GENERAL bo_retired handle=40 bytes=5242880 backing_retained=1
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=278 seq=321 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=278 seq=321 control=00000116 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=279 seq=322 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=279 seq=322 control=00000117 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=280 seq=323 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=280 seq=323 control=00000118 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=281 seq=324 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=281 seq=324 control=00000119 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=282 seq=325 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=282 seq=325 control=0000011a checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=283 seq=326 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=283 seq=326 control=0000011b checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=284 seq=327 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=284 seq=327 control=0000011c checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=285 seq=328 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=285 seq=328 control=0000011d checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=286 seq=329 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=286 seq=329 control=0000011e checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=287 seq=330 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=287 seq=330 control=0000011f checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=288 seq=331 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=288 seq=331 control=00000120 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=289 seq=332 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=289 seq=332 control=00000121 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=290 seq=333 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=290 seq=333 control=00000122 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=291 seq=334 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=291 seq=334 control=00000123 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=292 seq=335 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=292 seq=335 control=00000124 checked=4096 wrong_words=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT begin fence=293 seq=336 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-132.log: waffle-gmu: GENERAL_SUBMIT done fence=293 seq=336 control=00000125 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=294 seq=337 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=294 seq=337 control=00000126 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=295 seq=338 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=295 seq=338 control=00000127 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=296 seq=339 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=296 seq=339 control=00000128 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=297 seq=340 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=297 seq=340 control=00000129 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=298 seq=341 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=298 seq=341 control=0000012a checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=299 seq=342 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=299 seq=342 control=0000012b checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=300 seq=343 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=300 seq=343 control=0000012c checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=301 seq=344 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=301 seq=344 control=0000012d checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=302 seq=345 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=302 seq=345 control=0000012e checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=303 seq=346 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=303 seq=346 control=0000012f checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=304 seq=347 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=304 seq=347 control=00000130 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=305 seq=348 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=305 seq=348 control=00000131 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=306 seq=349 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=306 seq=349 control=00000132 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=307 seq=350 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=307 seq=350 control=00000133 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=308 seq=351 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=308 seq=351 control=00000134 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=309 seq=352 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=309 seq=352 control=00000135 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=310 seq=353 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=310 seq=353 control=00000136 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=311 seq=354 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=311 seq=354 control=00000137 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=312 seq=355 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=312 seq=355 control=00000138 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=313 seq=356 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=313 seq=356 control=00000139 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=314 seq=357 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=314 seq=357 control=0000013a checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=315 seq=358 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=315 seq=358 control=0000013b checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=316 seq=359 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=316 seq=359 control=0000013c checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=317 seq=360 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=317 seq=360 control=0000013d checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=318 seq=361 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=318 seq=361 control=0000013e checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=319 seq=362 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=319 seq=362 control=0000013f checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=320 seq=363 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=320 seq=363 control=00000140 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=321 seq=364 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=321 seq=364 control=00000141 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=322 seq=365 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=322 seq=365 control=00000142 checked=4096 wrong_words=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT begin fence=323 seq=366 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-133.log: waffle-gmu: GENERAL_SUBMIT done fence=323 seq=366 control=00000143 checked=4096 wrong_words=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT begin fence=324 seq=367 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT done fence=324 seq=367 control=00000144 checked=4096 wrong_words=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT begin fence=325 seq=368 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT done fence=325 seq=368 control=00000145 checked=4096 wrong_words=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT begin fence=326 seq=369 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT done fence=326 seq=369 control=00000146 checked=4096 wrong_words=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT begin fence=327 seq=370 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT done fence=327 seq=370 control=00000147 checked=4096 wrong_words=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT begin fence=328 seq=371 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT done fence=328 seq=371 control=00000148 checked=4096 wrong_words=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT begin fence=329 seq=372 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-134.log: waffle-gmu: GENERAL_SUBMIT done fence=329 seq=372 control=00000149 checked=4096 wrong_words=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT begin fence=330 seq=373 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT done fence=330 seq=373 control=0000014a checked=4096 wrong_words=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT begin fence=331 seq=374 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT done fence=331 seq=374 control=0000014b checked=4096 wrong_words=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT begin fence=332 seq=375 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT done fence=332 seq=375 control=0000014c checked=4096 wrong_words=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT begin fence=333 seq=376 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT done fence=333 seq=376 control=0000014d checked=4096 wrong_words=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT begin fence=334 seq=377 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT done fence=334 seq=377 control=0000014e checked=4096 wrong_words=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT begin fence=335 seq=378 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-135.log: waffle-gmu: GENERAL_SUBMIT done fence=335 seq=378 control=0000014f checked=4096 wrong_words=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT begin fence=336 seq=379 root_words=914 kernel_tail=15 extra_IB_depth=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT done fence=336 seq=379 control=00000150 checked=4096 wrong_words=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT begin fence=337 seq=380 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT done fence=337 seq=380 control=00000151 checked=4096 wrong_words=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT begin fence=338 seq=381 root_words=938 kernel_tail=15 extra_IB_depth=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT done fence=338 seq=381 control=00000152 checked=4096 wrong_words=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT begin fence=339 seq=382 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT done fence=339 seq=382 control=00000153 checked=4096 wrong_words=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT begin fence=340 seq=383 root_words=1066 kernel_tail=15 extra_IB_depth=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT done fence=340 seq=383 control=00000154 checked=4096 wrong_words=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT begin fence=341 seq=384 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-136.log: waffle-gmu: GENERAL_SUBMIT done fence=341 seq=384 control=00000155 checked=4096 wrong_words=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT begin fence=342 seq=385 root_words=1468 kernel_tail=15 extra_IB_depth=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT done fence=342 seq=385 control=00000156 checked=4096 wrong_words=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT begin fence=343 seq=386 root_words=1501 kernel_tail=15 extra_IB_depth=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT done fence=343 seq=386 control=00000157 checked=4096 wrong_words=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT begin fence=344 seq=387 root_words=1248 kernel_tail=15 extra_IB_depth=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT done fence=344 seq=387 control=00000158 checked=4096 wrong_words=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT begin fence=345 seq=388 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT done fence=345 seq=388 control=00000159 checked=4096 wrong_words=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT begin fence=346 seq=389 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT done fence=346 seq=389 control=0000015a checked=4096 wrong_words=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT begin fence=347 seq=390 root_words=938 kernel_tail=15 extra_IB_depth=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT done fence=347 seq=390 control=0000015b checked=4096 wrong_words=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT begin fence=348 seq=391 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-137.log: waffle-gmu: GENERAL_SUBMIT done fence=348 seq=391 control=0000015c checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=349 seq=392 root_words=1062 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=349 seq=392 control=0000015d checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=350 seq=393 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=350 seq=393 control=0000015e checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=351 seq=394 root_words=1316 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=351 seq=394 control=0000015f checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=352 seq=395 root_words=1461 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=352 seq=395 control=00000160 checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=353 seq=396 root_words=1031 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=353 seq=396 control=00000161 checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=354 seq=397 root_words=1152 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=354 seq=397 control=00000162 checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=355 seq=398 root_words=886 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=355 seq=398 control=00000163 checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=356 seq=399 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=356 seq=399 control=00000164 checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=357 seq=400 root_words=1152 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=357 seq=400 control=00000165 checked=4096 wrong_words=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT begin fence=358 seq=401 root_words=1477 kernel_tail=15 extra_IB_depth=0
+kernel-138.log: waffle-gmu: GENERAL_SUBMIT done fence=358 seq=401 control=00000166 checked=4096 wrong_words=0
+kernel-138.log: waffle-gpu: GENERAL allocation_refused bytes=16384 flags=20002 count=800 limit=4096 reason=registry live_count=790 live_bytes=60080128 retired_count=10 retired_bytes=7028736 heap_limit=671088waffle-gpu: GENERAL ioctl_refused op=42 error=12 pid=83
+kernel-138.log: redwood: signal 11 at 0x1c, pc 0x100665850, lr 0x10065b8e8, called from 0x10065addc 0x10062472c 0x10061b14c 0x1005b44c4 0xfffbc88c 0x1002626ec 0x1002629f8 0xfec88054 (unslid)
+kernel-139.log: waffle-gpu: GENERAL close passed=1 completed=358 buffers=800 context_null=1
+kernel-139.log: waffle-ui-gpu: RAM attempt already claimed or unavailable; keeping softpipe
+kernel-139.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.1 Mesa 26.3.0-rc1; softpipe; shaders OpenGL ES GLSL ES 3.10
+kernel-356.log: [  126.590446]: waffle-gmu: GENERAL_SUBMIT done fence=280 seq=323 control=00000118 checked=4096 wrong_words=0
+kernel-356.log: [  126.590552]: waffle-gmu: GENERAL_SUBMIT begin fence=281 seq=324 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.591138]: waffle-gmu: GENERAL_SUBMIT done fence=281 seq=324 control=00000119 checked=4096 wrong_words=0
+kernel-356.log: [  126.606945]: waffle-gmu: GENERAL_SUBMIT begin fence=282 seq=325 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.607292]: waffle-gmu: GENERAL_SUBMIT done fence=282 seq=325 control=0000011a checked=4096 wrong_words=0
+kernel-356.log: [  126.607388]: waffle-gmu: GENERAL_SUBMIT begin fence=283 seq=326 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.607980]: waffle-gmu: GENERAL_SUBMIT done fence=283 seq=326 control=0000011b checked=4096 wrong_words=0
+kernel-356.log: [  126.624188]: waffle-gmu: GENERAL_SUBMIT begin fence=284 seq=327 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.624656]: waffle-gmu: GENERAL_SUBMIT done fence=284 seq=327 control=0000011c checked=4096 wrong_words=0
+kernel-356.log: [  126.624756]: waffle-gmu: GENERAL_SUBMIT begin fence=285 seq=328 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.625351]: waffle-gmu: GENERAL_SUBMIT done fence=285 seq=328 control=0000011d checked=4096 wrong_words=0
+kernel-356.log: [  126.640882]: waffle-gmu: GENERAL_SUBMIT begin fence=286 seq=329 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.641358]: waffle-gmu: GENERAL_SUBMIT done fence=286 seq=329 control=0000011e checked=4096 wrong_words=0
+kernel-356.log: [  126.641460]: waffle-gmu: GENERAL_SUBMIT begin fence=287 seq=330 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.642065]: waffle-gmu: GENERAL_SUBMIT done fence=287 seq=330 control=0000011f checked=4096 wrong_words=0
+kernel-356.log: [  126.657401]: waffle-gmu: GENERAL_SUBMIT begin fence=288 seq=331 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.657750]: waffle-gmu: GENERAL_SUBMIT done fence=288 seq=331 control=00000120 checked=4096 wrong_words=0
+kernel-356.log: [  126.657847]: waffle-gmu: GENERAL_SUBMIT begin fence=289 seq=332 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.658451]: waffle-gmu: GENERAL_SUBMIT done fence=289 seq=332 control=00000121 checked=4096 wrong_words=0
+kernel-356.log: [  126.674312]: waffle-gmu: GENERAL_SUBMIT begin fence=290 seq=333 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.674661]: waffle-gmu: GENERAL_SUBMIT done fence=290 seq=333 control=00000122 checked=4096 wrong_words=0
+kernel-356.log: [  126.674761]: waffle-gmu: GENERAL_SUBMIT begin fence=291 seq=334 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.675367]: waffle-gmu: GENERAL_SUBMIT done fence=291 seq=334 control=00000123 checked=4096 wrong_words=0
+kernel-356.log: [  126.691169]: waffle-gmu: GENERAL_SUBMIT begin fence=292 seq=335 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.691523]: waffle-gmu: GENERAL_SUBMIT done fence=292 seq=335 control=00000124 checked=4096 wrong_words=0
+kernel-356.log: [  126.691622]: waffle-gmu: GENERAL_SUBMIT begin fence=293 seq=336 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.692218]: waffle-gmu: GENERAL_SUBMIT done fence=293 seq=336 control=00000125 checked=4096 wrong_words=0
+kernel-356.log: [  126.708032]: waffle-gmu: GENERAL_SUBMIT begin fence=294 seq=337 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.708393]: waffle-gmu: GENERAL_SUBMIT done fence=294 seq=337 control=00000126 checked=4096 wrong_words=0
+kernel-356.log: [  126.708495]: waffle-gmu: GENERAL_SUBMIT begin fence=295 seq=338 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.709100]: waffle-gmu: GENERAL_SUBMIT done fence=295 seq=338 control=00000127 checked=4096 wrong_words=0
+kernel-356.log: [  126.725293]: waffle-gmu: GENERAL_SUBMIT begin fence=296 seq=339 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.725785]: waffle-gmu: GENERAL_SUBMIT done fence=296 seq=339 control=00000128 checked=4096 wrong_words=0
+kernel-356.log: [  126.725908]: waffle-gmu: GENERAL_SUBMIT begin fence=297 seq=340 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.726515]: waffle-gmu: GENERAL_SUBMIT done fence=297 seq=340 control=00000129 checked=4096 wrong_words=0
+kernel-356.log: [  126.742036]: waffle-gmu: GENERAL_SUBMIT begin fence=298 seq=341 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.742525]: waffle-gmu: GENERAL_SUBMIT done fence=298 seq=341 control=0000012a checked=4096 wrong_words=0
+kernel-356.log: [  126.742646]: waffle-gmu: GENERAL_SUBMIT begin fence=299 seq=342 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.743250]: waffle-gmu: GENERAL_SUBMIT done fence=299 seq=342 control=0000012b checked=4096 wrong_words=0
+kernel-356.log: [  126.758765]: waffle-gmu: GENERAL_SUBMIT begin fence=300 seq=343 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.759132]: waffle-gmu: GENERAL_SUBMIT done fence=300 seq=343 control=0000012c checked=4096 wrong_words=0
+kernel-356.log: [  126.759249]: waffle-gmu: GENERAL_SUBMIT begin fence=301 seq=344 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.759846]: waffle-gmu: GENERAL_SUBMIT done fence=301 seq=344 control=0000012d checked=4096 wrong_words=0
+kernel-356.log: [  126.775827]: waffle-gmu: GENERAL_SUBMIT begin fence=302 seq=345 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.776189]: waffle-gmu: GENERAL_SUBMIT done fence=302 seq=345 control=0000012e checked=4096 wrong_words=0
+kernel-356.log: [  126.776302]: waffle-gmu: GENERAL_SUBMIT begin fence=303 seq=346 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.776887]: waffle-gmu: GENERAL_SUBMIT done fence=303 seq=346 control=0000012f checked=4096 wrong_words=0
+kernel-356.log: [  126.792436]: waffle-gmu: GENERAL_SUBMIT begin fence=304 seq=347 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.792803]: waffle-gmu: GENERAL_SUBMIT done fence=304 seq=347 control=00000130 checked=4096 wrong_words=0
+kernel-356.log: [  126.792919]: waffle-gmu: GENERAL_SUBMIT begin fence=305 seq=348 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.793520]: waffle-gmu: GENERAL_SUBMIT done fence=305 seq=348 control=00000131 checked=4096 wrong_words=0
+kernel-356.log: [  126.809465]: waffle-gmu: GENERAL_SUBMIT begin fence=306 seq=349 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.809827]: waffle-gmu: GENERAL_SUBMIT done fence=306 seq=349 control=00000132 checked=4096 wrong_words=0
+kernel-356.log: [  126.809941]: waffle-gmu: GENERAL_SUBMIT begin fence=307 seq=350 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.810443]: waffle-gmu: GENERAL_SUBMIT done fence=307 seq=350 control=00000133 checked=4096 wrong_words=0
+kernel-356.log: [  126.826738]: waffle-gmu: GENERAL_SUBMIT begin fence=308 seq=351 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.827204]: waffle-gmu: GENERAL_SUBMIT done fence=308 seq=351 control=00000134 checked=4096 wrong_words=0
+kernel-356.log: [  126.827301]: waffle-gmu: GENERAL_SUBMIT begin fence=309 seq=352 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.827885]: waffle-gmu: GENERAL_SUBMIT done fence=309 seq=352 control=00000135 checked=4096 wrong_words=0
+kernel-356.log: [  126.843574]: waffle-gmu: GENERAL_SUBMIT begin fence=310 seq=353 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.844047]: waffle-gmu: GENERAL_SUBMIT done fence=310 seq=353 control=00000136 checked=4096 wrong_words=0
+kernel-356.log: [  126.844150]: waffle-gmu: GENERAL_SUBMIT begin fence=311 seq=354 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.844731]: waffle-gmu: GENERAL_SUBMIT done fence=311 seq=354 control=00000137 checked=4096 wrong_words=0
+kernel-356.log: [  126.860382]: waffle-gmu: GENERAL_SUBMIT begin fence=312 seq=355 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.860737]: waffle-gmu: GENERAL_SUBMIT done fence=312 seq=355 control=00000138 checked=4096 wrong_words=0
+kernel-356.log: [  126.860842]: waffle-gmu: GENERAL_SUBMIT begin fence=313 seq=356 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.861428]: waffle-gmu: GENERAL_SUBMIT done fence=313 seq=356 control=00000139 checked=4096 wrong_words=0
+kernel-356.log: [  126.877178]: waffle-gmu: GENERAL_SUBMIT begin fence=314 seq=357 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.877532]: waffle-gmu: GENERAL_SUBMIT done fence=314 seq=357 control=0000013a checked=4096 wrong_words=0
+kernel-356.log: [  126.877626]: waffle-gmu: GENERAL_SUBMIT begin fence=315 seq=358 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.878212]: waffle-gmu: GENERAL_SUBMIT done fence=315 seq=358 control=0000013b checked=4096 wrong_words=0
+kernel-356.log: [  126.894160]: waffle-gmu: GENERAL_SUBMIT begin fence=316 seq=359 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.894510]: waffle-gmu: GENERAL_SUBMIT done fence=316 seq=359 control=0000013c checked=4096 wrong_words=0
+kernel-356.log: [  126.894604]: waffle-gmu: GENERAL_SUBMIT begin fence=317 seq=360 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.895185]: waffle-gmu: GENERAL_SUBMIT done fence=317 seq=360 control=0000013d checked=4096 wrong_words=0
+kernel-356.log: [  126.911163]: waffle-gmu: GENERAL_SUBMIT begin fence=318 seq=361 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.911415]: waffle-gmu: GENERAL_SUBMIT done fence=318 seq=361 control=0000013e checked=4096 wrong_words=0
+kernel-356.log: [  126.911512]: waffle-gmu: GENERAL_SUBMIT begin fence=319 seq=362 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.912112]: waffle-gmu: GENERAL_SUBMIT done fence=319 seq=362 control=0000013f checked=4096 wrong_words=0
+kernel-356.log: [  126.928354]: waffle-gmu: GENERAL_SUBMIT begin fence=320 seq=363 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.928850]: waffle-gmu: GENERAL_SUBMIT done fence=320 seq=363 control=00000140 checked=4096 wrong_words=0
+kernel-356.log: [  126.928956]: waffle-gmu: GENERAL_SUBMIT begin fence=321 seq=364 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.929541]: waffle-gmu: GENERAL_SUBMIT done fence=321 seq=364 control=00000141 checked=4096 wrong_words=0
+kernel-356.log: [  126.945404]: waffle-gmu: GENERAL_SUBMIT begin fence=322 seq=365 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.945901]: waffle-gmu: GENERAL_SUBMIT done fence=322 seq=365 control=00000142 checked=4096 wrong_words=0
+kernel-356.log: [  126.946006]: waffle-gmu: GENERAL_SUBMIT begin fence=323 seq=366 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.946587]: waffle-gmu: GENERAL_SUBMIT done fence=323 seq=366 control=00000143 checked=4096 wrong_words=0
+kernel-356.log: [  126.977694]: waffle-gmu: GENERAL_SUBMIT begin fence=324 seq=367 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.978051]: waffle-gmu: GENERAL_SUBMIT done fence=324 seq=367 control=00000144 checked=4096 wrong_words=0
+kernel-356.log: [  126.978153]: waffle-gmu: GENERAL_SUBMIT begin fence=325 seq=368 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  126.978742]: waffle-gmu: GENERAL_SUBMIT done fence=325 seq=368 control=00000145 checked=4096 wrong_words=0
+kernel-356.log: [  127.017952]: waffle-gmu: GENERAL_SUBMIT begin fence=326 seq=369 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.018432]: waffle-gmu: GENERAL_SUBMIT done fence=326 seq=369 control=00000146 checked=4096 wrong_words=0
+kernel-356.log: [  127.018539]: waffle-gmu: GENERAL_SUBMIT begin fence=327 seq=370 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.019129]: waffle-gmu: GENERAL_SUBMIT done fence=327 seq=370 control=00000147 checked=4096 wrong_words=0
+kernel-356.log: [  127.118731]: waffle-gmu: GENERAL_SUBMIT begin fence=328 seq=371 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.119083]: waffle-gmu: GENERAL_SUBMIT done fence=328 seq=371 control=00000148 checked=4096 wrong_words=0
+kernel-356.log: [  127.119185]: waffle-gmu: GENERAL_SUBMIT begin fence=329 seq=372 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.119766]: waffle-gmu: GENERAL_SUBMIT done fence=329 seq=372 control=00000149 checked=4096 wrong_words=0
+kernel-356.log: [  127.219786]: waffle-gmu: GENERAL_SUBMIT begin fence=330 seq=373 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.220142]: waffle-gmu: GENERAL_SUBMIT done fence=330 seq=373 control=0000014a checked=4096 wrong_words=0
+kernel-356.log: [  127.220244]: waffle-gmu: GENERAL_SUBMIT begin fence=331 seq=374 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.220825]: waffle-gmu: GENERAL_SUBMIT done fence=331 seq=374 control=0000014b checked=4096 wrong_words=0
+kernel-356.log: [  127.272291]: waffle-gmu: GENERAL_SUBMIT begin fence=332 seq=375 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.273018]: waffle-gmu: GENERAL_SUBMIT done fence=332 seq=375 control=0000014c checked=4096 wrong_words=0
+kernel-356.log: [  127.273405]: waffle-gmu: GENERAL_SUBMIT begin fence=333 seq=376 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.274176]: waffle-gmu: GENERAL_SUBMIT done fence=333 seq=376 control=0000014d checked=4096 wrong_words=0
+kernel-356.log: [  127.320952]: waffle-gmu: GENERAL_SUBMIT begin fence=334 seq=377 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.321423]: waffle-gmu: GENERAL_SUBMIT done fence=334 seq=377 control=0000014e checked=4096 wrong_words=0
+kernel-356.log: [  127.321522]: waffle-gmu: GENERAL_SUBMIT begin fence=335 seq=378 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.322104]: waffle-gmu: GENERAL_SUBMIT done fence=335 seq=378 control=0000014f checked=4096 wrong_words=0
+kernel-356.log: [  127.485712]: waffle-gmu: GENERAL_SUBMIT begin fence=336 seq=379 root_words=914 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.486794]: waffle-gmu: GENERAL_SUBMIT done fence=336 seq=379 control=00000150 checked=4096 wrong_words=0
+kernel-356.log: [  127.540002]: waffle-gmu: GENERAL_SUBMIT begin fence=337 seq=380 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.540720]: waffle-gmu: GENERAL_SUBMIT done fence=337 seq=380 control=00000151 checked=4096 wrong_words=0
+kernel-356.log: [  127.541110]: waffle-gmu: GENERAL_SUBMIT begin fence=338 seq=381 root_words=938 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.541451]: waffle-gmu: GENERAL_SUBMIT done fence=338 seq=381 control=00000152 checked=4096 wrong_words=0
+kernel-356.log: [  127.542649]: waffle-gmu: GENERAL_SUBMIT begin fence=339 seq=382 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.543489]: waffle-gmu: GENERAL_SUBMIT done fence=339 seq=382 control=00000153 checked=4096 wrong_words=0
+kernel-356.log: [  127.544349]: waffle-gmu: GENERAL_SUBMIT begin fence=340 seq=383 root_words=1066 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.544698]: waffle-gmu: GENERAL_SUBMIT done fence=340 seq=383 control=00000154 checked=4096 wrong_words=0
+kernel-356.log: [  127.544782]: waffle-gmu: GENERAL_SUBMIT begin fence=341 seq=384 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.545127]: waffle-gmu: GENERAL_SUBMIT done fence=341 seq=384 control=00000155 checked=4096 wrong_words=0
+kernel-356.log: [  127.923388]: waffle-gmu: GENERAL_SUBMIT begin fence=342 seq=385 root_words=1468 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.924097]: waffle-gmu: GENERAL_SUBMIT done fence=342 seq=385 control=00000156 checked=4096 wrong_words=0
+kernel-356.log: [  127.924188]: waffle-gmu: GENERAL_SUBMIT begin fence=343 seq=386 root_words=1501 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.924534]: waffle-gmu: GENERAL_SUBMIT done fence=343 seq=386 control=00000157 checked=4096 wrong_words=0
+kernel-356.log: [  127.924622]: waffle-gmu: GENERAL_SUBMIT begin fence=344 seq=387 root_words=1248 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.925052]: waffle-gmu: GENERAL_SUBMIT done fence=344 seq=387 control=00000158 checked=4096 wrong_words=0
+kernel-356.log: [  127.925155]: waffle-gmu: GENERAL_SUBMIT begin fence=345 seq=388 root_words=107 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.925737]: waffle-gmu: GENERAL_SUBMIT done fence=345 seq=388 control=00000159 checked=4096 wrong_words=0
+kernel-356.log: [  127.936242]: waffle-gmu: GENERAL_SUBMIT begin fence=346 seq=389 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.936963]: waffle-gmu: GENERAL_SUBMIT done fence=346 seq=389 control=0000015a checked=4096 wrong_words=0
+kernel-356.log: [  127.937281]: waffle-gmu: GENERAL_SUBMIT begin fence=347 seq=390 root_words=938 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.937623]: waffle-gmu: GENERAL_SUBMIT done fence=347 seq=390 control=0000015b checked=4096 wrong_words=0
+kernel-356.log: [  127.938750]: waffle-gmu: GENERAL_SUBMIT begin fence=348 seq=391 root_words=934 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  127.939592]: waffle-gmu: GENERAL_SUBMIT done fence=348 seq=391 control=0000015c checked=4096 wrong_words=0
+kernel-356.log: [  128.031212]: waffle-gmu: GENERAL_SUBMIT begin fence=349 seq=392 root_words=1062 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.031559]: waffle-gmu: GENERAL_SUBMIT done fence=349 seq=392 control=0000015d checked=4096 wrong_words=0
+kernel-356.log: [  128.031640]: waffle-gmu: GENERAL_SUBMIT begin fence=350 seq=393 root_words=716 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.031981]: waffle-gmu: GENERAL_SUBMIT done fence=350 seq=393 control=0000015e checked=4096 wrong_words=0
+kernel-356.log: [  128.145419]: waffle-gmu: GENERAL_SUBMIT begin fence=351 seq=394 root_words=1316 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.146157]: waffle-gmu: GENERAL_SUBMIT done fence=351 seq=394 control=0000015f checked=4096 wrong_words=0
+kernel-356.log: [  128.146255]: waffle-gmu: GENERAL_SUBMIT begin fence=352 seq=395 root_words=1461 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.147083]: waffle-gmu: GENERAL_SUBMIT done fence=352 seq=395 control=00000160 checked=4096 wrong_words=0
+kernel-356.log: [  128.147170]: waffle-gmu: GENERAL_SUBMIT begin fence=353 seq=396 root_words=1031 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.147754]: waffle-gmu: GENERAL_SUBMIT done fence=353 seq=396 control=00000161 checked=4096 wrong_words=0
+kernel-356.log: [  128.148341]: waffle-gmu: GENERAL_SUBMIT begin fence=354 seq=397 root_words=1152 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.148693]: waffle-gmu: GENERAL_SUBMIT done fence=354 seq=397 control=00000162 checked=4096 wrong_words=0
+kernel-356.log: [  128.149792]: waffle-gmu: GENERAL_SUBMIT begin fence=355 seq=398 root_words=886 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.150135]: waffle-gmu: GENERAL_SUBMIT done fence=355 seq=398 control=00000163 checked=4096 wrong_words=0
+kernel-356.log: [  128.150215]: waffle-gmu: GENERAL_SUBMIT begin fence=356 seq=399 root_words=702 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.150555]: waffle-gmu: GENERAL_SUBMIT done fence=356 seq=399 control=00000164 checked=4096 wrong_words=0
+kernel-356.log: [  128.151101]: waffle-gmu: GENERAL_SUBMIT begin fence=357 seq=400 root_words=1152 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.151581]: waffle-gmu: GENERAL_SUBMIT done fence=357 seq=400 control=00000165 checked=4096 wrong_words=0
+kernel-356.log: [  128.152531]: waffle-gmu: GENERAL_SUBMIT begin fence=358 seq=401 root_words=1477 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  128.152994]: waffle-gmu: GENERAL_SUBMIT done fence=358 seq=401 control=00000166 checked=4096 wrong_words=0
