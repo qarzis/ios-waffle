@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/oosexgang/hakios-metal",
+  "checkout": "/home/qarzis/hakios-metal-waffle",
+  "revision": "642fe419ab703f89f341e9ce83e01a39ca0996ec",
+  "status": "deferred port until sustained GPU UI baseline; read-only source review",
+  "facts": [
+    "include/hakios-metal/a6xx.hpp and src/compiler.cpp configure upstream A6xx chip06030500; targetA750 chip43051401 requires hardware generation audit",
+    "src/iokit_transport.cpp opens upstream HakiosGPU userclient, currentwaffle uses gated /dev/waffle-gpu-drm cdev; requires explicit transport adapter",
+    "makeios Linux supports existing xnu-clang++ toolchain/iPhoneOS16.5 SDK; compilerMESA1 needs upstreamAIR frontend archive not yet verified present",
+    "HostfakeGPUtests do not establish A750 PM4 correctness or Metalplugin integration"
+  ],
+  "next_steps": [
+    "pin upstream and run host regression baseline",
+    "audit MSM UAPI against current cdev; add waffle transport with negative tests",
+    "audit A7xx packet/register/layout and compiler support beforehardware",
+    "compile arm64 core/probe, require RAM-only GPU copy/compute reference output",
+    "validate actual Metal API plugin/device/library and apps separately"
+  ]
+}

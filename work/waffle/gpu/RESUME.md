@@ -1,3 +1,21 @@
+# E57 UI active exec75474, auto205401Z; small actual GLcontrol passed
+
+E57 control205135Z/auto205111Z runner0/autosuccess/independentAndroid1; actual256correctpixels/FD750/2GPUfences/GC+VAreuse/fullparentclosepassed1. E57-control-result.json, originalhardwarelogssaved e57-gl-control*. Samekernel and BYTEIDENTICALE53-E56UIroot60s/sourceSHAchecked; ONEUIexec75474 auto20261101T205401Z logfilegpu/auto-ui-lifetime-e57-user.log/newrunstamp. No concurrentfastboot. Waitwholeauto/recoverythenindependentAndroid1. Needcross1024/HFItagwrap4051, captureGPU-phase35/40/45, planned60sstop fullownerteardown. IfnewfailurethirdUIafterE54review->mandatoryarchitecture-reviewbeforenextrun.
+
+E57runtimeonlymode13monotonic32bitGPUfences independentcyclicHFI1..4094starting44, remove1024diagnosticcap/retainUINT32_MAXrefusal; idle/shutdowntagconsistent, otherprobeprotocolunchanged.10000actualGMUhostmodel/seeded1024/4051/8145/MAX+/ACKstaletokenfaulttestsPASS; strictwrappedtokensparsernegativePASS. Fullbuild/container/source/currentEFICRC/autoPASS. Budgets128MiB/8192records/128tables/root1536/window16/perBO8MiB/queue32 unchanged. No productionUIclaimfrommodel. Archive73390f1 runtime/buildprecontrol; snapshotcontrol/currentnow.
+
+UserauthorizedcontinuousGPUthenhakios-metalport. /home/qarzis/hakios-metal-waffle clone642fe419ab703f89f341e9ce83e01a39ca0996ec/noAGENTS/read-onlyaudit:upstreamA6xx06030500/IOKitHakiosGPU differsA75043051401/cdev, needcompiler/PM4/transportadaptation. Intakeforensic-audit/metal-port-intake.json. NoMetalbuild/editsyet. VerifiedE45a14b658 unchanged/GitHub3644994alreadydone/noadditionalpushrequested. NoSTOP/flash/erase/manualBootiOS/agents/formalgoal. Keepworkingauthorized.
+
+# E57 actual GL control active — exec21393, auto205111Z, run205135Z
+
+E57fullbuild/container/currentpreparedartifactsourcebindings PASS, currentAUTOcopiedfromCURRENTDIAGNOSTIC. RuntimeONLYgeneralmode13 removes1024softwarecap, cyclicHFI1..4094starting44 independentfrommonotonic32bitGPUfence, UINT32_MAXfencerefusal; idle/shutdowntagconsistent. Allotherprobesunchanged. ActualGMUhost10000consecutive/seededboundaries/ACK+staletokenfailures/overflow+validshutdownPASS; strictwrappedlogproof10000tokensnegativesPASS. NoGPUbudget/init/GCchanges.
+
+CURRENT smallactualGLcontrol exec21393 auto20261101T205111Z/run20261101T205135Z, artifactdiagnostic-gpu-ui-lifetime-e57, stdoutgpu/auto-ui-lifetime-e57-gl-control.log. No concurrentfastboot. Waitwholeauto/Androidindependent1, validate256pixels/GPUfences/GC-VAreuse/fullparentstop. Thenpreservecontrol/bindBYTEIDENTICALE53/E54/E55/E56UIroot60s/kernelunchanged/sourceSHA->ONEUI. Needcross1024and4051tagwrap, stableGPUbeforeplanned60sstop. UIrootstillplannedexit60s, notpermanentGPUclaimyet. ThirdUIafterE54review ifnewfailure requiresarchitecture-reviewbeforeanotherhardwareattempt.
+
+Useralsoexplicitlyrequestedhttps://github.com/oosexgang/hakios-metal portAFTERGPU. Clonedseparate/home/qarzis/hakios-metal-waffle revision642fe419ab703f89f341e9ce83e01a39ca0996ec/noAGENTS/nochangestests. Read-onlyreview src/compiler.cpp+a6xx.hpp targetA6xx06030500, targetA75043051401 requiresPM4/register/compiler audit; iokit_transport usesHakiosGPU versusourcdev; IOSMESA1requiresAIRfrontendarchiveavailabilitycheck. Intakeforensic-audit/metal-port-intake.json, nextafterGPUstability. No unsupportedAPIinvented/nosimplebinaryworkingclaim.
+
+E57WIParchive73390f1 containsruntime/models/fullbuild beforecontrolresults/currentstampupdate. VerifiedE45a14b658 remainsolderqualified; GitHub3644994published/noadditionalpushrequested. E56STOP3be9d6c explicitlyrevokedbyuserleaveworkingforcontinuousGPU. E56lastUI1024fencesguardEIO/respring, live73.5MB/128noOOM; userdesktopconfirmed. RAMonly/no flash/erase/manualBootiOS. Noactivebuild/agents/formalgoal. Keepworkingauthorized.
+
 # E57 resumed for sustained UI — fullbuild exec25641 active
 
 USERexplicitlyresumedafterSTOP:leaveagentworkinguntilGPUcontinuous. Latestrequestalsoport https://github.com/oosexgang/hakios-metal AFTERGPUstability. Sourcecloned /home/qarzis/hakios-metal-waffle at642fe419ab703f89f341e9ce83e01a39ca0996ec, noAGENTS, nochanges/testsyet. UpstreamREADMEtargetA6xx7c+chip06030500, ourA750different; inspectcompiler/PM4/backend beforeport. Do notclaimsimplycompiledMetalworking. Noagents/formalgoal.

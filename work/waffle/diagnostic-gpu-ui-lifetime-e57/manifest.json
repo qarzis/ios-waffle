@@ -12,7 +12,9 @@
   "gl_context": true,
   "gl_system_sha256": "564709e25c30e66d839391a4773aa485b4c3e2db7c3fdcfc19c6d88f30c38744",
   "gl_system_bytes": 2318401536,
-  "gl_probe_root_sha256": "1aea36a2eefdeb12005d38d82abf6a6aa7f108ec4553cda7c06b4846fc8e7b5a",
+  "gl_probe_root_sha256": "3dcc51a60b9a8eb1b020aa3bcd58e2f9188bbc192511c9a984583065bcb62484",
   "bo_reclaim": true,
-  "experiment": "E57 monotonic GPU fences/cyclic serialized HFI tags instead1024 diagnostic job cap; all GPU budgets unchanged"
+  "experiment": "E57 monotonic GPU fences/cyclic serialized HFI tags instead1024 diagnostic job cap; all GPU budgets unchanged",
+  "ui_workload": true,
+  "ui_stop_seconds": 60
 }

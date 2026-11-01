@@ -1,0 +1,14 @@
+{
+  "run": "work/waffle/runs/20261101T205135Z",
+  "auto": "work/waffle/auto-runs/20261101T205111Z",
+  "runner_exit": 0,
+  "checked_pixels": 256,
+  "wrong_pixels": 0,
+  "GPU_fences": 2,
+  "early_reclaim": true,
+  "VA_reuse": true,
+  "full_parent_close_passed": true,
+  "independent_android": "1",
+  "tag_wrap_hardware_tested": false,
+  "raw_log_sha256": "d6d0026b128a3ac096ea9b30936f387d85e3386e0eab7dfebcc3da6ad01aeb35"
+}
