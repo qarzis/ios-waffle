@@ -312,6 +312,41 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
     return None if image==9 else extract_copy_jobs(text)[-1] if image>=4 else extract_gpu_image(text,compute_mode,image) if image else None
 
 
+def validate_ui_workload_log(text):
+    """Require real backboardd GPU work and teardown, not triangle/pixel proof."""
+    selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1",text)
+    if not selected or int(selected[1])<=1:raise RuntimeError("Actual mobile backboardd GPU selection missing")
+    pid=int(selected[1]);count=gl_completed_fences(text)
+    for marker in (
+        "waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1",
+        f"GENERAL open pid={pid} BO_limit=32 heap_bytes=33554432",
+        "FD750; shaders OpenGL ES GLSL ES",
+        f"waffle-ui-gpu: bounded process stop pid={pid} seconds=30",
+        "SMMU_OWNER released after child stop and context detach",
+        "CLOCK_OWNER released before CX restore result=1",
+        "POWER_OWNER released after clock child, CX and CFG restore result=1",
+        "AOP_OWNER released after power child and channel restore result=1",
+        "SERVICE end consumed=1 result=1",
+    ):
+        if marker not in text:raise RuntimeError("UI workload proof missing: "+marker)
+    for fence in range(1,count+1):
+        if f"GENERAL_IB ACK matched seq{43+fence} value=00000000 valid=1" not in text:
+            raise RuntimeError("UI workload GPU ACK missing")
+    close=re.search(rf"GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1",text)
+    if not close or not 1<=int(close[1])<=32:raise RuntimeError("UI workload context teardown missing")
+    if f"GENERAL_BO released after GPU stop and context detach count={close[1]}" not in text:
+        raise RuntimeError("UI workload backing release missing")
+    if not re.search(r"redwood-gl: frame [1-9]\d*: \d+ GL calls, [1-9]\d* draws",text):
+        raise RuntimeError("Actual CoreAnimation frame drawing missing")
+    if not re.search(r"MiniIOMobileFramebuffer: swap \d+ layer 0: surface \d+ \(",text):
+        raise RuntimeError("UI display-worker surface missing")
+    if "REBOOT REQUIRED" in text or "A SHADER DOES NOT COMPILE" in text:
+        raise RuntimeError("UI workload has GPU ownership or shader failure")
+    return {"actual_backboardd_pid":pid,"GPU_fences":count,"BO_count":int(close[1]),
+            "actual_CoreAnimation_workload":True,"full_GPU_teardown":True,
+            "pixel_correctness_verified":False,"optical_visibility_verified":False}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seconds", type=int, default=60, choices=range(1, 301), metavar="1..300")
@@ -327,6 +362,7 @@ def main():
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
     parser.add_argument("--gpu-gl-context",action="store_true",help="E36 actual Darwin OSMesa GL renderer")
+    parser.add_argument("--gpu-ui",action="store_true",help="E46 real backboardd workload; requires GL backend, no triangle/pixel success claim")
     parser.add_argument("--gpu-mapped",action="store_true",help="E33 direct mapped GPU BOs with revoke-before-submit")
     parser.add_argument("--gpu-mesa-transport",action="store_true",help="E32 require actual Mesa DRM shim marker and MSM proof")
     parser.add_argument("--gpu-msm",action="store_true",help="E31 actual MSM BO handles and user uploaded Mesa commands")
@@ -346,6 +382,7 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.gpu_ui and not args.gpu_gl_context:parser.error("--gpu-ui requires --gpu-gl-context")
     if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
     if args.gpu_mesa_transport and not args.gpu_msm:parser.error("--gpu-mesa-transport requires --gpu-msm")
     if args.gpu_mapped and not (args.gpu_msm and args.gpu_mesa_transport):parser.error("--gpu-mapped requires MSM Mesa transport")
@@ -438,6 +475,8 @@ def main():
     command("get_staged", out / "loader-before-run.log")
     print(command("oem", "run", "0"), flush=True)
     deadline = time.monotonic() + args.seconds + 90
+    ui_started=time.monotonic()
+    ui_screenshots=set()
     sequence = 0
     while time.monotonic() < deadline:
         time.sleep(0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
@@ -522,7 +561,11 @@ def main():
             if "waffle-gmu: REBOOT REQUIRED" in final_text:
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
-                image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)
+                if args.gpu_ui:
+                    proof=validate_ui_workload_log(final_text)
+                    (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")
+                else:
+                    image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)
                 if args.gpu_mesa_transport and "waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1" not in final_text:
                     raise RuntimeError("Actual Mesa DRM shim transport not confirmed")
             elif args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
@@ -704,12 +747,21 @@ def main():
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
             if args.gpu_image and args.gpu_compute==2:
+                if args.gpu_ui:
+                    print("Actual UI GPU workload and teardown validated; pixel correctness unverified",flush=True)
+                    return
                 if image_pixels is None:raise RuntimeError("No GPU pixels validated")
                 write_gpu_png(out/"first-gpu-frame.png",image_pixels)
                 (out/"gpu-pixels.json").write_text(json.dumps({'width':16,'height':16,'rgba_words':image_pixels,'source':'actual kernel GPU readback'},indent=2)+"\n")
                 print(f"GPU image: {out/'first-gpu-frame.png'}",flush=True)
             return
-        if not args.gpu_probe and (sequence in (2, 6, 9, 11) or (args.seconds > 60 and sequence % 6 == 0)):
+        if args.gpu_ui:
+            for seconds in (15,30,45,60):
+                if seconds not in ui_screenshots and time.monotonic()-ui_started>=seconds:
+                    command("oem", "screenshot")
+                    command("get_staged", out / f"ui-screen-{seconds}.raw")
+                    ui_screenshots.add(seconds)
+        elif not args.gpu_probe and (sequence in (2, 6, 9, 11) or (args.seconds > 60 and sequence % 6 == 0)):
             command("oem", "screenshot")
             command("get_staged", out / f"screen-{sequence}.raw")
     raise RuntimeError(f"No final result yet; logs: {out}. No automatic reboot was requested.")
