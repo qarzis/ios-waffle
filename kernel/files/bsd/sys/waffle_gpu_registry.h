@@ -2,11 +2,13 @@
 #define WAFFLE_GPU_REGISTRY_H
 #include "waffle_gpu_memory.h"
 #define WAFFLE_GPU_BO_VA_BASE 0x100000000ULL
-/* Bounded general heap, independent from 32-bit firmware regions. No handle
- * reuse or GPU VA reuse until context destruction; failed publication poisons
- * the registry and retains all backing for parent-controlled GPU detach. */
+/* Bounded general heap, independent from 32-bit firmware regions. Handles
+ * remain monotonic. Only completely revoked VA holes may be reused; failed
+ * publication poisons the registry and retains backing until GPU detach. */
 struct waffle_gpu_registry {
- struct waffle_gpu_memory buffers[WAFFLE_GPU_BO_LIMIT];
+ struct waffle_gpu_memory *buffers;
+ void (*release_storage)(uintptr_t,uint32_t);
+ uint32_t storage_bytes;
  uint32_t count,used;
  bool poisoned;
 };
@@ -23,15 +25,34 @@ static inline bool waffle_gpu_registry_flags(uint64_t bytes,uint32_t flags)
  return bytes && bytes<=WAFFLE_GPU_BO_MAX_BYTES &&
   (flags==WAFFLE_GPU_BO_WC || flags==(WAFFLE_GPU_BO_WC|WAFFLE_GPU_BO_READONLY));
 }
+static inline bool waffle_gpu_registry_vacant_range(const struct waffle_gpu_registry_ops *ops,
+ uint64_t address,uint32_t allocated)
+{
+ for(uint32_t off=0;off<allocated;off+=4096)if(!ops->vacant(ops->context,address+off))return false;
+ return true;
+}
+/* Keep the old append placement as a fast path. After a proven revocation,
+ * physical usage is no longer a VA frontier: search vacant, aligned holes
+ * within the original bounded window instead of extending that window. */
+static inline uint64_t waffle_gpu_registry_find_hole(const struct waffle_gpu_registry *r,
+ const struct waffle_gpu_registry_ops *ops,uint32_t allocated)
+{
+ uint64_t end=WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_HEAP_BYTES-allocated;
+ uint64_t hint=WAFFLE_GPU_BO_VA_BASE+r->used;
+ if(hint<=end && waffle_gpu_registry_vacant_range(ops,hint,allocated))return hint;
+ for(uint64_t address=WAFFLE_GPU_BO_VA_BASE;address<=end;address+=16384)
+  if(address!=hint && waffle_gpu_registry_vacant_range(ops,address,allocated))return address;
+ return 0;
+}
 static inline struct waffle_gpu_memory *waffle_gpu_registry_new(struct waffle_gpu_registry *r,
  const struct waffle_gpu_registry_ops *ops,uint64_t bytes,uint32_t flags)
 {
- if(!r || !ops || !ops->idle || !ops->vacant || !ops->map_page || !ops->clean || !ops->tlb ||
+ if(!r || !r->buffers || !ops || !ops->idle || !ops->vacant || !ops->map_page || !ops->clean || !ops->tlb ||
     r->poisoned || r->count>=WAFFLE_GPU_BO_LIMIT || !waffle_gpu_registry_flags(bytes,flags))return 0;
  uint32_t allocated=((uint32_t)bytes+16383)&~16383u;
  if(r->used>WAFFLE_GPU_BO_HEAP_BYTES || allocated>WAFFLE_GPU_BO_HEAP_BYTES-r->used || !ops->idle(ops->context))return 0;
- uint64_t address=WAFFLE_GPU_BO_VA_BASE+r->used;
- for(uint32_t off=0;off<allocated;off+=4096)if(!ops->vacant(ops->context,address+off))return 0;
+ uint64_t address=waffle_gpu_registry_find_hole(r,ops,allocated);
+ if(!address)return 0;
  struct waffle_gpu_memory *bo=&r->buffers[r->count];
  if(!waffle_gpu_memory_create(bytes,flags,bo))return 0;
  bo->gpu_va=address;
@@ -51,7 +72,9 @@ static inline struct waffle_gpu_memory *waffle_gpu_registry_new(struct waffle_gp
 static inline bool waffle_gpu_registry_destroy(struct waffle_gpu_registry *r,bool gpu_detached)
 {
  if(!r || !gpu_detached)return false;
- for(uint32_t i=0;i<r->count;i++)if(!waffle_gpu_memory_destroy(&r->buffers[i],true))return false;
+ for(uint32_t i=0;i<r->count;i++)if(r->buffers[i].object && !waffle_gpu_memory_destroy(&r->buffers[i],true))return false;
+ if(r->release_storage && r->buffers)r->release_storage((uintptr_t)r->buffers,r->storage_bytes);
+ r->buffers=0;r->release_storage=0;r->storage_bytes=0;
  r->count=r->used=0;r->poisoned=false;return true;
 }
 #endif

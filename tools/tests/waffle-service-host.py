@@ -72,11 +72,13 @@ static bool aop_gpu_owner_end(struct aop_gpu_owner *);
 static bool waffle_smmu_owner_copy(struct waffle_smmu_owner *,struct waffle_gpu_copy_job *);
 static bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *,struct waffle_gpu_buffer [2]);
 static struct waffle_gpu_memory *waffle_smmu_owner_memory_new(struct waffle_smmu_owner *,uint64_t,uint32_t);
+static bool waffle_smmu_owner_memory_reclaim(struct waffle_smmu_owner *,struct waffle_gpu_memory *,bool);
 static bool waffle_smmu_owner_submit(struct waffle_smmu_owner *,struct waffle_gpu_submit_job *);
 static bool PE_parse_boot_argn(const char *name,void *value,unsigned size){assert(!strcmp(name,"waffle_image") && size==4);*(unsigned *)value=5;return true;}
 '''
 mocks=r'''
 static struct waffle_gpu_memory *waffle_smmu_owner_memory_new(struct waffle_smmu_owner *s,uint64_t b,uint32_t f){(void)s;(void)b;(void)f;return NULL;}
+static bool waffle_smmu_owner_memory_reclaim(struct waffle_smmu_owner *s,struct waffle_gpu_memory *b,bool u){(void)s;(void)b;(void)u;assert(0);return false;}
 static bool waffle_smmu_owner_submit(struct waffle_smmu_owner *s,struct waffle_gpu_submit_job *j){(void)s;(void)j;return false;}
 
 static bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *o,struct waffle_gpu_buffer b[2]){(void)o;(void)b;return false;}

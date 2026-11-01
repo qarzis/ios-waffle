@@ -1,6 +1,7 @@
 /* General BO and bounded root-IB transport. Mode13 is kept gated off until the
  * controlled graphics test is complete; this is not an untrusted GL service. */
 #include <kern/locks.h>
+#include <kern/kalloc.h>
 #include <libkern/libkern.h>
 #include <miscfs/devfs/devfs.h>
 #include <sys/conf.h>
@@ -14,6 +15,7 @@
 #include <sys/waffle_gpu_va.h>
 extern void redwood_tl(const char *,...) __printflike(1,2);
 extern void loader_return(void);
+_Static_assert(WAFFLE_GPU_SUBMIT_BUFFERS<=WAFFLE_GPU_BO_LIMIT,"Submit references fit the context registry");
 static LCK_GRP_DECLARE(drm_group,"waffle-gpu-general");
 static LCK_MTX_DECLARE(drm_lock,&drm_group);
 struct drm_bo {
@@ -36,6 +38,17 @@ static struct drm_bo *drm_buffer(unsigned handle)
 {
  return handle && handle<=drm_count && drm_bos[handle-1].live?&drm_bos[handle-1]:NULL;
 }
+static void drm_allocation_refused(uint64_t bytes,uint32_t flags,const char *reason)
+{
+ uint64_t live_bytes=0,retired_bytes=0;unsigned live_count=0,retired_count=0;
+ for(unsigned i=0;i<drm_count;i++){
+  if(drm_bos[i].live){live_count++;live_bytes+=drm_bos[i].memory->allocation_bytes;}
+  else{retired_count++;retired_bytes+=drm_bos[i].memory->allocation_bytes;}
+ }
+ redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=%s live_count=%u live_bytes=%llu retired_count=%u retired_bytes=%llu heap_limit=%u\n",
+  (unsigned long long)bytes,flags,drm_count,WAFFLE_GPU_BO_LIMIT,reason,live_count,
+  (unsigned long long)live_bytes,retired_count,(unsigned long long)retired_bytes,WAFFLE_GPU_BO_HEAP_BYTES);
+}
 static void drm_unmap(struct drm_bo *bo)
 {
  if(!waffle_gpu_map_revoke(&bo->user_map)){
@@ -49,7 +62,7 @@ static int drm_open(dev_t dev,int flags,int type,struct proc *p)
  if(drm_context){error=EBUSY;goto done;}
  drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
  drm_count=drm_fence=0;drm_queues=0;drm_next_queue=0;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
- redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=32 heap_bytes=33554432\n",drm_pid);
+ redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES);
 done:lck_mtx_unlock(&drm_lock);return error;
 }
 static int drm_param(struct waffle_msm_param *r)
@@ -73,18 +86,28 @@ static int drm_param(struct waffle_msm_param *r)
 static int drm_submit(struct waffle_msm_submit *r)
 {
  redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
- if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>32 || !r->nr_cmds || r->nr_cmds>WAFFLE_GPU_SUBMIT_COMMANDS ||
+ if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_BO_LIMIT || !r->nr_cmds ||
     r->in_syncobjs || r->out_syncobjs || r->nr_in_syncobjs || r->nr_out_syncobjs || r->syncobj_stride || r->pad ||
     !drm_queue_valid(r->queueid))return EINVAL;
- struct waffle_msm_submit_bo bos[32];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
- struct waffle_gpu_command roots[WAFFLE_GPU_SUBMIT_COMMANDS];
- if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands)))return EFAULT;
- uint32_t seen=0,total=0;
+ /* Snapshot one bounded CPU page of request metadata. Real UI requests are
+  * larger than an individual private-BO execution window; keep these two
+  * budgets independent and keep request arrays off the kernel stack. */
+ uint64_t bytes=(uint64_t)r->nr_bos*sizeof(struct waffle_msm_submit_bo)+
+  (uint64_t)r->nr_cmds*(sizeof(struct waffle_msm_submit_cmd)+sizeof(struct waffle_gpu_command));
+ if(bytes>16384)return EINVAL;
+ void *snapshot=kalloc_data((size_t)bytes,Z_WAITOK|Z_ZERO);
+ if(!snapshot)return ENOMEM;
+ int error=0;
+ struct waffle_msm_submit_bo *bos=snapshot;
+ struct waffle_msm_submit_cmd *commands=(void *)(bos+r->nr_bos);
+ struct waffle_gpu_command *roots=(void *)(commands+r->nr_cmds);
+ if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands))){error=EFAULT;goto done;}
+ uint64_t seen[(WAFFLE_GPU_BO_LIMIT+63)/64]={0};uint32_t total=0;
  for(unsigned i=0;i<r->nr_bos;i++){
   struct drm_bo *bo=drm_buffer(bos[i].handle);
-  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen&(1u<<(bos[i].handle-1))) ||
-     (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va))return EINVAL;
-  seen|=1u<<(bos[i].handle-1);
+  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen[(bos[i].handle-1)/64]&(1ULL<<((bos[i].handle-1)%64))) ||
+     (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va)){error=EINVAL;goto done;}
+  seen[(bos[i].handle-1)/64]|=1ULL<<((bos[i].handle-1)%64);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
   struct waffle_msm_submit_cmd *cmd=&commands[i];
@@ -92,19 +115,34 @@ static int drm_submit(struct waffle_msm_submit *r)
   redwood_tl("waffle-gpu: GENERAL root index=%u type=%u bo_index=%u offset=%u bytes=%u reloc_count=%u unused_reloc_pointer=%llx\n",i,cmd->type,cmd->submit_idx,cmd->submit_offset,cmd->size,cmd->nr_relocs,(unsigned long long)cmd->relocs);
   /* Mesa softpin leaves relocs uninitialized when nr_relocs is zero.
    * A zero-length array has no pointer to validate or dereference. */
-  if(!bo || cmd->type!=1 || cmd->pad || cmd->nr_relocs)return EINVAL;
+  if(!bo || cmd->type!=1 || cmd->pad || cmd->nr_relocs){error=EINVAL;goto done;}
   roots[i]=(struct waffle_gpu_command){.buffer=bo->memory,.offset=cmd->submit_offset,.bytes=cmd->size};
-  if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS-total)return EINVAL;
+  if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS){error=EINVAL;goto done;}
   total+=cmd->size/4;
  }
  /* Controlled caller owns data consistency. Root bytes are snapshotted into
   * the private kernel command BO; persistent Mesa data mappings stay stable. */
  __asm__ volatile("dsb sy":::"memory");
- struct waffle_gpu_submit_job job={.commands=roots,.count=r->nr_cmds};
- if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1)return EIO;
- drm_fence=job.fence;r->fence=job.fence;
- redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,r->nr_cmds,total);
- return 0;
+ /* All metadata/ranges are checked before the first window. Each whole root
+  * retains its position; the existing synchronous completion tail separates
+  * adjacent windows without adding an IB level or growing the private BO. */
+ unsigned cursor=0,windows=0;
+ while(cursor<r->nr_cmds){
+  unsigned first=cursor,words=0;
+  while(cursor<r->nr_cmds && cursor-first<WAFFLE_GPU_SUBMIT_COMMANDS &&
+        roots[cursor].bytes/4<=WAFFLE_GPU_SUBMIT_WORDS-words){
+   words+=roots[cursor].bytes/4;cursor++;
+  }
+  struct waffle_gpu_submit_job job={.commands=roots+first,.count=cursor-first};
+  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){error=EIO;goto done;}
+  drm_fence=job.fence;windows++;
+  redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
+ }
+ r->fence=drm_fence;
+ redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
+done:
+ kfree_data(snapshot,(size_t)bytes);
+ return error;
 }
 static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc *p)
 {
@@ -114,9 +152,15 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
  }else if(command==WAFFLE_MSM_NEW){
   struct waffle_msm_gem_new *r=(void *)data;
   if(r->handle || !waffle_gpu_registry_flags(r->size,r->flags)){error=EINVAL;goto done;}
-  if(drm_count>=32){error=ENOSPC;goto done;}
+  if(drm_count>=WAFFLE_GPU_BO_LIMIT){
+   drm_allocation_refused(r->size,r->flags,"slots");
+   error=ENOSPC;goto done;
+  }
   struct waffle_gpu_memory *bo=waffle_gpu_context_memory_new(drm_context,r->size,r->flags);
-  if(!bo){error=ENOMEM;goto done;}
+  if(!bo){
+   drm_allocation_refused(r->size,r->flags,"registry");
+   error=ENOMEM;goto done;
+  }
   drm_bos[drm_count]=(struct drm_bo){.memory=bo,.live=true};r->handle=++drm_count;
   redwood_tl("waffle-gpu: GENERAL gem_new handle=%u bytes=%u allocated=%u flags=%x VA=%llx\n",r->handle,bo->bytes,bo->allocation_bytes,bo->flags,(unsigned long long)bo->gpu_va);
  }else if(command==WAFFLE_MSM_INFO){
@@ -158,7 +202,12 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   if(copyout(&zero,r->data,8))error=EFAULT;
  }else if(command==WAFFLE_MSM_CLOSE){
   struct waffle_msm_close *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
-  if(!bo || r->pad){error=EINVAL;goto done;}drm_unmap(bo);bo->live=false;
+  if(!bo || r->pad){error=EINVAL;goto done;}
+  uint32_t bytes=bo->memory->allocation_bytes;
+  drm_unmap(bo);
+  if(!waffle_gpu_context_memory_reclaim(drm_context,bo->memory,!bo->user_map && !bo->user_address)){error=EIO;goto done;}
+  bo->live=false;
+  redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=0\n",r->handle,bytes);
  }else error=ENOTTY;
 done:
  if(error)redwood_tl("waffle-gpu: GENERAL ioctl_refused op=%x error=%d pid=%d\n",(unsigned)(command&255),error,proc_pid(p));
@@ -185,5 +234,5 @@ bool waffle_gpu_drm_register(void)
  if(!devfs_make_node(makedev(major,0),DEVFS_CHAR,UID_ROOT,GID_WHEEL,0600,"waffle-gpu-drm")){
   cdevsw_remove(major,&drm_cdev);return false;
  }
- redwood_tl("waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=32\n");return true;
+ redwood_tl("waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=%u\n",WAFFLE_GPU_BO_LIMIT);return true;
 }

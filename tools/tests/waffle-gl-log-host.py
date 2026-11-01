@@ -34,3 +34,71 @@ for marker,replacement in [('GENERAL_SUBMIT done fence=1','GENERAL_SUBMIT done f
  except RuntimeError:pass
  else:raise AssertionError('Invalid GL hardware proof accepted: '+marker)
 print('GL acceptance parser:actual pixel completeness,FD750 renderer,GPU tokens/ACK/sequence,BO ranges/permissions/free/context stop and8 corrupted-proof refusals; synthetic host fixture only')
+
+# Budget-derived capacity is accepted only with its matching physical heap.
+updated=text.replace('BO_limit=32','BO_limit=4096').replace('heap_bytes=33554432','heap_bytes=67108864')
+assert m.validate_gl_log(updated)==pixels
+try:m.validate_gl_log(updated.replace('heap_bytes=67108864','heap_bytes=33554432'))
+except RuntimeError:pass
+else:raise AssertionError('Inconsistent capacity/physical budget accepted')
+larger=updated.replace('BO_limit=4096','BO_limit=8192').replace('heap_bytes=67108864','heap_bytes=134217728')
+assert m.validate_gl_log(larger)==pixels
+for bad in [larger.replace('heap_bytes=134217728','heap_bytes=67108864'),
+            larger.replace('BO_limit=8192','BO_limit=4096')]:
+ try:m.validate_gl_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Inconsistent128MiB descriptor capacity accepted')
+
+# UI acceptance remains independent of off-screen GL pixel proofs. A declared
+# observation window must match the actual stop, with real presentation markers.
+ui=updated.replace('GENERAL open pid=1', 'GENERAL open pid=83')+'''
+waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1
+waffle-ui-gpu: selected process=backboardd pid=83 uid=501 bounded=1
+FD750; shaders OpenGL ES GLSL ES 3.20
+waffle-ui-gpu: bounded process stop pid=83 seconds=30
+redwood-gl: frame 1: 136 GL calls, 4 draws
+MiniIOMobileFramebuffer: swap 1 layer 0: surface 7 (
+'''
+assert m.validate_ui_workload_log(ui)['actual_backboardd_pid']==83
+ui60=ui.replace('bounded=1\n','bounded=1 stop_seconds=60\n').replace('seconds=30','seconds=60')
+assert m.validate_ui_workload_log(ui60)['GPU_fences']==1
+ui240=ui60.replace('seconds=60','seconds=240')
+assert m.validate_ui_workload_log(ui240)['GPU_fences']==1
+for bad in [ui60.replace('stop_seconds=60','stop_seconds=90'),
+            ui60.replace('pid=83 seconds=60','pid=83 seconds=30'),
+            ui60.replace('MiniIOMobileFramebuffer: swap','missing swap'),
+            ui60.replace('context_null=1','context_null=0')]:
+ try:m.validate_ui_workload_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Incomplete or mismatched bounded UI proof accepted')
+print('UI observation-window proof: legacy30/declared60 accepted; unknown/mismatched window, missing presentation and failed teardown refused; synthetic host fixtures only')
+
+pub1='GENERAL_BO published index=1 VA=100000000 bytes=4096 allocated=16384 flags=20000 pages=4'
+pub2=pub1.replace('index=1','index=2')
+freed='GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0'
+release='GENERAL_BO released after GPU stop and context detach count=1 reclaimed_earlier=1 total=2'
+reuse=text.replace(pub1,pub1+'\n'+freed+'\n'+pub2).replace(
+ 'GENERAL_BO released after GPU stop and context detach count=1',release).replace('completed=1 buffers=1','completed=1 buffers=2')
+assert m.validate_gl_log(reuse)==pixels
+for bad in [reuse.replace(freed+'\n',''),reuse.replace('CPU_unmapped=1','CPU_unmapped=0'),
+            reuse.replace('dual_ASID_TLBI=1','dual_ASID_TLBI=0'),
+            reuse.replace('reclaimed index=1 VA=100000000','reclaimed index=1 VA=100004000'),
+            reuse.replace('used=0','used=16384'),reuse.replace('reclaimed_earlier=1 total=2','reclaimed_earlier=0 total=2'),
+            reuse.replace(release,'GENERAL_BO released after GPU stop and context detach count=2')]:
+ try:m.validate_gl_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Corrupt early-reclaim lifetime proof accepted')
+life=pub1+'\n'+freed+'\n'+pub2+'\n'+release+'\n'
+assert len(m.validate_gl_bo_lifetimes(life+life,32,33554432)[0])==2 # loader console replay
+try:m.validate_gl_bo_lifetimes(life+freed.replace('index=1','index=2')+'\n',32,33554432)
+except RuntimeError:pass
+else:raise AssertionError('First revocation after context detach accepted')
+print('GL BO lifetime proof: exact console replays and revoked-hole reuse accepted; missing revocation, CPU/TLB/VA/accounting/teardown corruption and post-detach new lifetime events refused; synthetic fixtures only')
+longrun='\n'.join(f'GENERAL_SUBMIT done fence={f} seq={m.gl_sequence(f-1)} control={f:08x} checked=4096 wrong_words=0' for f in range(1,10001))
+assert m.gl_completed_fences(longrun)==10000
+for before in [1024,4051,8145]:
+ bad=longrun.replace(f'fence={before} seq={m.gl_sequence(before-1)}',f'fence={before} seq=4095')
+ try:m.gl_completed_fences(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Wrong wrapped HFI sequence accepted')
+print('GL fences:10000 monotonic32bit tokens with bounded HFI tags; corrupted former1024/tag-wrap boundaries refused; synthetic fixtures only')

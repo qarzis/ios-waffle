@@ -1,0 +1,28 @@
+{
+  "experiment": "E48 offline actual UI heap failure architecture audit",
+  "host_only": true,
+  "GPU_execution": false,
+  "actual_registry_SMMU_replay_passed": true,
+  "measured_prefix_BOs": 35,
+  "measured_prefix_allocated_bytes": 28901376,
+  "failed_next_request_bytes": 5242880,
+  "required_total_bytes": 34144256,
+  "heap_limit_bytes": 33554432,
+  "failure_precedes_allocation_and_PTE_TLB": true,
+  "SMMU_table_exhaustion_excluded_for_this_prefix": true,
+  "live_vs_retired_bytes_at_failure": "unknown, next required telemetry",
+  "next_hypotheses": [
+    {
+      "id": "H1",
+      "claim": "closed BO backing retained until detach consumes budget",
+      "evidence": "actual GEM_CLOSE leaves registryused/backing intact; actual closed fraction not logged"
+    },
+    {
+      "id": "H2",
+      "claim": "live UI working set exceeds32MiB",
+      "evidence": "actual requested retained total34,144,256bytes; needs live/retired discrimination"
+    }
+  ],
+  "no_heap_or_slot_increase": true,
+  "next_minimal_experiment": "add failure telemetry live/retired counts and bytes, retain same64BO/32MiB; one bounded UI diagnostic before any allocation-policy change"
+}

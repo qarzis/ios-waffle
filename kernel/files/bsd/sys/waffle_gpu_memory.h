@@ -2,9 +2,9 @@
 #define WAFFLE_GPU_MEMORY_H
 #include <stdint.h>
 #include <stdbool.h>
-#define WAFFLE_GPU_BO_LIMIT 32u
 #define WAFFLE_GPU_BO_MAX_BYTES (8u*1024u*1024u)
-#define WAFFLE_GPU_BO_HEAP_BYTES (32u*1024u*1024u)
+#define WAFFLE_GPU_BO_HEAP_BYTES (128u*1024u*1024u)
+#define WAFFLE_GPU_BO_LIMIT (WAFFLE_GPU_BO_HEAP_BYTES/16384u)
 #define WAFFLE_GPU_BO_WC 0x00020000u
 #define WAFFLE_GPU_BO_READONLY 2u
 struct waffle_gpu_memory {

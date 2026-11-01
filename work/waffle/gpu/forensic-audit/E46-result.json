@@ -1,0 +1,154 @@
+{
+  "run": "work/waffle/runs/20261101T133859Z",
+  "auto": "work/waffle/auto-runs/20261101T133835Z",
+  "actual_backboardd_pid": 83,
+  "UID": 501,
+  "actual_CoreAnimation_created_FD750_ES3_context": true,
+  "GPU_commands_submitted": 0,
+  "first_failure": "MSM GEM_NEW ENOSPC after32 published BOs; then backboardd SIGSEGV at0x18",
+  "BO_count": 32,
+  "BO_allocated_bytes": 23625728,
+  "heap_budget_bytes": 33554432,
+  "first_failure_is_slot_limit_not_heap_budget": true,
+  "owner_teardown_consumed": true,
+  "softpipe_fallback_observed": true,
+  "captured_screenshots_seconds": [
+    15,
+    30,
+    45,
+    60
+  ],
+  "UI_GPU_success": false,
+  "log_sha256": "d327e2f35c98e8f91a42935ed7728764a74d9f9e6c86250dbc81ac194299759c",
+  "independent_android": "1",
+  "BO_prefix": [
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 4194304,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 4194304,
+      "flags": 131074
+    },
+    {
+      "bytes": 4194304,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 5242880,
+      "flags": 131072
+    },
+    {
+      "bytes": 5242880,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131074
+    },
+    {
+      "bytes": 16384,
+      "flags": 131074
+    },
+    {
+      "bytes": 16384,
+      "flags": 131074
+    },
+    {
+      "bytes": 16384,
+      "flags": 131074
+    },
+    {
+      "bytes": 16384,
+      "flags": 131074
+    },
+    {
+      "bytes": 131072,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    },
+    {
+      "bytes": 16384,
+      "flags": 131074
+    },
+    {
+      "bytes": 16384,
+      "flags": 131074
+    },
+    {
+      "bytes": 16384,
+      "flags": 131072
+    }
+  ]
+}

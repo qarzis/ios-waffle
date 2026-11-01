@@ -1,0 +1,22 @@
+{
+  "run": "work/waffle/runs/20261101T135803Z",
+  "auto": "work/waffle/auto-runs/20261101T135740Z",
+  "experiment": "E48 telemetry-only live versus retired UI memory",
+  "GPU_fences": 3,
+  "first_failure_request_bytes": 5242880,
+  "live_count": 34,
+  "live_bytes": 28884992,
+  "retired_count": 1,
+  "retired_bytes": 16384,
+  "heap_limit_bytes": 33554432,
+  "live_plus_next_bytes": 34127872,
+  "hypothesis_H1_retired_backing_primary_cause": false,
+  "hypothesis_H2_live_working_set_exceeds_32MiB": true,
+  "owner_close_passed": true,
+  "context_null": true,
+  "allocation_policy_unchanged": true,
+  "runner_exit": 1,
+  "UI_GPU_success": false,
+  "independent_android": "1",
+  "events_sha256": "571dce318d6655e5d4575c23e253ab3393e7a801eddcdebf674b9abf38e22ff1"
+}

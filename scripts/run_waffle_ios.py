@@ -148,27 +148,86 @@ def extract_gl_pixels(text):
     return pixels
 
 
+def gl_sequence(completed):
+    return (43+completed%4094)%4094+1
+
+
 def gl_completed_fences(text):
     fences={}
     for fence,seq,control in re.findall(r"GENERAL_SUBMIT done fence=(\d+) seq=(\d+) control=([0-9a-f]{8}) checked=4096 wrong_words=0",text):
         fence,seq,control=int(fence),int(seq),int(control,16)
-        if seq!=43+fence or control!=fence or (fence in fences and fences[fence]!=(seq,control)):raise RuntimeError("Invalid GL GPU completion token")
+        if seq!=gl_sequence(fence-1) or control!=fence or (fence in fences and fences[fence]!=(seq,control)):raise RuntimeError("Invalid GL GPU completion token")
         fences[fence]=(seq,control)
     if not fences or set(fences)!=set(range(1,max(fences)+1)):raise RuntimeError("Missing or discontinuous GL GPU fences")
     return max(fences)
+
+
+def validate_gl_bo_lifetimes(text,capacity,budget):
+    """Track unique publications/revocations across console replay duplicates."""
+    publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
+    reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"
+    release_pattern=r"GENERAL_BO released after GPU stop and context detach count=(\d+)(?: reclaimed_earlier=(\d+) total=(\d+))?(?=\r?$)"
+    releases=list(re.finditer(release_pattern,text,re.M))
+    if not releases:raise RuntimeError("Missing complete GL backing release")
+    release=releases[0]
+    if any(m.groups()!=release.groups() for m in releases):raise RuntimeError("Conflicting GL release counts")
+    buffers={};active={};seen={};used=0;retired=0;append_end=0x100000000
+    for event in re.finditer(f"(?P<publication>{publication})|(?P<reclaim>{reclaim})",text):
+        kind='publication' if event.group('publication') else 'reclaim'
+        values=re.fullmatch(publication if kind=='publication' else reclaim,event.group(0)).groups()
+        index=int(values[0]);key=(kind,index)
+        if key in seen:
+            if seen[key]!=values:raise RuntimeError("Conflicting GL BO lifetime event")
+            continue
+        if event.start()>release.start():raise RuntimeError("New BO lifetime event after context detach")
+        seen[key]=values
+        if kind=='publication':
+            va,logical,allocated,flags,pages=int(values[1],16),int(values[2]),int(values[3]),int(values[4],16),int(values[5])
+            if index!=len(buffers)+1 or index>capacity:raise RuntimeError("Missing GL BO publication")
+            if (not 0<logical<=8*1024*1024 or allocated!=((logical+16383)&~16383) or
+                flags not in (0x20000,0x20002) or pages!=allocated//4096 or va&16383 or
+                va<0x100000000 or va+allocated>0x100000000+budget):
+                raise RuntimeError("Invalid GL BO range/permission publication")
+            if not retired and va!=append_end:raise RuntimeError("Unexpected GL VA reuse without revocation")
+            if any(va<a[0]+a[2] and a[0]<va+allocated for a in active.values()):
+                raise RuntimeError("Overlapping live GL BO ranges")
+            used+=allocated
+            if used>budget:raise RuntimeError("GL physical BO budget exceeded")
+            buffers[index]=active[index]=(va,logical,allocated,flags,pages)
+            append_end=va+allocated
+        else:
+            va,allocated=int(values[1],16),int(values[2])
+            if index not in active or active[index][0]!=va or active[index][2]!=allocated:
+                raise RuntimeError("GL BO revocation has no matching live publication")
+            if tuple(map(int,values[3:6]))!=(1,1,1):raise RuntimeError("GL BO revocation lacks CPU/GPU/TLB proof")
+            used-=allocated;active.pop(index);retired+=1
+            if int(values[6])!=used:raise RuntimeError("GL reclaim physical budget mismatch")
+    if not buffers:raise RuntimeError("Missing GL BO publication")
+    remaining=int(release[1]);earlier=int(release[2]) if release[2] else 0
+    total=int(release[3]) if release[3] else remaining
+    if remaining!=len(active) or earlier!=retired or total!=len(buffers) or remaining+earlier!=total:
+        raise RuntimeError("GL BO backing release accounting mismatch")
+    return buffers,release.group(0)
 
 
 def validate_gl_log(text):
     if "Library not loaded:" in text:
         raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
+    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
+    if not capacity:raise RuntimeError("Missing bounded GL BO capacity")
+    capacity=int(capacity[1])
+    budget=re.search(rf"GENERAL open pid=1 BO_limit={capacity} heap_bytes=(33554432|67108864|134217728)\b",text)
+    if not budget:raise RuntimeError("Missing bounded GL heap declaration")
+    budget=int(budget[1])
+    if capacity>=4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
     if "REBOOT REQUIRED" in text or "GENERAL_SUBMIT mismatch" in text:raise RuntimeError("GL GPU ownership or completion failed")
-    markers=["GENERAL registered root_only=1 gated=1 BO_limit=32",
+    markers=[f"GENERAL registered root_only=1 gated=1 BO_limit={capacity}",
        "waffle-gl-init: exec actual Darwin Mesa probe pid=1",
        "waffle-gl-user: begin actual_OSMesa=1 target=GPU triangle=16x16",
        "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
        "full GPU owner returned live to init caller; no mutex held","SERVICE begin root_live=1 serialized=1",
-       "GENERAL open pid=1 BO_limit=32 heap_bytes=33554432"]
+       f"GENERAL open pid=1 BO_limit={capacity} heap_bytes={budget}"]
     cursor=0
     for marker in markers:
         at=text.find(marker,cursor)
@@ -176,30 +235,18 @@ def validate_gl_log(text):
         cursor=at+len(marker)
     if "waffle-gl-user: renderer=FD750" not in text:raise RuntimeError("Actual FD750 GL renderer not selected")
     for fence in range(1,count+1):
-        starts=list(re.finditer(rf"GENERAL_SUBMIT begin fence={fence} seq={43+fence} root_words=(\d+) kernel_tail=15 extra_IB_depth=0",text[cursor:]))
-        if not starts or not 1<=int(starts[0][1])<=1024:raise RuntimeError("GL root command publication not proved")
+        starts=list(re.finditer(rf"GENERAL_SUBMIT begin fence={fence} seq={gl_sequence(fence-1)} root_words=(\d+) kernel_tail=15 extra_IB_depth=0",text[cursor:]))
+        if not starts or not 1<=int(starts[0][1])<=1536:raise RuntimeError("GL root command publication not proved")
         cursor+=starts[0].end()
-        for marker in (f"GENERAL_IB ACK matched seq{43+fence} value=00000000 valid=1",
-          f"GENERAL_SUBMIT done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0",
+        for marker in (f"GENERAL_IB ACK matched seq{gl_sequence(fence-1)} value=00000000 valid=1",
+          f"GENERAL_SUBMIT done fence={fence} seq={gl_sequence(fence-1)} control={fence:08x} checked=4096 wrong_words=0",
           f"GENERAL submitted fence={fence}"):
             at=text.find(marker,cursor)
             if at<0:raise RuntimeError("GL GPU fence not confirmed: "+marker)
             cursor=at+len(marker)
-    buffers={}
-    for index,va,logical,allocated,flags,pages in re.findall(r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)",text):
-        key=int(index);value=(int(va,16),int(logical),int(allocated),int(flags,16),int(pages))
-        if key in buffers and buffers[key]!=value:raise RuntimeError("Conflicting GL BO publication")
-        buffers[key]=value
-    if not buffers or set(buffers)!=set(range(1,len(buffers)+1)) or len(buffers)>32:raise RuntimeError("Missing GL BO publication")
-    expected_va=0x100000000
-    for key in sorted(buffers):
-        va,logical,allocated,flags,pages=buffers[key]
-        if va!=expected_va or not 0<logical<=8*1024*1024 or allocated!=(logical+16383)&~16383 or flags not in (0x20000,0x20002) or pages!=allocated//4096:
-            raise RuntimeError("Invalid GL BO range/permission publication")
-        expected_va+=allocated
-    if expected_va>0x102000000:raise RuntimeError("GL BO heap budget exceeded")
+    buffers,release_marker=validate_gl_bo_lifetimes(text,capacity,budget)
     markers=["waffle-gl-user: checked=256 wrong=0 filled=128 GL_error=0",
-       f"GENERAL_BO released after GPU stop and context detach count={len(buffers)}",
+       release_marker,
        "SMMU_OWNER released after child stop and context detach","CLOCK_OWNER released before CX restore result=1",
        "POWER_OWNER released after clock child, CX and CFG restore result=1",
        "AOP_OWNER released after power child and channel restore result=1 transport=0","SERVICE end consumed=1 result=1"]
@@ -312,6 +359,50 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
     return None if image==9 else extract_copy_jobs(text)[-1] if image>=4 else extract_gpu_image(text,compute_mode,image) if image else None
 
 
+def validate_ui_workload_log(text):
+    """Require real backboardd GPU work and teardown, not triangle/pixel proof."""
+    selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1(?: stop_seconds=(\d+))?",text)
+    if not selected or int(selected[1])<=1:raise RuntimeError("Actual mobile backboardd GPU selection missing")
+    seconds=int(selected[2]) if selected[2] else 30
+    if seconds not in (30,60,240):raise RuntimeError("Unsupported bounded UI observation window")
+    pid=int(selected[1]);count=gl_completed_fences(text)
+    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
+    if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
+    capacity=int(capacity[1])
+    budget=re.search(rf"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=(33554432|67108864|134217728)\b",text)
+    if not budget:raise RuntimeError("Missing bounded UI heap declaration")
+    budget=int(budget[1])
+    if capacity>=4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
+    for marker in (
+        "waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1",
+        f"GENERAL open pid={pid} BO_limit={capacity} heap_bytes={budget}",
+        "FD750; shaders OpenGL ES GLSL ES",
+        f"waffle-ui-gpu: bounded process stop pid={pid} seconds={seconds}",
+        "SMMU_OWNER released after child stop and context detach",
+        "CLOCK_OWNER released before CX restore result=1",
+        "POWER_OWNER released after clock child, CX and CFG restore result=1",
+        "AOP_OWNER released after power child and channel restore result=1",
+        "SERVICE end consumed=1 result=1",
+    ):
+        if marker not in text:raise RuntimeError("UI workload proof missing: "+marker)
+    for fence in range(1,count+1):
+        if f"GENERAL_IB ACK matched seq{gl_sequence(fence-1)} value=00000000 valid=1" not in text:
+            raise RuntimeError("UI workload GPU ACK missing")
+    close=re.search(rf"GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1",text)
+    if not close or not 1<=int(close[1])<=capacity:raise RuntimeError("UI workload context teardown missing")
+    buffers,_=validate_gl_bo_lifetimes(text,capacity,budget)
+    if len(buffers)!=int(close[1]):raise RuntimeError("UI workload backing release count mismatch")
+    if not re.search(r"redwood-gl: frame [1-9]\d*: \d+ GL calls, [1-9]\d* draws",text):
+        raise RuntimeError("Actual CoreAnimation frame drawing missing")
+    if not re.search(r"MiniIOMobileFramebuffer: swap \d+ layer 0: surface \d+ \(",text):
+        raise RuntimeError("UI display-worker surface missing")
+    if "REBOOT REQUIRED" in text or "A SHADER DOES NOT COMPILE" in text:
+        raise RuntimeError("UI workload has GPU ownership or shader failure")
+    return {"actual_backboardd_pid":pid,"GPU_fences":count,"BO_count":int(close[1]),
+            "actual_CoreAnimation_workload":True,"full_GPU_teardown":True,
+            "pixel_correctness_verified":False,"optical_visibility_verified":False}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seconds", type=int, default=60, choices=range(1, 301), metavar="1..300")
@@ -327,6 +418,7 @@ def main():
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
     parser.add_argument("--gpu-gl-context",action="store_true",help="E36 actual Darwin OSMesa GL renderer")
+    parser.add_argument("--gpu-ui",action="store_true",help="E46 real backboardd workload; requires GL backend, no triangle/pixel success claim")
     parser.add_argument("--gpu-mapped",action="store_true",help="E33 direct mapped GPU BOs with revoke-before-submit")
     parser.add_argument("--gpu-mesa-transport",action="store_true",help="E32 require actual Mesa DRM shim marker and MSM proof")
     parser.add_argument("--gpu-msm",action="store_true",help="E31 actual MSM BO handles and user uploaded Mesa commands")
@@ -346,6 +438,7 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.gpu_ui and not args.gpu_gl_context:parser.error("--gpu-ui requires --gpu-gl-context")
     if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
     if args.gpu_mesa_transport and not args.gpu_msm:parser.error("--gpu-mesa-transport requires --gpu-msm")
     if args.gpu_mapped and not (args.gpu_msm and args.gpu_mesa_transport):parser.error("--gpu-mapped requires MSM Mesa transport")
@@ -438,15 +531,28 @@ def main():
     command("get_staged", out / "loader-before-run.log")
     print(command("oem", "run", "0"), flush=True)
     deadline = time.monotonic() + args.seconds + 90
+    ui_started=time.monotonic()
+    ui_screenshots=set()
+    ui_events=set()
     sequence = 0
     while time.monotonic() < deadline:
-        time.sleep(0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
+        time.sleep(0.2 if args.gpu_ui else 0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
         response = command("getvar", "result")
         line = next((s for s in response.splitlines() if s.startswith("result: ")), "")
         sequence += 1
         command("oem", "log")
         log_path = out / f"kernel-{sequence}.log"
         command("get_staged", log_path)
+        if args.gpu_ui:
+            # Preserve early evidence before the finite console log fills.
+            with (out/"ui-gpu-events.log").open("a") as events:
+                for event in log_path.read_text(errors="replace").splitlines():
+                    if event not in ui_events and any(marker in event for marker in (
+                        "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
+                        "GENERAL bo_retired", "GENERAL_BO reclaimed", "GENERAL_BO reclaim_refused", "GENERAL request_completed", "GENERAL_SUBMIT", "A SHADER DOES NOT COMPILE",
+                        "GENERAL ioctl_refused", "REBOOT REQUIRED", "an OpenGL ES", "redwood: signal")):
+                        ui_events.add(event)
+                        events.write(f"{log_path.name}: {event}\n")
         if not line.strip().removeprefix("result:").strip():
             line = result_from_log(log_path.read_text(errors="replace"))
             if not line:
@@ -522,7 +628,11 @@ def main():
             if "waffle-gmu: REBOOT REQUIRED" in final_text:
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
-                image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)
+                if args.gpu_ui:
+                    proof=validate_ui_workload_log(final_text)
+                    (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")
+                else:
+                    image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)
                 if args.gpu_mesa_transport and "waffle-mesa-probe: transport=actual_drm_shim command_api=1 ioctl_api=1" not in final_text:
                     raise RuntimeError("Actual Mesa DRM shim transport not confirmed")
             elif args.gpu_probe in (46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94) and not all(marker in final_text for marker in (
@@ -670,7 +780,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{44+gl_completed_fences(final_text) if image_kind==13 else 47 if (4<=image_kind<=8 or image_kind in (10,11,12)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{gl_sequence(gl_completed_fences(final_text)) if image_kind==13 else 47 if (4<=image_kind<=8 or image_kind in (10,11,12)) else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")
@@ -704,12 +814,21 @@ def main():
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
             if args.gpu_image and args.gpu_compute==2:
+                if args.gpu_ui:
+                    print("Actual UI GPU workload and teardown validated; pixel correctness unverified",flush=True)
+                    return
                 if image_pixels is None:raise RuntimeError("No GPU pixels validated")
                 write_gpu_png(out/"first-gpu-frame.png",image_pixels)
                 (out/"gpu-pixels.json").write_text(json.dumps({'width':16,'height':16,'rgba_words':image_pixels,'source':'actual kernel GPU readback'},indent=2)+"\n")
                 print(f"GPU image: {out/'first-gpu-frame.png'}",flush=True)
             return
-        if not args.gpu_probe and (sequence in (2, 6, 9, 11) or (args.seconds > 60 and sequence % 6 == 0)):
+        if args.gpu_ui:
+            for seconds in (15,30,32,35,40,45,60,120,180,230):
+                if seconds not in ui_screenshots and time.monotonic()-ui_started>=seconds:
+                    command("oem", "screenshot")
+                    command("get_staged", out / f"ui-screen-{seconds}.raw")
+                    ui_screenshots.add(seconds)
+        elif not args.gpu_probe and (sequence in (2, 6, 9, 11) or (args.seconds > 60 and sequence % 6 == 0)):
             command("oem", "screenshot")
             command("get_staged", out / f"screen-{sequence}.raw")
     raise RuntimeError(f"No final result yet; logs: {out}. No automatic reboot was requested.")

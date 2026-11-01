@@ -1,10 +1,12 @@
 # OnePlus 12 GPU port
 
-The Adreno 750 executes compute shaders under XNU. E21 ran eight shader invocations and read back the values 0–7; all 4,096 buffer words were checked. The prepare-only control also passed. E19 verified AOP ownership with the shared mutex released during GPU work; E20 verified GPU access to a buffer allocated after startup. All completed tests returned to a fully booted Android.
+Current status: actual GPU CoreAnimation composition has completed a 240-second
+RAM-only test with 16,351 verified GPU completions and clean GPU shutdown.
+Indefinite operation and Metal remain unfinished.
 
-The iOS interface still uses Mesa softpipe. A rendered image, userspace submission/fences, IRQ recovery, Mesa/IOSurface hardware integration and Metal remain unverified or unfinished. These are bounded kernel tests with Android resets between cold sessions.
-
-See the [milestones and evidence](waffle-gpu-milestones.md) and [debug log](../GPU_DEBUG_LOG.md). Historical sections below preserve earlier failures and implementation notes; the E21 results supersede their older status descriptions.
+See the [current milestones and evidence](waffle-gpu-milestones.md). Sections below
+preserve the earlier hardware audit; their historical status claims are superseded
+by the linked milestones.
 
 ## Hardware and source evidence
 

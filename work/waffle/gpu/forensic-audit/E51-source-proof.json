@@ -1,0 +1,16 @@
+{
+  "experiment": "E51 bounded context versus per-submit registry separation",
+  "context_records": 128,
+  "per_submission_BO_references": 64,
+  "physical_heap_bytes": 67108864,
+  "per_BO_limit_bytes": 8388608,
+  "root_limit_words": 1536,
+  "queue_limit": 32,
+  "job_limit": 1024,
+  "SMMU_table_limit": 64,
+  "UI_root_unchanged_from_E46": true,
+  "host_high_handle_and_reference_count_negatives_passed": true,
+  "host_UI_prefix_and_context_pool_passed": true,
+  "oldmapped_control_passed": true,
+  "actual_UI_result": "running, not qualified"
+}

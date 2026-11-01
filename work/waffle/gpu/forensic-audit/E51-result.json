@@ -1,0 +1,21 @@
+{
+  "run": "work/waffle/runs/20261101T143626Z",
+  "auto": "work/waffle/auto-runs/20261101T143602Z",
+  "actual_backboardd_pid": 83,
+  "UID": 501,
+  "GPU_fences": 5,
+  "first_failure": "readonly16KiB GEM_NEW exceeds128 context records while126 live and2retired; heap notfull",
+  "live_count": 126,
+  "live_bytes": 41713664,
+  "retired_count": 2,
+  "retired_bytes": 5259264,
+  "heap_limit_bytes": 67108864,
+  "full_parent_close_passed": true,
+  "close_completed": 5,
+  "close_BO_count": 128,
+  "context_null": true,
+  "runner_exit": 1,
+  "UI_GPU_success": false,
+  "independent_android": "1",
+  "events_sha256": "a9d9c694b6dc3ccead114d73b432d5e11a5d9e505ef79d8c074af251d95b226b"
+}

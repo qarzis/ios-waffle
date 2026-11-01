@@ -1,0 +1,10 @@
+{
+  "run": "work/waffle/runs/20261101T193848Z",
+  "auto": "work/waffle/auto-runs/20261101T193824Z",
+  "kernel_probe_started": false,
+  "GPU_test_executed": false,
+  "reason": "Old E52 automatic loader reused by mistake; loader rejected new kernel CRC before kernel entry",
+  "fix": "Use current diagnostic image, which already has automatic-entry Mu adaptation and matching embedded EFI; no new GPU code change",
+  "runner_exit": 1,
+  "independent_android": "1"
+}

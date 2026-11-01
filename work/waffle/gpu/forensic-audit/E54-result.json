@@ -1,0 +1,140 @@
+{
+  "run": "work/waffle/runs/20261101T194508Z",
+  "auto": "work/waffle/auto-runs/20261101T194444Z",
+  "actual_backboardd_pid": 83,
+  "UID": 501,
+  "GPU_fences": 358,
+  "BO_count": 800,
+  "completed_logical_requests": 342,
+  "multiwindow_requests": [
+    {
+      "snapshot": "kernel-125.log",
+      "last_fence": 16,
+      "buffers": 184,
+      "roots": 41,
+      "words": 5780,
+      "windows": 4
+    },
+    {
+      "snapshot": "kernel-125.log",
+      "last_fence": 18,
+      "buffers": 80,
+      "roots": 12,
+      "words": 2711,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-125.log",
+      "last_fence": 20,
+      "buffers": 48,
+      "roots": 6,
+      "words": 1565,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-125.log",
+      "last_fence": 22,
+      "buffers": 188,
+      "roots": 15,
+      "words": 2200,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-125.log",
+      "last_fence": 26,
+      "buffers": 86,
+      "roots": 5,
+      "words": 1786,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-125.log",
+      "last_fence": 32,
+      "buffers": 86,
+      "roots": 5,
+      "words": 1704,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-129.log",
+      "last_fence": 240,
+      "buffers": 80,
+      "roots": 5,
+      "words": 1782,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-130.log",
+      "last_fence": 252,
+      "buffers": 80,
+      "roots": 5,
+      "words": 1782,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-136.log",
+      "last_fence": 341,
+      "buffers": 84,
+      "roots": 5,
+      "words": 1782,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-137.log",
+      "last_fence": 344,
+      "buffers": 99,
+      "roots": 14,
+      "words": 4217,
+      "windows": 3
+    },
+    {
+      "snapshot": "kernel-138.log",
+      "last_fence": 350,
+      "buffers": 78,
+      "roots": 5,
+      "words": 1778,
+      "windows": 2
+    },
+    {
+      "snapshot": "kernel-138.log",
+      "last_fence": 353,
+      "buffers": 93,
+      "roots": 19,
+      "words": 3808,
+      "windows": 3
+    },
+    {
+      "snapshot": "kernel-138.log",
+      "last_fence": 356,
+      "buffers": 56,
+      "roots": 8,
+      "words": 1588,
+      "windows": 2
+    }
+  ],
+  "first_failure": "GEM_NEW16KiB ENOMEM, all64MiB allocated; closed BO backing retained",
+  "first_failure_snapshot": "kernel-138.log",
+  "live_count": 790,
+  "live_bytes": 60080128,
+  "retired_count": 10,
+  "retired_bytes": 7028736,
+  "heap_limit_bytes": 67108864,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "close_snapshot": "kernel-139.log",
+  "runner_exit": 1,
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "UI_GPU_success": false,
+  "pixel_correctness_verified": false,
+  "screen30": "black during GPU phase; not a qualified desktop",
+  "old_submit_EINVAL_observed": false,
+  "raw_proof_sha256": {
+    "kernel-125.log": "ad3d5fe1f259744f9975048488c9d60e310f31c8816ee09b1d30efa148fff4cf",
+    "kernel-137.log": "06e83ca96c84213162414bf223c4a06c44a3368410ea70c32cba6eebee39d653",
+    "kernel-138.log": "ffd515af9585d5ed2ab6cc23588ebcae965fc5c727f87573e6154c548a54c0c7",
+    "kernel-139.log": "1aca87bfe44ec170438cc04ddd4945e0b3254279b3b32c4ab01a15324ec529c5",
+    "ui-gpu-events.log": "fbce610a73fecf6544c0657956099504ed1ea43a9328e8f50692f2ef4989c5d3",
+    "ui-screen-30.raw": "ab693b3dafa0c89ffd95afb3983c4bc0f9f1d73d1629adf17367229765858dc7"
+  }
+}

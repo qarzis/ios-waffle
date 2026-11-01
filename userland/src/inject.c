@@ -720,6 +720,25 @@ container_manager_fixes(void)
  method_setImplementation(method, (IMP)personas_are_supported);
  say("redwood: container manager: no personas\n");
 }
+#ifdef WAFFLE_UI_GPU_PROBE
+#ifndef WAFFLE_UI_GPU_STOP_SECONDS
+#define WAFFLE_UI_GPU_STOP_SECONDS 30
+#endif
+#if WAFFLE_UI_GPU_STOP_SECONDS != 30 && WAFFLE_UI_GPU_STOP_SECONDS != 60 && WAFFLE_UI_GPU_STOP_SECONDS != 240
+#error Unsupported bounded UI GPU observation window
+#endif
+static void *
+waffle_ui_gpu_stop(void *unused)
+{
+ (void)unused;
+ sleep(WAFFLE_UI_GPU_STOP_SECONDS);
+ say("waffle-ui-gpu: bounded process stop pid=%d seconds=%d\n", getpid(), WAFFLE_UI_GPU_STOP_SECONDS);
+ /* Process exit closes the GPU FD; the cdev performs the qualified parent
+  * teardown. The isolated launch job has KeepAlive disabled. */
+ _exit(0);
+ return NULL;
+}
+#endif
 static void
 opengl_es(void)
 {
@@ -737,9 +756,39 @@ opengl_es(void)
    /* SM8650 GPU bring-up is separate. Use Mesa's CPU renderer through the
     * existing EAGL shim, instead of CoreAnimation's unusable fallback.
     */
+#ifdef WAFFLE_UI_GPU_PROBE
+   const char *probe = getenv("WAFFLE_GPU_UI");
+   int gpu_probe = probe && strcmp(probe, "1") == 0 && strcmp(getprogname(), "backboardd") == 0;
+   if (gpu_probe) {
+    int once = open("/tmp/waffle-ui-gpu-used", O_WRONLY | O_CREAT | O_EXCL, 0600);
+    if (once < 0) {
+     gpu_probe = 0;
+     say("waffle-ui-gpu: RAM attempt already claimed or unavailable; keeping softpipe\n");
+    } else {
+     close(once);
+    }
+   }
+   if (gpu_probe) {
+    pthread_t stop;
+    if (pthread_create(&stop, NULL, waffle_ui_gpu_stop, NULL) != 0) {
+     say("waffle-ui-gpu: bounded stop thread failed; refusing GPU selection\n");
+     return;
+    }
+    pthread_detach(stop);
+    setenv("WAFFLE_GPU_DRM", "1", 1);
+    setenv("OSMESA_SOFTWARE", "0", 1);
+    setenv("MESA_SHADER_CACHE_DISABLE", "true", 1);
+    setenv("GALLIUM_THREAD", "0", 1);
+    setenv("GALLIUM_DRIVER", "freedreno", 1);
+    say("waffle-ui-gpu: selected process=backboardd pid=%d uid=%d bounded=1 stop_seconds=%d\n", getpid(), getuid(), WAFFLE_UI_GPU_STOP_SECONDS);
+   } else
+#endif
    setenv("GALLIUM_DRIVER", "softpipe", 1);
    wanted = 1;
    told = 1;
+#ifdef WAFFLE_UI_GPU_PROBE
+   if (!gpu_probe)
+#endif
    say("waffle: CoreAnimation uses Mesa softpipe (CPU rendering)\n");
   }
   functions_said_yes(arguments);

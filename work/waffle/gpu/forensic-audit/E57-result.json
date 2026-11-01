@@ -1,0 +1,32 @@
+{
+  "run": "work/waffle/runs/20261101T205425Z",
+  "auto": "work/waffle/auto-runs/20261101T205401Z",
+  "GPU_fences": 906,
+  "total_BO_count": 820,
+  "reclaimed_early": 251,
+  "remaining_BO_count": 569,
+  "planned_stop_seconds": 60,
+  "planned_stop_observed": true,
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "allocation_failure_observed": false,
+  "submit_failure_observed": false,
+  "previous1024_boundary_crossed": false,
+  "HFI_wrap_hardware_tested": false,
+  "desktop_framebuffer_captured_while_GPU_active": true,
+  "screenshot": "ui-screen-35.raw",
+  "desktop_visual_limitations": "Weather and Calendar widgets white; desktop icons/dock/status visible; no knownpixelreference/FPS benchmark",
+  "runner_exit": 1,
+  "runner_failure_reason": "finite final console log lost startup proof; original strict result preserved",
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "screen35_UTC": "2026-11-01T20:56:18.514489+00:00",
+  "stop_first_observed_UTC": "2026-11-01T20:56:45.539260+00:00",
+  "raw_proof_sha256": {
+    "kernel-113.log": "0979eb42b949e5b5f6caecde216dab31c8220a3389ec966e0c7a277f6baba12e",
+    "kernel-145.log": "64b0ba7806e85395834effba6de525d6c16229f49537b5c46855a018777aac11",
+    "kernel-226.log": "6879b9b05eff6c49b7eeab6e6fdc4cdbb79c1932d47ea215648242df2e0de898",
+    "ui-gpu-events.log": "b5147c94a39fe9f8ba1302f3d11459a9553b035ff9efd952cf54909b40f51441",
+    "ui-screen-35.raw": "5e2043979fdf9537ac4f6bdb668065936704e90a25306342be658cac3f38410b"
+  }
+}

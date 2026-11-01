@@ -8,7 +8,13 @@ h='#define _DEFAULT_SOURCE\n'+parts['h'][:parts['h'].index('static int proc_pid'
 h+=r'''
 #include "waffle_gpu_registry.h"
 #include "waffle_gpu_va.h"
-static struct waffle_gpu_memory storage[32];static unsigned stored,mapped;
+#define Z_WAITOK 1
+#define Z_ZERO 2
+static unsigned snapshot_live,snapshot_fail;
+static unsigned live_reclaims,reclaim_fail;
+static void *kalloc_data(size_t bytes,unsigned flags){assert(held && bytes<=16384 && flags==3);if(snapshot_fail)return NULL;void *p=calloc(1,bytes);assert(p);snapshot_live++;return p;}
+static void kfree_data(void *p,size_t bytes){assert(held && p && bytes<=16384 && snapshot_live);snapshot_live--;free(p);}
+static struct waffle_gpu_memory storage[WAFFLE_GPU_BO_LIMIT];static unsigned stored,mapped;
 static int proc_pid(struct proc *p){return p->pid;}
 static int cdevsw_add(int major,const struct cdevsw *sw){assert(major==-1 && sw);return 42;}
 static void cdevsw_remove(int major,const struct cdevsw *sw){assert(major==42 && sw);}
@@ -19,11 +25,12 @@ static int copyin(uint64_t a,void *out,unsigned bytes){if(a<4096)return 14;memcp
 static int copyout(const void *in,uint64_t a,unsigned bytes){if(a<4096)return 14;memcpy((void *)(uintptr_t)a,in,bytes);return 0;}
 struct waffle_gpu_context *waffle_gpu_context_begin(void){assert(held);context.fence=0;return &context;}
 struct waffle_gpu_memory *waffle_gpu_context_memory_new(struct waffle_gpu_context *c,uint64_t bytes,uint32_t flags){
- assert(held && c==&context && stored<32);struct waffle_gpu_memory *b=&storage[stored];
+ assert(held && c==&context && stored<WAFFLE_GPU_BO_LIMIT);struct waffle_gpu_memory *b=&storage[stored];
  b->object=++stored;b->bytes=bytes;b->allocation_bytes=(bytes+16383)&~16383;b->flags=flags;b->memory=(uintptr_t)calloc(1,b->allocation_bytes);assert(b->memory);b->published=true;
  b->gpu_va=0x100000000ULL;for(unsigned i=0;i+1<stored;i++)b->gpu_va+=storage[i].allocation_bytes;return b;
 }
 bool waffle_gpu_memory_map(const struct waffle_gpu_memory *b,bool ro,uint64_t *va,uintptr_t *token){(void)ro;assert(held && !*token && b->memory);*va=b->memory;*token=b->memory;mapped++;return true;}
+bool waffle_gpu_context_memory_reclaim(struct waffle_gpu_context *c,struct waffle_gpu_memory *b,bool cpu_unmapped){assert(held && c==&context && cpu_unmapped && b->object);if(reclaim_fail)return false;free((void *)b->memory);memset(b,0,sizeof(*b));live_reclaims++;return true;}
 bool waffle_gpu_map_revoke(uintptr_t *token){assert(held);if(*token){assert(mapped);mapped--;*token=0;}return true;}
 bool waffle_gpu_context_submit(struct waffle_gpu_context *c,struct waffle_gpu_submit_job *job){assert(held && c==&context && job->count==1 && job->commands[0].bytes==1240);job->fence=++context.fence;copies++;return true;}
 bool waffle_gpu_context_end(struct waffle_gpu_context **c){assert(held && *c==&context && !mapped);for(unsigned i=0;i<stored;i++)free((void *)storage[i].memory);stored=0;*c=NULL;return true;}
@@ -73,4 +80,4 @@ uapi=strip((root/'kernel/files/bsd/sys/waffle_gpu_msm.h').read_text())
 with tempfile.TemporaryDirectory() as d:
  p=Path(d);(p/'test.c').write_text(h+parts['ioc']+uapi+source+t)
  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable','-Wno-misleading-indentation','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True);subprocess.run([str(p/'test')],check=True)
-print('Actual general cdev:board-param values,13 real GL-sized BOs/persistent maps,root310words,bounds/duplicates/foreign PID/future fence refusals,queue and close retains backing until full context end; host only')
+print('Actual general cdev:board params,13 real GL-sized BOs/maps,root310words,bounds/duplicates/foreign PID/future fence refusals,queues; GEM_CLOSE revokes mapping then calls modeled owner reclaim; host only')
