@@ -30,6 +30,8 @@ image still selects softpipe unless the isolated GPU test is enabled.
 | E61: UI with qualified readback hook | 240 seconds, 17,525 GPU completions, clean stop; backboardd used the existing one-read path, so no UI FPS gain is established | [Report](../work/waffle/gpu/forensic-audit/E61-UI-result.json) |
 | E62: 10-minute UI session | Planned 600-second stop, 1,670 GPU completions; all 1,349 BO lifetimes/generations validate, full cleanup and Android recovery | [Report](../work/waffle/gpu/forensic-audit/E62-result.json) |
 
+| E63: queue generations | 100 queue cycles; stale queue refused, reused queue GPU writeback and 256 correct GL pixels; 9,000 BO cycles and full cleanup | [Report](../work/waffle/gpu/forensic-audit/E63-result.json) |
+
 The readback timing is one controlled frame per policy, not an FPS benchmark.
 E61 also logged GEM_NEW EINVAL without enough request details to establish why;
 no allocation-budget or submission failure was logged. Original outer runner
@@ -61,8 +63,7 @@ softpipe. A composite UI capture is not a pixel-reference test of every app.
 - Qualify GPU access beyond the old 128 MiB VA boundary. E59 separates VA from
   physical residency and passes the measured fragmentation host model, but its
   hardware workload did not allocate above that boundary.
-- Reuse queue records with stale-ID protection; the current 32-ID cumulative
-  queue limit is a separate lifetime gap. Its patch is under focused validation.
+- Qualify sustained interactive load after the focused queue-generation test.
 - Qualify sustained interactive load and persistent mode before removing timers.
 - Measure and improve readback, submission and logging costs; no measured FPS claim yet.
 - Port hakios-metal's A6xx/compiler/transport paths to A750 after the GPU baseline.
@@ -88,3 +89,15 @@ Host-only no-op frontend traces are explicitly marked as architecture evidence,
 not GPU execution. The [chronological debug log](../GPU_DEBUG_LOG.md) records
 hypotheses, failures, controls and measured hardware results. Build images,
 iOS assets and captured firmware are not distributed here.
+
+## Performance experiments
+
+Two candidate changes were rejected and removed from the active runtime. In the
+same 240-frame, 750 × 1624 scene (all 292,320,000 reference pixels correct per
+policy), RAM staging increased median frame-processing time from 4.110 to
+5.174 ms. Wider private-buffer accesses measured 4.144 ms against the profiled
+scalar baseline at 4.103 ms, with no qualified gain. These are offscreen timings,
+not panel FPS. The verified scalar path is restored; queue/BO fixes remain.
+
+[Readback comparison](../work/waffle/gpu/forensic-audit/E64-comparison.json),
+[submit comparison](../work/waffle/gpu/forensic-audit/E66-comparison.json).

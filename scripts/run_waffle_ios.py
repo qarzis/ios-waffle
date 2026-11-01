@@ -271,10 +271,31 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     return buffers,release.group(0)
 
 
+def validate_gl_queue_recycle_log(text,count):
+    if 'waffle-gl-queue:' not in text:return
+    done=re.search(r'waffle-gl-queue: result=1 cycles=100 queue=(\d+) stale=(\d+) stale_submit_refused=1',text)
+    if (not done or 'waffle-gl-queue: result=0' in text or
+        'waffle-gl-queue: begin cycles=100 existing_Mesa_context=1' not in text or
+        not re.search(r'GENERAL open [^\n]*\bqueue_generations=1\b',text) or count<2):
+        raise RuntimeError('Queue recycling proof incomplete')
+    current,stale=map(int,done.groups())
+    ids={int(value) for value in re.findall(r'GENERAL queue_new id=(\d+) priority=0 serialized=1',text)}
+    if not 32<current<=0xffffffff or not 0<stale<current or len(ids)<100 or current not in ids or stale not in ids:
+        raise RuntimeError('Missing queue generation creation proof')
+    cursor=0
+    for marker in (f'GENERAL request flags=10 fence=0 bos=1 roots=1 queue={stale}',
+                   'GENERAL ioctl_refused op=46 error=22',
+                   f'GENERAL request flags=10 fence=0 bos=1 roots=1 queue={current}'):
+        position=text.find(marker,cursor)
+        if position<0:raise RuntimeError('Stale queue refusal/new queue submission not proved')
+        cursor=position+len(marker)
+
+
 def validate_gl_log(text):
     if "Library not loaded:" in text:
         raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
+    validate_gl_queue_recycle_log(text,count)
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded GL BO capacity")
     capacity=int(capacity[1])
