@@ -1,0 +1,1 @@
+Actual registry/SMMU:metadata allocation failure,empty first-BO failure,partial PTE/TLB retention,detach-only BO-before-metadata release;4096 minimum BOs fill64MiB/all16384PTEs within64tables,stable descriptors and no early record exhaustion; host model only

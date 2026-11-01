@@ -34,3 +34,10 @@ for marker,replacement in [('GENERAL_SUBMIT done fence=1','GENERAL_SUBMIT done f
  except RuntimeError:pass
  else:raise AssertionError('Invalid GL hardware proof accepted: '+marker)
 print('GL acceptance parser:actual pixel completeness,FD750 renderer,GPU tokens/ACK/sequence,BO ranges/permissions/free/context stop and8 corrupted-proof refusals; synthetic host fixture only')
+
+# Budget-derived capacity is accepted only with its matching physical heap.
+updated=text.replace('BO_limit=32','BO_limit=4096').replace('heap_bytes=33554432','heap_bytes=67108864')
+assert m.validate_gl_log(updated)==pixels
+try:m.validate_gl_log(updated.replace('heap_bytes=67108864','heap_bytes=33554432'))
+except RuntimeError:pass
+else:raise AssertionError('Inconsistent capacity/physical budget accepted')
