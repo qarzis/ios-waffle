@@ -18,6 +18,11 @@
 #ifdef WAFFLE_GL_EAGL
 #include "macan_gl.h"
 #endif
+#ifdef WAFFLE_GL_HOOK
+#include <dlfcn.h>
+#include <objc/message.h>
+#include <objc/runtime.h>
+#endif
 #ifdef WAFFLE_GL_PRESENT
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOSurface/IOSurfaceRef.h>
@@ -51,6 +56,10 @@ static void crash_log(int sig,siginfo_t *info,void *context)
  raw_call(55,8,0,0);for(;;){}
 }
 #define printf direct_log
+#ifdef WAFFLE_GL_HOOK
+#include "waffle_eagl_dispatch.h"
+static IOSurfaceRef hook_surface;
+#endif
 static uint32_t pixels[256];
 #ifdef WAFFLE_GL_FRAMES
 static bool repeat_triangles(void)
@@ -78,19 +87,28 @@ static bool repeat_triangles(void)
 #ifdef WAFFLE_GL_PRESENT
 /* Same readback bridge used by eagl.c, through the existing display client.
  * This tests presentation with CPU readback, not direct GPU surface import. */
-static bool present_triangle(void)
+static IOSurfaceRef make_triangle_surface(void)
 {
- bool ok=false,locked=false;IOSurfaceRef surface=NULL;io_connect_t display=0;
- printf("waffle-gl-present: begin CPU_readback=1 IOSurface_import=0\n");
  CFMutableDictionaryRef props=CFDictionaryCreateMutable(NULL,0,&kCFTypeDictionaryKeyCallBacks,&kCFTypeDictionaryValueCallBacks);
- if(!props)return false;
+ if(!props)return NULL;
  const CFStringRef keys[]={kIOSurfaceWidth,kIOSurfaceHeight,kIOSurfacePixelFormat,kIOSurfaceBytesPerElement};
  const int values[]={16,16,0x42475241,4};
  for(unsigned i=0;i<4;i++){
   CFNumberRef n=CFNumberCreate(NULL,kCFNumberIntType,&values[i]);
-  if(!n){CFRelease(props);return false;}CFDictionarySetValue(props,keys[i],n);CFRelease(n);
+  if(!n){CFRelease(props);return NULL;}CFDictionarySetValue(props,keys[i],n);CFRelease(n);
  }
- surface=IOSurfaceCreate(props);CFRelease(props);
+ IOSurfaceRef surface=IOSurfaceCreate(props);CFRelease(props);return surface;
+}
+static bool present_triangle(void)
+{
+ bool ok=false,locked=false;IOSurfaceRef surface=NULL;io_connect_t display=0;
+ printf("waffle-gl-present: begin CPU_readback=1 IOSurface_import=0\n");
+#ifdef WAFFLE_GL_HOOK
+ if(hook_surface)surface=(IOSurfaceRef)CFRetain(hook_surface);
+ printf("waffle-gl-hook: IOSurface_readback_owner=EAGL_hook probe_writes=0\n");
+#else
+ surface=make_triangle_surface();
+#endif
  if(!surface){printf("waffle-gl-present: IOSurfaceCreate failed\n");goto done;}
  size_t row=IOSurfaceGetBytesPerRow(surface),size=IOSurfaceGetAllocSize(surface);
  uint32_t sid=IOSurfaceGetID(surface);
@@ -100,9 +118,11 @@ static bool present_triangle(void)
     row<64 || row>4096 || (row&3) || size<row*16)goto done;
  if(IOSurfaceLock(surface,0,NULL)!=KERN_SUCCESS)goto done;
  locked=true;uint8_t *base=IOSurfaceGetBaseAddress(surface);if(!base)goto done;
+#ifndef WAFFLE_GL_HOOK
  memset(base,0xa5,row*16);
  glPixelStorei(GL_PACK_ALIGNMENT,4);
  for(unsigned y=0;y<16;y++)glReadPixels(0,15-y,16,1,GL_BGRA,GL_UNSIGNED_BYTE,base+y*row);
+#endif
  GLenum error=glGetError();unsigned wrong=0,padding=0;
  for(unsigned y=0;y<16;y++){
   uint32_t *words=(uint32_t *)(base+y*row);
@@ -111,7 +131,12 @@ static bool present_triangle(void)
    uint32_t bgra=(p&0xff00ff00u)|((p&0xffu)<<16)|((p>>16)&0xffu);
    wrong+=words[x]!=bgra;
   }
-  for(size_t x=64;x<row;x++)padding+=base[y*row+x]!=0xa5;
+  for(size_t x=64;x<row;x++)padding+=base[y*row+x]!=
+#ifdef WAFFLE_GL_HOOK
+   0;
+#else
+   0xa5;
+#endif
  }
  printf("waffle-gl-present: checked=256 wrong=%u padding_wrong=%u GL_error=%x top_down=1\n",wrong,padding,error);
  if(wrong || padding || error)goto done;
@@ -153,6 +178,9 @@ static GLuint compile(GLenum type,const char *text)
 int main(void)
 {
  diagnostic_console=(int)raw_call(5,(long)"/dev/console",2,0);
+#ifdef WAFFLE_GL_HOOK
+ if(diagnostic_console>=0)dup2(diagnostic_console,2);
+#endif
  struct sigaction action;memset(&action,0,sizeof(action));action.sa_sigaction=crash_log;action.sa_flags=SA_SIGINFO;
  sigemptyset(&action.sa_mask);int se=sigaction(SIGSEGV,&action,NULL),bu=sigaction(SIGBUS,&action,NULL);
  direct_log("waffle-gl-diag: signal_handlers segv=%d bus=%d console=%d\n",se,bu,diagnostic_console);
@@ -161,10 +189,31 @@ int main(void)
  setenv("WAFFLE_GPU_DRM","1",1);setenv("OSMESA_SOFTWARE","0",1);
  int ok=0;
 #ifdef WAFFLE_GL_EAGL
+#ifdef WAFFLE_GL_HOOK
+ id ctx=nil;
+ printf("waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1\n");
+ printf("waffle-gl-hook: begin actual_library=libredwood-gl private_table=1 public_GL_TLS=0\n");
+ void *framework=dlopen("/System/Library/Frameworks/OpenGLES.framework/OpenGLES",RTLD_NOW|RTLD_LOCAL);
+ if(!framework){printf("waffle-gl-hook: framework failed %s\n",dlerror());goto finish;}
+ void *hook=dlopen("/redwood/lib/libredwood-gl.dylib",RTLD_NOW|RTLD_LOCAL);
+ if(!hook){printf("waffle-gl-hook: library failed %s\n",dlerror());goto finish;}
+ Class cls=objc_getClass("EAGLContext");
+ SEL init=sel_registerName("initWithAPI:properties:"),table=sel_registerName("getMacroContextPrivate");
+ if(!cls || !class_getInstanceMethod(cls,init) || !class_getInstanceMethod(cls,table)){
+  printf("waffle-gl-hook: EAGL class or existing methods missing\n");goto finish;
+ }
+ ctx=((id (*)(id,SEL))objc_msgSend)((id)cls,sel_registerName("alloc"));
+ ctx=((id (*)(id,SEL,unsigned long,id))objc_msgSend)(ctx,init,2,nil);
+ if(!ctx){printf("waffle-gl-hook: initializer failed\n");goto finish;}
+ waffle_hook_table=((void **(*)(id,SEL))objc_msgSend)(ctx,table);
+ if(!waffle_hook_table || !waffle_hook_table[0]){printf("waffle-gl-hook: private table missing\n");goto finish;}
+ printf("waffle-gl-hook: actual_EAGLContext=1 table_nonnull=1 context_nonnull=1\n");
+#else
  struct redwood_gl *ctx=NULL;
  printf("waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1\n");
  ctx=redwood_gl_create(2);
  if(!ctx || !redwood_gl_make_current(ctx)){printf("waffle-gl-eagl: context failed\n");goto finish;}
+#endif
  for(unsigned i=0;i<256;i++)pixels[i]=0xdead0000u+i;
 #else
  OSMesaContext ctx=NULL;
@@ -182,8 +231,16 @@ int main(void)
 #ifdef WAFFLE_GL_EAGL
  const char *version=(const char *)glGetString(GL_VERSION);
  if(!version || !strstr(version,"OpenGL ES")){printf("waffle-gl-eagl: ES profile missing\n");goto finish;}
- GLuint vs=compile(GL_VERTEX_SHADER,"#version 100\nattribute vec2 position;void main(){gl_Position=vec4(position,0,1);}");
- GLuint fs=compile(GL_FRAGMENT_SHADER,"#version 100\nprecision mediump float;void main(){gl_FragColor=vec4(1,0.25,0,1);}");
+#ifdef WAFFLE_GL_HOOK
+ /* Actual hook adds GLSL300 and translates legacy syntax. An explicit
+  * version here would duplicate its version directive (E43 first failure). */
+#define WAFFLE_ES_SOURCE_VERSION ""
+ printf("waffle-gl-hook: input_version_directive=0 shader_translation=actual_hook\n");
+#else
+#define WAFFLE_ES_SOURCE_VERSION "#version 100\n"
+#endif
+ GLuint vs=compile(GL_VERTEX_SHADER,WAFFLE_ES_SOURCE_VERSION "attribute vec2 position;void main(){gl_Position=vec4(position,0,1);}");
+ GLuint fs=compile(GL_FRAGMENT_SHADER,WAFFLE_ES_SOURCE_VERSION "precision mediump float;void main(){gl_FragColor=vec4(1,0.25,0,1);}");
 #else
  GLuint vs=compile(GL_VERTEX_SHADER,"#version 330 core\nconst vec2 p[3]=vec2[3](vec2(-1,-1),vec2(1,-1),vec2(0,1));void main(){gl_Position=vec4(p[gl_VertexID],0,1);}");
  GLuint fs=compile(GL_FRAGMENT_SHADER,"#version 330 core\nout vec4 color;void main(){color=vec4(1,0.25,0,1);}");
@@ -199,6 +256,14 @@ int main(void)
  glGenTextures(1,&texture);glBindTexture(GL_TEXTURE_2D,texture);
  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,16,16,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+#ifdef WAFFLE_GL_HOOK
+ hook_surface=make_triangle_surface();if(!hook_surface)goto finish;
+ SEL attach=sel_registerName("attachImage:toCoreSurface:invertedRender:");
+ if(!class_getInstanceMethod(cls,attach))goto finish;
+ BOOL attached=((BOOL (*)(id,SEL,unsigned long,IOSurfaceRef,BOOL))objc_msgSend)(ctx,attach,GL_TEXTURE_2D,hook_surface,YES);
+ printf("waffle-gl-hook: attachImage=%u surface=%u inverted=1\n",attached,IOSurfaceGetID(hook_surface));
+ if(!attached)goto finish;
+#endif
  glGenFramebuffers(1,&framebuffer);glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
  glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);
  GLenum status=glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -234,7 +299,12 @@ int main(void)
  glDeleteProgram(program);glDeleteShader(vs);glDeleteShader(fs);
 finish:
 #ifdef WAFFLE_GL_EAGL
+#ifdef WAFFLE_GL_HOOK
+ if(ctx)((void (*)(id,SEL))objc_msgSend)(ctx,sel_registerName("release"));
+ if(hook_surface)CFRelease(hook_surface);
+#else
  if(ctx)redwood_gl_destroy(ctx);
+#endif
 #else
  if(ctx)OSMesaDestroyContext(ctx);
 #endif

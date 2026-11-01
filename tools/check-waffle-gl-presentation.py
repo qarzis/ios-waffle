@@ -10,13 +10,13 @@ from pathlib import Path
 import re
 
 
-def validate(text, eagl=False, frames=False):
+def validate(text, eagl=False, frames=False, hook=False):
     root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("waffle_runner", root / "scripts/run_waffle_ios.py")
     runner = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(runner)
     runner.validate_gl_log(text)
-    if eagl or frames:
+    if eagl or frames or hook:
         for marker in (
             "waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1",
             "waffle-gl-eagl: FBO_status=8cd5",
@@ -56,6 +56,19 @@ def validate(text, eagl=False, frames=False):
     swap, presented, width, height, x, y = map(int, p.groups())
     if not sid or presented != sid or stride < 64 or stride > 4096 or stride % 4 or size < stride * 16:
         raise RuntimeError("Invalid IOSurface identity or allocation")
+    if hook:
+        for marker in (
+            "waffle-gl-hook: begin actual_library=libredwood-gl private_table=1 public_GL_TLS=0",
+            "waffle-gl-hook: actual_EAGLContext=1 table_nonnull=1 context_nonnull=1",
+            "waffle-gl-hook: input_version_directive=0 shader_translation=actual_hook",
+            f"waffle-gl-hook: attachImage=1 surface={sid} inverted=1",
+            "waffle-gl-hook: IOSurface_readback_owner=EAGL_hook probe_writes=0",
+            "redwood-gl: -[EAGLContext getMacroContextPrivate]",
+            "redwood-gl: -[EAGLContext attachImage:toCoreSurface:invertedRender:]",
+            "redwood-gl: 8 of 8 methods of EAGLContext are ours",
+        ):
+            if marker not in text:
+                raise RuntimeError("Actual EAGL hook proof missing: " + marker)
     if width < 256 or height < 256 or (x, y) != ((width - 256) // 2, (height - 256) // 2):
         raise RuntimeError("Invalid display destination")
     worker = (f"MiniIOMobileFramebuffer: swap {swap} layer 0: surface {sid} (16x16 'BGRA') "
@@ -65,7 +78,8 @@ def validate(text, eagl=False, frames=False):
     if f"GPU is not done with surface {sid}" in text:
         raise RuntimeError("Display worker timed out waiting for surface")
     return dict(surface=sid, swap=swap, stride=stride, pixels_checked=256, pixels_wrong=0,
-                actual_EAGL_GL_adapter=eagl or frames, consecutive_frames=64 if frames else 1,
+                actual_EAGL_GL_adapter=eagl or frames or hook, actual_EAGL_hook=hook,
+                consecutive_frames=64 if frames else 1,
                 display_worker_resolved_surface=True, CPU_readback=True,
                 optical_visibility_verified=False, direct_GPU_scanout=False)
 
@@ -75,5 +89,6 @@ if __name__ == "__main__":
     parser.add_argument("log", type=Path)
     parser.add_argument("--eagl", action="store_true", help="Require the actual EAGL API2 GL adapter and texture FBO")
     parser.add_argument("--frames", action="store_true", help="Require64 correct alternating frames and actual GPU completions")
+    parser.add_argument("--hook", action="store_true", help="Require the actual EAGL private table and hook-owned IOSurface readback")
     args = parser.parse_args()
-    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl, args.frames), indent=2))
+    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl, args.frames, args.hook), indent=2))

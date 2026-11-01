@@ -1,0 +1,14 @@
+{
+  "run": "work/waffle/runs/20261101T124702Z",
+  "auto": "work/waffle/auto-runs/20261101T124638Z",
+  "actual_EAGLContext_created": true,
+  "actual_private_table": true,
+  "renderer": "FD750",
+  "first_failure": "actual EAGL shader translator adds GLSL300 before probe explicit GLSL100; duplicate version rejected",
+  "GPU_commands_submitted": 0,
+  "IOSurface_attached": false,
+  "kernel_Mesa_unchanged": true,
+  "independent_android": "1",
+  "runner_exit": 1,
+  "log_sha256": "40574363ab4b6ba79981d43c27671030cc5a8a61a01e09d1b1750fc677b47e94"
+}
