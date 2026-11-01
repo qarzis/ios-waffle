@@ -1,0 +1,31 @@
+{
+  "run": "work/waffle/runs/20261101T202006Z",
+  "auto": "work/waffle/auto-runs/20261101T201942Z",
+  "GPU_fences": 422,
+  "total_BO_count": 906,
+  "reclaimed_early": 13,
+  "remaining_BO_count": 893,
+  "live_bytes": 67108864,
+  "retired_backing_bytes": 0,
+  "heap_bytes": 67108864,
+  "first_failure": "16KiB GEM_NEW ENOMEM with all64MiB live; closed backing already reclaimed",
+  "first_failure_snapshot": "kernel-138.log",
+  "full_parent_close_passed": true,
+  "context_null": true,
+  "runner_exit": 1,
+  "automatic_android_confirmed": true,
+  "independent_android": "1",
+  "user_reported_desktop_icons_and_animations_before_respring": true,
+  "optical_report_independently_time_correlated": false,
+  "benchmark_FPS_verified": false,
+  "screen30": "black; earlier than failure; user observed desktop later before respring",
+  "following_event": "backboardd83 SIGSEGV afterENOMEM; respawn usessoftpipe",
+  "raw_proof_sha256": {
+    "kernel-125.log": "fd3e94cfb6c42ef25048de214a9fe4565b46b6543351c2a658a5aad5404a187a",
+    "kernel-138.log": "f69b2b94476c3666bfd82de165eefc28a129af4d015937dee2ececc793350065",
+    "kernel-140.log": "025f312b7dbd76b62760d75048daa0723aa72f62514416568ed7bf772c5f0b8e",
+    "ui-gpu-events.log": "0bedb2488eab422d019a6f04bb05ad7fc35d4a7601bfc9171da23fadef991895",
+    "ui-screen-30.raw": "ab693b3dafa0c89ffd95afb3983c4bc0f9f1d73d1629adf17367229765858dc7"
+  },
+  "kernel_sha256": "a0d52091d901fd24bc1b917af07d7f563d34d81a235058da9ebd89a7927f28b0"
+}
