@@ -537,3 +537,11 @@ E31 fullhost/XNU/EFI/container/sourcebindingPASS. Initial policy test stilldenie
 ## User STOP — E31 new MSM hardware test NOT launched
 
 User explicitly said «стопни». Alreadylaunchedoldmode10control run20261101T092537Z/auto092513Z hadcompleted runner0/autosuccess; independentADBAndroid1 verified afterSTOP. No activeworkers. NewMSMmode11 has fullhost/XNU/EFI/container/sourcebindingPASS but NO hardwareexecution. Do not claimBO/commandMSMhardwarequalification. PreserveWIP separatelyfromverifiedE30 b748e277; no newbuild/code/test until explicitresume. Onresume nextsingleexperiment --msm ondiagnostic-gpu-msm-e31 afterAndroidpreflight; preservefirstfailure. Mesa transport remains unmodified/nextstep.
+
+E31 explicitresume afterSTOP. Image/kernel/MSMroot/compiledsource hashesunchanged andverified; independentAndroid1. Launchedsinglemode11MSMhardwarequalification; no newcodechanges sincehost/buildqualifiedWIP.
+
+E31 firsthardwareattempt run20261101T093237Z/auto093213Z FAIL beforeGPUcommands: exactlog "image requires controlled compute/dynamic session; refused". InnerSMMUguard stillcompute_image>10 whileloader/parentallowed11. Restorepower/clocks/AOP result0, runner1/autofailure preserved, independentAndroid1. Minimumfix onlybound10->11; addactualinnerguardmatrix test so outerloaderpolicyalone cannotmaskmismatch. Not aGPUshader/MMUfault. Newtest justifiedbyspecificnew evidence, no blindretry.
+
+## E31 hardware PASS — two real BO handles and actual user command submission
+
+Originalattempt093237Z failedinnerSMMUmodeguard, preserved; onlybound10->11 fixed, actual144casegate regression/fullhost/XNU/EFI/container/sourcebindingPASS. Correctedrun20261101T093444Z/auto093420Z actualPID1 creates2MSM BOhandles/getsreal64bitVAs/uploadscommand+shader+descriptor/data, corruptedfirstcommand refusedwithoutfenceconsumption, then3user191wordIBs accepted withoutkernelregeneration. ActualGPUfences1..3/768correctpixels/24576twoBOcheckswrong0/usernegative7. BOclose retainsbackingtillfullstop47/contextdetach; contextnull/runner0/autosuccess/independentADBAndroid1. No900e. E31-H1 confirmed; exactknowncommandonly, notgeneralDRM/mmap/IOSurface/GL. NextactualMesaDRMshimtransport overqualifiedMSM boundary.

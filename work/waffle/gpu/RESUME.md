@@ -1,3 +1,39 @@
+# E31 hardware PASS — user BO handles and uploaded Mesa command packets
+
+Explicituserresume active; phoneordinaryAndroid independentADB1, no worker.
+Correctedrun20261101T093444Z/auto093420Z PASS: two real16KiBMSMBOhandles,
+VAinfo/explicitupload/download, actualuser191wordcommands+shader+descriptor,
+3GPUfences/768correctpixels/24576twoBOcheckswrong0/7negativecases. Corrupt
+packetrefusedbeforeHFI andwithoutconsumingfence. Fullstop47/contextdetach
+beforebackingfree/contextnull/runner0/autosuccess/Android1. StrictMSMparserPASS.
+Originalrun093237Z refusedinnerSMMUmode>10 beforecommands; preservedfailure.
+Onlyruntimefix bound10->11 +144caseactualgate regression. Artifact
+ diagnostic-gpu-msm-e31-r2 fullhost/XNU/EFI/container/sourcebindingPASS.
+SafeE30 b748e277 and WIPb486da9 retained. SavequalifiedE31 checkpointbefore
+nextstage. NextactualMesaDRMshimtransport, no generalGL/IOSurfaceclaim.
+RAMonly/no flash/erase; automaticUEFI no physicalselection. NoGitHubpush.
+
+# Active E31-r2 — exact first hardware refusal fixed, test running
+
+Explicitresume authorized. FirstMSMmode11 run093237Z/auto093213Z failed
+beforeGPUcommands: innerSMMUguard compute_image>10. Original logs/results
+preserved; Android independently1. Onlyruntimefix bound10->11. Added actual
+innerguard144combinationtest; fullhost/XNU/EFI/container/sourcebindingPASS.
+Artifact diagnostic-gpu-msm-e31-r2. NewMSM exec49583 running, log
+work/waffle/gpu/auto-msm-e31-r2-user.log. No concurrent fastboot.
+RequirestrictMSM proof thenAndroidindependent1. Do notblindretry anyfailure.
+VerifiedE30 b748e277 unchanged. UserSTOP earlier explicitlyrevoked.
+
+# Active E31 resumed — new MSM hardware qualification running
+
+User explicitly said «продолжай» afterSTOP; STOP is revoked. Image/kernel/
+MSMroot/sourcehashes verified, independentAndroid1 beforeboot. Newmode11
+exec94383 active, log work/waffle/gpu/auto-msm-e31-user.log.
+Do not run concurrent fastboot. Waitforrunner/autorecovery thenindependent
+Android1. Strict MSM acceptance requires3GPUfences/768pixels/24576checks/
+7negativecases/fullstop47. Preservefirstfailure/no blindretry.
+SafeverifiedE30 b748e277, WIParchiveE31 b486da9. NoGitHubpushrequested.
+
 # STOPPED at user request — Android restored, E31 hardware pending
 
 Latest user: «стопни». No more GPU work/build/boot until explicit resume.

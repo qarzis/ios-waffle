@@ -1,0 +1,32 @@
+{
+  "experiment": "E31 actual MSM BO handles and user commands hardware PASS",
+  "run": "work/waffle/runs/20261101T093444Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T093420Z",
+  "original_failure_preserved": "E31-first-failure.json",
+  "runtime_fix": "innerSMMU image gate10->11",
+  "bo_handles": 2,
+  "data_gpu_va": "0x100000000",
+  "uploaded_user_command_words": 191,
+  "kernel_regenerated_command": false,
+  "jobs": 3,
+  "fences": [
+    1,
+    2,
+    3
+  ],
+  "pixels_checked": 768,
+  "two_bo_word_checks": 24576,
+  "wrong": 0,
+  "negative_checks": 7,
+  "full_shutdown": true,
+  "context_null": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "full_drm_or_opengl": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T093444Z/kernel-final.log": "e0f25a8572f067499eef83253801bc827a25b827f52a25db5e0d4cfde4b30534",
+    "work/waffle/runs/20261101T093444Z/gpu-msm-jobs.json": "74bac5e47df698e647dbb654bef9283f2d66d12d7781645a143e3805fbae9d15",
+    "work/waffle/auto-runs/20261101T093420Z/result.json": "5f611724bc03c325a7befc9e710b80a3afc645730d30f84f2c2a9ca6a046c352"
+  }
+}

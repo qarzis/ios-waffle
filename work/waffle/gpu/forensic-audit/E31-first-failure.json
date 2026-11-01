@@ -1,0 +1,11 @@
+{
+  "run": "work/waffle/runs/20261101T093237Z",
+  "auto": "work/waffle/auto-runs/20261101T093213Z",
+  "first_proven_failure": "smmu owner preflight refuses compute_image>10; mode11 not added to inner guard",
+  "gpu_commands_executed": false,
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "minimal_fix": "extend only upper image bound10 to11; retain compute2/probe94/dynamic prerequisites",
+  "repeat_justification": "new evidence exact refusal before command submission"
+}

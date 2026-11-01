@@ -1,0 +1,18 @@
+{
+  "compiled_and_snapshot_identical": {
+    "kernel/files/bsd/dev/waffle_gpu_msm.c": "5995cf7e3950094f08ffa5aaf15bb04ad723dbf732b2eb0a9a44d0a50e383c56",
+    "kernel/files/bsd/sys/waffle_gpu_msm.h": "071dda11e28ea43f3f97257e56d5fd20c2caf701a326c63cfa08e89bccef0936",
+    "kernel/files/bsd/dev/waffle_adreno.c": "c0423578e34005cbcc0cfbb6ff11a18f4938155c6ac373096423e0949000af10",
+    "kernel/files/bsd/dev/waffle_gmu.c": "b1ecb9aca0de9b237bbbe37c62d03572ca51a7baac77c805bf3b807af0d38ad4",
+    "kernel/files/bsd/dev/waffle_smmu.c": "ae36e1a1a3d7d91fc68ebe2eea91dee64370d18c2b20f415f979294aa67ba364",
+    "kernel/files/bsd/dev/waffle_gpu_service.c": "32eb99a6426d8347260d1b46c801ebe6a67784d73df7b5936132aa9f1028bc42",
+    "kernel/files/bsd/sys/waffle_gpu_job.h": "c50d6c2abf8590840dbecced7ce226748d4529c3343670f276d95099ae8ab87f",
+    "kernel/files/bsd/sys/waffle_gpu_service.h": "b33cff6d68f8c5e68c5eb34a7a35f932a5e480bf19082b48f0e1cbd73324dd0d",
+    "kernel/files/bsd/sys/waffle_smmu.h": "417be440c887f5c3c35346f3d74df60969dc5f1980681082778cae86d6da0a6c",
+    "kernel/files/bsd/sys/waffle_gmu.h": "e476fed295ec3e2cdd884687e13b1193ad5a58d9369bbcd9a12d4751a9515065"
+  },
+  "all_host_tests_passed": true,
+  "xnu_efi_container_passed": true,
+  "runtime_fix": "inner SMMU image upperbound10->11 only",
+  "first_failed_attempt_preserved": true
+}
