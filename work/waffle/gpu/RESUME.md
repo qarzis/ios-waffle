@@ -1,3 +1,17 @@
+# E42 PASS —64 actual GLES frames, stable25BO, finalIOSurface/display
+
+Run20261101T123844Z/auto123820Z runner0/success/independentAndroid1. Actualunchangedgl_osmesa adapter/API2->FD750ES3.2/GLSL100/VBO/textureFBO,64alternatingblue/blackbackgroundframes/orangetriangle,16384pixelswrong0,133actualGPUfences/allprivateguards0. 25BO as singleframeE41(no countgrowth), fullstop/contextnull. LastframeactualIOSurface/displayworker; onlylastpresented, noFPS/opticalvisibility/zero-copy/UIclaim. Newrootartifact diagnostic-gpu-gl-frames-e42 sameE39kernel/image/Mesa. tools/check-waffle-gl-presentation.py --frames fullproofPASS+5corruptproofsrefused. Noactivehardwareprocess; phoneAndroid1.
+
+Next E43 read-onlyaudit shows exactordinaryUIselectionblocker: userland/src/inject.c opengl_es unconditionallyforcesGALLIUM_DRIVER=softpipe forwaffle=1. Do notflipdefaultyet. Need boundedactualEAGLhook(libredwood-gl.dylib/eagl.c private dispatch/EAGLContext/texImageIOSurface) experiment, since E41/42 exercised actualGLadapter butnotfullhook/CoreAnimation. Source/build userland/build.sh generatesobj/eagl_gen.h fromMesagl.xml/slots, linksactualeagl.c+gl_osmesa.c. Existinginject.c hasuser/preexistingchanges, preserve. Generalcdevroot0600/singlePID/retainedbackings32BO32MiB/noIOSurfaceimport7e also needproductionaudit. No unknownAPI guesses. Archive+verified E41f4058d6 beforeE42save; updateafter qualifiedsnapshot. Userworkcontinuesauthorized; status/timequestionanswered whileworking. NoGitHubpush/flash/erase/manualBootiOS.
+
+# Active E42 —64 consecutive GLES frames test
+
+E41 qualified archive+verified f4058d6993b32c353c6cfb680acdd511c6940175. Actual gl_osmesa API2/ES3.2/GLSL100/VBO/textureFBO->IOSurface->display passed. User asks time untilSpringBoard; answeredunknown actualCoreAnimation/process/contextintegration remains. Workcontinues.
+
+E42 minimaluserland --frames implies--eagl/--present;64alternatingblue/black backgrounds/orangetriangle,samecontext/FBO/shader,glFinish+RGBAreadback256perframe (16384total), perframeactualinside/outside/log. Onlyfinalframepresented viaE40. SamequalifiedE39kernel/image/Mesa, separateartifact diagnostic-gpu-gl-frames-e42, compile/source/rootbinding/containerPASS. NoBO/lifetime/power/kernelchanges. tools/check-waffle-gl-presentation.py --frames requiresall64actualindices/colors/errors+>=64GPUfences+originalstrictGLproof+EAGLprofile/FBO+actualIOSurface/displayworker. PriorE39/E40/E41 artifactsuntouched.
+
+Current hardware auto session56698, auto20261101T123820Z, run20261101T123844Z, logfilegpu/auto-gl-frames-e42.log. No concurrentfastboot. Waitfullauto, independentAndroid1, preserveE42result/logs/checker thenarchive+verifiedonlyifqualified. If failsinspectfirstnewphase/reason, do notblindlyexpand32BO/32MiB. CurrentrootcdevsinglePID/retainedbackings andnoIOSurfaceimport stillnotproductionUI. Userauthorizedcontinuation, noSTOP/GitHubpush/flash/erase/manualBootiOS.
+
 # E41 PASS — actual EAGL GL adapter with GLES texture FBO
 
 Run123341Z/auto123318Z runner0/autosuccess/Androidindependent1. API2 throughunchangedgl_osmesa, actualFD750OpenGLES3.2/GLSL100/VBO/textureFBO8cd5, exact256RGBA+BGRApixels,5GPUfences,25BO/fullstop/contextnull. Actualdisplayworker resolvescorrectIOSurface. Noactivehardwareprocess. Next64frame test beforeproduction backend/IOSurfaceimport. E41-result.json andE41-presentation-proof.json.

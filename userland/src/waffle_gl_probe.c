@@ -52,6 +52,29 @@ static void crash_log(int sig,siginfo_t *info,void *context)
 }
 #define printf direct_log
 static uint32_t pixels[256];
+#ifdef WAFFLE_GL_FRAMES
+static bool repeat_triangles(void)
+{
+ unsigned total_wrong=0;
+ for(unsigned frame=0;frame<64;frame++){
+  bool blue=!(frame&1);
+  glClearColor(0,0,blue?1:0,1);glClear(GL_COLOR_BUFFER_BIT);
+  glDrawArrays(GL_TRIANGLES,0,3);glFinish();
+  glReadPixels(0,0,16,16,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+  GLenum error=glGetError();unsigned wrong=0;
+  for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+   bool filled=(4*x+2>2*y+1) && (4*x+2<63-2*y);
+   uint32_t expected=filled?0xff0040ffu:blue?0xffff0000u:0xff000000u;
+   wrong+=pixels[y*16+x]!=expected;
+  }
+  total_wrong+=wrong;
+  printf("waffle-gl-frames: frame=%u checked=256 wrong=%u GL_error=%x outside=%08x inside=%08x\n",frame,wrong,error,pixels[240],pixels[120]);
+  if(wrong || error)return false;
+ }
+ printf("waffle-gl-frames: frames=64 checked=16384 wrong=%u result=1\n",total_wrong);
+ return true;
+}
+#endif
 #ifdef WAFFLE_GL_PRESENT
 /* Same readback bridge used by eagl.c, through the existing display client.
  * This tests presentation with CPU readback, not direct GPU surface import. */
@@ -186,6 +209,9 @@ int main(void)
  glDisable(GL_DITHER);glViewport(0,0,16,16);glClearColor(0,0,0,1);glClear(GL_COLOR_BUFFER_BIT);glUseProgram(program);glDrawArrays(GL_TRIANGLES,0,3);glFinish();
 #ifdef WAFFLE_GL_EAGL
  glReadPixels(0,0,16,16,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+#endif
+#ifdef WAFFLE_GL_FRAMES
+ if(!repeat_triangles())goto finish;
 #endif
  GLenum error=glGetError();unsigned wrong=0,inside=0;
  for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){

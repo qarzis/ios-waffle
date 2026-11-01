@@ -1,0 +1,23 @@
+{
+  "run": "work/waffle/runs/20261101T123844Z",
+  "auto": "work/waffle/auto-runs/20261101T123820Z",
+  "actual_EAGL_GL_adapter": true,
+  "requested_API": 2,
+  "renderer": "FD750",
+  "consecutive_frames": 64,
+  "alternating_backgrounds": true,
+  "frame_pixels_checked": 16384,
+  "frame_pixels_wrong": 0,
+  "GPU_completed_fences": 133,
+  "BOs": 25,
+  "BOs_single_frame_E41": 25,
+  "BO_count_growth": 0,
+  "final_IOSurface_display_worker": true,
+  "CPU_readback": true,
+  "full_context_teardown": true,
+  "independent_android": "1",
+  "runner_exit": 0,
+  "UI_acceleration": false,
+  "optical_visibility_verified": false,
+  "log_sha256": "a24da8009dac08be8180057b28517e1f9db4160f3c5ec182b35fffde626f2730"
+}

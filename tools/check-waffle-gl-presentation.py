@@ -10,13 +10,13 @@ from pathlib import Path
 import re
 
 
-def validate(text, eagl=False):
+def validate(text, eagl=False, frames=False):
     root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("waffle_runner", root / "scripts/run_waffle_ios.py")
     runner = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(runner)
     runner.validate_gl_log(text)
-    if eagl:
+    if eagl or frames:
         for marker in (
             "waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1",
             "waffle-gl-eagl: FBO_status=8cd5",
@@ -25,6 +25,21 @@ def validate(text, eagl=False):
         ):
             if marker not in text:
                 raise RuntimeError("Actual EAGL adapter proof missing: " + marker)
+    if frames:
+        observed = {}
+        for frame, wrong, error, outside, inside in re.findall(
+            r"waffle-gl-frames: frame=(\d+) checked=256 wrong=(\d+) GL_error=([0-9a-f]+) outside=([0-9a-f]{8}) inside=([0-9a-f]{8})", text
+        ):
+            frame = int(frame)
+            value = tuple(int(v, base) for v, base in ((wrong, 10), (error, 16), (outside, 16), (inside, 16)))
+            if frame in observed and observed[frame] != value:
+                raise RuntimeError("Conflicting frame readback")
+            observed[frame] = value
+        expected = {i: (0, 0, 0xffff0000 if i % 2 == 0 else 0xff000000, 0xff0040ff) for i in range(64)}
+        if observed != expected or "waffle-gl-frames: frames=64 checked=16384 wrong=0 result=1" not in text:
+            raise RuntimeError("Incomplete, stale or incorrect alternating frame readback")
+        if runner.gl_completed_fences(text) < 64:
+            raise RuntimeError("Fewer GPU submissions than rendered frames")
     for marker in (
         "waffle-gl-present: begin CPU_readback=1 IOSurface_import=0",
         "waffle-gl-present: checked=256 wrong=0 padding_wrong=0 GL_error=0 top_down=1",
@@ -50,7 +65,7 @@ def validate(text, eagl=False):
     if f"GPU is not done with surface {sid}" in text:
         raise RuntimeError("Display worker timed out waiting for surface")
     return dict(surface=sid, swap=swap, stride=stride, pixels_checked=256, pixels_wrong=0,
-                actual_EAGL_GL_adapter=eagl,
+                actual_EAGL_GL_adapter=eagl or frames, consecutive_frames=64 if frames else 1,
                 display_worker_resolved_surface=True, CPU_readback=True,
                 optical_visibility_verified=False, direct_GPU_scanout=False)
 
@@ -59,5 +74,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("log", type=Path)
     parser.add_argument("--eagl", action="store_true", help="Require the actual EAGL API2 GL adapter and texture FBO")
+    parser.add_argument("--frames", action="store_true", help="Require64 correct alternating frames and actual GPU completions")
     args = parser.parse_args()
-    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl), indent=2))
+    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl, args.frames), indent=2))
