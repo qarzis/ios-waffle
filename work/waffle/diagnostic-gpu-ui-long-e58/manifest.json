@@ -1,0 +1,20 @@
+{
+  "target": "OnePlus 12 PJD110 / SM8650, 16 GB",
+  "status": "bounded RAM userland test enabled",
+  "hardware_tested": false,
+  "source_revision": "c0ec663890aed1e21ab7773c34aaf4f9d7540937",
+  "source_diff": "source.patch",
+  "kernel_sha256": "71202f96ffc1a4f75a6f8ff51e9050e2972730ec8cfffe3a9cacb4b616164b2a",
+  "kernel_crc32": "3bac147a",
+  "boot_image_sha256": "9cba96231bab517a4913b866df63bdc8e59875175e76f5da65e154ee1f006d3e",
+  "kernel_build_target": "build (DriverKit symbolsets excluded)",
+  "automatic_usb_loader": true,
+  "gl_context": true,
+  "gl_system_sha256": "564709e25c30e66d839391a4773aa485b4c3e2db7c3fdcfc19c6d88f30c38744",
+  "gl_system_bytes": 2318401536,
+  "gl_probe_root_sha256": "b6dea71a919630fb07e3826517d52be59409aa63611197eb3af89475f82045e5",
+  "bo_reclaim": true,
+  "experiment": "E58 four-minute GPU UI observation; E57 kernel unchanged, only bounded userland stop timer240",
+  "ui_workload": true,
+  "ui_stop_seconds": 240
+}

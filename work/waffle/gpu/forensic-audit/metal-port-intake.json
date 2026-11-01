@@ -15,5 +15,17 @@
     "audit A7xx packet/register/layout and compiler support beforehardware",
     "compile arm64 core/probe, require RAM-only GPU copy/compute reference output",
     "validate actual Metal API plugin/device/library and apps separately"
+  ],
+  "host_baseline_attempts": [
+    {
+      "command": "make test HAKIOS=/home/qarzis/ios-macan",
+      "outcome": "stopped beforecompile:fixture regeneration dependency hardcodesmissing upstreamMesa path",
+      "log": "work/waffle/gpu/metal-host-baseline.log"
+    },
+    {
+      "command": "make out/host/tests MESA= HAKIOS=/home/qarzis/ios-macan",
+      "outcome": "same generatedfixture prerequisites dependmissing /home/vcvk/darwin-redwood-air/build/mesa-host/mesa-25.0.7/.../ir3_cmdline.c",
+      "log": "work/waffle/gpu/metal-host-core-build.log"
+    }
   ]
 }

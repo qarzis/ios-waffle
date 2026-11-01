@@ -1,0 +1,5 @@
+grep: /home/vcvk/darwin-redwood-air/build/mesa-host/build/build.ninja: No such file or directory
+grep: /home/qarzis/ios-macan/xnu-deps/build/mesa/build-softpipe-freedreno/build.ninja: No such file or directory
+tools/compiler.mk:54: tools/compiler.mk: no -D set for the iOS Mesa build in /home/qarzis/ios-macan/xnu-deps/build/mesa/build-softpipe-freedreno/build.ninja (not built, or HAKIOS unset?); make ios MESA=1 will not compile
+llvm-as -o out/host/kernels/argbuf_res.bc tools/kernels/argbuf_res.ll
+make: *** No rule to make target '/home/vcvk/darwin-redwood-air/build/mesa-host/mesa-25.0.7/src/gallium/drivers/freedreno/ir3/ir3_cmdline.c', needed by 'out/host/ir3-dump/ir3_cmdline.c'.  Stop.

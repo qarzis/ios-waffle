@@ -364,7 +364,7 @@ def validate_ui_workload_log(text):
     selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1(?: stop_seconds=(\d+))?",text)
     if not selected or int(selected[1])<=1:raise RuntimeError("Actual mobile backboardd GPU selection missing")
     seconds=int(selected[2]) if selected[2] else 30
-    if seconds not in (30,60):raise RuntimeError("Unsupported bounded UI observation window")
+    if seconds not in (30,60,240):raise RuntimeError("Unsupported bounded UI observation window")
     pid=int(selected[1]);count=gl_completed_fences(text)
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
@@ -823,7 +823,7 @@ def main():
                 print(f"GPU image: {out/'first-gpu-frame.png'}",flush=True)
             return
         if args.gpu_ui:
-            for seconds in (15,30,32,35,40,45,60):
+            for seconds in (15,30,32,35,40,45,60,120,180,230):
                 if seconds not in ui_screenshots and time.monotonic()-ui_started>=seconds:
                     command("oem", "screenshot")
                     command("get_staged", out / f"ui-screen-{seconds}.raw")

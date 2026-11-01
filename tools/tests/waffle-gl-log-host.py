@@ -62,6 +62,8 @@ MiniIOMobileFramebuffer: swap 1 layer 0: surface 7 (
 assert m.validate_ui_workload_log(ui)['actual_backboardd_pid']==83
 ui60=ui.replace('bounded=1\n','bounded=1 stop_seconds=60\n').replace('seconds=30','seconds=60')
 assert m.validate_ui_workload_log(ui60)['GPU_fences']==1
+ui240=ui60.replace('seconds=60','seconds=240')
+assert m.validate_ui_workload_log(ui240)['GPU_fences']==1
 for bad in [ui60.replace('stop_seconds=60','stop_seconds=90'),
             ui60.replace('pid=83 seconds=60','pid=83 seconds=30'),
             ui60.replace('MiniIOMobileFramebuffer: swap','missing swap'),
