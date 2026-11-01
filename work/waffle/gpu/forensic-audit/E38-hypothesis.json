@@ -1,0 +1,19 @@
+{
+  "hypothesis": "E38-H1 tablepoolcapacity insufficient for actual GL BO startup",
+  "hardware_bootstrap_tables": 25,
+  "old_table_limit": 32,
+  "measured_allocation_prefix": [
+    16384,
+    16384,
+    4194304,
+    16384,
+    4194304,
+    4194304
+  ],
+  "reproduction": "actualSMMUmapper+registry test fails6thBOwith32tables;64capacityuses33tablesfor13GLBOs",
+  "minimal_change": "TABLE_LIMIT32->64 and publicationfailuretelemetry",
+  "host_test": "tools/tests/waffle-table-budget-host.py",
+  "shader_power_firmware_tcr_permissions_unchanged": true,
+  "full_build_passed": true,
+  "hardware_pending": true
+}

@@ -1,3 +1,51 @@
+# Active E38 — GL queue blocker fixed; table pool exhaustion reproduced/fix building
+
+Userresumeactive/keepworking. E37queuefixconfirmedactualGLrun120715Z/
+auto120651Z: createslogicalqueues1/2/3, noNULLpipefault. NewblockerbeforeGPU
+submission: GENERAL_BOpublicationfailsafter5BOs, at6th4MiB. Hardwarebootstrap
+logtables25, existingTABLE_LIMIT32. ActualSMMUmapperhostreplay25bootstrap+
+actualGLallocationprefix reproducesfailureat6th/count32; bound64admits13BOs
+using33tables. MinimalE38fixTABLE_LIMIT32->64 +failurediagnosticindex/bytes/
+tables/limit; noTCR/AP/TLB/power/shaderchanges. Actualnewtest
+ tools/tests/waffle-table-budget-host.py PASSboth32failure/64success.
+Currentfullbuild exec35103 artifactdiagnostic-gpu-gl-tables-e38,
+loggpu/build-gl-tables-e38.log. Needfullhost/XNU/EFI/container/sourcebinding,
+thenoldmapped12control->Android1->oneGL13test. SameactualMesa/program/system.
+Beforeeachroot/image/sourcehashes. GPUcommandsneverexecutedE36/E37yet.
+
+E37resultforensic-audit/E37-result.json; tablebudgetevidenceGPU_DEBUG_LOG.
+IndependentAndroid1afterE37failure, nohardwareworker. Archive417af41 includes
+r3/r4exactfaultdiagnosis; hardwareverifiedrefE33 4cf1355unchanged. E36after3
+failuresreviewalreadydone; newqueuehypothesisconfirmed, tablecapacitynow
+separateconcreteblocker. No blindrepeat. Preservefirstfailure/thenhypothesis.
+Dynamicprogramrawconsolefd0+signalhandlers+imagebaseswork; cacheddeviceFDmay
+1/2 so cleanupclosesall0..255exceptownedconsole. SameMesaGLroot fullsystem
+2.2GiBtransfer, autoUEFI no manualBootiOS. NoGitHubpush/no flash/erase.
+
+# Active E37 real GL queue-fix test running
+
+Userresumeactive, continueoriginalGPUobjective. Oldmapped12control120533Z/
+auto120510Z PASS/runner0/autosuccess/independentAndroid1. E37singleGL13
+exec61817/auto20261101T120651Z active, loggpu/auto-gl-queues-e37-user.log,
+artifactdiagnostic-gpu-gl-queues-e37. Noconcurrentfastboot; waitrecoverythen
+independentAndroid1. WIParchive417af41d4a4b2515aa5ef7d9b0869de5d33f5472;
+hardwareverifiedrefE33 4cf1355 unchanged.
+
+E36exactfaultdiagconsole-r4openedconsolefd0/restoredlogs. MesaNULLpipe
+fd_pipe_get_param offset7bf2a8, callerfd_context_init70b648; oldkernelonequeue
+rejectssecondscreen/contextpipe. Minimalfix32logicalqueueIDs/independentclose
+ononeserializedGPUcontext, onepriority/preemptunsupportedfallback. Actual
+host2queues/close1/submit+wait2PASS; fullbuild/sourcebindingPASS. Alsobasedon
+actualconsolefd0 fixedprobeFDcleanupall0..255exceptownedconsole (cachedGPUfd
+may1/2). Programnowrawconsole/signal/dyldbaseslogs. Newrootboundaftercontrol;
+Mesa/system/FWunchanged. ExactdiagnosticevidenceE36-r4-fault/E37-hypothesis.
+
+IfGLpassstrictFD750/256pixels/GPUtokens/BOlifetime+fullstop+Android1before
+verifiedref. IffailinspectnewuserPC/generalioctl_refused/gmu fault first,
+no blindretry. Prior3E36failuresalreadyarchitecturereviewed/logchannelfixed,
+nownewqueuehypothesisgroundedinPC+source. NoGiHubpush/no flash/erase/manual
+BootiOS. KeepworkingunlessuserSTOP.
+
 # Active E37 — exact Mesa NULL pipe fault found, multiple queues fix building
 
 Userexplicitresume/keepworkingactive. PhoneAndroidindependent1 afterr4.

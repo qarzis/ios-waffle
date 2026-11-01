@@ -1,0 +1,18 @@
+{
+  "run": "work/waffle/runs/20261101T120715Z",
+  "auto": "work/waffle/auto-runs/20261101T120651Z",
+  "queue_hypothesis_confirmed": true,
+  "logical_queues_created": [
+    1,
+    2,
+    3
+  ],
+  "previous_NULL_pipe_fault_absent": true,
+  "new_first_blocker": "general BO mapping table pool exhausted, bootstrap25+GL needs33 vslimit32",
+  "last_completed_BO_index": 5,
+  "failed_BO_index": 6,
+  "GPU_commands_submitted": false,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "e7d48c722fee9843d358637bd53fc4ee8a0691d211fc93cb294dc8e5d343c01f"
+}

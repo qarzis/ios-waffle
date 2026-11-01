@@ -56,7 +56,7 @@ static bool tlb_sync(vm_offset_t cb)
     w32(cb, 0x7f0, 0); /* TLBSYNC */
     return poll(cb, 0x7f4, 1, 0, 10000);
 }
-#define TABLE_LIMIT 32
+#define TABLE_LIMIT 64
 #define PTE_ADDRESS 0x0000fffffffff000ULL
 struct table_pool {
     unsigned count;
@@ -787,7 +787,10 @@ static struct waffle_gpu_memory *smmu_registry_new(struct smmu_owner *s,uint64_t
     const struct waffle_gpu_registry_ops ops={smmu_registry_idle,smmu_registry_vacant,
         smmu_registry_page,smmu_registry_clean,smmu_registry_tlb,s};
     struct waffle_gpu_memory *bo=waffle_gpu_registry_new(&s->registry,&ops,bytes,flags);
-    if(s->registry.poisoned)smmu_owner_stop("general BO publication incomplete; retain backing and tables");
+    if(s->registry.poisoned){
+        log_line("waffle-iommu: GENERAL_BO publication failed index=%u bytes=%llu tables=%u limit=%u\n",s->registry.count,bytes,s->pool.count,TABLE_LIMIT);
+        smmu_owner_stop("general BO publication incomplete; retain backing and tables");
+    }
     if(bo)log_line("waffle-iommu: GENERAL_BO published index=%u VA=%llx bytes=%u allocated=%u flags=%x pages=%u\n",
         s->registry.count,bo->gpu_va,bo->bytes,bo->allocation_bytes,bo->flags,bo->allocation_bytes/4096);
     return bo;

@@ -626,3 +626,9 @@ E37 fullhost/XNU/EFI/container/sourcebindingPASS. SameMesa/FW/system, minimalgen
 E37 preGLlifetimeauditfromactualconsolefd0 evidence: dynamicdyldclosedinherited0/1/2, soGPUdevicecachedFDmayreusenumber1/2. Previousprobeclose3..255wouldmisscacheddevice. Minimaldiagnosticprogramcleanup nowclosesall0..255exceptownedconsole; avoidsfalseGPUteardownabsenceafterfutureGLsuccess. NoGPUscheduler/driverchange. RebuildGLroot/sourcebindingbeforesingleGLtest, oldmappedcontrol unaffected.
 
 E37 oldmapped12control PASS run120533Z/auto120510Z correct3GPUjobs/768pixels/24576checks/negative7/fullstop47/runner0/autosuccess/independentAndroid1. NewGLrootFDcleanupupdateboundaftercontrol; kernelunchanged. NextsingleGL13queuefixqualification.
+
+## E38 first demonstrated general BO blocker — table pool capacity
+
+E37run120715Z/auto120651Z confirmedqueuefix: logicalqueues1/2/3created, noNULLpipeSIGSEGV. NextfailsgeneralBOpublication after5BO(16KiB16KiB4MiB16KiB4MiB), before6th4MiB andnoGPUsubmit. Initialhardwarelogtables25 vsTABLE_LIMIT32. ActualSMMUmapperhostreplaywith25bootstrap tablesandactualallocationprefix deterministicallyfailsat6thBO/count32; identicalcodecapacity64 admitsall13requestsusing33tables. MinimalfixTABLE_LIMIT32->64 (bounded), noAP/TCR/TLBprotocol/addresschange. Extra failurelogrecordsindex/bytes/tablecount/limit. Fullbuildconstructor sizeofowner<=PAGE_SIZE guardmustpass; oldmappedcontrol beforeGLretry. Androidindependent1 afterfailure; originalE37logsretained. E38onehypothesisnew/evidencebased.
+
+E38 oldmapped12control PASS run121142Z/auto121118Z actual768GPU pixels/3fences/24576checkswrong0/negative7/fullstop47/runner0/autosuccess/independentAndroid1. NextsingleGL13 capacity64 qualification.
