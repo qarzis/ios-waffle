@@ -1,0 +1,1 @@
+HOST PROTOTYPE actual registry/SMMU:100000 allocate/revoke/reclaim cycles reuse one tombstone with monotonic serials; readonly anchor PTE/table count/resident budget unchanged, dual-ASID revocation before reuse, serial overflow refuses, full teardown once. Temporary header adaptations only; runtime not wired.

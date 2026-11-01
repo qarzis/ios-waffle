@@ -1,0 +1,20 @@
+{
+  "run": "work/waffle/runs/20261101T213217Z",
+  "renderer": "FD750",
+  "readback_mode": "rows",
+  "width": 750,
+  "height": 1624,
+  "checked_pixels": 1218000,
+  "wrong_pixels": 0,
+  "wrong_padding": 0,
+  "GL_read_calls": 1624,
+  "readback_elapsed_us": 68126,
+  "GPU_submissions": 205,
+  "BO_count": 28,
+  "full_parent_close_passed": true,
+  "runner_exit": 0,
+  "independent_android": "1",
+  "panel_FPS_measured": false,
+  "kernel_sha256": "ec65402285bef60cce1cdd1b098ee947695099a6105224339177e0efb7654eb4",
+  "raw_log_sha256": "b83286f9ed2bf0aacbbb11b86360ac12036066e210ac371ac2ca5f6d6e45428a"
+}

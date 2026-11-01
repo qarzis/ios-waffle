@@ -21,13 +21,20 @@ def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--output',type=Path,required=True)
  parser.add_argument('--stop-seconds',type=int,choices=(30,60,240),default=30)
+ parser.add_argument('--hook-library',type=Path,help='Use a source-bound hook previously qualified by the fullsize pixel probe')
  parser.add_argument('--base-kit',type=Path,default=ROOT/'work/waffle/posterboard/client-gl-kit')
  args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)
  sdk=ROOT/'work/theos/sdks/iPhoneOS16.5.sdk'
  cc=str(ROOT/'xnu-deps/host/bin/xnu-clang')
  mesa=ROOT/'xnu-deps/build/mesa/out-26.3.0-rc1/libOSMesa.8.dylib'
- hook=ROOT/'work/waffle/gpu/e45-gl-contexts/libredwood-gl.dylib'
+ hook=args.hook_library.resolve() if args.hook_library else ROOT/'work/waffle/gpu/e45-gl-contexts/libredwood-gl.dylib'
  assert hook.is_file() and mesa.is_file()
+ hook_manifest=None
+ if args.hook_library:
+  hook_manifest=json.loads((hook.parent/'manifest.json').read_text())
+  assert hook_manifest['hook_sha256']==hashlib.sha256(hook.read_bytes()).hexdigest()
+  for name,digest in hook_manifest['source_sha256'].items():
+   assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest,name
  env=dict(os.environ,PATH=str(ROOT/'xnu-deps/host/bin')+':'+os.environ['PATH'],XNU_SDK_VERSION='16.5')
  def run(command,**kwargs):subprocess.run(command,env=env,cwd=ROOT,check=True,**kwargs)
  flags=[cc,'-arch','arm64','-Os','-static','-nostdlib','-ffreestanding','-fno-stack-protector','-fno-builtin','-Wall','-Wextra','-isysroot',str(ROOT/'xnu-deps/sdk/iPhoneOS16.5.xnu.sdk'),'-I',str(ROOT/'userland/libmini')]
@@ -67,6 +74,8 @@ def main():
  sources=['userland/src/inject.c','userland/src/waffle_ui_init.c','tools/build-waffle-ui-probe.py','userland/mkjobs.py','tools/assemble.py']
  manifest=dict(experiment='E46 first actual backboardd GPU workload; no UI success claim',hardware_tested=False,RAM_only=True,normal_image_mutated=False,GPU_process='backboardd',GPU_process_uid=501,device_mode='0600',process_stop_seconds=30,job_KeepAlive=False,other_processes_softpipe=True,root_sha256=hashlib.sha256(root.read_bytes()).hexdigest(),root_bytes=root.stat().st_size,inject_sha256=hashlib.sha256(inject.read_bytes()).hexdigest(),hook_sha256=hashlib.sha256(hook.read_bytes()).hexdigest(),mesa_sha256=hashlib.sha256(mesa.read_bytes()).hexdigest(),firmware=firmware,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources})
  manifest['process_stop_seconds']=args.stop_seconds
+ if hook_manifest:
+  manifest['hook_policy']={name:hook_manifest.get(name) for name in ('batch_readback','profile_readback','hook_sha256','source_sha256')}
  (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
  print(json.dumps(manifest,indent=2))
 

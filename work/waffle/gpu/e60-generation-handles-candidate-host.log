@@ -1,0 +1,1 @@
+HOST PROTOTYPE cdev:100000 allocate/submit/close cycles reuse one slot, monotonic generations reject stale INFO/CLOSE and duplicate high handles, failed allocation preserves generation, overflow quarantines slot. Registry/fences GPU mocked; temporary source adaptations only, runtime not wired.
