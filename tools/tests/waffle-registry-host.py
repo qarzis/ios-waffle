@@ -49,7 +49,7 @@ t=r'''
  assert(!waffle_gpu_registry_destroy(&r,false) && !frees);
  assert(waffle_gpu_registry_destroy(&r,true) && frees==13);
  /* Both slot and heap exhaustion refuse without allocating/reusing any VA. */
- r.count=32;assert(!waffle_gpu_registry_new(&r,&ops,4096,WAFFLE_GPU_BO_WC));r.count=0;r.used=WAFFLE_GPU_BO_HEAP_BYTES;
+ r.count=WAFFLE_GPU_BO_LIMIT;assert(!waffle_gpu_registry_new(&r,&ops,4096,WAFFLE_GPU_BO_WC));r.count=0;r.used=WAFFLE_GPU_BO_HEAP_BYTES;
  assert(!waffle_gpu_registry_new(&r,&ops,4096,WAFFLE_GPU_BO_WC));return 0;
 }
 '''

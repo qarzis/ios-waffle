@@ -14,6 +14,7 @@
 #include <sys/waffle_gpu_va.h>
 extern void redwood_tl(const char *,...) __printflike(1,2);
 extern void loader_return(void);
+_Static_assert(WAFFLE_GPU_BO_LIMIT<=64,"BO duplicate bitmap capacity");
 static LCK_GRP_DECLARE(drm_group,"waffle-gpu-general");
 static LCK_MTX_DECLARE(drm_lock,&drm_group);
 struct drm_bo {
@@ -49,7 +50,7 @@ static int drm_open(dev_t dev,int flags,int type,struct proc *p)
  if(drm_context){error=EBUSY;goto done;}
  drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
  drm_count=drm_fence=0;drm_queues=0;drm_next_queue=0;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
- redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=32 heap_bytes=33554432\n",drm_pid);
+ redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=33554432\n",drm_pid,WAFFLE_GPU_BO_LIMIT);
 done:lck_mtx_unlock(&drm_lock);return error;
 }
 static int drm_param(struct waffle_msm_param *r)
@@ -73,18 +74,18 @@ static int drm_param(struct waffle_msm_param *r)
 static int drm_submit(struct waffle_msm_submit *r)
 {
  redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
- if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>32 || !r->nr_cmds || r->nr_cmds>WAFFLE_GPU_SUBMIT_COMMANDS ||
+ if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_BO_LIMIT || !r->nr_cmds || r->nr_cmds>WAFFLE_GPU_SUBMIT_COMMANDS ||
     r->in_syncobjs || r->out_syncobjs || r->nr_in_syncobjs || r->nr_out_syncobjs || r->syncobj_stride || r->pad ||
     !drm_queue_valid(r->queueid))return EINVAL;
- struct waffle_msm_submit_bo bos[32];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
+ struct waffle_msm_submit_bo bos[WAFFLE_GPU_BO_LIMIT];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
  struct waffle_gpu_command roots[WAFFLE_GPU_SUBMIT_COMMANDS];
  if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands)))return EFAULT;
- uint32_t seen=0,total=0;
+ uint64_t seen=0;uint32_t total=0;
  for(unsigned i=0;i<r->nr_bos;i++){
   struct drm_bo *bo=drm_buffer(bos[i].handle);
-  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen&(1u<<(bos[i].handle-1))) ||
+  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen&(1ULL<<(bos[i].handle-1))) ||
      (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va))return EINVAL;
-  seen|=1u<<(bos[i].handle-1);
+  seen|=1ULL<<(bos[i].handle-1);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
   struct waffle_msm_submit_cmd *cmd=&commands[i];
@@ -114,9 +115,15 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
  }else if(command==WAFFLE_MSM_NEW){
   struct waffle_msm_gem_new *r=(void *)data;
   if(r->handle || !waffle_gpu_registry_flags(r->size,r->flags)){error=EINVAL;goto done;}
-  if(drm_count>=32){error=ENOSPC;goto done;}
+  if(drm_count>=WAFFLE_GPU_BO_LIMIT){
+   redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=slots\n",(unsigned long long)r->size,r->flags,drm_count,WAFFLE_GPU_BO_LIMIT);
+   error=ENOSPC;goto done;
+  }
   struct waffle_gpu_memory *bo=waffle_gpu_context_memory_new(drm_context,r->size,r->flags);
-  if(!bo){error=ENOMEM;goto done;}
+  if(!bo){
+   redwood_tl("waffle-gpu: GENERAL allocation_refused bytes=%llu flags=%x count=%u limit=%u reason=registry\n",(unsigned long long)r->size,r->flags,drm_count,WAFFLE_GPU_BO_LIMIT);
+   error=ENOMEM;goto done;
+  }
   drm_bos[drm_count]=(struct drm_bo){.memory=bo,.live=true};r->handle=++drm_count;
   redwood_tl("waffle-gpu: GENERAL gem_new handle=%u bytes=%u allocated=%u flags=%x VA=%llx\n",r->handle,bo->bytes,bo->allocation_bytes,bo->flags,(unsigned long long)bo->gpu_va);
  }else if(command==WAFFLE_MSM_INFO){
@@ -185,5 +192,5 @@ bool waffle_gpu_drm_register(void)
  if(!devfs_make_node(makedev(major,0),DEVFS_CHAR,UID_ROOT,GID_WHEEL,0600,"waffle-gpu-drm")){
   cdevsw_remove(major,&drm_cdev);return false;
  }
- redwood_tl("waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=32\n");return true;
+ redwood_tl("waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=%u\n",WAFFLE_GPU_BO_LIMIT);return true;
 }

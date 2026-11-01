@@ -8,7 +8,7 @@ h='#define _DEFAULT_SOURCE\n'+parts['h'][:parts['h'].index('static int proc_pid'
 h+=r'''
 #include "waffle_gpu_registry.h"
 #include "waffle_gpu_va.h"
-static struct waffle_gpu_memory storage[32];static unsigned stored,mapped;
+static struct waffle_gpu_memory storage[WAFFLE_GPU_BO_LIMIT];static unsigned stored,mapped;
 static int proc_pid(struct proc *p){return p->pid;}
 static int cdevsw_add(int major,const struct cdevsw *sw){assert(major==-1 && sw);return 42;}
 static void cdevsw_remove(int major,const struct cdevsw *sw){assert(major==42 && sw);}
@@ -19,7 +19,7 @@ static int copyin(uint64_t a,void *out,unsigned bytes){if(a<4096)return 14;memcp
 static int copyout(const void *in,uint64_t a,unsigned bytes){if(a<4096)return 14;memcpy((void *)(uintptr_t)a,in,bytes);return 0;}
 struct waffle_gpu_context *waffle_gpu_context_begin(void){assert(held);context.fence=0;return &context;}
 struct waffle_gpu_memory *waffle_gpu_context_memory_new(struct waffle_gpu_context *c,uint64_t bytes,uint32_t flags){
- assert(held && c==&context && stored<32);struct waffle_gpu_memory *b=&storage[stored];
+ assert(held && c==&context && stored<WAFFLE_GPU_BO_LIMIT);struct waffle_gpu_memory *b=&storage[stored];
  b->object=++stored;b->bytes=bytes;b->allocation_bytes=(bytes+16383)&~16383;b->flags=flags;b->memory=(uintptr_t)calloc(1,b->allocation_bytes);assert(b->memory);b->published=true;
  b->gpu_va=0x100000000ULL;for(unsigned i=0;i+1<stored;i++)b->gpu_va+=storage[i].allocation_bytes;return b;
 }

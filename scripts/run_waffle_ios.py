@@ -162,13 +162,16 @@ def validate_gl_log(text):
     if "Library not loaded:" in text:
         raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
+    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64)\b",text)
+    if not capacity:raise RuntimeError("Missing bounded GL BO capacity")
+    capacity=int(capacity[1])
     if "REBOOT REQUIRED" in text or "GENERAL_SUBMIT mismatch" in text:raise RuntimeError("GL GPU ownership or completion failed")
-    markers=["GENERAL registered root_only=1 gated=1 BO_limit=32",
+    markers=[f"GENERAL registered root_only=1 gated=1 BO_limit={capacity}",
        "waffle-gl-init: exec actual Darwin Mesa probe pid=1",
        "waffle-gl-user: begin actual_OSMesa=1 target=GPU triangle=16x16",
        "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
        "full GPU owner returned live to init caller; no mutex held","SERVICE begin root_live=1 serialized=1",
-       "GENERAL open pid=1 BO_limit=32 heap_bytes=33554432"]
+       f"GENERAL open pid=1 BO_limit={capacity} heap_bytes=33554432"]
     cursor=0
     for marker in markers:
         at=text.find(marker,cursor)
@@ -190,7 +193,7 @@ def validate_gl_log(text):
         key=int(index);value=(int(va,16),int(logical),int(allocated),int(flags,16),int(pages))
         if key in buffers and buffers[key]!=value:raise RuntimeError("Conflicting GL BO publication")
         buffers[key]=value
-    if not buffers or set(buffers)!=set(range(1,len(buffers)+1)) or len(buffers)>32:raise RuntimeError("Missing GL BO publication")
+    if not buffers or set(buffers)!=set(range(1,len(buffers)+1)) or len(buffers)>capacity:raise RuntimeError("Missing GL BO publication")
     expected_va=0x100000000
     for key in sorted(buffers):
         va,logical,allocated,flags,pages=buffers[key]
@@ -317,9 +320,12 @@ def validate_ui_workload_log(text):
     selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1",text)
     if not selected or int(selected[1])<=1:raise RuntimeError("Actual mobile backboardd GPU selection missing")
     pid=int(selected[1]);count=gl_completed_fences(text)
+    capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64)\b",text)
+    if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
+    capacity=int(capacity[1])
     for marker in (
         "waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1",
-        f"GENERAL open pid={pid} BO_limit=32 heap_bytes=33554432",
+        f"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=33554432",
         "FD750; shaders OpenGL ES GLSL ES",
         f"waffle-ui-gpu: bounded process stop pid={pid} seconds=30",
         "SMMU_OWNER released after child stop and context detach",
@@ -333,7 +339,7 @@ def validate_ui_workload_log(text):
         if f"GENERAL_IB ACK matched seq{43+fence} value=00000000 valid=1" not in text:
             raise RuntimeError("UI workload GPU ACK missing")
     close=re.search(rf"GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1",text)
-    if not close or not 1<=int(close[1])<=32:raise RuntimeError("UI workload context teardown missing")
+    if not close or not 1<=int(close[1])<=capacity:raise RuntimeError("UI workload context teardown missing")
     if f"GENERAL_BO released after GPU stop and context detach count={close[1]}" not in text:
         raise RuntimeError("UI workload backing release missing")
     if not re.search(r"redwood-gl: frame [1-9]\d*: \d+ GL calls, [1-9]\d* draws",text):
