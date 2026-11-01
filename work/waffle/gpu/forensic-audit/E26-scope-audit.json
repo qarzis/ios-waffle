@@ -1,0 +1,31 @@
+{
+  "experiment": "E26 top-level context with separate kernel worker",
+  "base": "f3bdaa9a542cb44ca5fdc5c36a72373c51a3ad2f",
+  "unchanged_files": [
+    "kernel/files/bsd/dev/waffle_gmu.c",
+    "kernel/files/bsd/sys/waffle_gmu.h",
+    "kernel/files/bsd/sys/waffle_gpu_job.h",
+    "kernel/files/bsd/sys/waffle_gpu_copy.h",
+    "kernel/files/bsd/sys/waffle_gpu_compute.h",
+    "kernel/files/bsd/sys/waffle_gpu_image.h",
+    "kernel/files/bsd/sys/waffle_gpu_present.h",
+    "kernel/files/bsd/sys/waffle_aop.h",
+    "kernel/files/bsd/sys/waffle_gen7_boot.h",
+    "loader/loader.c"
+  ],
+  "all_low_level_gpu_boot_power_security_mapping_teardown_unchanged": true,
+  "new_components": [
+    "serialized opaque kernel context",
+    "internal full-parent adapter",
+    "SMMU child copy delegate",
+    "bounded diagnostic kernel worker"
+  ],
+  "new_image_kind": 5,
+  "requires_compute_dispatch": true,
+  "gpu_command_shader_payload_and_fences_identical_to_e25": true,
+  "busy_submit_end_must_refuse_and_retain_context": true,
+  "shared_aop_mutex_not_held_during_gpu_work": true,
+  "worker_completion_required_before_close_free": true,
+  "hardware_tested": false,
+  "ios_userclient_registered": false
+}

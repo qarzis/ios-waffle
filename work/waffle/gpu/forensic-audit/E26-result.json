@@ -1,0 +1,54 @@
+{
+  "experiment": "E26 serialized top-level kernel context and separate worker",
+  "run": "work/waffle/runs/20261101T075816Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T075752Z",
+  "api": [
+    "waffle_gpu_context_begin",
+    "waffle_gpu_context_copy",
+    "waffle_gpu_context_end"
+  ],
+  "kernel_only": true,
+  "separate_kernel_thread": true,
+  "busy_valid_submit_refused_fence_zero": true,
+  "busy_close_refused_context_retained": true,
+  "jobs_completed": 3,
+  "actual_gpu_pixels_verified": 768,
+  "gpu_written_fences": [
+    1,
+    2,
+    3
+  ],
+  "hfi_sequences": [
+    44,
+    45,
+    46
+  ],
+  "total_word_checks": 12288,
+  "wrong_words": [
+    0,
+    0,
+    0
+  ],
+  "caller_wrong_words": [
+    0,
+    0,
+    0
+  ],
+  "worker_finished_before_parent_end": true,
+  "stop_sequence": 47,
+  "full_shutdown": true,
+  "context_consumed_and_null_after_end": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "userclient_registered": false,
+  "iosurface_userspace_integration": false,
+  "ios_acceleration": false,
+  "evidence_sha256": {
+    "work/waffle/runs/20261101T075816Z/kernel-final.log": "b05fd797fc8475031be98e68b69c0b5cc86f77314a055c10b050a8dfb2595a39",
+    "work/waffle/runs/20261101T075816Z/gpu-worker-jobs.json": "97c59107b31db758401dea95025d47b2e688815dfd615c125a11d6fe0a71d9f4",
+    "work/waffle/runs/20261101T075816Z/gpu-worker-job-1.png": "349f131ee7f768e57c616a653f931c6e94196fbe686d18aae597976ef3b7e43f",
+    "work/waffle/runs/20261101T075816Z/gpu-worker-job-2.png": "ee9e7bde258c8fe88212f98ce9f3c957b23e04026663088285042c1d158bc4f3",
+    "work/waffle/runs/20261101T075816Z/gpu-worker-job-3.png": "b329437193210adf8e562090a4bf0543aab157eb3a03a3c463208fe3a7ec2ad7"
+  }
+}

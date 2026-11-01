@@ -93,6 +93,9 @@ struct waffle_smmu_owner *waffle_smmu_owner_begin(uintptr_t b,uint32_t p,uint32_
     (void)b;(void)p;(void)ps;(void)c;(void)m;(void)n;assert(0);return NULL;
 }
 bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *o) {(void)o;assert(0);return false;}
+struct waffle_gpu_copy_job;
+bool waffle_smmu_owner_copy(struct waffle_smmu_owner *o,struct waffle_gpu_copy_job *j) {(void)o;(void)j;assert(0);return false;}
+bool waffle_gpu_service_probe(void) {assert(0);return false;}
 bool waffle_smmu_owner_end(struct waffle_smmu_owner *o) {(void)o;assert(0);return false;}
 int kmem_alloc(unsigned m,uintptr_t *p,unsigned n,unsigned f,unsigned t){(void)m;(void)p;(void)n;(void)f;(void)t;assert(0);return 1;}
 void kmem_free(unsigned m,uintptr_t p,unsigned n){(void)m;(void)p;(void)n;assert(0);}

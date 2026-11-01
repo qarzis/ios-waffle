@@ -1,0 +1,7 @@
+{
+  "build_files_sha256": "ab29d4230f2135a163c48ba1ec242680913821941543455982a3c506ac92a964",
+  "new_service_entry": true,
+  "compiled_service_object_sha256": "70d97422a67356de4866c9a194ee80d11a1dab111b4c392eead8f2df07c319e7",
+  "linked_kernel_service_marker": true,
+  "canonical_patch_hunks_validated": true
+}

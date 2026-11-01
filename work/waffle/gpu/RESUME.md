@@ -1,3 +1,70 @@
+# Current: E26 hardware PASS — top-level context, real worker, busy close refusal
+
+SafeE25 f3bdaa9 retained. New opaque kernelcontext begin/copy/end passed
+run20261101T075816Z/auto075752Z: separatekernelthread, validcompeting
+submit refused/fence0 andend refused/contextretained underbusyservicemutex.
+Then3actualGPUjobs/fences1/2/3/IB44..46, all768pixelscorrect/all12288word
+checkswrong0/callercheckswrong0. Workerfinish beforeparentstop47, full
+GMU/SMMU/PLL/clock/CX/AOPshutdown, contextconsumed/null/probe1. Runner0/
+autosuccess/independentADBAndroid1. Noactiveworker; phoneordinaryAndroid.
+
+Artifactdiagnostic-gpu-service-e26 fullhost/XNU/EFI/container/sourcebinding/
+compiledserviceobjectPASS. 93control075542Z/auto075519Z andoldimage4jobs
+control075646Z/auto075622Z passed. Firstbuild undeclaredthread_terminate
+fixedwithverifiedexistingXNUsignature; preservedinitialkernelbuildlog.
+No hardwarefailed. NewserviceCfile/header+canonicalXNUbuildentry; actual
+parentadapter andSMMUcopydelegate. GMU Csource/shader/PM4/fencehelper/
+lowlevelpower/security/mapper/stop byteidenticalE25. Newimage5requires
+compute2. SharedAOPmutex notheldduringGPUwork; separatecontextmutex.
+Strictparser requiresorderedservicebegin/worker/busyrefusal/finish/end plus
+all3actualpixelgroups. Evidence E26-result.json; actual768pixels/3PNGs
+runs/20261101T075816Z/gpu-worker-jobs.json andgpu-worker-job-N.png.
+
+APIwaffle_gpu_context_begin/copy/end is serialized, blocking, kernel-only,
+fixed256pixelcopy. Endconsumes*context onlywhenactuallyclosing; busyrefusal
+retainsit. Completion mustbe knownbeforefree; failedpublishedjobretains/
+reset. NoUserClient/Mesa/IOSurface integration or iOSacceleration yet.
+Nextblocker: realclient-facing job/BO boundary and demandlifetime after
+initialization. KeepworkingGPUstate; do notpublishunusableaccelerator or
+repeatownership-onlytests. RAM-only/no flash/erase, Android+independentADB1
+aftereachtest. AutoUEFI noBootiOSchoice. GitHubb4fe8be(E21)publishdone;
+no newpushrequested. SaveE26 onarchive+verifiedrefswith explicitpaths.
+
+Older chronology below is superseded by latest entry.
+
+# Active E26: top-level context + separate kernel worker, qualification pending
+
+Safe E25 f3bdaa9 retained. New waffle_gpu_service.c/.h exposes bounded
+opaquecontext begin/copy/end over fullAOP/power/clock/SMMU/GMUparent.
+Separate service mutex serializes; sharedAOPmutex neverheldduringGPUjob.
+Newimage5requirescompute2. Initcreatesworker; firstrequest softwaregate
+beforeGPUcommand letsinitprove validcompetingcopyrefused/fence0 andend
+refused/samecontext. Initreleasesgate; worker3jobs/fences1..3/HFI44..46,
+release/acquire done, initonlythenends/fullstop47 andfrees. No IOKit/Mesa/
+IOSurface or iOSacceleration claim. GPUcommands/GMU Csource/shader/BO/
+power/security/mapper/stop unchangedE25.
+
+AllhosttestsPASS inclactualservice/boardadapter withrealpthread/mutex,
+constructor/alloc/thread/jobfailurecleanup, busyrefusal/pointerconsumption,
+actualSMMUcopydelegate3calls. FirstXNUbuildfail undeclaredthread_terminate;
+verifiedexactXNUimplementation+existingtouchdeclaration andaddedextern,
+nohardwaretestedfirstbuild. Preservedkernel-build-first-declaration-error.log.
+Finalfullhost/XNU/EFI/container/sourcebinding/newcompiledserviceobjectPASS
+artifactdiagnostic-gpu-service-e26, build-service-e26-r2.log. Canonicalkernel
+patch/buildfileentryadded +hunkparsechecked; compiled-service-audit.json.
+
+93control run20261101T075542Z/auto075519Z PASS query42/access27/alloc8/
+fullstop/runner0/independentAndroid1. Currentautomaticworker exec91224 is
+oldimage4jobscontrol, logauto-service-e26-jobs-control.log. AfterPASS+
+independentADB1 save94jobscontrolreport beforeoverwrite, thenone --worker
+instead--copy-jobs withfullchain/--compute dispatch/sameartifact. Strict
+image5 parser requiresSERVICEbegin/worker/busyrefusal/finish/end proofs plus
+all3jobpixels andrealGPUfences. Preservefirstfailure, no blindrerun.
+E26source uncommittedpendinghardware. RAM-only/no flash/erase; autoUEFI
+requiresno physicalBoot iOS; Android+independentADB1 aftereach. NoGitHubpush.
+
+Older chronology below is superseded by latest entry.
+
 # Current: E25 hardware PASS — reusable kernel copy-job API, 3 shaders/session
 
 Safe E24visible checkpoint3b6afb5 preserved. E25 new blocking kernel-only

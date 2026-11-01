@@ -84,7 +84,7 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         "AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1",
         "full GPU owner returned live to init caller; no mutex held",
     ]
-    if image==4:
+    if image>=4:
         markers += ["COPY_SEQUENCE begin jobs=3 kernel_caller=1"]
         for fence in (1,2,3):
             markers += [f"COPY_JOB begin fence={fence} seq={43+fence} pixels=256",
@@ -116,10 +116,18 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
         start=markers.index("SESSION result=1 submitted=1 completed=1 next_sequence=45 OOB=1; bounded kernel session")
         markers[start:start]=["PRESENT begin format=BGRA8 x=592 y=1456 width=256 height=256 cpu_blit=1",
                              "PRESENT write checked=65536 wrong=0", "PRESENT restore checked=65536 wrong=0"]
+    if image==5:
+        at=markers.index("COPY_SEQUENCE begin jobs=3 kernel_caller=1")
+        markers[at:at]=["SERVICE begin root_live=1 serialized=1","SERVICE worker started separate_thread=1"]
+        at=markers.index("COPY_JOB begin fence=1 seq=44 pixels=256")
+        markers.insert(at,"SERVICE busy submit_refused=1 close_refused=1 retained=1")
+        at=markers.index("SMMU_OWNER released after child stop and context detach")
+        markers.insert(at,"SERVICE worker finished result=1")
+        markers += ["SERVICE end consumed=1 result=1","SERVICE probe passed=1 context_null=1"]
     positions=[text.find(marker) for marker in markers]
     if "REBOOT REQUIRED" in text or -1 in positions or positions!=sorted(positions):
         raise RuntimeError("Owned AOP lifetime, GPU memory results or child-first teardown not confirmed")
-    return extract_copy_jobs(text)[-1] if image==4 else extract_gpu_image(text,compute_mode,image) if image else None
+    return extract_copy_jobs(text)[-1] if image>=4 else extract_gpu_image(text,compute_mode,image) if image else None
 
 
 def main():
@@ -136,6 +144,7 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
+    parser.add_argument("--gpu-worker",action="store_true",help="E26 parent-owned kernel worker and busy close refusal")
     parser.add_argument("--gpu-copy-jobs",action="store_true",help="E25 three caller-input copy jobs with GPU fences")
     parser.add_argument("--gpu-image-present",action="store_true",help="E24 CPU-present verified GPU image then restore framebuffer")
     parser.add_argument("--gpu-image-copy",action="store_true",help="E23 uploaded16x16 image copy; requires compute")
@@ -147,8 +156,8 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
-    if sum((args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
-    image_kind=4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    if sum((args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
+    image_kind=5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
     if image_kind>=3 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
     args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
@@ -465,7 +474,7 @@ def main():
                     "MINIMUM_DCVS ACK matched seq32 value=00000000 valid=1",
                     "OOB_GPU ack=1 GXon=1", f"CP_INIT_RAW ACK matched seq{42 if args.gpu_probe in (86,89,91,94) else 34}",
                     "Gen7 polled CP start result=0 detail=0",
-                    f"PREPARE_SLUMBER ACK matched seq{47 if image_kind==4 else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
+                    f"PREPARE_SLUMBER ACK matched seq{47 if image_kind>=4 else 45 if args.gpu_compute else 47 if args.gpu_session else 45 if args.gpu_writeback else 44 if args.gpu_zap else 43 if args.gpu_probe in (86,89,91,94) else 35} value=00000000 valid=1",
                     "RSC sleep complete=1",
                     "Gen7 CP lifecycle released after full collapse; no gated GX access")):
                 raise RuntimeError(f"Polled CP init or full-collapse cleanup did not pass; logs: {out}")

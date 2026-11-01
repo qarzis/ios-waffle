@@ -446,7 +446,7 @@ static bool smmu_owner_begin(struct smmu_owner *s)
         log_line("waffle-iommu: compute requires controlled94 dynamic BO session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_image",&s->compute_image,sizeof(s->compute_image)) &&
-        ((s->compute_image<1 || s->compute_image>4) || !s->compute_mode || (s->compute_image>=3 && s->compute_mode!=2) || probe!=94 || s->dynamic_bo!=1)) {
+        ((s->compute_image<1 || s->compute_image>5) || !s->compute_mode || (s->compute_image>=3 && s->compute_mode!=2) || probe!=94 || s->dynamic_bo!=1)) {
         log_line("waffle-iommu: image requires controlled compute/dynamic session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&
@@ -806,6 +806,20 @@ bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *owner)
     if(owner->state.dynamic_bo && !smmu_dynamic_bo_bind(&owner->state))return false;
     owner->state.gmu_ok=waffle_gmu_owner_exercise(owner->state.child);
     return owner->state.gmu_ok;
+}
+bool waffle_smmu_owner_copy(struct waffle_smmu_owner *owner,struct waffle_gpu_copy_job *job)
+{
+    if(job)job->fence=0;
+    if(!owner || !owner->state.child || !job)return false;
+    if(!owner->exercised){
+        owner->exercised=true;
+        if(owner->state.dynamic_bo && !smmu_dynamic_bo_bind(&owner->state))return false;
+        owner->state.gmu_ok=true;
+    }
+    if(!owner->state.gmu_ok)return false;
+    bool ok=waffle_gmu_owner_copy(owner->state.child,job);
+    owner->state.gmu_ok=owner->state.gmu_ok && ok;
+    return ok;
 }
 bool waffle_smmu_owner_end(struct waffle_smmu_owner *owner)
 {

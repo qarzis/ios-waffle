@@ -1,0 +1,18 @@
+{
+  "experiment": "E26 legacy image4 three-job control",
+  "run": "work/waffle/runs/20261101T075646Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T075622Z",
+  "actual_pixels_verified": 768,
+  "gpu_written_fences": [
+    1,
+    2,
+    3
+  ],
+  "word_checks": 12288,
+  "wrong_words": 0,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "8c9ea4ad5503c2f0687a7a864651858d2b93beaf72e1217fa6d4a90b6529aea3"
+}

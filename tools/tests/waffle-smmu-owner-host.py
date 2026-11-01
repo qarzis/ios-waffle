@@ -15,6 +15,7 @@ h=r'''
 #include <setjmp.h>
 #include "waffle_gpu.h"
 #include "waffle_smmu.h"
+#include "waffle_gpu_job.h"
 #include "waffle_gpu_va.h"
 #include "waffle_gpu_writeback.h"
 typedef uintptr_t vm_offset_t;
@@ -142,6 +143,12 @@ static bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *child){
  if(mode==19)active_plan->submit_session=NULL;
  return mode!=11;
 }
+static unsigned copy_fence;
+static bool waffle_gmu_owner_copy(struct waffle_gmu_owner *child,struct waffle_gpu_copy_job *job){
+ assert(job && job->words==256);bool ok=waffle_gmu_owner_exercise(child);
+ if(ok){for(unsigned i=0;i<256;i++)job->output[i]=job->input[i];job->fence=++copy_fence;}
+ return ok;
+}
 static bool waffle_gmu_owner_end(struct waffle_gmu_owner *child){
  assert(child==&child_object && child_live && !detaches && !heap_frees && !data_frees);
  if(mode==12)longjmp(trap,1);
@@ -179,8 +186,8 @@ int main(void){
  }
  /* Call the public API directly: begin must return without exercising or
   * releasing any state, with valid permission callbacks until end. */
- for(unsigned early=0;early<2;++early){
-  mode=0;heap_mode=true;
+ for(unsigned early=0;early<3;++early){
+  mode=0;heap_mode=true;copy_fence=0;
   allocs=heap_frees=data_frees=fw_frees=detaches=callbacks=child_ends=matrix_runs=mmio_maps=0;
   child_live=false;active_plan=NULL;
   memset(smmu,0,sizeof(smmu));memset(qtb,0,sizeof(qtb));memset(gmu,0,sizeof(gmu));memset(cc,0,sizeof(cc));
@@ -194,9 +201,15 @@ int main(void){
    assert(waffle_smmu_owner_exercise(live) && callbacks==2 && child_live && !detaches);
    assert(!waffle_smmu_owner_exercise(live) && callbacks==2);
   }
-  if(early){live->state.dynamic.memory=(uintptr_t)dynamic_storage;dynamic_frees=0;}
-  assert(waffle_smmu_owner_end(live)==!early);
-  if(early)assert(dynamic_frees==1);
+  if(early==2){
+   uint32_t input[256]={0},output[256]={0};struct waffle_gpu_copy_job job={input,output,256,0};
+   assert(!waffle_smmu_owner_copy(NULL,&job) && !waffle_smmu_owner_copy(live,NULL));
+   for(unsigned fence=1;fence<=3;fence++){assert(waffle_smmu_owner_copy(live,&job) && job.fence==fence);assert(!heap_frees && !detaches);}
+   assert(callbacks==4 && !waffle_smmu_owner_exercise(live));
+  }
+  if(early==1){live->state.dynamic.memory=(uintptr_t)dynamic_storage;dynamic_frees=0;}
+  assert(waffle_smmu_owner_end(live)==(early!=1));
+  if(early==1)assert(dynamic_frees==1);
   assert(!child_live && child_ends==1 && heap_frees==1 && data_frees==2 && fw_frees==1);
  }
  /* Even a caller attempting cleanup directly cannot detach a live child. */

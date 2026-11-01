@@ -66,7 +66,10 @@ int main(void)
     assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=1 waffle_image=3"));
     assert(waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=4"));
     assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=1 waffle_image=4"));
-    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=5"));
+    assert(waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=5"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=1 waffle_image=5"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=6"));
+    assert(!waffle_present_requested("waffle_image=5"));
     assert(!waffle_present_requested("waffle_image=4"));
     assert(waffle_present_requested("waffle_image=3"));
     assert(!waffle_present_requested("waffle_image=2"));
