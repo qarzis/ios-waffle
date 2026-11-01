@@ -1,3 +1,9 @@
+# E43 PASS — actual EAGL hook/private table/IOSurface export
+
+Run20261101T125044Z/auto125020Z runner0/success/Androidindependent1. ActualOpenGLESframework/EAGLContext, actual8/8hookmethods, private42GLentriesfromexistingcatalog, actualattachImage->textureFBO; hookedglFinish (notprobe) fillsactualIOSurface. 256RGBA+256BGRApixelswrong0,5GPUfences,25BO/fullstop/contextnull; exactdisplayworker. Noactivehardwareprocess. NoactualCoreAnimation/publicGLTLS/UI/zero-copy/opticalclaim. SameE39kernel/Mesa; actualhookunchangedfromr1. FirstfailureE43-first-result.json: probe#version100 conflictswithhook#version300; r2usesversionlesslegacyinputs. Explicitversionsupport notfixed/qualified. NewproofsE43-result.json/E43-presentation-proof.json, validator--hook PASS+5negativeproofsrefused.
+
+Next full-screen allocation audit: currentdisplay750x1624/minRGBA4872000>perBOcap4194304. NeedactualnativeMesa noop trace atactualscreen dimensions, onlyhostarchitectureproof(noGPU). CurrentrootcdevsinglePID/32BO/32MiB/retainedbackings andordinaryinjectsoftpipebranchstillunchanged. Must notflipUIdefault before bounds/process audit. WIParchive5b59065 beforeE43qualifiedsave; hardwareverifiedE42f528d5b untilsave. NoSTOP/GitHubpush/flash/erase/manualBootiOS, authorizedcontinue.
+
 # Active E43-r2 — same actual EAGL hook; versionless shader input
 
 FirstE43 run124702Z/auto124638Z failedatshadercompile beforeGPUcommands: actualclass/private table created,FD750ES3.2; unchangedhookalwaysadds#version300es andtest#version100becameillegalduplicate. Firstresultforensic-audit/E43-first-result.json/rawlogs/originalartifactretained; fullstop9BO,Androidindependent1. Minimalr2testinputversionlesslegacyGLSL,actualhooktranslationunchanged. Thisdoesnotqualifyexplicitversion supportoractualCoreAnimationinputs. Kern/Mesa/actualhookbinarySHAidenticaltor1, noGPUdriverchange.
