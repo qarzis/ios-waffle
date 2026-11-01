@@ -1,0 +1,424 @@
+
+xnu-src/xnu-8796.121.2/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/bsd/DEVELOPMENT/waffle_gmu.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000007770 <_waffle_gmu_owner_submit>:
+    7770: a9ba6ffc     	stp	x28, x27, [sp, #-0x60]!
+    7774: a90167fa     	stp	x26, x25, [sp, #0x10]
+    7778: a9025ff8     	stp	x24, x23, [sp, #0x20]
+    777c: a90357f6     	stp	x22, x21, [sp, #0x30]
+    7780: a9044ff4     	stp	x20, x19, [sp, #0x40]
+    7784: a9057bfd     	stp	x29, x30, [sp, #0x50]
+    7788: 910143fd     	add	x29, sp, #0x50
+    778c: d14007ff     	sub	sp, sp, #0x1, lsl #12   ; =0x1000
+    7790: d12143ff     	sub	sp, sp, #0x850
+    7794: 90000008     	adrp	x8, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    7798: f9400108     	ldr	x8, [x8]
+    779c: f9400108     	ldr	x8, [x8]
+    77a0: f81a03a8     	stur	x8, [x29, #-0x60]
+    77a4: b4000041     	cbz	x1, 0x77ac <_waffle_gmu_owner_submit+0x3c>
+    77a8: b9000c3f     	str	wzr, [x1, #0xc]
+    77ac: b4000440     	cbz	x0, 0x7834 <_waffle_gmu_owner_submit+0xc4>
+    77b0: f9418808     	ldr	x8, [x0, #0x310]
+    77b4: b40003e8     	cbz	x8, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    77b8: aa0003f6     	mov	x22, x0
+    77bc: 52800000     	mov	w0, #0x0                ; =0
+    77c0: b40003a1     	cbz	x1, 0x7834 <_waffle_gmu_owner_submit+0xc4>
+    77c4: b9402909     	ldr	w9, [x8, #0x28]
+    77c8: 7100353f     	cmp	w9, #0xd
+    77cc: 54000341     	b.ne	0x7834 <_waffle_gmu_owner_submit+0xc4>
+    77d0: f9400033     	ldr	x19, [x1]
+    77d4: b40002f3     	cbz	x19, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    77d8: b9400834     	ldr	w20, [x1, #0x8]
+    77dc: d1004689     	sub	x9, x20, #0x11
+    77e0: b100413f     	cmn	x9, #0x10
+    77e4: 54000263     	b.lo	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    77e8: f9400d08     	ldr	x8, [x8, #0x18]
+    77ec: b4000228     	cbz	x8, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    77f0: b9400109     	ldr	w9, [x8]
+    77f4: 7100053f     	cmp	w9, #0x1
+    77f8: 540001c1     	b.ne	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    77fc: 39419109     	ldrb	w9, [x8, #0x64]
+    7800: 36000189     	tbz	w9, #0x0, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7804: 294ba515     	ldp	w21, w9, [x8, #0x5c]
+    7808: 6b0902bf     	cmp	w21, w9
+    780c: 54000121     	b.ne	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7810: b9405918     	ldr	w24, [x8, #0x58]
+    7814: 1100b2a9     	add	w9, w21, #0x2c
+    7818: 6b09031f     	cmp	w24, w9
+    781c: 540000a1     	b.ne	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7820: f9400509     	ldr	x9, [x8, #0x8]
+    7824: 9140f529     	add	x9, x9, #0x3d, lsl #12  ; =0x3d000
+    7828: b9400129     	ldr	w9, [x9]
+    782c: 34000229     	cbz	w9, 0x7870 <_waffle_gmu_owner_submit+0x100>
+    7830: 52800000     	mov	w0, #0x0                ; =0
+    7834: f85a03a8     	ldur	x8, [x29, #-0x60]
+    7838: 90000009     	adrp	x9, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    783c: f9400129     	ldr	x9, [x9]
+    7840: f9400129     	ldr	x9, [x9]
+    7844: eb08013f     	cmp	x9, x8
+    7848: 54002d61     	b.ne	0x7df4 <_waffle_gmu_owner_submit+0x684>
+    784c: 914007ff     	add	sp, sp, #0x1, lsl #12   ; =0x1000
+    7850: 912143ff     	add	sp, sp, #0x850
+    7854: a9457bfd     	ldp	x29, x30, [sp, #0x50]
+    7858: a9444ff4     	ldp	x20, x19, [sp, #0x40]
+    785c: a94357f6     	ldp	x22, x21, [sp, #0x30]
+    7860: a9425ff8     	ldp	x24, x23, [sp, #0x20]
+    7864: a94167fa     	ldp	x26, x25, [sp, #0x10]
+    7868: a8c66ffc     	ldp	x28, x27, [sp], #0x60
+    786c: d65f03c0     	ret
+    7870: 52800000     	mov	w0, #0x0                ; =0
+    7874: f9400909     	ldr	x9, [x8, #0x10]
+    7878: 9140512a     	add	x10, x9, #0x14, lsl #12 ; =0x14000
+    787c: b9634149     	ldr	w9, [x10, #0x2340]
+    7880: 7200053f     	tst	w9, #0x3
+    7884: 54fffd81     	b.ne	0x7834 <_waffle_gmu_owner_submit+0xc4>
+    7888: 710ffebf     	cmp	w21, #0x3ff
+    788c: 54fffd48     	b.hi	0x7834 <_waffle_gmu_owner_submit+0xc4>
+    7890: f9402509     	ldr	x9, [x8, #0x48]
+    7894: b25927ea     	mov	x10, #0x1ff8000000000   ; =562400197607424
+    7898: f290800a     	movk	x10, #0x8400
+    789c: f2a008ea     	movk	x10, #0x47, lsl #16
+    78a0: eb0a013f     	cmp	x9, x10
+    78a4: 54fffc61     	b.ne	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    78a8: f9001fe8     	str	x8, [sp, #0x38]
+    78ac: aa0103f7     	mov	x23, x1
+    78b0: 910103f9     	add	x25, sp, #0x40
+    78b4: 910103e0     	add	x0, sp, #0x40
+    78b8: 52830001     	mov	w1, #0x1800             ; =6144
+    78bc: 94000000     	bl	0x78bc <_waffle_gmu_owner_submit+0x14c>
+    78c0: 5280000b     	mov	w11, #0x0               ; =0
+    78c4: d2800008     	mov	x8, #0x0                ; =0
+    78c8: 5280c009     	mov	w9, #0x600              ; =1536
+    78cc: 14000004     	b	0x78dc <_waffle_gmu_owner_submit+0x16c>
+    78d0: 91000508     	add	x8, x8, #0x1
+    78d4: eb14011f     	cmp	x8, x20
+    78d8: 54000400     	b.eq	0x7958 <_waffle_gmu_owner_submit+0x1e8>
+    78dc: 8b08126d     	add	x13, x19, x8, lsl #4
+    78e0: f94001aa     	ldr	x10, [x13]
+    78e4: b4fffa6a     	cbz	x10, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    78e8: f940014c     	ldr	x12, [x10]
+    78ec: b4fffa2c     	cbz	x12, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    78f0: 3940914c     	ldrb	w12, [x10, #0x24]
+    78f4: 3607f9ec     	tbz	w12, #0x0, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    78f8: b9400dac     	ldr	w12, [x13, #0xc]
+    78fc: 34fff9ac     	cbz	w12, 0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7900: b94009ad     	ldr	w13, [x13, #0x8]
+    7904: 2a0c01ae     	orr	w14, w13, w12
+    7908: 720005df     	tst	w14, #0x3
+    790c: 54fff921     	b.ne	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7910: b940194e     	ldr	w14, [x10, #0x18]
+    7914: 6b0d01ce     	subs	w14, w14, w13
+    7918: 7a4e2182     	ccmp	w12, w14, #0x2, hs
+    791c: 54fff8a8     	b.hi	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7920: d342fd8c     	lsr	x12, x12, #2
+    7924: 4b0b012e     	sub	w14, w9, w11
+    7928: 6b0e019f     	cmp	w12, w14
+    792c: 54fff828     	b.hi	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7930: 34fffd0c     	cbz	w12, 0x78d0 <_waffle_gmu_owner_submit+0x160>
+    7934: f940054a     	ldr	x10, [x10, #0x8]
+    7938: 8b0d014a     	add	x10, x10, x13
+    793c: b940014d     	ldr	w13, [x10]
+    7940: b82b5b2d     	str	w13, [x25, w11, uxtw #2]
+    7944: 1100056b     	add	w11, w11, #0x1
+    7948: 9100114a     	add	x10, x10, #0x4
+    794c: f100058c     	subs	x12, x12, #0x1
+    7950: 54ffff61     	b.ne	0x793c <_waffle_gmu_owner_submit+0x1cc>
+    7954: 17ffffdf     	b	0x78d0 <_waffle_gmu_owner_submit+0x160>
+    7958: a902aff8     	stp	x24, x11, [sp, #0x28]
+    795c: d280000a     	mov	x10, #0x0               ; =0
+    7960: 110006b3     	add	w19, w21, #0x1
+    7964: f9401fe8     	ldr	x8, [sp, #0x38]
+    7968: f9401108     	ldr	x8, [x8, #0x20]
+    796c: 11040169     	add	w9, w11, #0x100
+    7970: 11043d7a     	add	w26, w11, #0x10f
+    7974: 4b0b03eb     	neg	w11, w11
+    7978: 910103ec     	add	x12, sp, #0x40
+    797c: d110018c     	sub	x12, x12, #0x400
+    7980: 5280002d     	mov	w13, #0x1               ; =1
+    7984: 72ae08cd     	movk	w13, #0x7046, lsl #16
+    7988: 9000000e     	adrp	x14, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    798c: 910001ce     	add	x14, x14, #0x0
+    7990: 14000006     	b	0x79a8 <_waffle_gmu_owner_submit+0x238>
+    7994: 5280000f     	mov	w15, #0x0               ; =0
+    7998: b82a790f     	str	w15, [x8, x10, lsl #2]
+    799c: 9100054a     	add	x10, x10, #0x1
+    79a0: f140055f     	cmp	x10, #0x1, lsl #12      ; =0x1000
+    79a4: 54000660     	b.eq	0x7a70 <_waffle_gmu_owner_submit+0x300>
+    79a8: f120015f     	cmp	x10, #0x800
+    79ac: 54ffff40     	b.eq	0x7994 <_waffle_gmu_owner_submit+0x224>
+    79b0: f104015f     	cmp	x10, #0x100
+    79b4: 540000a3     	b.lo	0x79c8 <_waffle_gmu_owner_submit+0x258>
+    79b8: eb09015f     	cmp	x10, x9
+    79bc: 54000062     	b.hs	0x79c8 <_waffle_gmu_owner_submit+0x258>
+    79c0: b86a798f     	ldr	w15, [x12, x10, lsl #2]
+    79c4: 17fffff5     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    79c8: eb1a015f     	cmp	x10, x26
+    79cc: fa493140     	ccmp	x10, x9, #0x0, lo
+    79d0: 540001c3     	b.lo	0x7a08 <_waffle_gmu_owner_submit+0x298>
+    79d4: 0b0a016f     	add	w15, w11, w10
+    79d8: 510401ef     	sub	w15, w15, #0x100
+    79dc: 710039ff     	cmp	w15, #0xe
+    79e0: 54fffda8     	b.hi	0x7994 <_waffle_gmu_owner_submit+0x224>
+    79e4: 10000010     	adr	x16, 0x79e4 <_waffle_gmu_owner_submit+0x274>
+    79e8: b8af79d1     	ldrsw	x17, [x14, x15, lsl #2]
+    79ec: 8b110210     	add	x16, x16, x17
+    79f0: 5290000f     	mov	w15, #0x8000            ; =32768
+    79f4: 72ae04cf     	movk	w15, #0x7026, lsl #16
+    79f8: d61f0200     	br	x16
+    79fc: 5294000f     	mov	w15, #0xa000            ; =40960
+    7a00: 72a008ef     	movk	w15, #0x47, lsl #16
+    7a04: 17ffffe5     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a08: 52b81c0f     	mov	w15, #-0x3f200000       ; =-1059061760
+    7a0c: 2a0f014f     	orr	w15, w10, w15
+    7a10: 17ffffe2     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a14: 321927ef     	mov	w15, #0x1ff80           ; =130944
+    7a18: 17ffffe0     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a1c: aa1303ef     	mov	x15, x19
+    7a20: 17ffffde     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a24: 5280026f     	mov	w15, #0x13              ; =19
+    7a28: 17ffffdc     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a2c: 5280064f     	mov	w15, #0x32              ; =50
+    7a30: 17ffffda     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a34: 528002cf     	mov	w15, #0x16              ; =22
+    7a38: 72a1000f     	movk	w15, #0x800, lsl #16
+    7a3c: 17ffffd7     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a40: 1280000f     	mov	w15, #-0x1              ; =-1
+    7a44: 17ffffd5     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a48: 11000daf     	add	w15, w13, #0x3
+    7a4c: 17ffffd3     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a50: 5280020f     	mov	w15, #0x10              ; =16
+    7a54: 17ffffd1     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a58: 529000cf     	mov	w15, #0x8006            ; =32774
+    7a5c: 72ae178f     	movk	w15, #0x70bc, lsl #16
+    7a60: 17ffffce     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a64: 5280002f     	mov	w15, #0x1               ; =1
+    7a68: 72ae08cf     	movk	w15, #0x7046, lsl #16
+    7a6c: 17ffffcb     	b	0x7998 <_waffle_gmu_owner_submit+0x228>
+    7a70: d280000a     	mov	x10, #0x0               ; =0
+    7a74: d5033f9f     	dsb	sy
+    7a78: f9401beb     	ldr	x11, [sp, #0x30]
+    7a7c: 4b0b03eb     	neg	w11, w11
+    7a80: 910103ec     	add	x12, sp, #0x40
+    7a84: d110018c     	sub	x12, x12, #0x400
+    7a88: 9000000d     	adrp	x13, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    7a8c: 910001ad     	add	x13, x13, #0x0
+    7a90: 5280002e     	mov	w14, #0x1               ; =1
+    7a94: 72ae08ce     	movk	w14, #0x7046, lsl #16
+    7a98: aa0803f8     	mov	x24, x8
+    7a9c: aa0903fb     	mov	x27, x9
+    7aa0: b86a790f     	ldr	w15, [x8, x10, lsl #2]
+    7aa4: f120015f     	cmp	x10, #0x800
+    7aa8: 54000061     	b.ne	0x7ab4 <_waffle_gmu_owner_submit+0x344>
+    7aac: 52800010     	mov	w16, #0x0               ; =0
+    7ab0: 1400001b     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7ab4: f104015f     	cmp	x10, #0x100
+    7ab8: 540000a3     	b.lo	0x7acc <_waffle_gmu_owner_submit+0x35c>
+    7abc: eb09015f     	cmp	x10, x9
+    7ac0: 54000062     	b.hs	0x7acc <_waffle_gmu_owner_submit+0x35c>
+    7ac4: b86a7990     	ldr	w16, [x12, x10, lsl #2]
+    7ac8: 14000015     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7acc: eb1a015f     	cmp	x10, x26
+    7ad0: fa493140     	ccmp	x10, x9, #0x0, lo
+    7ad4: 54000203     	b.lo	0x7b14 <_waffle_gmu_owner_submit+0x3a4>
+    7ad8: 0b0a0168     	add	w8, w11, w10
+    7adc: 51040108     	sub	w8, w8, #0x100
+    7ae0: 7100391f     	cmp	w8, #0xe
+    7ae4: 54000508     	b.hi	0x7b84 <_waffle_gmu_owner_submit+0x414>
+    7ae8: 10000011     	adr	x17, 0x7ae8 <_waffle_gmu_owner_submit+0x378>
+    7aec: b8a879a9     	ldrsw	x9, [x13, x8, lsl #2]
+    7af0: 8b090231     	add	x17, x17, x9
+    7af4: 52900010     	mov	w16, #0x8000            ; =32768
+    7af8: 72ae04d0     	movk	w16, #0x7026, lsl #16
+    7afc: aa1803e8     	mov	x8, x24
+    7b00: aa1b03e9     	mov	x9, x27
+    7b04: d61f0220     	br	x17
+    7b08: 52940010     	mov	w16, #0xa000            ; =40960
+    7b0c: 72a008f0     	movk	w16, #0x47, lsl #16
+    7b10: 14000003     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b14: 52b81c10     	mov	w16, #-0x3f200000       ; =-1059061760
+    7b18: 2a100150     	orr	w16, w10, w16
+    7b1c: 6b1001ff     	cmp	w15, w16
+    7b20: 54ffe881     	b.ne	0x7830 <_waffle_gmu_owner_submit+0xc0>
+    7b24: 9100054a     	add	x10, x10, #0x1
+    7b28: f140055f     	cmp	x10, #0x1, lsl #12      ; =0x1000
+    7b2c: 54fffba1     	b.ne	0x7aa0 <_waffle_gmu_owner_submit+0x330>
+    7b30: 1400001c     	b	0x7ba0 <_waffle_gmu_owner_submit+0x430>
+    7b34: 321927f0     	mov	w16, #0x1ff80           ; =130944
+    7b38: 17fffff9     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b3c: aa1303f0     	mov	x16, x19
+    7b40: 17fffff7     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b44: 52800270     	mov	w16, #0x13              ; =19
+    7b48: 17fffff5     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b4c: 52800650     	mov	w16, #0x32              ; =50
+    7b50: 17fffff3     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b54: 528002d0     	mov	w16, #0x16              ; =22
+    7b58: 72a10010     	movk	w16, #0x800, lsl #16
+    7b5c: 17fffff0     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b60: 12800010     	mov	w16, #-0x1              ; =-1
+    7b64: 17ffffee     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b68: 11000dd0     	add	w16, w14, #0x3
+    7b6c: 17ffffec     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b70: 52800210     	mov	w16, #0x10              ; =16
+    7b74: 17ffffea     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b78: 529000d0     	mov	w16, #0x8006            ; =32774
+    7b7c: 72ae1790     	movk	w16, #0x70bc, lsl #16
+    7b80: 17ffffe7     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b84: 52800010     	mov	w16, #0x0               ; =0
+    7b88: aa1803e8     	mov	x8, x24
+    7b8c: aa1b03e9     	mov	x9, x27
+    7b90: 17ffffe3     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7b94: 52800030     	mov	w16, #0x1               ; =1
+    7b98: 72ae08d0     	movk	w16, #0x7046, lsl #16
+    7b9c: 17ffffe0     	b	0x7b1c <_waffle_gmu_owner_submit+0x3ac>
+    7ba0: a942d3e8     	ldp	x8, x20, [sp, #0x28]
+    7ba4: a900d3e8     	stp	x8, x20, [sp, #0x8]
+    7ba8: f90003f3     	str	x19, [sp]
+    7bac: 90000000     	adrp	x0, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    7bb0: 91000000     	add	x0, x0, #0x0
+    7bb4: 94000000     	bl	0x7bb4 <_waffle_gmu_owner_submit+0x444>
+    7bb8: 90000002     	adrp	x2, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    7bbc: 91000042     	add	x2, x2, #0x0
+    7bc0: 11003e81     	add	w1, w20, #0xf
+    7bc4: f9401fe0     	ldr	x0, [sp, #0x38]
+    7bc8: 94000000     	bl	0x7bc8 <_waffle_gmu_owner_submit+0x458>
+    7bcc: 34000e40     	cbz	w0, 0x7d94 <_waffle_gmu_owner_submit+0x624>
+    7bd0: 5280fa15     	mov	w21, #0x7d0             ; =2000
+    7bd4: aa1803f4     	mov	x20, x24
+    7bd8: d5033f9f     	dsb	sy
+    7bdc: b9600288     	ldr	w8, [x20, #0x2000]
+    7be0: 6b13011f     	cmp	w8, w19
+    7be4: 540000c0     	b.eq	0x7bfc <_waffle_gmu_owner_submit+0x48c>
+    7be8: 52800c80     	mov	w0, #0x64               ; =100
+    7bec: 52807d01     	mov	w1, #0x3e8              ; =1000
+    7bf0: 94000000     	bl	0x7bf0 <_waffle_gmu_owner_submit+0x480>
+    7bf4: 710006b5     	subs	w21, w21, #0x1
+    7bf8: 54ffff01     	b.ne	0x7bd8 <_waffle_gmu_owner_submit+0x468>
+    7bfc: d2800008     	mov	x8, #0x0                ; =0
+    7c00: 5280001c     	mov	w28, #0x0               ; =0
+    7c04: f9401be9     	ldr	x9, [sp, #0x30]
+    7c08: 4b0903e9     	neg	w9, w9
+    7c0c: f90013e9     	str	x9, [sp, #0x20]
+    7c10: 910103e9     	add	x9, sp, #0x40
+    7c14: d1100135     	sub	x21, x9, #0x400
+    7c18: aa1b03e9     	mov	x9, x27
+    7c1c: 14000005     	b	0x7c30 <_waffle_gmu_owner_submit+0x4c0>
+    7c20: 1100079c     	add	w28, w28, #0x1
+    7c24: 91000508     	add	x8, x8, #0x1
+    7c28: f140051f     	cmp	x8, #0x1, lsl #12       ; =0x1000
+    7c2c: 54000b80     	b.eq	0x7d9c <_waffle_gmu_owner_submit+0x62c>
+    7c30: b8687a8a     	ldr	w10, [x20, x8, lsl #2]
+    7c34: aa1303eb     	mov	x11, x19
+    7c38: f120011f     	cmp	x8, #0x800
+    7c3c: 54000460     	b.eq	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7c40: f104011f     	cmp	x8, #0x100
+    7c44: 540000a3     	b.lo	0x7c58 <_waffle_gmu_owner_submit+0x4e8>
+    7c48: eb09011f     	cmp	x8, x9
+    7c4c: 54000062     	b.hs	0x7c58 <_waffle_gmu_owner_submit+0x4e8>
+    7c50: b8687aab     	ldr	w11, [x21, x8, lsl #2]
+    7c54: 1400001d     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7c58: eb1a011f     	cmp	x8, x26
+    7c5c: aa0803ec     	mov	x12, x8
+    7c60: fa493100     	ccmp	x8, x9, #0x0, lo
+    7c64: 54000283     	b.lo	0x7cb4 <_waffle_gmu_owner_submit+0x544>
+    7c68: f94013e8     	ldr	x8, [sp, #0x20]
+    7c6c: 0b0c0108     	add	w8, w8, w12
+    7c70: 51040108     	sub	w8, w8, #0x100
+    7c74: 7100391f     	cmp	w8, #0xe
+    7c78: 54000828     	b.hi	0x7d7c <_waffle_gmu_owner_submit+0x60c>
+    7c7c: 9000000b     	adrp	x11, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    7c80: 9100016b     	add	x11, x11, #0x0
+    7c84: 1000000d     	adr	x13, 0x7c84 <_waffle_gmu_owner_submit+0x514>
+    7c88: b8a87969     	ldrsw	x9, [x11, x8, lsl #2]
+    7c8c: 8b0901ad     	add	x13, x13, x9
+    7c90: 5290000b     	mov	w11, #0x8000            ; =32768
+    7c94: 72ae04cb     	movk	w11, #0x7026, lsl #16
+    7c98: aa0c03e8     	mov	x8, x12
+    7c9c: aa1803f4     	mov	x20, x24
+    7ca0: aa1b03e9     	mov	x9, x27
+    7ca4: d61f01a0     	br	x13
+    7ca8: 5294000b     	mov	w11, #0xa000            ; =40960
+    7cac: 72a008eb     	movk	w11, #0x47, lsl #16
+    7cb0: 14000006     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7cb4: aa0c03e8     	mov	x8, x12
+    7cb8: 52b81c09     	mov	w9, #-0x3f200000        ; =-1059061760
+    7cbc: 2a09010b     	orr	w11, w8, w9
+    7cc0: aa1803f4     	mov	x20, x24
+    7cc4: aa1b03e9     	mov	x9, x27
+    7cc8: 6b0b015f     	cmp	w10, w11
+    7ccc: 54fffac0     	b.eq	0x7c24 <_waffle_gmu_owner_submit+0x4b4>
+    7cd0: 35fffa9c     	cbnz	w28, 0x7c20 <_waffle_gmu_owner_submit+0x4b0>
+    7cd4: b8687a99     	ldr	w25, [x20, x8, lsl #2]
+    7cd8: 910103e2     	add	x2, sp, #0x40
+    7cdc: aa0803f4     	mov	x20, x8
+    7ce0: aa1403e0     	mov	x0, x20
+    7ce4: f9401be1     	ldr	x1, [sp, #0x30]
+    7ce8: aa1303e3     	mov	x3, x19
+    7cec: b25927e4     	mov	x4, #0x1ff8000000000    ; =562400197607424
+    7cf0: f2940004     	movk	x4, #0xa000
+    7cf4: f2a008e4     	movk	x4, #0x47, lsl #16
+    7cf8: 52800025     	mov	w5, #0x1                ; =1
+    7cfc: 94000000     	bl	0x7cfc <_waffle_gmu_owner_submit+0x58c>
+    7d00: a90083f9     	stp	x25, x0, [sp, #0x8]
+    7d04: f90003f4     	str	x20, [sp]
+    7d08: 90000000     	adrp	x0, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    7d0c: 91000000     	add	x0, x0, #0x0
+    7d10: 94000000     	bl	0x7d10 <_waffle_gmu_owner_submit+0x5a0>
+    7d14: aa1b03e9     	mov	x9, x27
+    7d18: aa1403e8     	mov	x8, x20
+    7d1c: aa1803f4     	mov	x20, x24
+    7d20: 17ffffc0     	b	0x7c20 <_waffle_gmu_owner_submit+0x4b0>
+    7d24: 321927eb     	mov	w11, #0x1ff80           ; =130944
+    7d28: 17ffffe8     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d2c: aa1303eb     	mov	x11, x19
+    7d30: 17ffffe6     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d34: 5280026b     	mov	w11, #0x13              ; =19
+    7d38: 17ffffe4     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d3c: 5280064b     	mov	w11, #0x32              ; =50
+    7d40: 17ffffe2     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d44: 528002cb     	mov	w11, #0x16              ; =22
+    7d48: 72a1000b     	movk	w11, #0x800, lsl #16
+    7d4c: 17ffffdf     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d50: 1280000b     	mov	w11, #-0x1              ; =-1
+    7d54: 17ffffdd     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d58: 5280002b     	mov	w11, #0x1               ; =1
+    7d5c: 72ae08cb     	movk	w11, #0x7046, lsl #16
+    7d60: 11000d6b     	add	w11, w11, #0x3
+    7d64: 17ffffd9     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d68: 5280020b     	mov	w11, #0x10              ; =16
+    7d6c: 17ffffd7     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d70: 529000cb     	mov	w11, #0x8006            ; =32774
+    7d74: 72ae178b     	movk	w11, #0x70bc, lsl #16
+    7d78: 17ffffd4     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d7c: 5280000b     	mov	w11, #0x0               ; =0
+    7d80: aa0c03e8     	mov	x8, x12
+    7d84: 17ffffcf     	b	0x7cc0 <_waffle_gmu_owner_submit+0x550>
+    7d88: 5280002b     	mov	w11, #0x1               ; =1
+    7d8c: 72ae08cb     	movk	w11, #0x7046, lsl #16
+    7d90: 17ffffce     	b	0x7cc8 <_waffle_gmu_owner_submit+0x558>
+    7d94: 390c82df     	strb	wzr, [x22, #0x320]
+    7d98: 17fffea7     	b	0x7834 <_waffle_gmu_owner_submit+0xc4>
+    7d9c: 340000fc     	cbz	w28, 0x7db8 <_waffle_gmu_owner_submit+0x648>
+    7da0: 52800000     	mov	w0, #0x0                ; =0
+    7da4: 52800069     	mov	w9, #0x3                ; =3
+    7da8: f9401fe8     	ldr	x8, [sp, #0x38]
+    7dac: b9000109     	str	w9, [x8]
+    7db0: 390c82df     	strb	wzr, [x22, #0x320]
+    7db4: 17fffea0     	b	0x7834 <_waffle_gmu_owner_submit+0xc4>
+    7db8: f9401fe8     	ldr	x8, [sp, #0x38]
+    7dbc: b9405d09     	ldr	w9, [x8, #0x5c]
+    7dc0: b9006109     	str	w9, [x8, #0x60]
+    7dc4: 52800029     	mov	w9, #0x1                ; =1
+    7dc8: b9000109     	str	w9, [x8]
+    7dcc: b9000ef3     	str	w19, [x23, #0xc]
+    7dd0: b9600308     	ldr	w8, [x24, #0x2000]
+    7dd4: f9000be8     	str	x8, [sp, #0x10]
+    7dd8: f94017e8     	ldr	x8, [sp, #0x28]
+    7ddc: a90023f3     	stp	x19, x8, [sp]
+    7de0: 90000000     	adrp	x0, 0x7000 <_waffle_gmu_owner_memory_idle+0x28>
+    7de4: 91000000     	add	x0, x0, #0x0
+    7de8: 94000000     	bl	0x7de8 <_waffle_gmu_owner_submit+0x678>
+    7dec: 52800020     	mov	w0, #0x1                ; =1
+    7df0: 17fffe91     	b	0x7834 <_waffle_gmu_owner_submit+0xc4>
+    7df4: 94000000     	bl	0x7df4 <_waffle_gmu_owner_submit+0x684>

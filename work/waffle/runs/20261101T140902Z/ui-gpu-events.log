@@ -1,0 +1,31 @@
+kernel-2.log: waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1
+kernel-2.log: waffle-ui-init: exec normal init and real launchd/UI
+kernel-11.log: waffle-ui-gpu: selected process=backboardd pid=83 uid=501 bounded=1
+kernel-95.log: waffle-gpu: GENERAL open pid=83 BO_limit=64 heap_bytes=67108864
+kernel-95.log: waffle-gpu: GENERAL bo_retired handle=1 bytes=16384 backing_retained=1
+kernel-95.log: waffle-gpu: GENERAL ioctl_refused op=40 error=45 pid=83
+kernel-95.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.2 Mesa 26.3.0-rc1; FD750; shaders OpenGL ES GLSL ES 3.20
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT begin fence=1 seq=44 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT begin fence=2 seq=45 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT begin fence=3 seq=46 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+kernel-122.log: waffle-gmu: GENERAL_SUBMIT begin fence=4 seq=47 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-122.log: waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+kernel-125.log: waffle-gpu: GENERAL ioctl_refused op=46 error=22 pid=83
+kernel-125.log: waffle-gpu: GENERAL ioctl_refused op=47 error=22 pid=83
+kernel-125.log: waffle-gpu: GENERAL allocation_refused bytes=16384 flags=20000 count=64 limit=64 reason=slots live_count=63 live_bytes=40157184 retired_count=1 retired_bytes=16384 heap_limit=67108864
+kernel-125.log: waffle-gpu: GENERAL ioctl_refused op=42 error=28 pid=83
+kernel-125.log: redwood: signal 11 at 0x18, pc 0xb2c4cec0, lr 0xb2c49300, called from 0xb2cb8a20 0xb2c499e8 0xb2c49af4 0xb2502380 0xb2533100 0x1d0cd50ec 0x1d0cd372c (unslid)
+kernel-127.log: waffle-gpu: GENERAL close passed=1 completed=4 buffers=64 context_null=1
+kernel-127.log: waffle-ui-gpu: RAM attempt already claimed or unavailable; keeping softpipe
+kernel-127.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.1 Mesa 26.3.0-rc1; softpipe; shaders OpenGL ES GLSL ES 3.10
+kernel-356.log: [  122.787731]: waffle-gmu: GENERAL_SUBMIT begin fence=1 seq=44 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  122.788675]: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+kernel-356.log: [  122.799566]: waffle-gmu: GENERAL_SUBMIT begin fence=2 seq=45 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  122.800540]: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+kernel-356.log: [  122.808753]: waffle-gmu: GENERAL_SUBMIT begin fence=3 seq=46 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  122.813779]: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+kernel-356.log: [  123.934112]: waffle-gmu: GENERAL_SUBMIT begin fence=4 seq=47 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-356.log: [  123.935065]: waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0

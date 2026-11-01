@@ -4,8 +4,11 @@
 #include <stdbool.h>
 #include "waffle_gpu_memory.h"
 #define WAFFLE_GPU_SUBMIT_COMMANDS 16u
-#define WAFFLE_GPU_SUBMIT_WORDS 1024u
+#define WAFFLE_GPU_SUBMIT_WORDS 1536u
 #define WAFFLE_GPU_SUBMIT_TAIL_WORDS 15u
+#if 256u+WAFFLE_GPU_SUBMIT_WORDS+WAFFLE_GPU_SUBMIT_TAIL_WORDS>=2048u
+#error "Root commands and completion tail must leave guards before the GPU token"
+#endif
 struct waffle_gpu_command {
  const struct waffle_gpu_memory *buffer;
  uint32_t offset,bytes;

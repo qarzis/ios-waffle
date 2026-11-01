@@ -183,7 +183,7 @@ def validate_gl_log(text):
     if "waffle-gl-user: renderer=FD750" not in text:raise RuntimeError("Actual FD750 GL renderer not selected")
     for fence in range(1,count+1):
         starts=list(re.finditer(rf"GENERAL_SUBMIT begin fence={fence} seq={43+fence} root_words=(\d+) kernel_tail=15 extra_IB_depth=0",text[cursor:]))
-        if not starts or not 1<=int(starts[0][1])<=1024:raise RuntimeError("GL root command publication not proved")
+        if not starts or not 1<=int(starts[0][1])<=1536:raise RuntimeError("GL root command publication not proved")
         cursor+=starts[0].end()
         for marker in (f"GENERAL_IB ACK matched seq{43+fence} value=00000000 valid=1",
           f"GENERAL_SUBMIT done fence={fence} seq={43+fence} control={fence:08x} checked=4096 wrong_words=0",

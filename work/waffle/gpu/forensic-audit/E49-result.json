@@ -1,0 +1,33 @@
+{
+  "run": "work/waffle/runs/20261101T140902Z",
+  "auto": "work/waffle/auto-runs/20261101T140839Z",
+  "actual_backboardd_pid": 83,
+  "UID": 501,
+  "heap_limit_bytes": 67108864,
+  "GPU_fences": 4,
+  "first_new_failure": "MSM_SUBMIT EINVAL on five root commands totaling1382words beyond diagnostic1024word limit",
+  "root_bytes": [
+    444,
+    928,
+    2800,
+    928,
+    428
+  ],
+  "root_words_total": 1382,
+  "existing_root_word_limit": 1024,
+  "first_refusal_precedes_slot_exhaustion": true,
+  "no_heap_refusal_before_first_submit_refusal": true,
+  "later_slot_failure": true,
+  "live_bytes_at_later_slot_failure": 40157184,
+  "retired_bytes_at_later_slot_failure": 16384,
+  "full_parent_close_passed": true,
+  "close_completed": 4,
+  "close_BO_count": 64,
+  "context_null": true,
+  "UI_GPU_success": false,
+  "runner_exit": 1,
+  "independent_android": "1",
+  "first_submit_failure_snapshot": "work/waffle/runs/20261101T140902Z/kernel-125.log",
+  "snapshot_sha256": "e3b4b4cc19333befae5fcbce8f5a37e0d34d49dcd44f3f890e72b7b606fe99de",
+  "events_sha256": "ee744dea424ff7a86ee24206489fe439f456d2f1931e6d868e04b99d976d3db1"
+}
