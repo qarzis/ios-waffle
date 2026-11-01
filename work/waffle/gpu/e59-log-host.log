@@ -1,0 +1,5 @@
+GL acceptance parser:actual pixel completeness,FD750 renderer,GPU tokens/ACK/sequence,BO ranges/permissions/free/context stop and8 corrupted-proof refusals; synthetic host fixture only
+UI observation-window proof: legacy30/declared60 accepted; unknown/mismatched window, missing presentation and failed teardown refused; synthetic host fixtures only
+GL BO lifetime proof: exact console replays and revoked-hole reuse accepted; missing revocation, CPU/TLB/VA/accounting/teardown corruption and post-detach new lifetime events refused; synthetic fixtures only
+GL fences:10000 monotonic32bit tokens with bounded HFI tags; corrupted former1024/tag-wrap boundaries refused; synthetic fixtures only
+GL separated budgets:128MiB residency/256MiB virtual placement accepted; wrong/malformed/unqualified VA declaration and out-of-range placements refused; synthetic fixtures only

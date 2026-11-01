@@ -62,7 +62,7 @@ static int drm_open(dev_t dev,int flags,int type,struct proc *p)
  if(drm_context){error=EBUSY;goto done;}
  drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
  drm_count=drm_fence=0;drm_queues=0;drm_next_queue=0;drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
- redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES);
+ redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u VA_bytes=%u\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES,WAFFLE_GPU_BO_VA_BYTES);
 done:lck_mtx_unlock(&drm_lock);return error;
 }
 static int drm_param(struct waffle_msm_param *r)

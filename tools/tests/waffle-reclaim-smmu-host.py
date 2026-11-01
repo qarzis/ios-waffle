@@ -101,6 +101,7 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory)
  header=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text()
  header=re.sub(r'#define WAFFLE_GPU_BO_HEAP_BYTES .*','#define WAFFLE_GPU_BO_HEAP_BYTES 67108864u',header)
+ header=re.sub(r'#define WAFFLE_GPU_BO_VA_BYTES .*','#define WAFFLE_GPU_BO_VA_BYTES 67108864u',header)
  (p/'waffle_gpu_memory.h').write_text(header)
  for name in ['waffle_gpu_registry.h','waffle_gpu_reclaim.h']:(p/name).write_text((root/'kernel/files/bsd/sys'/name).read_text())
  mapping=re.sub(r'#define TABLE_LIMIT \d+','#define TABLE_LIMIT 64',ns['parts']['mapping'])

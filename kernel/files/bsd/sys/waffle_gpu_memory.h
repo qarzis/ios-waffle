@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #define WAFFLE_GPU_BO_MAX_BYTES (8u*1024u*1024u)
 #define WAFFLE_GPU_BO_HEAP_BYTES (128u*1024u*1024u)
+/* Virtual placement can contain vacant holes without consuming backing. */
+#define WAFFLE_GPU_BO_VA_BYTES (256u*1024u*1024u)
 #define WAFFLE_GPU_BO_LIMIT (WAFFLE_GPU_BO_HEAP_BYTES/16384u)
 #define WAFFLE_GPU_BO_WC 0x00020000u
 #define WAFFLE_GPU_BO_READONLY 2u

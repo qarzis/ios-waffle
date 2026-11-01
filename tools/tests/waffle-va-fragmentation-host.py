@@ -40,7 +40,18 @@ int main(void){
    assert((entry&PTE_ADDRESS)==waffle_gpu_memory_page(bo,off) && (entry&0xc3)==((bo->flags&2)?0xc3:0x43));
   }
  }
- assert(waffle_gpu_registry_destroy(&owner.registry,true) && released==1840+(next!=NULL));
+ if(next){
+  uint64_t va=next->gpu_va;
+  assert(smmu_registry_reclaim(&owner,next,true) && owner.registry.used==117080064);
+  for(unsigned off=0;off<3145728;off+=4096)assert(!pte(&owner.pool,va+off));
+  struct waffle_gpu_memory *replacement=smmu_registry_new(&owner,3145728,WAFFLE_GPU_BO_WC|2);
+  assert(replacement && replacement->gpu_va==va && owner.registry.used==120225792);
+  for(unsigned off=0;off<3145728;off+=4096){
+   uint64_t entry=pte(&owner.pool,va+off);
+   assert((entry&PTE_ADDRESS)==waffle_gpu_memory_page(replacement,off) && (entry&0xc3)==0xc3);
+  }
+ }
+ assert(waffle_gpu_registry_destroy(&owner.registry,true) && released==1840+2*(next!=NULL));
  /* Verify maximum virtual coverage independent of physical residency: leaves
   * use synthetic PA pages. This is a table-bound proof, not256MiB live BOs. */
  reset_owner(&owner);
@@ -58,7 +69,7 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory)
  for span,limit in [(134217728,128),(268435456,160)]:
   registry=(root/'kernel/files/bsd/sys/waffle_gpu_registry.h').read_text()
-  old='uint64_t end=WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_HEAP_BYTES-allocated;'
+  old='uint64_t end=WAFFLE_GPU_BO_VA_BASE+WAFFLE_GPU_BO_VA_BYTES-allocated;'
   new='uint64_t end=WAFFLE_GPU_BO_VA_BASE+CANDIDATE_VA_BYTES-allocated;'
   assert old in registry;registry=registry.replace(old,new)
   (p/'waffle_gpu_registry.h').write_text(registry)
