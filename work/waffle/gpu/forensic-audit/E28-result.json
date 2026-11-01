@@ -1,0 +1,31 @@
+{
+  "experiment": "E28 separate physical GPU data BO through real user process",
+  "run": "work/waffle/runs/20261101T083504Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T083441Z",
+  "command_bo_gpu_va": "0x1ff8000478000",
+  "command_bo_pa": "0x8d2364000",
+  "data_bo_gpu_va": "0x1ff800047c000",
+  "data_bo_pa": "0x8d2368000",
+  "distinct_allocations_and_aliases": true,
+  "real_user_pid": 1,
+  "jobs_completed": 3,
+  "actual_gpu_pixels_verified": 768,
+  "gpu_fences": [
+    1,
+    2,
+    3
+  ],
+  "word_checks_per_job": 8192,
+  "total_word_checks": 24576,
+  "wrong_words": 0,
+  "old_command_embedded_ssbo_unchanged": true,
+  "user_report_checks": 768,
+  "negative_checks": 5,
+  "full_shutdown_and_context_detach_before_both_frees": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "general_user_bo_handles": false,
+  "mesa_or_ios_acceleration": false,
+  "log_sha256": "aa08bf9e766f73df27a4dfa0766c9d41f33567e42be2f40f9c2f936faf9d3b6a"
+}

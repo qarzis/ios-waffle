@@ -14,6 +14,7 @@ harness = r'''
 #include <string.h>
 #include <setjmp.h>
 #include "waffle_gpu_writeback.h"
+#include "waffle_gpu_data.h"
 typedef uintptr_t vm_offset_t;
 #define PAGE_SIZE 16384
 #define KMA_KOBJECT 1
@@ -37,10 +38,11 @@ types = r'''
 struct waffle_gmu_region {uint32_t address,size;uintptr_t memory;bool gpu_only,readonly;};
 struct waffle_gmu_plan {bool compact_gpu_va;unsigned count;struct waffle_gmu_region regions[16];};
 struct waffle_gmu_owner {unsigned tag;};
-struct smmu_owner {struct waffle_gmu_region dynamic;struct waffle_gmu_plan firmware;struct table_pool pool;struct pool_permission_context permission_context;struct waffle_gmu_owner *child;};
+struct smmu_owner {struct waffle_gmu_region dynamic,data;unsigned compute_image;struct waffle_gmu_plan firmware;struct table_pool pool;struct pool_permission_context permission_context;struct waffle_gmu_owner *child;};
 static struct waffle_gmu_owner child;
 static struct smmu_owner *active;
 static uint64_t waffle_gpu_plan_alias(const struct waffle_gmu_plan *p,uint64_t address){return p->compact_gpu_va?waffle_gpu_compact_alias(address):0;}
+static bool waffle_gmu_owner_bind_data_bo(struct waffle_gmu_owner *g,struct waffle_gmu_region *r){(void)g;(void)r;assert(0);return false;}
 static bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *g){assert(g==&child && live);return mode!=2;}
 static uint64_t pte(struct table_pool *p,uint64_t va){uint64_t *r=(void *)p->memory[0];uint64_t *middle=permission_table(p,r[(va>>30)&511]);if(!middle)return 0;uint64_t *leaf=permission_table(p,middle[(va>>21)&511]);return leaf?leaf[(va>>12)&511]:0;}
 static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *g,struct waffle_gmu_region *r){

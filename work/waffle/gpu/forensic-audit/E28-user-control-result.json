@@ -1,0 +1,20 @@
+{
+  "experiment": "E28 legacy user6 single-BO control",
+  "run": "work/waffle/runs/20261101T083330Z",
+  "automatic_run": "work/waffle/auto-runs/20261101T083306Z",
+  "actual_pixels_verified": 768,
+  "gpu_written_fences": [
+    1,
+    2,
+    3
+  ],
+  "word_checks": 12288,
+  "wrong_words": 0,
+  "real_user_pid": 1,
+  "negative_checks": 5,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "independent_adb": "1",
+  "log_sha256": "91a945e7305b6e7f3a3f341b60d367e6842daa2775c357ff34cfef83cf481896"
+}

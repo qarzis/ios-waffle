@@ -1,3 +1,61 @@
+# Current E28 hardware PASS — independent GPU data BO
+
+User resumed andauthorizedautonomousworkwhileaway. E28 run20261101T083504Z/
+auto083441Z realuserPID1 ioctls3jobs withseparatecommandBO1ff8000478000/
+dataBO1ff800047c000 distinctphysicalallocations/NCaliases. All768GPUoutput
+pixelscorrect/fences1..3, command4096+data4096checksperjob/24576totalwrong0.
+OldSSBOinsidecommandBOunchanged; user768checkswrong0/negative5confirmed.
+Fullstop47/contextdetach thenbothfrees; runner0/autosuccess/independent
+ADBAndroid1. No activehardwareworker; phoneordinaryAndroid.
+
+Artifactdiagnostic-gpu-data-e28 allhost/XNU/EFI/container/sourcebindingPASS.
+UserprogramSHAidenticalE27. Control93 run083223Z/auto083200Z passed; old
+user6control083330Z/auto083306Z passed. Newimage7requirescompute2 andreal
+userroot. Samefixedshader/512wordSSBO; descriptorbase1092/1093relocatedto
+separatedataBO, outputoffset0/input400, restdataBOguards. Sharedbounded
+maphelper checksbothlow/highvacancy/overlap/PA36/dualTLB; oldcommandmapper
+regressionspass. Dataaliasunmapafterfullstop, allocationfreeafterSMMUdetach.
+ActualGPUdatagroups under runs/20261101T083504Z/gpu-data-jobs.json/3PNGs.
+E28-result.json includesbothactualPAs andevidence. USBpreflightADBmissing
+fixedbyhostADBserverrestart(realADBinterface wasenumerated); noGPUtest
+launchedwithoutAndroidproof. Oldconnectquestionresolved/userconfirmed.
+
+Nextblocker: user-facing bufferobjects ownership/offsets andconnectionto
+existingMesa/IOKitGEM/IOSurfaceABI. ThisisoneindependentlymappedfixeddataBO,
+notgeneralGEM/renderer/iOSacceleration. Do notrepeatpower/owner-onlyloops.
+SafeE27 54a2669 preserved. RAM-only/no flash/erase; returnAndroid+independent
+ADB1aftereach. AutoUEFI noBootiOSconfirmation. NoGitHubpushrequested.
+
+Older chronology below is superseded by latest entry.
+
+# Active E28 — independent GPU data BO, hardware qualification pending
+
+User explicitly resumed andauthorizedautonomousworkwhileaway. E27 54a2669
+retainedsafe (realuserprocess3ioctls). E28 newimage7usesunchangeduserprogram/
+ABI/context/shader/PM4packetflow withseparate16KiBdataBO low8007c000/high
+1ff800047c000 (lastpageofexistingcompactwindow), commandsstill80078000.
+Descriptorbaseword1092/1093relocatedonly; same512wordSSBO output0/input400.
+BothBOs all4096wordscheckedperjob; oldembeddedSSBOcommandbytesunchanged.
+Dataaliasreleasedonlyafterfullstop; dataallocationfreedaftercontextdetach.
+Actualsharedboundedmappervacancy/overlap/PA36/dualTLB usedforboth.
+Allhost/XNU/EFI/container/sourcebindingPASS diagnostic-gpu-data-e28.
+StaticuserprogramSHAidenticalE27; nochangeinUI/MesaABIclaimed.
+
+USBpreflightADBservermissedrealADBinterface; adb reconnectnoeffect, host
+ADBkill/start restoredserial/independentAndroid1. Priorconnectquestionnow
+obsolete. E28default93control083223Z/auto083200Z PASS access27/alloc8/
+query42/fullstop/runner0/independentAndroid1. Currentexec24612 isolduser6
+control, logauto-data-e28-user-control.log. AfterPASS/independentADB1 save
+94reportbeforeoverwrite, thenonefullchain --compute dispatch --data-bo.
+Strictimage7parser requiresunchangedUSERDEVpid1roundtrip/negative5/close
+plusDATA_BOpublish/three4096wordchecks/release andactual3pixelgroups.
+NohardwareE28dataBOresultyet. Keepfirstfailure/no blindretry.
+Sourceuncommittedpendinghardware; savearchiveandverifiedonlyafterPASS.
+RAM-only/no flash/erase; automaticUEFI no physicalBootiOSconfirmation,
+Android+independentADB1aftereachtest. NoGitHubpushrequested.
+
+Older chronology below is superseded by latest entry.
+
 # STOPPED at user request — phone returned to Android
 
 LATESTUSER: «стопай и верни телефон». Do notstartbuilds/tests/GPUwork until
