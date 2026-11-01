@@ -1,0 +1,69 @@
+kernel-2.log: waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1
+kernel-2.log: waffle-ui-init: exec normal init and real launchd/UI
+kernel-11.log: waffle-ui-gpu: selected process=backboardd pid=83 uid=501 bounded=1
+kernel-90.log: waffle-gpu: GENERAL open pid=83 BO_limit=64 heap_bytes=67108864
+kernel-90.log: waffle-gpu: GENERAL bo_retired handle=1 bytes=16384 backing_retained=1
+kernel-90.log: waffle-gpu: GENERAL ioctl_refused op=40 error=45 pid=83
+kernel-90.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.2 Mesa 26.3.0-rc1; FD750; shaders OpenGL ES GLSL ES 3.20
+kernel-112.log: waffle-gmu: GENERAL_SUBMIT begin fence=1 seq=44 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-112.log: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+kernel-112.log: waffle-gmu: GENERAL_SUBMIT begin fence=2 seq=45 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-112.log: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+kernel-112.log: waffle-gmu: GENERAL_SUBMIT begin fence=3 seq=46 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-112.log: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT begin fence=4 seq=47 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-117.log: waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=5 seq=48 root_words=1382 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: 2026-11-01 17:22:12.416 SpringBoard[79:380] <CAwaffle-gmu: GENERAL_SUBMIT done fence=5 seq=48 control=00000005 checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=6 seq=49 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=6 seq=49 control=00000006 checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=7 seq=50 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=7 seq=50 control=00000007 checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=8 seq=51 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=8 seq=51 control=00000008 checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=9 seq=52 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=9 seq=52 control=00000009 checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=10 seq=53 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=10 seq=53 control=0000000a checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=11 seq=54 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=11 seq=54 control=0000000b checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=12 seq=55 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=12 seq=55 control=0000000c checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=13 seq=56 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=13 seq=56 control=0000000d checked=4096 wrong_words=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT begin fence=14 seq=57 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-119.log: waffle-gmu: GENERAL_SUBMIT done fence=14 seq=57 control=0000000e checked=4096 wrong_words=0
+kernel-120.log: waffle-gpu: GENERAL allocation_refused bytes=16384 flags=20000 count=64 limit=64 reason=slots live_count=63 live_bytes=40157184 retired_count=1 retired_bytes=16384 heap_limit=67108864
+kernel-120.log: waffle-gpu: GENERAL ioctl_refused op=42 error=28 pid=83
+kernel-120.log: redwood: signal 11 at 0x18, pc 0xbf694ec0, lr 0xbf691300, called from 0xbf700a20 0xbf6919e8 0xbf691af4 0xbef4a380 0xbef7b100 0x1d0cd50ec 0x1d0cd372c (unslid)
+kernel-121.log: waffle-gpu: GENERAL close passed=1 completed=14 buffers=64 context_null=1
+kernel-121.log: waffle-ui-gpu: RAM attempt already claimed or unavailable; keeping softpipe
+kernel-122.log: redwood-gl: an OpenGL ES 3 context for CoreAnimation, by Mesa, off-screen (OSMesa): OpenGL ES 3.1 Mesa 26.3.0-rc1; softpipe; shaders OpenGL ES GLSL ES 3.10
+kernel-351.log: [  122.695020]: waffle-gmu: GENERAL_SUBMIT begin fence=1 seq=44 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  122.695981]: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+kernel-351.log: [  122.707065]: waffle-gmu: GENERAL_SUBMIT begin fence=2 seq=45 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  122.708013]: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+kernel-351.log: [  122.724602]: waffle-gmu: GENERAL_SUBMIT begin fence=3 seq=46 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  122.725313]: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+kernel-351.log: [  123.861615]: waffle-gmu: GENERAL_SUBMIT begin fence=4 seq=47 root_words=561 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  123.862570]: waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+kernel-351.log: [  124.372116]: waffle-gmu: GENERAL_SUBMIT begin fence=5 seq=48 root_words=1382 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.373429]: waffle-gmu: GENERAL_SUBMIT done fence=5 seq=48 control=00000005 checked=4096 wrong_words=0
+kernel-351.log: [  124.382223]: waffle-gmu: GENERAL_SUBMIT begin fence=6 seq=49 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.383296]: waffle-gmu: GENERAL_SUBMIT done fence=6 seq=49 control=00000006 checked=4096 wrong_words=0
+kernel-351.log: [  124.388077]: waffle-gmu: GENERAL_SUBMIT begin fence=7 seq=50 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.389160]: waffle-gmu: GENERAL_SUBMIT done fence=7 seq=50 control=00000007 checked=4096 wrong_words=0
+kernel-351.log: [  124.404930]: waffle-gmu: GENERAL_SUBMIT begin fence=8 seq=51 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.406001]: waffle-gmu: GENERAL_SUBMIT done fence=8 seq=51 control=00000008 checked=4096 wrong_words=0
+kernel-351.log: [  124.421798]: waffle-gmu: GENERAL_SUBMIT begin fence=9 seq=52 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.422873]: waffle-gmu: GENERAL_SUBMIT done fence=9 seq=52 control=00000009 checked=4096 wrong_words=0
+kernel-351.log: [  124.438691]: waffle-gmu: GENERAL_SUBMIT begin fence=10 seq=53 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.439765]: waffle-gmu: GENERAL_SUBMIT done fence=10 seq=53 control=0000000a checked=4096 wrong_words=0
+kernel-351.log: [  124.455523]: waffle-gmu: GENERAL_SUBMIT begin fence=11 seq=54 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.456600]: waffle-gmu: GENERAL_SUBMIT done fence=11 seq=54 control=0000000b checked=4096 wrong_words=0
+kernel-351.log: [  124.486239]: waffle-gmu: GENERAL_SUBMIT begin fence=12 seq=55 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.487325]: waffle-gmu: GENERAL_SUBMIT done fence=12 seq=55 control=0000000c checked=4096 wrong_words=0
+kernel-351.log: [  124.495398]: waffle-gmu: GENERAL_SUBMIT begin fence=13 seq=56 root_words=1267 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.496469]: waffle-gmu: GENERAL_SUBMIT done fence=13 seq=56 control=0000000d checked=4096 wrong_words=0
+kernel-351.log: [  124.505868]: waffle-gmu: GENERAL_SUBMIT begin fence=14 seq=57 root_words=339 kernel_tail=15 extra_IB_depth=0
+kernel-351.log: [  124.506581]: waffle-gmu: GENERAL_SUBMIT done fence=14 seq=57 control=0000000e checked=4096 wrong_words=0

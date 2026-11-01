@@ -1,0 +1,2 @@
+Actual cdev128 context BOs versus64 per-submit references:handle128/handle65 submit,duplicatehighhandle refused,65-reference submit refused,129thcontextBO refused,close retains backing untilparentstop; host only
+Actual SMMU replays32 observed UI BOs/23625728bytes after25 boot tables, admits extra16KiB BO33 without changing32MiB heap/64table bounds; extra request is host model only

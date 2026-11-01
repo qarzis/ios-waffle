@@ -14,7 +14,7 @@
 #include <sys/waffle_gpu_va.h>
 extern void redwood_tl(const char *,...) __printflike(1,2);
 extern void loader_return(void);
-_Static_assert(WAFFLE_GPU_BO_LIMIT<=64,"BO duplicate bitmap capacity");
+_Static_assert(WAFFLE_GPU_SUBMIT_BUFFERS<=WAFFLE_GPU_BO_LIMIT,"Submit references fit the context registry");
 static LCK_GRP_DECLARE(drm_group,"waffle-gpu-general");
 static LCK_MTX_DECLARE(drm_lock,&drm_group);
 struct drm_bo {
@@ -85,18 +85,18 @@ static int drm_param(struct waffle_msm_param *r)
 static int drm_submit(struct waffle_msm_submit *r)
 {
  redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
- if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_BO_LIMIT || !r->nr_cmds || r->nr_cmds>WAFFLE_GPU_SUBMIT_COMMANDS ||
+ if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_SUBMIT_BUFFERS || !r->nr_cmds || r->nr_cmds>WAFFLE_GPU_SUBMIT_COMMANDS ||
     r->in_syncobjs || r->out_syncobjs || r->nr_in_syncobjs || r->nr_out_syncobjs || r->syncobj_stride || r->pad ||
     !drm_queue_valid(r->queueid))return EINVAL;
- struct waffle_msm_submit_bo bos[WAFFLE_GPU_BO_LIMIT];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
+ struct waffle_msm_submit_bo bos[WAFFLE_GPU_SUBMIT_BUFFERS];struct waffle_msm_submit_cmd commands[WAFFLE_GPU_SUBMIT_COMMANDS];
  struct waffle_gpu_command roots[WAFFLE_GPU_SUBMIT_COMMANDS];
  if(copyin(r->bos,bos,r->nr_bos*sizeof(*bos)) || copyin(r->cmds,commands,r->nr_cmds*sizeof(*commands)))return EFAULT;
- uint64_t seen=0;uint32_t total=0;
+ bool seen[WAFFLE_GPU_BO_LIMIT]={false};uint32_t total=0;
  for(unsigned i=0;i<r->nr_bos;i++){
   struct drm_bo *bo=drm_buffer(bos[i].handle);
-  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen&(1ULL<<(bos[i].handle-1))) ||
+  if(!bo || !bos[i].flags || (bos[i].flags&~7u) || seen[bos[i].handle-1] ||
      (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va))return EINVAL;
-  seen|=1ULL<<(bos[i].handle-1);
+  seen[bos[i].handle-1]=true;
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
   struct waffle_msm_submit_cmd *cmd=&commands[i];

@@ -1,0 +1,75 @@
+{
+  "experiment": "E36 controlled real Darwin OSMesa GL triangle",
+  "presentation_probe": false,
+  "eagl_adapter_probe": false,
+  "repeated_frames_probe": false,
+  "actual_EAGL_hook_probe": false,
+  "fullsize_probe": false,
+  "two_context_probe": false,
+  "gpu_hardware_tested": false,
+  "dynamic_arm64_program": true,
+  "program_load_commands": [
+    {
+      "cmd": 14,
+      "path": "/usr/lib/dyld"
+    },
+    {
+      "cmd": 12,
+      "path": "/redwood/lib/libOSMesa.8.dylib"
+    },
+    {
+      "cmd": 12,
+      "path": "/usr/lib/libSystem.B.dylib"
+    }
+  ],
+  "mesa_load_commands": [
+    {
+      "cmd": 13,
+      "path": "/redwood/lib/libOSMesa.8.dylib"
+    },
+    {
+      "cmd": 12,
+      "path": "/usr/lib/libz.1.dylib"
+    },
+    {
+      "cmd": 12,
+      "path": "/usr/lib/libSystem.B.dylib"
+    },
+    {
+      "cmd": 12,
+      "path": "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit"
+    },
+    {
+      "cmd": 12,
+      "path": "/usr/lib/libc++.1.dylib"
+    }
+  ],
+  "program_sha256": "80316b7d87e5c729d3b26b53ace60e7970e3541f1ec44691fad6fdfe05a723fa",
+  "mesa_sha256": "7e02650d1a5b7402e7b4db7bf84aba6aa3a7afd528e84a3a284e781caf2c5a47",
+  "root_sha256": "9249dcc7a06da8d34b7ee0bb806db4b707ec8acc5854827eadd85b88655e363f",
+  "firmware": {
+    "fw/gen70900_aqe.fw": "25237c161d727b8ea92b4beb837a31651b44ea78bfc34d95672af8f346a45825",
+    "fw/gen70900_sqe.fw": "f756bafe5f69a87161c7c53385386374a791861a574c244e845baba677993842",
+    "fw/gen70900_zap.mbn": "8e454000fd86f74818917d34d46baa70a31360d81d9617015a02de4e00c0e397",
+    "fw/gmu_gen70900.bin": "9685f62c42543befcaee68d25355e16bf55cdb0d573bddcc9f6633f59eec3f72"
+  },
+  "source_sha256": {
+    "tools/build-waffle-eagl-dispatch.py": "0b8c6158a6993a28c35a9445a99edf7ce8b3e5c88efd250d7cbdb0bdcf044c13",
+    "userland/mkeagl.py": "f16b3955e6056ee72fe702c667232b82dde2d50b9e0ec29303df649cf57897c8",
+    "userland/src/eagl.c": "cfa2160690ac35e06c2c9f65bdec26ff3365b58ef5680a7ac7d34afa13fa4ac9",
+    "userland/src/eagl_slots.txt": "da86f4a9fe193f53236128eaf8b56ca5e00060518e8f674f9b852e9886804cbf",
+    "userland/src/gl_osmesa.c": "e782a060585f6ec807d09f8e6fe7ff6670093e352a53647f531f51cf4205da80",
+    "userland/src/macan_gl.h": "060e5ae2cc49e2da093ca05743a8d183f8f7f91b3a91726dc06c17ddaed88371",
+    "userland/src/waffle_gl_init.c": "d49b4978957f02b243d596e9ff24dbcde6d8fa438ae9e0e7524db11cb70bd4c8",
+    "userland/src/waffle_gl_probe.c": "55ccdc94183c79c51976b832bd628c1eaaa46d33ad733ff900533b2a4c80e841",
+    "tools/build-waffle-gl-probe.py": "1905dc9b5a35563ebdf4d432d9350c71ed0ec95fd804affd5f11280e5e538326",
+    "tools/mesa/drm-shim/drm_shim.c": "7718bf78d28c7b7ab735a6c4dcbd25d9fb0ebf8ae40cfe777fabf387532e1218",
+    "tools/mesa/drm-shim/waffle_msm_transport.h": "edb3afb9112228bd803db282572e80fc07ab773186bf1a2c116ca10193fbf03b",
+    "kernel/files/bsd/sys/waffle_gpu_msm.h": "899ccd260680f4d9a391ecbd0e4622d7f8b168a9e9626de8ee6f12c97ce2712b"
+  },
+  "system_image": "work/waffle/images/system.packfs",
+  "system_mutated": false,
+  "user_checks": 256,
+  "expected_filled_pixels": 128,
+  "fallback_renderer_refused": true
+}

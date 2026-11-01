@@ -1,4 +1,4 @@
-"""Exercise actual cdev handles33..64 and unchanged registry heap budget."""
+"""Exercise actual cdev handles above64 and unchanged registry heap budget."""
 from pathlib import Path
 import subprocess,tempfile,json
 root=Path(__file__).resolve().parents[2]
@@ -9,27 +9,30 @@ t=ns['t']
 at=t.index(' for(unsigned i=1;i<=13;i++)')
 t=t[:at]+r'''
  /* Existing13 actual GL buffers stay live. Exercise the complete bounded
-  * object space without changing the32MiB heap or recycling handles. */
+  * object space within the configured heap or recycling handles. */
  for(unsigned i=14;i<=WAFFLE_GPU_BO_LIMIT;i++){
   struct waffle_msm_gem_new r={.size=16384,.flags=WAFFLE_GPU_BO_WC};
   assert(!drm_ioctl(0,WAFFLE_MSM_NEW,(char *)&r,0,&owner) && r.handle==i);
  }
- assert(stored==64);
+ assert(stored==WAFFLE_GPU_BO_LIMIT);
  struct waffle_msm_gem_new extra={.size=4096,.flags=WAFFLE_GPU_BO_WC};
- assert(drm_ioctl(0,WAFFLE_MSM_NEW,(char *)&extra,0,&owner)==ENOSPC && stored==64);
- struct waffle_msm_submit_bo all[64];
- for(unsigned i=0;i<64;i++)all[i]=(struct waffle_msm_submit_bo){.handle=i+1,.flags=3};
- memcpy((void *)storage[63].memory,actual_root,sizeof(actual_root));
+ assert(drm_ioctl(0,WAFFLE_MSM_NEW,(char *)&extra,0,&owner)==ENOSPC && stored==WAFFLE_GPU_BO_LIMIT);
+ struct waffle_msm_submit_bo all[WAFFLE_GPU_SUBMIT_BUFFERS];
+ for(unsigned i=0;i<WAFFLE_GPU_SUBMIT_BUFFERS;i++)all[i]=(struct waffle_msm_submit_bo){.handle=i+1,.flags=3};
+ all[63].handle=WAFFLE_GPU_BO_LIMIT;
+ memcpy((void *)storage[WAFFLE_GPU_BO_LIMIT-1].memory,actual_root,sizeof(actual_root));
  cmd.submit_idx=63;request.bos=(uintptr_t)all;request.nr_bos=64;request.fence=0;
  assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==2);
- all[62].handle=64;request.fence=0;
+ all[62].handle=WAFFLE_GPU_BO_LIMIT;request.fence=0;
  assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner)==EINVAL && copies==2);
  all[62].handle=63;
- all[0].handle=33;request.nr_bos=1;cmd.submit_idx=0;request.fence=0;
- memcpy((void *)storage[32].memory,actual_root,sizeof(actual_root));
+ request.nr_bos=WAFFLE_GPU_SUBMIT_BUFFERS+1;
+ assert(drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner)==EINVAL && copies==2);
+ all[0].handle=65;request.nr_bos=1;cmd.submit_idx=0;request.fence=0;
+ memcpy((void *)storage[64].memory,actual_root,sizeof(actual_root));
  assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==3);
- for(unsigned i=1;i<=64;i++){struct waffle_msm_close r={.handle=i};assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&r,0,&owner));}
- assert(!mapped && stored==64);
+ for(unsigned i=1;i<=WAFFLE_GPU_BO_LIMIT;i++){struct waffle_msm_close r={.handle=i};assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&r,0,&owner));}
+ assert(!mapped && stored==WAFFLE_GPU_BO_LIMIT);
  assert(!drm_close(0,0,0,&owner) && !stored && !drm_context);return 0;
 }
 '''
@@ -37,7 +40,7 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);(p/'test.c').write_text(ns['h']+ns['parts']['ioc']+ns['uapi']+ns['source']+t)
  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable','-Wno-misleading-indentation','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
  subprocess.run([str(p/'test')],check=True)
-print('Actual cdev64BOs:all64 unique handles accepted,handle64 bit63 andhandle33 submit,highbitduplicate refused,65thBO refused,close retains backing untilparentstop; host only')
+print('Actual cdev128 context BOs versus64 per-submit references:handle128/handle65 submit,duplicatehighhandle refused,65-reference submit refused,129thcontextBO refused,close retains backing untilparentstop; host only')
 
 # Reuse the actual SMMU adapter harness, seeded with the observed25 boot tables.
 model={'__file__':str(root/'tools/tests/waffle-table-budget-host.py')}
@@ -51,4 +54,4 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);parts=model['parts'];(p/'tables.c').write_text(model['h']+parts['mapping']+parts['types']+parts['dynamic']+t)
  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'tables.c'),'-o',str(p/'tables')],check=True)
  subprocess.run([str(p/'tables')],check=True)
-print('Actual SMMU replays32 observed UI BOs/23625728bytes after25 boot tables, admits extra16KiB BO33 without changing32MiB heap/64table bounds; extra request is host model only')
+print('Actual SMMU replays32 observed UI BOs/23625728bytes after25 boot tables, admits extra16KiB BO33 within current heap/64table bounds; extra request is host model only')
