@@ -1,0 +1,9 @@
+{
+  "FD750_offline_assembly": "passed",
+  "deterministic": true,
+  "decode_reassemble_instruction_bytes_identical": true,
+  "padding_normalized_like_Mesa_validator": true,
+  "bytes": 128,
+  "sha256": "36842135a4ade7d74c0ad213585dee20f9176d344733f7f2bf7ef6b6b606c148",
+  "gpu_executed": false
+}

@@ -5,12 +5,14 @@
  */
 #include <kern/clock.h>
 #include <vm/memory_types.h>
+#include <vm/vm_kern.h>
 #include <arm/memory_types.h>
 #include <libkern/libkern.h>
 #include <mach/mach_types.h>
 #include <pexpert/pexpert.h>
 #include <sys/systm.h>
 #include <sys/waffle_gpu.h>
+#include <sys/waffle_smmu.h>
 #include <sys/waffle_aop.h>
 #include <sys/waffle_gpu_pll.h>
 #include <sys/waffle_gmu_clock.h>
@@ -94,8 +96,27 @@ static void write_reg(vm_offset_t base, uint32_t offset, uint32_t value)
     *(volatile uint32_t *)(base + offset) = value;
     __asm__ volatile("dsb sy" ::: "memory");
 }
-static void probe_gpu_body(unsigned);
-static void aop_gpu_task(void *arg) { probe_gpu_body(*(unsigned *)arg); }
+struct board_clock_owner;
+struct board_power_owner {
+    vm_offset_t allocation,gcc,cc;
+    uint32_t saved_cfg;
+    unsigned probe;
+    bool cfg_changed,cx_acquired;
+    struct board_clock_owner *child;
+};
+static struct board_power_owner *active_board_power;
+static struct board_power_owner *probe_gpu_body(unsigned);
+static bool board_power_exercise(struct board_power_owner *);
+static bool board_power_end(struct board_power_owner *);
+static void aop_gpu_task(void *arg)
+{
+    struct board_power_owner *s=probe_gpu_body(*(unsigned *)arg);
+    if(s) {
+        gpu_log("waffle-gpu: power component returned live to AOP caller\n");
+        (void)board_power_exercise(s);
+        (void)board_power_end(s);
+    }
+}
 struct aop_channel_context { vm_offset_t qmp, ipcc; };
 static uint32_t aop_channel_read(void *arg, uint32_t offset)
 {
@@ -145,6 +166,104 @@ static void probe_aop_channel(unsigned probe)
     lck_mtx_unlock(&macan_aop_mailbox_lock);
     gpu_log("waffle-gpu: AOP channel%u cleanup complete\n", probe);
 }
+/* Heap top-level owner for the bounded session. The shared mutex is held
+ * only for QMP transport, never across GMU boot, GPU execution or shutdown. */
+struct aop_gpu_owner {
+    vm_offset_t allocation,ipcc_mapping;
+    struct aop_channel_context channel;
+    struct waffle_aop_qmp_session transport;
+    struct board_power_owner *child;
+    bool locked,exercised,exercise_ok;
+};
+static struct aop_gpu_owner *active_aop_gpu;
+static void aop_owner_stop(const char *reason)
+{
+    gpu_log("waffle-gpu: AOP_OWNER REBOOT REQUIRED: %s; retain owner and mappings\n",reason);
+    loader_return();
+    for(;;)delay_for_interval(1000,NSEC_PER_USEC);
+}
+static bool aop_owner_channel_valid(struct aop_gpu_owner *s)
+{
+    vm_offset_t q=s->channel.qmp;
+    struct waffle_aop_qmp_snapshot v={
+        .magic=read_reg(q,0),.version=read_reg(q,4),
+        .our_box=read_reg(q,0x38),.our_box_size=read_reg(q,0x34),
+        .our_link=read_reg(q,0x24),.our_link_ack=read_reg(q,0x28),
+        .our_channel=read_reg(q,0x2c),.our_channel_ack=read_reg(q,0x30),
+        .their_channel=read_reg(q,0x14),
+    };
+    return waffle_aop_qmp_channel_open(&v) &&
+        v.our_box==s->transport.our_box && v.our_box_size==s->transport.our_box_size &&
+        read_reg(q,0x0c)==WAFFLE_AOP_QMP_UP && read_reg(q,0x10)==WAFFLE_AOP_QMP_UP &&
+        read_reg(q,0x18)==WAFFLE_AOP_QMP_UP && !read_reg(q,v.our_box);
+}
+static bool aop_gpu_owner_end(struct aop_gpu_owner *s)
+{
+    if(!s || active_aop_gpu!=s)return false;
+    bool ok=false;
+    if(s->child) {
+        if(s->locked)aop_owner_stop("shared mutex held during child stop");
+        ok=board_power_end(s->child) && s->exercise_ok;
+        s->child=NULL;
+    }
+    if(!s->locked) {
+        if(!lck_mtx_try_lock(&macan_aop_mailbox_lock))aop_owner_stop("shared transport busy at end");
+        s->locked=true;
+    }
+    enum waffle_aop_qmp_result result=s->transport.result;
+    if(s->transport.changed) {
+        if(s->transport.opened && !aop_owner_channel_valid(s))
+            aop_owner_stop("channel changed or foreign message pending");
+        result=waffle_aop_qmp_session_end(&s->transport);
+        if(!s->transport.restored || s->transport.changed)
+            aop_owner_stop("ACD or channel restoration unconfirmed");
+    }
+    lck_mtx_unlock(&macan_aop_mailbox_lock);s->locked=false;
+    if(s->ipcc_mapping)ml_io_unmap(s->ipcc_mapping,0x4000);
+    if(s->channel.qmp)ml_io_unmap(s->channel.qmp,WAFFLE_AOP_QMP_MAP_SIZE);
+    vm_offset_t allocation=s->allocation;
+    active_aop_gpu=NULL;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    gpu_log("waffle-gpu: AOP_OWNER released after power child and channel restore result=%u transport=%u\n",
+        ok && result==WAFFLE_AOP_QMP_OK,result);
+    return ok && result==WAFFLE_AOP_QMP_OK;
+}
+static struct aop_gpu_owner *aop_gpu_owner_begin(unsigned probe)
+{
+    uint32_t requested=0;
+    if(active_aop_gpu || probe!=94 ||
+        !PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) || requested!=1)return NULL;
+    vm_offset_t allocation=0;
+    if(sizeof(struct aop_gpu_owner)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+        KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+    struct aop_gpu_owner *s=(struct aop_gpu_owner *)allocation;
+    *s=(struct aop_gpu_owner){.allocation=allocation};active_aop_gpu=s;
+    if(!lck_mtx_try_lock(&macan_aop_mailbox_lock)) {
+        active_aop_gpu=NULL;kmem_free(kernel_map,allocation,PAGE_SIZE);return NULL;
+    }
+    s->locked=true;
+    s->channel.qmp=ml_io_map_unmappable(WAFFLE_AOP_QMP_BASE,WAFFLE_AOP_QMP_MAP_SIZE,VM_WIMG_IO);
+    s->ipcc_mapping=ml_io_map_unmappable(0x00404000,0x4000,VM_WIMG_IO);
+    if(s->ipcc_mapping)s->channel.ipcc=s->ipcc_mapping+0x2000;
+    if(!s->channel.qmp || !s->channel.ipcc)goto failed;
+    const struct waffle_aop_qmp_io io={&s->channel,
+        aop_channel_read,aop_channel_write,aop_channel_kick,aop_channel_wait};
+    if(waffle_aop_qmp_session_begin(&io,&s->transport,true)!=WAFFLE_AOP_QMP_OK)goto failed;
+    lck_mtx_unlock(&macan_aop_mailbox_lock);s->locked=false;
+    s->child=probe_gpu_body(probe);
+    if(!s->child)goto failed;
+    gpu_log("waffle-gpu: AOP_OWNER begin returned heap=1 power_live=1 mutex_held=0 channel_open=1\n");
+    return s;
+failed:
+    (void)aop_gpu_owner_end(s);
+    return NULL;
+}
+static bool aop_gpu_owner_exercise(struct aop_gpu_owner *s)
+{
+    if(!s || active_aop_gpu!=s || !s->child || s->locked || s->exercised)return false;
+    s->exercised=true;s->exercise_ok=board_power_exercise(s->child);
+    return s->exercise_ok;
+}
 static void show(vm_offset_t base, uint32_t physical, const char *name, uint32_t off)
 {
     /* Log BEFORE access as well: a synchronous external abort must be locatable. */
@@ -182,10 +301,10 @@ static bool clock_change(struct clock_change *c, vm_offset_t base, uint32_t offs
     write_reg(base, cmd, read_reg(base, cmd) | 1);
     return wait_mask(base, cmd, 1, 0);
 }
-static void probe_smmu(uint32_t probe)
+static struct waffle_smmu_owner *probe_smmu(uint32_t probe)
 {
     vm_offset_t smmu = ml_io_map(WAFFLE_GPU_SMMU_BASE, WAFFLE_GPU_SMMU_SIZE);
-    if (!smmu) { gpu_log("waffle-gpu: SMMU map failed\n"); return; }
+    if (!smmu) { gpu_log("waffle-gpu: SMMU map failed\n"); return NULL; }
     show(smmu, WAFFLE_GPU_SMMU_BASE, "SMMU_IDR0", 0x20);
     show(smmu, WAFFLE_GPU_SMMU_BASE, "SMMU_IDR1", 0x24);
     show(smmu, WAFFLE_GPU_SMMU_BASE, "SMMU_IDR2", 0x28);
@@ -197,7 +316,7 @@ static void probe_smmu(uint32_t probe)
         matches < 6 || matches > 128 || contexts > (WAFFLE_GPU_SMMU_SIZE - context_base) / page) {
         gpu_log("waffle-gpu: SMMU layout outside DT range: page=%x pages=%u CB=%u SMR=%u; stop\n",
             page, pages, contexts, matches);
-        return;
+        return NULL;
     }
     gpu_log("waffle-gpu: SMMU layout page=%x pages=%u CB=%u SMR=%u; read only\n",
         page, pages, contexts, matches);
@@ -216,7 +335,11 @@ static void probe_smmu(uint32_t probe)
         show(smmu, WAFFLE_GPU_SMMU_BASE, "CB_FSR", cb + 0x58);
     }
     gpu_log("waffle-gpu: SMMU inspection complete; no translation registers written\n");
+    uint32_t session=0;
+    if(probe==94 && PE_parse_boot_argn("waffle_session",&session,sizeof(session)) && session==1)
+        return waffle_smmu_owner_begin(smmu,page,pages,contexts,matches,probe);
     if (probe >= 6) waffle_smmu_probe(smmu, page, pages, contexts, matches, probe);
+    return NULL;
 }
 /* GMU_FREQ_MIN in kgsl_gmu_core.h is 200MHz. Pineapple GMU parent map
  * selects existing GPLL0 (600MHz) with SRC_SEL5; HID divider3 encodes5.
@@ -330,12 +453,24 @@ static uint32_t gmu_clock_config(unsigned probe)
 {
     return probe>=88 ? 0x505u : 1u;
 }
-static void probe_clocks(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
-{
+struct board_clock_owner {
+    vm_offset_t gcc,cc,allocation;
+    unsigned probe,count;
     struct clock_change saved[16];
-    unsigned count = 0;
-    bool ok = true,pll_passed=false,clocks_restored=true;
-    bool native_passed=false;
+    struct waffle_smmu_owner *child;
+    bool ok,pll_passed,exercised,released;
+};
+/* Native clock callbacks above have module lifetime. Serialize their use;
+ * the active owner retains their journal and SMMU child until finish. */
+static struct board_clock_owner *active_board_clocks;
+static bool board_clock_begin(struct board_clock_owner *s)
+{
+    if(active_board_clocks)return false;
+    active_board_clocks=s;
+    vm_offset_t gcc=s->gcc,cc=s->cc;
+    unsigned probe=s->probe,count=0;
+    struct clock_change *saved=s->saved;
+    bool ok=true,pll_passed=false;
     /* Use GPLL0's existing 600MHz parent for the documented 200MHz hub;
      * keep the GMU at XO (19.2MHz). No GPU PLL or rail programming here.
      * Every changed field is recorded before the write, including a failed RCG.
@@ -406,10 +541,34 @@ static void probe_clocks(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
                 clock_change(&saved[count++], gcc, WAFFLE_GPU_SNOC, 1, 1, false);
                 delay_for_interval(10, NSEC_PER_USEC);
             }
-            if (wait_mask(cc, WAFFLE_GPU_SMMU_CLOCK, 1u << 31, 0)) probe_smmu(probe);
+            if (wait_mask(cc, WAFFLE_GPU_SMMU_CLOCK, 1u << 31, 0)) {
+                s->child=probe_smmu(probe);
+                if(s->child)gpu_log("waffle-gpu: SMMU component returned live to clock owner\n");
+            }
             else gpu_log("waffle-gpu: SMMU clock halted; no SMMU reads\n");
         }
     }
+    s->count=count;s->ok=ok;s->pll_passed=pll_passed;
+    return ok;
+}
+static bool board_clock_exercise(struct board_clock_owner *s)
+{
+    if(active_board_clocks!=s || s->exercised)return false;
+    s->exercised=true;
+    if(s->child)s->ok=waffle_smmu_owner_exercise(s->child) && s->ok;
+    return s->ok;
+}
+static bool board_clock_finish(struct board_clock_owner *s)
+{
+    if(active_board_clocks!=s)return false;
+    if(s->child) {
+        bool stopped=waffle_smmu_owner_end(s->child);
+        s->child=NULL;s->ok=stopped && s->ok;
+        gpu_log("waffle-gpu: SMMU component ended before clock restore result=%u\n",s->ok);
+    }
+    unsigned probe=s->probe,count=s->count;
+    struct clock_change *saved=s->saved;
+    bool ok=s->ok,pll_passed=s->pll_passed,native_passed=false,clocks_restored=true;
     if((probe==93 || probe==94) && native_clock_context.cc) {
         native_passed=native_clock_state.runtime;
         if(!waffle_gmu_clock_finish(&native_clock_io,&native_clock_state))native_clock_reboot_required();
@@ -437,8 +596,48 @@ static void probe_clocks(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
         ok && native_passed && clocks_restored);
     if(probe==94)gpu_log("waffle-gpu: NATIVE94 clock control passed=%u; GMU stopped and PLL restored\n",
         ok && native_passed && clocks_restored);
+    if(!clocks_restored)native_clock_reboot_required();
+    s->count=0;s->released=true;active_board_clocks=NULL;
+    return ok && clocks_restored && (probe==92?pll_passed:probe>=93?native_passed:true);
 }
-static void probe_cx(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
+static struct board_clock_owner *probe_clocks(vm_offset_t gcc,vm_offset_t cc,uint32_t probe)
+{
+    if(active_board_clocks){gpu_log("waffle-gpu: clock owner already active; no writes\n");return NULL;}
+    struct board_clock_owner fallback={0},*s=&fallback;
+    vm_offset_t allocation=0;uint32_t requested=0;
+    bool heap=probe==94 && PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) && requested==1;
+    if(heap) {
+        if(sizeof(*s)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+        s=(struct board_clock_owner *)allocation;
+    }
+    *s=(struct board_clock_owner){.gcc=gcc,.cc=cc,.probe=probe,.allocation=allocation};
+    (void)board_clock_begin(s);
+    if(heap && s->child) {
+        gpu_log("waffle-gpu: CLOCK_OWNER begin returned heap=1 child_live=1 journal=%u\n",s->count);
+        return s;
+    }
+    (void)board_clock_exercise(s);
+    (void)board_clock_finish(s);
+    if(allocation) {
+        if(!s->released)native_clock_reboot_required();
+        kmem_free(kernel_map,allocation,PAGE_SIZE);
+    }
+    return NULL;
+}
+static void probe_clock_session(vm_offset_t gcc,vm_offset_t cc,uint32_t probe)
+{
+    struct board_clock_owner *s=probe_clocks(gcc,cc,probe);
+    if(!s)return;
+    gpu_log("waffle-gpu: clock component returned live to CX caller\n");
+    (void)board_clock_exercise(s);
+    bool ok=board_clock_finish(s);
+    if(!s->released)native_clock_reboot_required();
+    vm_offset_t allocation=s->allocation;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    gpu_log("waffle-gpu: CLOCK_OWNER released before CX restore result=%u\n",ok);
+}
+static void probe_cx(vm_offset_t gcc, vm_offset_t cc, uint32_t probe, struct board_power_owner *owner)
 {
     /* SM8650 gpu_cx_gdsc: SW_COLLAPSE bit0, PWR_ON bit31, status also
      * in HW_CTRL. Retain firmware's CLK_DIS_WAIT/retention fields. Do not
@@ -447,7 +646,10 @@ static void probe_cx(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
     uint32_t saved = read_reg(cc, WAFFLE_GPU_CX_GDSCR);
     if (cx_is_on(cc)) {
         gpu_log("waffle-gpu: CX already powered; no power-control writes\n");
-        if (probe >= 4) probe_clocks(gcc, cc, probe);
+        if (probe >= 4) {
+            if(owner)owner->child=probe_clocks(gcc,cc,probe);
+            else probe_clock_session(gcc,cc,probe);
+        }
         return;
     }
     if (!(saved & 1)) {
@@ -455,6 +657,7 @@ static void probe_cx(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
         return;
     }
     gpu_log("waffle-gpu: deassert CX collapse; prior=%08x\n", saved);
+    if(owner)owner->cx_acquired=true;
     write_reg(cc, WAFFLE_GPU_CX_GDSCR, saved & ~1u);
     bool powered = false;
     for (unsigned i = 0; i < 500; ++i) {
@@ -464,7 +667,11 @@ static void probe_cx(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
     gpu_log("waffle-gpu: CX power %s; GDSCR=%08x HW_CTRL=%08x\n",
         powered ? "ON" : "timeout after 50ms", read_reg(cc, WAFFLE_GPU_CX_GDSCR),
         read_reg(cc, WAFFLE_GPU_CX_HW_CTRL));
-    if (powered && probe >= 4) probe_clocks(gcc, cc, probe);
+    if (powered && probe >= 4) {
+        if(owner)owner->child=probe_clocks(gcc,cc,probe);
+        else probe_clock_session(gcc,cc,probe);
+    }
+    if(owner)return; /* Parent retains the collapse request until child end. */
     uint32_t current = read_reg(cc, WAFFLE_GPU_CX_GDSCR);
     write_reg(cc, WAFFLE_GPU_CX_GDSCR, current | 1);
     /* The vendor DT specifies no-status-check-on-disable for this votable
@@ -474,6 +681,41 @@ static void probe_cx(vm_offset_t gcc, vm_offset_t cc, uint32_t probe)
     delay_for_interval(100, NSEC_PER_USEC);
     gpu_log("waffle-gpu: restored CX collapse=%u; power status=%u\n",
         read_reg(cc, WAFFLE_GPU_CX_GDSCR) & 1, cx_is_on(cc));
+}
+static bool board_power_exercise(struct board_power_owner *s)
+{
+    return s && s->child && board_clock_exercise(s->child);
+}
+static bool board_power_end(struct board_power_owner *s)
+{
+    if(!s || active_board_power!=s)return false;
+    bool ok=false;
+    if(s->child) {
+        struct board_clock_owner *child=s->child;
+        ok=board_clock_finish(child);
+        if(!child->released)native_clock_reboot_required();
+        vm_offset_t allocation=child->allocation;
+        s->child=NULL;
+        kmem_free(kernel_map,allocation,PAGE_SIZE);
+        gpu_log("waffle-gpu: CLOCK_OWNER released before CX restore result=%u\n",ok);
+    }
+    if(s->cx_acquired) {
+        uint32_t current=read_reg(s->cc,WAFFLE_GPU_CX_GDSCR);
+        write_reg(s->cc,WAFFLE_GPU_CX_GDSCR,current|1);
+        delay_for_interval(100,NSEC_PER_USEC);
+        gpu_log("waffle-gpu: restored CX collapse=%u; power status=%u\n",
+            read_reg(s->cc,WAFFLE_GPU_CX_GDSCR)&1,cx_is_on(s->cc));
+    }
+    if(s->cfg_changed) {
+        uint32_t current=read_reg(s->gcc,WAFFLE_GPU_CFG_AHB);
+        write_reg(s->gcc,WAFFLE_GPU_CFG_AHB,(current&~3u)|(s->saved_cfg&3));
+        gpu_log("waffle-gpu: restored CFG_AHB enable/gating=%u\n",read_reg(s->gcc,WAFFLE_GPU_CFG_AHB)&3);
+    }
+    vm_offset_t allocation=s->allocation;
+    active_board_power=NULL;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    gpu_log("waffle-gpu: POWER_OWNER released after clock child, CX and CFG restore result=%u\n",ok);
+    return ok;
 }
 void waffle_adreno_init(void)
 {
@@ -496,8 +738,16 @@ void waffle_adreno_init(void)
             loader_return();return;
         }
         gpu_log("waffle-gpu: PLL%u verified firmware CX/MX256 handoff\n",probe);
+        uint32_t session=0;
         if(probe==92)probe_gpu_body(probe);
-        else probe_aop_channel(probe);
+        else if(probe==94 && PE_parse_boot_argn("waffle_session",&session,sizeof(session)) && session==1) {
+            struct aop_gpu_owner *owner=aop_gpu_owner_begin(probe);
+            if(owner) {
+                gpu_log("waffle-gpu: full GPU owner returned live to init caller; no mutex held\n");
+                (void)aop_gpu_owner_exercise(owner);
+                (void)aop_gpu_owner_end(owner);
+            }
+        } else probe_aop_channel(probe);
         loader_return();return;
     }
     if (probe >= 45 && probe <= 91) {
@@ -509,19 +759,35 @@ void waffle_adreno_init(void)
     probe_gpu_body(probe);
     loader_return();
 }
-static void probe_gpu_body(unsigned probe)
+static struct board_power_owner *probe_gpu_body(unsigned probe)
 {
+    if(active_board_power){gpu_log("waffle-gpu: power owner already active; no writes\n");return NULL;}
+    struct board_power_owner *owner=NULL;
+    uint32_t session=0;
+    if(probe==94 && PE_parse_boot_argn("waffle_session",&session,sizeof(session)) && session==1) {
+        vm_offset_t allocation=0;
+        if(sizeof(*owner)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+        owner=(struct board_power_owner *)allocation;
+        *owner=(struct board_power_owner){.allocation=allocation,.probe=probe};
+        active_board_power=owner;
+    }
     gpu_log("waffle-gpu: Adreno750 Gen7.9.1 profile-chipid=%08x stage=%u; %s\n",
         WAFFLE_GPU_CHIP_ID, probe,(probe==35 || probe==36 || probe==80 || probe==82 || probe==85)?"polled CP thread-control only":
         (probe==33 || probe==38 || probe==40 || probe==42 || probe==44 || probe==49 || probe==51 || probe==53 || probe==55 || probe==57 || probe==59 || probe==64 || probe==66 || probe==86 || probe==89 || probe==91 || probe==94)?"polled CP init only":"no GPU command submission");
     vm_offset_t gcc = ml_io_map(WAFFLE_GCC_BASE, WAFFLE_GCC_SIZE);
-    if (!gcc) { gpu_log("waffle-gpu: GCC map failed\n");  return; }
+    if (!gcc) {
+        gpu_log("waffle-gpu: GCC map failed\n");
+        if(owner)(void)board_power_end(owner);
+        return NULL;
+    }
+    if(owner)owner->gcc=gcc;
     show(gcc, WAFFLE_GCC_BASE, "GPU_CFG_AHB_CBCR", WAFFLE_GPU_CFG_AHB);
     show(gcc, WAFFLE_GCC_BASE, "GPU_MEMNOC_GFX_CBCR", WAFFLE_GPU_MEMNOC);
     if (probe == 1) {
         gpu_log("waffle-gpu: stage 1 complete; no registers written\n");
         
-        return;
+        return NULL;
     }
     /* CBCR bit0 enables the branch; bit1 is hardware clock gating. Test the
      * branch with gating disabled, then restore BOTH control bits. The first
@@ -531,6 +797,7 @@ static void probe_gpu_body(unsigned probe)
      */
     uint32_t saved = read_reg(gcc, WAFFLE_GPU_CFG_AHB);
     bool changed = (saved & 3) != 1, ready = false;
+    if(owner){owner->saved_cfg=saved;owner->cfg_changed=changed;}
     if (changed) {
         gpu_log("waffle-gpu: force CFG_AHB branch, disable HW gating; prior=%08x\n", saved);
         write_reg(gcc, WAFFLE_GPU_CFG_AHB, (saved & ~3u) | 1);
@@ -542,6 +809,7 @@ static void probe_gpu_body(unsigned probe)
     if (ready) {
         vm_offset_t cc = ml_io_map(WAFFLE_GPUCC_BASE, WAFFLE_GPUCC_SIZE);
         if (cc) {
+            if(owner)owner->cc=cc;
             show(cc, WAFFLE_GPUCC_BASE, "CX_GDSCR", WAFFLE_GPU_CX_GDSCR);
             show(cc, WAFFLE_GPUCC_BASE, "CX_GDS_HW_CTRL", WAFFLE_GPU_CX_HW_CTRL);
             show(cc, WAFFLE_GPUCC_BASE, "GX_GDSCR", WAFFLE_GPU_GX_GDSCR);
@@ -550,9 +818,18 @@ static void probe_gpu_body(unsigned probe)
             show(cc, WAFFLE_GPUCC_BASE, "HUB_CLK_SRC", WAFFLE_GPU_HUB_RCGR);
             show(cc, WAFFLE_GPUCC_BASE, "GMU_CLK_SRC", WAFFLE_GPU_GMU_RCGR);
             gpu_log("waffle-gpu: stage 2 register inspection complete\n");
-            if (probe >= 3) probe_cx(gcc, cc, probe);
+            if (probe >= 3) probe_cx(gcc, cc, probe, owner);
         } else gpu_log("waffle-gpu: GPUCC map failed\n");
     } else gpu_log("waffle-gpu: CFG_AHB still halted after 10ms; GPUCC untouched\n");
+    if(owner) {
+        if(owner->child) {
+            gpu_log("waffle-gpu: POWER_OWNER begin returned heap=1 clock_live=1 acquired_cx=%u cfg_changed=%u\n",
+                owner->cx_acquired,owner->cfg_changed);
+            return owner;
+        }
+        (void)board_power_end(owner);
+        return NULL;
+    }
     if (changed) {
         uint32_t current = read_reg(gcc, WAFFLE_GPU_CFG_AHB);
         write_reg(gcc, WAFFLE_GPU_CFG_AHB, (current & ~3u) | (saved & 3));
@@ -561,4 +838,5 @@ static void probe_gpu_body(unsigned probe)
     }
     gpu_log("waffle-gpu: probe ended; returning to loader\n");
     
+    return NULL;
 }

@@ -1,0 +1,13 @@
+{
+  "experiment": "E18 default control",
+  "run": "work/waffle/runs/20261031T201618Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T201554Z",
+  "access_checks": 27,
+  "hfi_allocations": 8,
+  "lpac_translations": 42,
+  "no_cp_raw": true,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "060c7d05edf9dd9786d9eaa3deb1382de45ca51ec3d290a12287dfc479301c56"
+}

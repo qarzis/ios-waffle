@@ -1,0 +1,25 @@
+{
+  "stage": "E21 host preparation only",
+  "mesa": "26.3.0-rc1",
+  "configuration": "compute-build with full NIR selected by opengl=true; EGL/GLX/platforms disabled; only Computerator/native compiler target built",
+  "mesa_source_edited": false,
+  "device_opened": false,
+  "gpu_executed": false,
+  "offline_assembly_validation": {
+    "FD750_offline_assembly": "passed",
+    "deterministic": true,
+    "decode_reassemble_instruction_bytes_identical": true,
+    "padding_normalized_like_Mesa_validator": true,
+    "bytes": 128,
+    "sha256": "36842135a4ade7d74c0ad213585dee20f9176d344733f7f2bf7ef6b6b606c148",
+    "gpu_executed": false
+  },
+  "reference_qrisc_sha256": "f44277e4fdde792fe7895353387eb5bb0240a59fa58e000f9f820aab46ef2693",
+  "tools_and_shader_sources": {
+    "tools/waffle-ir3-assemble.c": "785b0bf68746fa420fb11999888afff830c8565cb6cef889a213c34d596b62e7",
+    "tools/build-waffle-ir3-tools.py": "9accba766b989531adbb5251797cf37edbc3c8798640504fc9eb095aac1d63ee",
+    "tools/tests/waffle-ir3-offline-host.py": "69c3b9a67e88ae0f049c81759fb6fb7ef2337aa6ca8cbabcb1283a8117dd26df",
+    "tools/tests/fixtures/waffle-invocation-8.asm": "ecad8357b0f909c90a7130465ceb2ca5bbeda845df662148c9fbffe87a6dfebd"
+  },
+  "next": "Export source-backed A7xx PM4 launch and relocations, then bounded shader hardware experiment; no rendering claim"
+}

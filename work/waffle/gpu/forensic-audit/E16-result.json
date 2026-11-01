@@ -1,0 +1,31 @@
+{
+  "experiment": "E16",
+  "run": "work/waffle/runs/20261031T200543Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T200519Z",
+  "public_smmu_begin_returns_live_to_board_clock_caller": true,
+  "same_three_ib_results": {
+    "1": {
+      "seq": 44,
+      "values": "56404747/4d444651/12569ade/2569ade1",
+      "wrong_words": 0
+    },
+    "2": {
+      "seq": 45,
+      "values": "55434444/4e474552/115599dd/266aaee2",
+      "wrong_words": 0
+    },
+    "3": {
+      "seq": 46,
+      "values": "54424545/4f464453/105498dc/276bafe3",
+      "wrong_words": 0
+    }
+  },
+  "words_checked_per_result": 4096,
+  "child_stop_and_context_detach_before_clock_restore": true,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "default_control_access27_lpac42_passed": true,
+  "log_sha256": "8fc5e2d9010c3ace69728dfb459c42084e3b47f061414c2ef283469633eec833",
+  "iOS_gpu_acceleration": false
+}

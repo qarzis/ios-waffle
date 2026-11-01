@@ -1,0 +1,7 @@
+== XNULOADER run (usb) ==
+payload entry 'kernel' size ededc0
+payload entry 'ramdisk' size 38000
+payload entry 'cmdline' size ad
+payload entry 'usb' size 2
+payload entry 'checkpoint' size 2
+waffle: unsupported RAM test request

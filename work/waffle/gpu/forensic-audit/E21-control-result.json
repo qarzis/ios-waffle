@@ -1,0 +1,13 @@
+{
+  "experiment": "E21 default control",
+  "run": "work/waffle/runs/20261031T212802Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T212738Z",
+  "access_checks": 27,
+  "hfi_allocations": 8,
+  "lpac_translations": 42,
+  "no_cp_raw": true,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "70c1c9dc7d9aa96a6d75ae3b1d64fbb994bb1937b1d74a6a3de458c6079d0ce0"
+}

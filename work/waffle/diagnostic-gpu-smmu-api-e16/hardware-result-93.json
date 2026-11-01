@@ -1,0 +1,14 @@
+{
+  "probe": 93,
+  "started_at": "2026-10-31T20:04:41.373473+00:00",
+  "variant": "E07-LPAC-map-no-RAW",
+  "runner_exit": 0,
+  "runs": [
+    "work/waffle/runs/20261031T200441Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": "E20 first launch",
+  "run": "work/waffle/runs/20261031T205410Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T205346Z",
+  "kernel_probe_started": false,
+  "gpu_dynamic_mapping_hypothesis_tested": false,
+  "first_proven_cause": "Loader waffle_cmdline_allowed did not allow waffle_dynamic_bo=1; rejected before kernel entry",
+  "exact_log": "waffle: unsupported RAM test request",
+  "android_confirmed": true,
+  "log_sha256": "fd252afc1cce3398de74cb7949dbacbef474b7f6f79878c7da392074d90b83bb",
+  "followup": "E20-r2 changes only loader flag policy and tests; GPU code unchanged"
+}

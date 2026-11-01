@@ -1,0 +1,21 @@
+{
+  "kernel/files/bsd/dev/waffle_smmu.c": "d8d54781aba63bee28572d430bc00af9403c42664bbc369479f1c0754d824ea4",
+  "kernel/files/bsd/dev/waffle_adreno.c": "593b2157ceedf9255c70a54d93caf4655faddb4525c688d2a15484dfcfc385e8",
+  "kernel/files/bsd/dev/waffle_gmu.c": "0932e03f6753c9ed7a42ecbf9937d6b2d60f295e5b881d5dbc241a73b98bb004",
+  "kernel/files/bsd/sys/waffle_smmu.h": "023edc0401e0ee871544198401e2a05791bcef266ee5c9cdb75586070f7103fd",
+  "kernel/files/bsd/sys/waffle_gmu.h": "c3951c5df5dfa9caa9df21f3844d53ed80b7fa1f1b24e756093ffb72a6ea8d51",
+  "tools/tests/waffle-smmu-owner-host.py": "bcdf299315073f6eeb001390c88ea8d8f38367f14effc6f6a9456bf8c013b4c6",
+  "tools/tests/waffle-gmu-clock-host.py": "7da57571184557d13ea2dc407ff08bfca35e2a37243ab9af4378ebd2ec1bca2e",
+  "tools/tests/waffle-gpu-host.py": "b9bd06916a2124cddd75620a9965b7a18c28e5ba9709c207f4f9d22ec0cb4ed1",
+  "tools/build-waffle-diagnostic.py": "486c7ab052d8e45f7efc88ab8251c09b4d6c637e9553662c57440045f41c9f49",
+  "scripts/run_waffle_ios.py": "baf11ea1a1788af1d23a5cb131ecf39916e46f7b614d4120e2a174a433b7a1e7",
+  "tools/run-waffle-auto.py": "ac7d01c1ac3859c1439b8c772af01719e9a01a8d37444c954df7c0fad0342cd1",
+  "work/waffle/gpu/run-publish-test.py": "cb41867cedf9548a30914028bb2744d6534628e7976f1fed7323ec2e811c7b93",
+  "tools/tests/waffle-board-power-owner-host.py": "06d7d9b4ebf55269eb78859343e4e336e1611dedb7086710d96fcd8cd3c1a83c",
+  "kernel/files/bsd/sys/waffle_aop.h": "67100e4e51f4c8ea80d8d7973ff0d1fa3cd0d21bd50b1726291a59a14bcac0ec",
+  "tools/tests/waffle-aop-session-host.py": "2f37886bb3c9895ef580d24dd3dcede0e31632ecee62ff7663de7184581e80cc",
+  "tools/tests/waffle-aop-owner-host.py": "1aabedc687e9451f7e16c12045b6fa348db4fcd7b11963ddf15004d18fc168d9",
+  "tools/tests/waffle-aop-owner-log-host.py": "ff77377fa357a3c2720ceeac8957bf92c2906785ec81ff370e8e068b7422c37e",
+  "tools/tests/fixtures/waffle-aop-transaction-e18.inc": "edd4da2de647dcbb35aeb23287c284ee95f0e94136f1e44343ad47513044ee5b",
+  "tools/tests/fixtures/waffle-aop-transaction-e18.provenance.json": "59bb552ef026864a42696ed1379da6a1af7a5005f2a9bf19a4e26912aa831c94"
+}

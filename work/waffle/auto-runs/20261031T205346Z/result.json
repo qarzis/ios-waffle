@@ -1,0 +1,21 @@
+{
+  "started_utc": "20261031T205346Z",
+  "flash_operations": false,
+  "gpu_raw": true,
+  "prepare_gpu": false,
+  "access_matrix": false,
+  "measure_clocks": false,
+  "lpac_map": true,
+  "lpac_cp_init": true,
+  "zap": true,
+  "writeback": true,
+  "ib": true,
+  "session": true,
+  "dynamic_bo": true,
+  "physical_boot_selection": false,
+  "android_confirmed": true,
+  "automatic_loader_verified": true,
+  "runner_exit": 1,
+  "error": "GPU test failed; preserve original result and inspect recovery log",
+  "success": false
+}

@@ -1,0 +1,33 @@
+{
+  "experiment": "E17",
+  "run": "work/waffle/runs/20261031T201108Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T201045Z",
+  "heap_clock_owner_returned_live_to_cx_caller": true,
+  "retained_clock_journal_entries": 14,
+  "same_three_ib_results": {
+    "1": {
+      "seq": 44,
+      "values": "56404747/4d444651/12569ade/2569ade1",
+      "wrong_words": 0
+    },
+    "2": {
+      "seq": 45,
+      "values": "55434444/4e474552/115599dd/266aaee2",
+      "wrong_words": 0
+    },
+    "3": {
+      "seq": 46,
+      "values": "54424545/4f464453/105498dc/276bafe3",
+      "wrong_words": 0
+    }
+  },
+  "words_checked_per_result": 4096,
+  "child_stop_and_smmu_detach_before_clock_restore": true,
+  "clock_owner_released_before_cx_restore": true,
+  "full_shutdown_and_pll_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "default_control_access27_lpac42_passed": true,
+  "log_sha256": "f33a117cdee888009799b41c903276f20137608036bac104d69e009471e582f3",
+  "iOS_gpu_acceleration": false
+}

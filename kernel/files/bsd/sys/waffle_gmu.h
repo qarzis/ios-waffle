@@ -29,6 +29,7 @@ struct waffle_gmu_plan {
     bool raw_stage_pause;
     struct waffle_submit_session *submit_session;
     unsigned session_slumber_sequence;
+    unsigned compute_mode;
     bool (*pool_permissions)(void *,uint64_t,uint32_t,uint32_t);
     void *pool_permissions_context;
     vm_offset_t fault_smmu;
@@ -48,5 +49,7 @@ void waffle_gmu_free(struct waffle_gmu_plan *);
 struct waffle_gmu_owner;
 struct waffle_gmu_owner *waffle_gmu_owner_begin(struct waffle_gmu_plan *,unsigned,vm_offset_t);
 bool waffle_gmu_owner_exercise(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *);
+bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *,struct waffle_gmu_region *);
 bool waffle_gmu_owner_end(struct waffle_gmu_owner *);
 #endif

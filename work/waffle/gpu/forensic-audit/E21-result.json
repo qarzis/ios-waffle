@@ -1,0 +1,28 @@
+{
+  "experiment": "E21 first actual shader",
+  "run": "work/waffle/runs/20261031T213222Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T213158Z",
+  "shader_executed_on_adreno750_under_xnu": true,
+  "shader_local_invocations": 8,
+  "gpu_output_words": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "gpu_control_fence": 1,
+  "all_words_checked": 4096,
+  "wrong_words": 0,
+  "shader_binary_sha256": "36842135a4ade7d74c0ad213585dee20f9176d344733f7f2bf7ef6b6b606c148",
+  "mesa_a7xx_pm4_dwords": 184,
+  "prepare_without_dispatch_also_passed": true,
+  "full_shutdown": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "log_sha256": "505ceb668dfdf121dc2eeb27f486c029b3bbe699cab9cbebf962aeb1105c5ecf",
+  "image_or_iOS_gpu_acceleration": false
+}

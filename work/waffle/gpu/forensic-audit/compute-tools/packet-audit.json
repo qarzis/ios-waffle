@@ -1,0 +1,369 @@
+{
+  "packets": [
+    {
+      "word_offset": 0,
+      "opcode": "CP_THREAD_CONTROL",
+      "payload_words": 1
+    },
+    {
+      "word_offset": 2,
+      "opcode": "CP_NON_CONTEXT_REG_BUNCH",
+      "payload_words": 84
+    },
+    {
+      "word_offset": 87,
+      "opcode": "CP_CONTEXT_REG_BUNCH",
+      "payload_words": 36
+    },
+    {
+      "word_offset": 124,
+      "opcode": "CP_LOAD_STATE6_FRAG",
+      "payload_words": 3
+    },
+    {
+      "word_offset": 128,
+      "opcode": "CP_LOAD_STATE6_FRAG",
+      "payload_words": 3
+    },
+    {
+      "word_offset": 132,
+      "opcode": "CP_CONTEXT_REG_BUNCH",
+      "payload_words": 6
+    },
+    {
+      "word_offset": 139,
+      "opcode": "CP_SET_MARKER",
+      "payload_words": 1
+    },
+    {
+      "word_offset": 141,
+      "opcode": "CP_CONTEXT_REG_BUNCH",
+      "payload_words": 22
+    },
+    {
+      "word_offset": 164,
+      "opcode": "CP_EXEC_CS",
+      "payload_words": 4
+    },
+    {
+      "word_offset": 169,
+      "opcode": "CP_WAIT_FOR_IDLE",
+      "payload_words": 0
+    },
+    {
+      "word_offset": 170,
+      "opcode": "CP_EVENT_WRITE7",
+      "payload_words": 4
+    },
+    {
+      "word_offset": 175,
+      "opcode": "CP_WAIT_REG_MEM",
+      "payload_words": 6
+    },
+    {
+      "word_offset": 182,
+      "opcode": "CP_EVENT_WRITE7",
+      "payload_words": 1
+    }
+  ],
+  "register_writes": [
+    {
+      "index": "0xae0f",
+      "value": "0x20"
+    },
+    {
+      "index": "0xae04",
+      "value": "0x0"
+    },
+    {
+      "index": "0xe17",
+      "value": "0x0"
+    },
+    {
+      "index": "0xe10",
+      "value": "0x0"
+    },
+    {
+      "index": "0xe11",
+      "value": "0x80"
+    },
+    {
+      "index": "0xae03",
+      "value": "0x10000400"
+    },
+    {
+      "index": "0xae08",
+      "value": "0x400000"
+    },
+    {
+      "index": "0xae09",
+      "value": "0x431800"
+    },
+    {
+      "index": "0xae0a",
+      "value": "0x800000"
+    },
+    {
+      "index": "0xae6c",
+      "value": "0x0"
+    },
+    {
+      "index": "0xae00",
+      "value": "0x10000000"
+    },
+    {
+      "index": "0x9804",
+      "value": "0x3f1f"
+    },
+    {
+      "index": "0x9e00",
+      "value": "0x100000"
+    },
+    {
+      "index": "0x9e24",
+      "value": "0x1585600"
+    },
+    {
+      "index": "0xa600",
+      "value": "0x8000"
+    },
+    {
+      "index": "0xae06",
+      "value": "0x0"
+    },
+    {
+      "index": "0xae6a",
+      "value": "0x0"
+    },
+    {
+      "index": "0xae6b",
+      "value": "0x80"
+    },
+    {
+      "index": "0xae73",
+      "value": "0x0"
+    },
+    {
+      "index": "0xab02",
+      "value": "0x0"
+    },
+    {
+      "index": "0xab01",
+      "value": "0x0"
+    },
+    {
+      "index": "0xab22",
+      "value": "0x0"
+    },
+    {
+      "index": "0xb310",
+      "value": "0x0"
+    },
+    {
+      "index": "0xce2",
+      "value": "0x0"
+    },
+    {
+      "index": "0xce3",
+      "value": "0x0"
+    },
+    {
+      "index": "0xce4",
+      "value": "0x0"
+    },
+    {
+      "index": "0xce5",
+      "value": "0x0"
+    },
+    {
+      "index": "0xce6",
+      "value": "0x0"
+    },
+    {
+      "index": "0xce7",
+      "value": "0x0"
+    },
+    {
+      "index": "0x80a7",
+      "value": "0x0"
+    },
+    {
+      "index": "0x8600",
+      "value": "0x4800"
+    },
+    {
+      "index": "0x8e01",
+      "value": "0x0"
+    },
+    {
+      "index": "0x8899",
+      "value": "0x0"
+    },
+    {
+      "index": "0x8e06",
+      "value": "0x2082000"
+    },
+    {
+      "index": "0x960a",
+      "value": "0x1"
+    },
+    {
+      "index": "0xaa02",
+      "value": "0x0"
+    },
+    {
+      "index": "0xaa03",
+      "value": "0x0"
+    },
+    {
+      "index": "0xb600",
+      "value": "0x11100000"
+    },
+    {
+      "index": "0x9600",
+      "value": "0x2000000"
+    },
+    {
+      "index": "0xe12",
+      "value": "0x40000000"
+    },
+    {
+      "index": "0x8e04",
+      "value": "0x1"
+    },
+    {
+      "index": "0xab00",
+      "value": "0x5"
+    },
+    {
+      "index": "0xab1f",
+      "value": "0xbf"
+    },
+    {
+      "index": "0xa9cd",
+      "value": "0x100"
+    },
+    {
+      "index": "0xa9bb",
+      "value": "0x400100"
+    },
+    {
+      "index": "0xa9bc",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9b0",
+      "value": "0x80100100"
+    },
+    {
+      "index": "0xa9c6",
+      "value": "0x0"
+    },
+    {
+      "index": "0xa9c8",
+      "value": "0xfcfcfcfc"
+    },
+    {
+      "index": "0xa9c9",
+      "value": "0xfcfcfcfc"
+    },
+    {
+      "index": "0xa9ca",
+      "value": "0xfcfcfcfc"
+    },
+    {
+      "index": "0xa9cb",
+      "value": "0xfc00"
+    },
+    {
+      "index": "0xa9b1",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9db",
+      "value": "0x44400afc"
+    },
+    {
+      "index": "0xa9c2",
+      "value": "0xfcfcfc"
+    },
+    {
+      "index": "0xa9c3",
+      "value": "0x1fc"
+    },
+    {
+      "index": "0xa9b4",
+      "value": "0x479000"
+    },
+    {
+      "index": "0xa9b5",
+      "value": "0x1ff80"
+    },
+    {
+      "index": "0xa9bc",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9f8",
+      "value": "0x479100"
+    },
+    {
+      "index": "0xa9f9",
+      "value": "0x1ff80"
+    },
+    {
+      "index": "0xaa00",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9d4",
+      "value": "0x1f"
+    },
+    {
+      "index": "0xa9df",
+      "value": "0x1c"
+    },
+    {
+      "index": "0xa9d5",
+      "value": "0x8"
+    },
+    {
+      "index": "0xa9d6",
+      "value": "0x0"
+    },
+    {
+      "index": "0xa9d7",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9d8",
+      "value": "0x0"
+    },
+    {
+      "index": "0xa9d9",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9da",
+      "value": "0x0"
+    },
+    {
+      "index": "0xa9dc",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9dd",
+      "value": "0x1"
+    },
+    {
+      "index": "0xa9de",
+      "value": "0x1"
+    }
+  ],
+  "protected_spans_checked": 48,
+  "protected_register_writes": 0,
+  "exec_word_offset": 164,
+  "command_dwords": 184,
+  "payload_sha256": "a302d60f795ec3b38c24e43c3b3b437fdb050acbed9c621e8df463c44b8e30d4",
+  "gpu_executed": false
+}

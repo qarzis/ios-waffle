@@ -1,7 +1,7 @@
 # OnePlus 12 GPU milestones
 
-Status: October 31, 2026, OnePlus 12 PJD110 / SM8650 / Adreno 750.
-The current verified implementation is the E15 source snapshot. These are
+Status: November 1, 2026, OnePlus 12 PJD110 / SM8650 / Adreno 750.
+The current verified implementation includes the first E21 compute shader test. These are
 bounded kernel diagnostics, with Android reset and boot confirmation between
 cold sessions. They do not establish GPU rendering of the iOS interface.
 
@@ -18,6 +18,9 @@ cold sessions. They do not establish GPU rendering of the iOS interface.
 | E13: GMU begin/finish owner | GMU register snapshots, live state and shutdown evidence survived begin return; default control and three-IB session passed | [Session](../work/waffle/gpu/forensic-audit/E13-result.json), [control](../work/waffle/gpu/forensic-audit/E13-control-result.json) |
 | E14: GMU/TCM component | Live component returned to its SMMU parent; three IBs passed, then GMU stopped and the complete 32 KiB TCM snapshot was restored before owner release | [Session](../work/waffle/gpu/forensic-audit/E14-result.json), [control](../work/waffle/gpu/forensic-audit/E14-control-result.json) |
 | E15: SMMU parent owner | Parent-owned tables, firmware plan, context snapshots and callback storage survived constructor return. Three distinct GPU results passed; child stopped before context detach and parent release | [Session](../work/waffle/gpu/forensic-audit/E15-result.json), [27 access checks / 42 LPAC checks control](../work/waffle/gpu/forensic-audit/E15-control-result.json) |
+| E16–E19: board and AOP ownership | Live GPU state survives component returns; AOP mutex is released during GPU work, with child-first shutdown | [E19 result](../work/waffle/gpu/forensic-audit/E19-result.json) |
+| E20: post-startup buffer | New 16 KiB BO mapped and bound after GPU boot; three real GPU results and all 4,096 words passed | [Result](../work/waffle/gpu/forensic-audit/E20-result.json) |
+| E21: first compute shader | Eight Adreno 750 shader invocations wrote 0–7 under XNU; control fence=1, all 4,096 words correct, full shutdown and Android recovery | [Shader result](../work/waffle/gpu/forensic-audit/E21-result.json), [prepare control](../work/waffle/gpu/forensic-audit/E21-prepare-result.json), [kernel log](../work/waffle/runs/20261031T213222Z/kernel-final.log) |
 
 E15's complete kernel log is [preserved here](../work/waffle/runs/20261031T111210Z/kernel-final.log).
 The [hardware runner report](../work/waffle/diagnostic-gpu-smmu-owner-e15/hardware-result-94.json)

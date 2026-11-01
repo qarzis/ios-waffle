@@ -1,0 +1,14 @@
+{
+  "experiment": "E20",
+  "base": "796012e68216b20c25be9fa49c592147a9cf54f8",
+  "scope": "one post-bootstrap BO allocation/map/dual-ASID publication and idle session rebind",
+  "entire_adreno_aop_power_clock_unchanged": true,
+  "existing_gmu_code_byte_identical_new_apis_append_only": true,
+  "smmu_mapping_ecats_context_and_secure_helpers_unchanged": true,
+  "new_controlled_gpu_va": "0x80078000",
+  "compact_alias": "0x1ff8000478000",
+  "real_mapper_host_cases": 12,
+  "actual_session_new_alias_and_failed_rebind_checked": true,
+  "dynamic_bo_freed_only_after_context_detach_host_checked": true,
+  "hardware_tested": false
+}

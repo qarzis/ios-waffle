@@ -18,6 +18,7 @@
 #include <sys/waffle_gpu_measure.h>
 #include <sys/waffle_zap_load.h>
 #include <sys/waffle_gpu_writeback.h>
+#include <sys/waffle_gpu_compute.h>
 #include <vm/vm_kern.h>
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
@@ -1887,6 +1888,21 @@ static bool submit_session_open(vm_offset_t gpu,vm_offset_t gmu,vm_offset_t hfi,
     say("waffle-gmu: SESSION opened heap=1 OOB=1 BO_alias=1 next_sequence=44\n");
     return true;
 }
+static bool submit_session_exchange(struct waffle_submit_session *s,unsigned words,const char *name)
+{
+    if(!s || s->phase!=SUBMIT_READY || !s->owns_oob || s->submitted!=s->completed ||
+        s->next_sequence>=4095 || loader_return_remaining_us()<3000000)return false;
+    uint32_t ib[5];
+    if(waffle_writeback_ib_packet(ib,5,s->next_sequence,s->ib_va,words)!=5)return false;
+    s->phase=SUBMIT_BUSY;++s->submitted;++s->next_sequence;
+    struct waffle_gmu_plan watch=*s->plan;
+    watch.raw_stage_pause=false;
+    if(!hfi_exchange_watch(s->gmu,s->hfi,ib,5,name,true,&watch) ||
+        !wait_for(s->gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000)) {
+        s->phase=SUBMIT_POISONED;return false;
+    }
+    return true;
+}
 static bool submit_session_submit(struct waffle_submit_session *s)
 {
     if(!s || s->phase!=SUBMIT_READY || !s->owns_oob || s->submitted!=s->completed ||
@@ -1895,22 +1911,14 @@ static bool submit_session_submit(struct waffle_submit_session *s)
         s->phase=SUBMIT_POISONED;return false;
     }
     const unsigned fence=s->submitted+1,sequence=s->next_sequence;
-    uint32_t direct[9],ib[5],token[4];
-    if(waffle_writeback_packet(direct,9,sequence,s->result_va)!=9 ||
-        waffle_writeback_ib_packet(ib,5,sequence,s->ib_va,8)!=5)return false;
+    uint32_t direct[9],token[4];
+    if(waffle_writeback_packet(direct,9,sequence,s->result_va)!=9)return false;
     for(unsigned i=0;i<4;++i)direct[4+i]=token[i]=waffle_writeback_values[i]^(fence*0x01010101u);
     volatile uint32_t *out=(volatile uint32_t *)s->alias;
     for(unsigned i=0;i<4096;++i)out[i]=i>=256 && i<264 ? direct[i-255] : waffle_writeback_initial(i);
     __asm__ volatile("dsb sy":::"memory");
     for(unsigned i=0;i<4096;++i)if(out[i]!=(i>=256 && i<264 ? direct[i-255] : waffle_writeback_initial(i)))return false;
-    /* State and ownership are committed BEFORE the command can be observed. */
-    s->phase=SUBMIT_BUSY;s->submitted=fence;++s->next_sequence;
-    struct waffle_gmu_plan watch=*s->plan;
-    watch.raw_stage_pause=false; /* Native consecutive publication/polling. */
-    if(!hfi_exchange_watch(s->gmu,s->hfi,ib,5,"SESSION_IB",true,&watch) ||
-        !wait_for(s->gmu,WAFFLE_GMU_REG(0x23b0c),1u<<23,0,2000)) {
-        s->phase=SUBMIT_POISONED;return false;
-    }
+    if(!submit_session_exchange(s,8,"SESSION_IB"))return false;
     for(unsigned attempt=0;attempt<2000;++attempt) {
         __asm__ volatile("dsb sy":::"memory");
         bool seen=true;
@@ -1933,10 +1941,42 @@ static bool submit_session_submit(struct waffle_submit_session *s)
     s->completed=fence;s->phase=SUBMIT_READY;
     return true;
 }
+static bool submit_session_compute(struct waffle_submit_session *s,unsigned mode)
+{
+    if(!s || (mode!=1 && mode!=2) || s->phase!=SUBMIT_READY || !s->owns_oob ||
+        s->submitted || s->completed || s->next_sequence!=44 ||
+        s->ib_va!=waffle_gpu_compact_alias(WAFFLE_GPU_DYNAMIC_ADDRESS)+1024 ||
+        rd(s->gpu,0xf400*4) || (rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3))return false;
+    volatile uint32_t *out=(volatile uint32_t *)s->alias;
+    for(unsigned i=0;i<4096;i++)out[i]=waffle_compute_initial(mode,i);
+    __asm__ volatile("dsb sy":::"memory");
+    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_compute_initial(mode,i))return false;
+    say("waffle-gmu: COMPUTE begin mode=%u dispatch=%u words=%u output_poison=1\n",mode,mode==2,WAFFLE_COMPUTE_WORDS);
+    if(!submit_session_exchange(s,WAFFLE_COMPUTE_WORDS,"COMPUTE_IB"))return false;
+    for(unsigned attempt=0;attempt<2000;attempt++) {
+        __asm__ volatile("dsb sy":::"memory");
+        bool seen=out[2048]==1;
+        if(mode==2)for(unsigned i=0;i<8;i++)if(out[64+i]!=i)seen=false;
+        if(seen)break;
+        delay_for_interval(100,NSEC_PER_USEC);
+    }
+    unsigned wrong=0;
+    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_compute_expected(mode,i)) {
+        if(!wrong)say("waffle-gmu: COMPUTE mismatch mode=%u index=%u got=%08x expected=%08x\n",mode,i,out[i],waffle_compute_expected(mode,i));
+        ++wrong;
+    }
+    say("waffle-gmu: COMPUTE values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x control=%08x checked=4096 wrong_words=%u mode=%u\n",
+        out[64],out[65],out[66],out[67],out[68],out[69],out[70],out[71],out[2048],wrong,mode);
+    if(wrong){s->phase=SUBMIT_POISONED;return false;}
+    s->completed=s->submitted;s->phase=SUBMIT_READY;
+    return true;
+}
 static bool submit_session_run(struct waffle_gmu_plan *plan)
 {
     struct waffle_submit_session *s=plan->submit_session;
-    for(unsigned i=0;i<3;++i) {
+    if(plan->compute_mode) {
+        if(!submit_session_compute(s,plan->compute_mode))return false;
+    } else for(unsigned i=0;i<3;++i) {
         if(!submit_session_submit(s))return false;
         if(i<2)delay_for_interval(1000000,NSEC_PER_USEC);
     }
@@ -1972,4 +2012,34 @@ static void submit_session_destroy(struct waffle_gmu_plan *plan,unsigned evidenc
     plan->submit_session=NULL;
     kmem_free(kernel_map,allocation,PAGE_SIZE);
     say("waffle-gmu: SESSION destroyed after full stop; aliases and heap released\n");
+}
+
+/* Bounded post-bootstrap BO binding. Parent owns mappings and backing pages
+ * until full stop. Never replace an alias after a command has been published. */
+bool waffle_gmu_owner_can_bind_bo(struct waffle_gmu_owner *owner)
+{
+    struct waffle_submit_session *s=owner && owner->plan?owner->plan->submit_session:NULL;
+    return s && s->phase==SUBMIT_READY && s->owns_oob && !s->submitted && !s->completed &&
+        s->next_sequence==44 && !rd(s->gpu,0xf400*4) &&
+        !(rd(s->gmu,WAFFLE_GMU_REG(0x1f8d0))&3);
+}
+bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *owner,struct waffle_gmu_region *r)
+{
+    if(!waffle_gmu_owner_can_bind_bo(owner) || !r || r->address!=WAFFLE_GPU_DYNAMIC_ADDRESS ||
+        !r->memory || !r->gpu_only || r->readonly || r->size!=16384)return false;
+    uint64_t pa=kvtophys(r->memory);
+    if(!pa || (pa&16383) || pa>=(1ULL<<36) || kvtophys(r->memory+16383)!=pa+16383)return false;
+    struct waffle_submit_session *s=owner->plan->submit_session;
+    uint64_t va=waffle_gpu_plan_alias(owner->plan,r->address);
+    if(!va || !waffle_gpu_va_valid(va+16383))return false;
+    for(vm_offset_t a=r->memory;a<r->memory+16384;a+=64)
+        __asm__ volatile("dc civac, %0"::"r"(a):"memory");
+    __asm__ volatile("dsb sy":::"memory");
+    vm_offset_t alias=ml_io_map_unmappable(pa,16384,VM_WIMG_WCOMB);
+    if(!alias)return false;
+    vm_offset_t old_alias=s->alias;
+    s->alias=alias;s->result_va=va+256;s->ib_va=va+1024;
+    ml_io_unmap(old_alias,16384);
+    say("waffle-gmu: SESSION rebound BO VA=%llx PA=%llx idle=1 outstanding=0\n",va,pa);
+    return true;
 }

@@ -1,0 +1,12 @@
+{
+  "experiment": "E18",
+  "base": "8e138d92df6c9abb9f16f0d98f112e5833ebe3ef",
+  "scope": "session94 power parent owns acquired CX collapse/CFG gating and clock child; returned to AOP callback",
+  "entire_smmu_and_gmu_unchanged": true,
+  "clock_begin_exercise_finish_and_wrappers_unchanged": true,
+  "diagnostic_dispatch_unchanged": true,
+  "new_mmio_constants": false,
+  "aop_mutex_and_transaction_lifetime": "unchanged and still bounded",
+  "host_scenarios": 14,
+  "hardware_tested": false
+}

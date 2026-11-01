@@ -1,8 +1,4 @@
-## Current published state — E15
-
-CP_INIT, authenticated ZAP, indirect command fetch and actual GPU writeback are verified. E15 additionally verified heap ownership of the SMMU parent: tables, firmware plan, context snapshots and callback storage survive constructor return, with the GMU child stopped before parent detach and release. The three-IB session and the default ACCESS27/LPAC42 control both passed and returned to Android. See [the English milestone table](../../../../docs/waffle-gpu-milestones.md) and E15-result.json.
-
-Persistent board-clock/CX/AOP lifetime, dynamic userspace BO/submit/fences, shader drawing and iOS GPU composition remain unfinished. The earlier audit sections below are chronological records, not current pass/fail declarations.
+> Current update: E21 verified eight compute shader results (0–7) and all 4,096 buffer words under XNU. E19/E20 verified AOP lifetime and post-startup BO access. Images and the iOS GPU backend remain unfinished. This document retains its earlier audit inventory; see [E21-result.json](E21-result.json) for the newer hardware result.
 
 ## Обновление после E09–E11-r2: CP, ZAP, DMA и IB подтверждены
 

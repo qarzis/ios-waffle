@@ -1,0 +1,21 @@
+{
+  "experiment": "E17",
+  "base": "60a17c0fbe575e67421121e1a708d7d840af681d",
+  "scope": "probe_clocks ownership split and CX caller handoff",
+  "preceding_clock_helpers_unchanged": true,
+  "following_board_code_unchanged_except_two_call_names": true,
+  "entire_smmu_and_gmu_unchanged": true,
+  "native_clock_module_storage_retained_and_serialized": true,
+  "new_fail_closed_gate": "On RCG restore timeout retain owner and reset; do not drop CX/AOP",
+  "host_checked": [
+    "legacy87..92 rollback",
+    "93stack/94heap paths",
+    "direct14-entry rollback journal after begin returns",
+    "duplicate begin/exercise refusal",
+    "child-before-clock restore",
+    "allocation failure before writes",
+    "failed PLL stop retains owner",
+    "failed RCG restore retains owner"
+  ],
+  "hardware_tested": false
+}

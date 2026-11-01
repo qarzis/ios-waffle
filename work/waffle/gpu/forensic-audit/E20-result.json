@@ -1,0 +1,38 @@
+{
+  "experiment": "E20-r2",
+  "run": "work/waffle/runs/20261031T205950Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T205926Z",
+  "bo_allocated_and_mapped_after_gpu_startup": true,
+  "low_va": "0x80078000",
+  "gpu_va": "0x1ff8000478000",
+  "physical_address": "8d1a74000",
+  "bytes": 16384,
+  "dual_alias_unprivileged_mapping": true,
+  "table_cache_and_dual_asid_tlb_published": true,
+  "same_three_ib_results_in_new_bo": {
+    "1": {
+      "seq": 44,
+      "values": "56404747/4d444651/12569ade/2569ade1",
+      "wrong_words": 0
+    },
+    "2": {
+      "seq": 45,
+      "values": "55434444/4e474552/115599dd/266aaee2",
+      "wrong_words": 0
+    },
+    "3": {
+      "seq": 46,
+      "values": "54424545/4f464453/105498dc/276bafe3",
+      "wrong_words": 0
+    }
+  },
+  "words_checked_per_result": 4096,
+  "new_bo_freed_after_gpu_stop_and_context_detach": true,
+  "full_shutdown_and_channel_restore": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "default_control_access27_lpac42_passed": true,
+  "log_sha256": "fbcc3eea79c6e62ea6c011b203c3622fb110bea871e6728dae6af5e03a3b2519",
+  "earlier_launch_rejected_before_kernel": "work/waffle/gpu/forensic-audit/E20-launch-rejection.json",
+  "iOS_gpu_acceleration": false
+}

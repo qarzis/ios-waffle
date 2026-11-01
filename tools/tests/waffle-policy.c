@@ -56,6 +56,16 @@ int main(void)
     assert(waffle_cmdline_allowed("-v bootcpu=1 epoch=1792750000 loader_return_after=10 fbscale=2"));
     assert(waffle_cmdline_allowed("  -v   "));
 #ifdef WAFFLE_USERLAND
+    assert(waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=1"));
+    assert(waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_compute=2"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=3"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=1 waffle_compute=2"));
+    assert(waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_dynamic_bo=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=93 waffle_dynamic_bo=1"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=2"));
+    assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_dynamic_bo=1"));
     assert(waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1"));
     assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_session=1"));
     assert(!waffle_cmdline_allowed("waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_session=1"));

@@ -1,10 +1,10 @@
 # OnePlus 12 GPU port
 
-The Adreno 750 now executes verified commands under XNU. CP_INIT, authenticated ZAP, native secure-mode transition, indirect PM4 fetch and actual GPU writeback have passed on the PJD110. E15 passed three sequential IBs with distinct results, explicit GMU/TCM/SMMU ownership and full shutdown. Android recovery was independently confirmed.
+The Adreno 750 executes compute shaders under XNU. E21 ran eight shader invocations and read back the values 0–7; all 4,096 buffer words were checked. The prepare-only control also passed. E19 verified AOP ownership with the shared mutex released during GPU work; E20 verified GPU access to a buffer allocated after startup. All completed tests returned to a fully booted Android.
 
-The iOS interface still renders through Mesa softpipe. The remaining work includes persistent board-clock/CX/AOP lifetime, dynamic BO mappings, userspace submission/fences, a first verified draw and Mesa/IOSurface integration. No shader-rendered frame, CoreAnimation acceleration or Metal support is claimed. The existing tests are cold bounded sessions with Android resets between attempts.
+The iOS interface still uses Mesa softpipe. A rendered image, userspace submission/fences, IRQ recovery, Mesa/IOSurface hardware integration and Metal remain unverified or unfinished. These are bounded kernel tests with Android resets between cold sessions.
 
-See [the milestone/evidence table](waffle-gpu-milestones.md), [the current debug log](../GPU_DEBUG_LOG.md), and [the integration gap inventory](../work/waffle/gpu/forensic-audit/IOS-GPU-INTEGRATION.md). Historical sections below retain the earlier bring-up details and failed tests; current E08–E15 results supersede their old CP_INIT blocker descriptions.
+See the [milestones and evidence](waffle-gpu-milestones.md) and [debug log](../GPU_DEBUG_LOG.md). Historical sections below preserve earlier failures and implementation notes; the E21 results supersede their older status descriptions.
 
 ## Hardware and source evidence
 

@@ -1,3 +1,5 @@
+> Current update: E21 verified eight compute shader results (0–7) and all 4,096 buffer words under XNU. E19/E20 verified AOP lifetime and post-startup BO access. Images and the iOS GPU backend remain unfinished. This document retains its earlier audit inventory; see [E21-result.json](E21-result.json) for the newer hardware result.
+
 # Waffle graphics integration after CP/ZAP/memory bring-up
 
 This is an implementation inventory, not an acceleration claim. References below
@@ -9,8 +11,8 @@ are existing local source interfaces; no new user/kernel ABI is proposed here.
 | Authenticated ZAP/security transition | Implemented and hardware verified | E09 PAS13 auth0, native switch ACK0, TRUST0 |
 | GPU write / CPU observation | Implemented and hardware verified for NC diagnostic BO | E10 four-word result and all4096-word guard validation |
 | GPU fetch of indirect PM4 buffer | Implemented and hardware verified | E11-r2 reads8wordIB and verifies actual result/all4096words after scoped AP_UNPRIV fix |
-| Persistent power and firmware lifetime | Component ownership verified; production parent missing | E14 GMU/TCM and E15 SMMU parent ownership verified with three IBs and end; boardclock/AOP still enclose the bounded diagnostic |
-| Dynamic BO/VA/page-table lifetime | Heap parent verified; dynamic user BO backend missing | E15 parent owns tables, plan, contexts and callbacks; per-service allocation/map/unmap remains unfinished |
+| Persistent power and firmware lifetime | Component ownership verified; production parent missing | E14 GMU/TCM begin returns live to SMMU parent, three IBs and end verified; SMMU/boardclock/AOP parents remain diagnostic-scoped |
+| Dynamic BO/VA/page-table lifetime | Missing waffle backend | Current tables are diagnostic local objects, not persistent per-service resources |
 | Submission completion / reclamation | Partial, bounded prototype verified | E12/E13/E14 three unique IB sequences/results, heap session + GMU/TCM component owner, close/stop/free ordering verified; no user fence backend |
 | GPU interrupts | Not verified for normal work | Current execution uses polled ACK/idle; no normal waffle IRQ recovery path |
 | IOKit service and IOUserClient | Existing shared implementation | kernel/files/iokit/Kernel/MacanGPU.cpp RedwoodGPUUserClient |
@@ -54,9 +56,3 @@ holds its mutex around the whole callback and sends ACDoff on exit.
 No unrestricted userspace queue or actual draw was introduced by this work.
 Cold-open/end with Androidreset between attempts is verified; a second open
 after RSCsleep in the same boot remains untested.
-
-E15 update: the SMMU parent object described above is now implemented and
-hardware verified. Default ACCESS27/LPAC42 and the heap-owner three-IB session
-both passed. Context snapshots, tables, plan and callback/matrix storage survive
-constructor return. The next outer boundary is board-clock/CX/AOP ownership;
-there is still no persistent per-service GPU backend or renderer switch.

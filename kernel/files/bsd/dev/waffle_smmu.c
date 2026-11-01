@@ -10,6 +10,7 @@
 #include <sys/systm.h>
 #include <sys/waffle_gpu.h>
 #include <sys/waffle_gmu.h>
+#include <sys/waffle_smmu.h>
 #include <sys/waffle_scm.h>
 #include <sys/waffle_gpu_writeback.h>
 #include <vm/vm_kern.h>
@@ -392,12 +393,13 @@ static const uint32_t smmu_gmu_offsets[]={0x4,0x10,0x20,0x24,0x28,0x2c,0x30,0x38
 struct smmu_owner {
     vm_offset_t smmu,qtb,gmu,cc,cb,target;
     unsigned page,pages,contexts,matches,probe,index,lpac_checks;
-    uint32_t lpac_map,zap,writeback,ib,session,access_matrix;
+    uint32_t lpac_map,zap,writeback,ib,session,access_matrix,dynamic_bo,compute_mode;
     uint32_t saved_ctl,saved_smr,saved_s2cr,old_cbar,old_cba2r,old[9];
     uint64_t old_fence,old_inputs[3],target_pa;
     struct gpu_context gpu_context,lpac_context;
     struct table_pool pool;
     struct waffle_gmu_plan firmware;
+    struct waffle_gmu_region dynamic;
     struct protected_gpu_pool *protected_pool;
     struct pool_permission_context permission_context;
     struct access_matrix_context matrix;
@@ -434,6 +436,14 @@ static bool smmu_owner_begin(struct smmu_owner *s)
     if(PE_parse_boot_argn("waffle_session",&s->session,sizeof(s->session)) &&
         (s->session!=1 || probe!=94 || s->lpac_map!=1 || s->zap!=1 || s->writeback!=1 || s->ib!=1)) {
         log_line("waffle-iommu: session requires controlled94 LPAC/ZAP/writeback/IB; refused\n");return false;
+    }
+    if(PE_parse_boot_argn("waffle_dynamic_bo",&s->dynamic_bo,sizeof(s->dynamic_bo)) &&
+        (s->dynamic_bo!=1 || probe!=94 || s->session!=1)) {
+        log_line("waffle-iommu: dynamic BO requires controlled94 session; refused\n");return false;
+    }
+    if(PE_parse_boot_argn("waffle_compute",&s->compute_mode,sizeof(s->compute_mode)) &&
+        ((s->compute_mode!=1 && s->compute_mode!=2) || probe!=94 || s->dynamic_bo!=1 || s->session!=1)) {
+        log_line("waffle-iommu: compute requires controlled94 dynamic BO session; refused\n");return false;
     }
     if(PE_parse_boot_argn("waffle_ecats_access",&s->access_matrix,sizeof(s->access_matrix)) &&
         (s->access_matrix!=1 || probe!=93)) {
@@ -478,6 +488,7 @@ static bool smmu_owner_begin(struct smmu_owner *s)
     for (unsigned i = 0; i < 3; ++i) s->old_inputs[i] = r64(s->qtb, 0x430 + 8 * i);
     s->snapshot_ready=true;
     if (probe >= 8 && !waffle_gmu_prepare(&s->firmware, probe)) return false;
+    s->firmware.compute_mode=s->compute_mode;
     if (!new_table(&s->pool) || kmem_alloc(kernel_map, &s->target, PAGE_SIZE,
             KMA_KOBJECT | KMA_ZERO | KMA_DATA, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) return false;
     s->target_pa = kvtophys(s->target);
@@ -707,38 +718,120 @@ static bool smmu_owner_finish(struct smmu_owner *s)
         for (unsigned i = 0; i < s->pool.count; ++i) kmem_free(kernel_map, s->pool.memory[i], PAGE_SIZE);
         if (s->target) kmem_free(kernel_map, s->target, PAGE_SIZE);
         waffle_gmu_free(&s->firmware);
+        if(s->dynamic.memory) {
+            kmem_free(kernel_map,s->dynamic.memory,PAGE_SIZE);
+            log_line("waffle-iommu: DYNAMIC_BO released after GPU stop and context detach\n");
+        }
     } else log_line("waffle-iommu: keep test pages allocated; reboot Android before retry\n");    return s->safe_free;
+}
+/* No ATOS/ECATS while GPU is live. A vacant leaf plus explicit cache/TLB
+ * publication is checked by subsequent real GPU fetch and CPU readback. */
+static bool dynamic_bo_vacant(struct table_pool *pool,uint64_t iova)
+{
+    uint64_t *root=(uint64_t *)pool->memory[0];
+    uint64_t entry=root[(iova>>30)&511];
+    if(!entry)return true;
+    uint64_t *second=permission_table(pool,entry);
+    if(!second)return false;
+    entry=second[(iova>>21)&511];
+    if(!entry)return true;
+    uint64_t *leaf=permission_table(pool,entry);
+    return leaf && !leaf[(iova>>12)&511];
+}
+static bool smmu_dynamic_bo_bind(struct smmu_owner *s)
+{
+    const uint32_t address=WAFFLE_GPU_DYNAMIC_ADDRESS,bytes=16384;
+    uint64_t alias=waffle_gpu_plan_alias(&s->firmware,address);
+    if(s->dynamic.memory || !s->child || !s->pool.count || !s->firmware.compact_gpu_va ||
+        !alias || !waffle_gmu_owner_can_bind_bo(s->child))return false;
+    for(unsigned i=0;i<s->firmware.count;i++) {
+        struct waffle_gmu_region *r=&s->firmware.regions[i];
+        if((uint64_t)address<(uint64_t)r->address+r->size && (uint64_t)r->address<address+bytes)return false;
+    }
+    for(unsigned off=0;off<bytes;off+=4096)
+        if(!dynamic_bo_vacant(&s->pool,(uint64_t)address+off) ||
+            !dynamic_bo_vacant(&s->pool,alias-WAFFLE_GPU_GLOBAL_BASE+off))return false;
+    vm_offset_t memory=0;
+    if(kmem_alloc(kernel_map,&memory,PAGE_SIZE,KMA_KOBJECT|KMA_ZERO|KMA_DATA,
+        VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return false;
+    s->dynamic=(struct waffle_gmu_region){.address=address,.size=bytes,.memory=memory,.gpu_only=true};
+    for(unsigned off=0;off<bytes;off+=4096)
+        if(!map_page_access(&s->pool,(uint64_t)address+off,kvtophys(memory+off),false,true) ||
+            !map_page_access(&s->pool,alias-WAFFLE_GPU_GLOBAL_BASE+off,kvtophys(memory+off),false,true))
+            smmu_owner_stop("dynamic BO partial mapping; retain all pages");
+    for(unsigned i=0;i<s->pool.count;i++)clean(s->pool.memory[i]);
+    if(!pool_permission_sync(&s->permission_context))smmu_owner_stop("dynamic BO TLB publication incomplete");
+    if(!waffle_gmu_owner_bind_bo(s->child,&s->dynamic))return false;
+    log_line("waffle-iommu: DYNAMIC_BO published after GPU startup VA=%x pages=4 aliases=2 unprivileged=1\n",address);
+    return true;
+}
+struct waffle_smmu_owner {
+    struct smmu_owner state;
+    vm_offset_t allocation;
+    bool exercised;
+};
+struct waffle_smmu_owner *waffle_smmu_owner_begin(uintptr_t smmu,uint32_t page,
+    uint32_t pages,uint32_t contexts,uint32_t matches,unsigned probe)
+{
+    vm_offset_t allocation=0;uint32_t requested=0;
+    if(probe!=94 || !PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) || requested!=1)
+        return NULL;
+    if(sizeof(struct waffle_smmu_owner)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
+        KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return NULL;
+    struct waffle_smmu_owner *owner=(struct waffle_smmu_owner *)allocation;
+    owner->allocation=allocation;
+    struct smmu_owner *s=&owner->state;
+    *s=(struct smmu_owner){.smmu=smmu,.page=page,.pages=pages,.contexts=contexts,
+        .matches=matches,.probe=probe,.safe_free=true};
+    bool begun=smmu_owner_begin(s);
+    if(!begun || !s->child) {
+        if(!smmu_owner_finish(s))smmu_owner_stop("SMMU constructor detach incomplete");
+        kmem_free(kernel_map,allocation,PAGE_SIZE);
+        return NULL;
+    }
+    if(s->firmware.pool_permissions_context!=&s->permission_context || !s->firmware.submit_session)
+        smmu_owner_stop("invalid SMMU constructor or callback ownership");
+    log_line("waffle-iommu: SMMU_OWNER begin returned heap=1 callback_owned=1 child_live=1\n");
+    return owner;
+}
+bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *owner)
+{
+    if(!owner || !owner->state.child || owner->exercised)return false;
+    owner->exercised=true;
+    if(owner->state.dynamic_bo && !smmu_dynamic_bo_bind(&owner->state))return false;
+    owner->state.gmu_ok=waffle_gmu_owner_exercise(owner->state.child);
+    return owner->state.gmu_ok;
+}
+bool waffle_smmu_owner_end(struct waffle_smmu_owner *owner)
+{
+    if(!owner)return false;
+    struct smmu_owner *s=&owner->state;
+    if(!s->child || !s->firmware.submit_session)
+        smmu_owner_stop("GMU child state lost before parent end");
+    bool stopped=waffle_gmu_owner_end(s->child);
+    s->child=NULL;s->gmu_ok=s->gmu_ok && stopped;
+    smmu_owner_complete(s);
+    if(!smmu_owner_finish(s))smmu_owner_stop("SMMU detach incomplete; cannot free owner");
+    bool ok=s->gmu_ok;
+    vm_offset_t allocation=owner->allocation;
+    kmem_free(kernel_map,allocation,PAGE_SIZE);
+    log_line("waffle-iommu: SMMU_OWNER released after child stop and context detach\n");
+    return ok;
 }
 void waffle_smmu_probe(vm_offset_t smmu,uint32_t page,uint32_t pages,
     uint32_t contexts,uint32_t matches,unsigned probe)
 {
-    struct smmu_owner fallback={0},*s=&fallback;
-    vm_offset_t allocation=0;uint32_t requested=0;
-    bool heap=PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) && requested==1;
-    if(heap) {
-        if(sizeof(*s)>PAGE_SIZE || kmem_alloc(kernel_map,&allocation,PAGE_SIZE,
-            KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)!=KERN_SUCCESS)return;
-        s=(struct smmu_owner *)allocation;
+    uint32_t requested=0;
+    if(PE_parse_boot_argn("waffle_session",&requested,sizeof(requested)) && requested==1) {
+        struct waffle_smmu_owner *owner=waffle_smmu_owner_begin(smmu,page,pages,contexts,matches,probe);
+        if(owner){(void)waffle_smmu_owner_exercise(owner);(void)waffle_smmu_owner_end(owner);}
+        return;
     }
-    *s=(struct smmu_owner){.smmu=smmu,.page=page,.pages=pages,.contexts=contexts,
+    struct smmu_owner s={.smmu=smmu,.page=page,.pages=pages,.contexts=contexts,
         .matches=matches,.probe=probe,.safe_free=true};
-    bool begun=smmu_owner_begin(s);
-    if(s->child) {
-        if(!begun || s->firmware.pool_permissions_context!=&s->permission_context)
-            smmu_owner_stop("invalid SMMU constructor or callback ownership");
-        log_line("waffle-iommu: SMMU_OWNER begin returned heap=%u callback_owned=1 child_live=1\n",heap);
-        bool exercised=waffle_gmu_owner_exercise(s->child);
-        if(!s->firmware.submit_session)smmu_owner_stop("GMU child state lost before parent end");
-        bool stopped=waffle_gmu_owner_end(s->child);
-        s->child=NULL;s->gmu_ok=exercised && stopped;
-    }
-    smmu_owner_complete(s);
-    bool released=smmu_owner_finish(s);
-    if(allocation) {
-        if(!released)smmu_owner_stop("SMMU detach incomplete; cannot free owner");
-        kmem_free(kernel_map,allocation,PAGE_SIZE);
-        log_line("waffle-iommu: SMMU_OWNER released after child stop and context detach\n");
-    }
+    (void)smmu_owner_begin(&s);
+    smmu_owner_complete(&s);
+    (void)smmu_owner_finish(&s);
 }
 
 static void secure_context_stop(const char *reason)

@@ -1,0 +1,32 @@
+{
+  "experiment": "E19",
+  "run": "work/waffle/runs/20261031T204325Z",
+  "automatic_run": "work/waffle/auto-runs/20261031T204301Z",
+  "heap_aop_owner_returned_live_to_init_caller": true,
+  "shared_mutex_released_before_gpu_boot_and_work": true,
+  "same_three_ib_results": {
+    "1": {
+      "seq": 44,
+      "values": "56404747/4d444651/12569ade/2569ade1",
+      "wrong_words": 0
+    },
+    "2": {
+      "seq": 45,
+      "values": "55434444/4e474552/115599dd/266aaee2",
+      "wrong_words": 0
+    },
+    "3": {
+      "seq": 46,
+      "values": "54424545/4f464453/105498dc/276bafe3",
+      "wrong_words": 0
+    }
+  },
+  "words_checked_per_result": 4096,
+  "child_first_full_shutdown_before_acd_off_and_channel_restore": true,
+  "runner_new_owner_order_and_value_validation_passed": true,
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "default_control_access27_lpac42_passed": true,
+  "log_sha256": "5d75b8acdcecbe0b06dc527cf3c767cf7dbb3139d58f8179afa2c63e39de1276",
+  "iOS_gpu_acceleration": false
+}
