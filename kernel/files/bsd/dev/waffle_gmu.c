@@ -299,6 +299,7 @@ static void hfi_raw_diagnostic(vm_offset_t gmu,vm_offset_t alias,unsigned *debug
 static void hfi_raw_checkpoint(const struct waffle_gmu_plan *plan,const char *name)
 {
     if (!plan || (!plan->fault_smmu && !plan->raw_stage_pause)) return;
+    if(plan->compute_image==13 && !plan->raw_stage_pause)return;
     say("waffle-gmu: RAW checkpoint %s\n",name);
 }
 static void hfi_smmu_diagnostic(const struct waffle_gmu_plan *plan)
@@ -339,6 +340,7 @@ static bool hfi_exchange_watch(vm_offset_t gmu, vm_offset_t alias, const uint32_
     volatile uint32_t *msgring = (volatile uint32_t *)(alias + 848 + 4096);
     uint32_t next;
     bool raw=(request[0]&255)==131;
+    bool quiet=raw && !strcmp(name,"GENERAL_IB");
     unsigned debug_budget=16;
     if (raw) {
         hfi_raw_checkpoint(plan,"0-preflight-begin");
@@ -378,8 +380,9 @@ static bool hfi_exchange_watch(vm_offset_t gmu, vm_offset_t alias, const uint32_
             __asm__ volatile("dsb sy" ::: "memory");
             msgq[10] = next;
             __asm__ volatile("dsb sy" ::: "memory");
-            say("waffle-gmu: HFI message words=%d hdr=%08x req=%08x value=%08x\n",
-                count, packet[0], packet[1], packet[2]);
+            if(!quiet || count<3 || ((packet[0]>>16)&15)!=1 || packet[1]!=request[0] || packet[2]!=0)
+                say("waffle-gmu: HFI message words=%d hdr=%08x req=%08x value=%08x\n",
+                    count, packet[0], packet[1], packet[2]);
             if (raw && hfi_raw_fault_packet(packet,(unsigned)count,"message"))
                 stop_unsafe("HFI message queue reported firmware fault during RAW");
             if (count >= 3 && ((packet[0] >> 16) & 15) == 1 && packet[1] == request[0]) {

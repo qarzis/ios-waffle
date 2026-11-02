@@ -1,0 +1,16 @@
+{
+  "requested_cpus": 7,
+  "active_cpus": [
+    7
+  ],
+  "parallel_CPU_time_per_wall_time": [
+    4.2
+  ],
+  "kernel_running_count": 7,
+  "original_runner_exit": 1,
+  "original_failure_retained": true,
+  "recovered_existing_kernel": true,
+  "clean_return": true,
+  "android_independently_confirmed": true,
+  "all_8_XNU_cores": false
+}

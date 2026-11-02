@@ -1,0 +1,15 @@
+{
+  "requested_cpus": 4,
+  "running_counts": [
+    4
+  ],
+  "active_cpus": [
+    4
+  ],
+  "parallel_CPU_time_per_wall_time": [
+    2.1
+  ],
+  "startup_or_stop_failure": false,
+  "GPU_requested": false,
+  "passed": true
+}

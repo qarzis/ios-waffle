@@ -1,0 +1,21 @@
+{
+  "baseline": {
+    "frames": 200,
+    "median_us": 4106.5,
+    "mean_us": 4106.895,
+    "p95_us": 4157,
+    "minimum_us": 3968,
+    "maximum_us": 4194
+  },
+  "compact": {
+    "frames": 200,
+    "median_us": 4067.5,
+    "mean_us": 4070.92,
+    "p95_us": 4117,
+    "minimum_us": 4004,
+    "maximum_us": 4144
+  },
+  "median_latency_change_percent": -0.94971386825764,
+  "qualified_UI_FPS_gain": false,
+  "limitation": "Single offscreen pair; architecture review required before more FPS microexperiments."
+}

@@ -1,3 +1,15 @@
+# ACTIVE — user left: HUD, flashlight, Alert Slider, PosterBoard/default iOS16 wallpaper
+
+No phone run active currently. E68 sevenCPU recovered existingkernel aftertransientUSBreadfailure:240sreturn/7active/4.2effectiveparallel/Androidindependent1; originalrunner1retained. Session74357completed. UserFINALAlertSlidermapping TOPDND/MIDDLEVIBRATION/BOTTOMRING (middlesilentREVOKED). Needall8XNUmodeauditlater; residentUSBowns1core, maximum7explained. RootE69read-onlyHUDgeometry+automaticsyntheticHIDpulsesbuilding session96614, outputgpu/e69-hud-audit-root/logbuild-e69-hud-audit-root.log. AfterbuildcreateisolatedartifactcopystableE68kernel/image withnewboundCPUroot; run4CPU180sforHUDaudit. SourceROOT includesnewtest-onlyWAFFLE_VOLUME_HUD_PROBE ininject.c andnewwaffle_hud_probe.m. NoHUDoffsetedit, PMICwrites, sliderimplementationorwallpaperselectionyet. ExistingPosterBoardfixrestoredinnewbuilderbasefixed/kit +ALLOWduetexpertd/mobileassetd, notverifiedyet. GPUworkstoppedperuserpriority. No scheduledlaptopshutdown.
+
+# ACTIVE E68 multicore/HUD — 7CPU 240s test RUNNING; USB runner owns fastboot
+
+User requested8 after4pass. Explained maximum7XNU +1residentUSB; full8requiresdifferenthandoff, notimplemented. Running execsession93000, auto20261102T072229Z, stdoutgpu/auto-cpu7-ui-e68.log. Artifactdiagnostic-cpu4-ui-e68/rootdelayedCPUtest; noGPU. User will say afterboot to screenshotvolumeHUD; enqueue token.request inauto/capture-requests, runneralonecaptures requested-token.raw; DO NOT issue concurrentfastboot. Frame1440x3168BGRA, convertffmpeg/convertavailable, PythonPILabsent. User saysHUDtooHIGH. Needcapturebeforeoffsetedit, unknowndonorbuttonlocationformat. FourCPUverified071804Z runner0/autosuccess/Android1, hw.activecpu4 and2.1effectiveCPUparalleltest. GPUstoppedperuser. No laptopshutdownscheduled.
+
+# ACTIVE 2026-11-02 — user switched priority to multicore and misplaced volume HUD
+
+GPU runs stopped. E67 completed: all292320000pixels/482fences/strictGL/runner0/Android1. Warm median4067.5us vs fresh4106.5us (0.95% lower); one pair only, no qualified UI FPS gain. Three FPS microexperiments now reviewed before further tuning. User explicitly reports only1CPU and misplaced volume slider. Found loader defaults cpus=1; Waffle policy currently being extended to bounded opt-in cpus1..7 (residentUSB owns eighthcore). First experiment2CPU softpipe boot, noGPU. No scheduled laptop shutdown.
+
 # FINAL SAVE: PUBLIC 76d988679f89c59e47668d4cf4fa2231ca84f407 — STOPPED, phone Android1, laptop shutdown requested
 
 Publicpush+remoteverificationcomplete; runtimeE63scalarrestored, noactiveGPUtest.

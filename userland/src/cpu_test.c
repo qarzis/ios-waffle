@@ -48,13 +48,15 @@ work(void *arg)
 int
 main(int argc, char **argv)
 {
- int active = number("hw.activecpu"), threads = active < 2 ? 2 : active > MOST ? MOST : active;
+ int active, threads;
  int where[MOST], seen = 0;
  pthread_t thread[MOST];
  uint64_t start, alone, together, spent;
  if (argc > 1) {
   sleep((unsigned)atoi(argv[1]));
  }
+ active = number("hw.activecpu");
+ threads = active < 2 ? 2 : active > MOST ? MOST : active;
  printf("cpu_test: hw.ncpu %d, hw.activecpu %d, hw.physicalcpu %d, hw.logicalcpu %d\n", number("hw.ncpu"),
      number("hw.activecpu"), number("hw.physicalcpu"), number("hw.logicalcpu"));
  if (argc < 2) {
@@ -66,10 +68,12 @@ main(int argc, char **argv)
  start = milliseconds();
  spent = used();
  for (int i = 0; i < threads; i++) {
-  pthread_create(&thread[i], NULL, work, &where[i]);
+  int error = pthread_create(&thread[i], NULL, work, &where[i]);
+  if (error) { fprintf(stderr,"cpu_test: pthread_create failed %d\n",error); return 1; }
  }
  for (int i = 0; i < threads; i++) {
-  pthread_join(thread[i], NULL);
+  int error = pthread_join(thread[i], NULL);
+  if (error || where[i]<0 || where[i]>=32) { fprintf(stderr,"cpu_test: invalid join/result %d\n",error); return 1; }
   seen |= 1 << where[i];
  }
  spent = used() - spent;

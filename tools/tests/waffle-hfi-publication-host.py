@@ -63,7 +63,7 @@ static void delay_for_interval(unsigned t,unsigned unit) {
 }
 '''
 tests=r'''
-static void run(bool raw,bool valid_ack,bool zero_ack,bool pause) {
+static void run(bool raw,bool valid_ack,bool zero_ack,bool pause,bool general) {
  memset(table,0,sizeof(table));
  phases=kicks=barriers=diagnostics=samples=holds=0;is_raw=raw;
  struct waffle_gmu_plan plan={.enabled=true,.raw_stage_pause=pause};
@@ -74,7 +74,7 @@ static void run(bool raw,bool valid_ack,bool zero_ack,bool pause) {
  msg[0]=(7u<<20)|(1u<<16)|(3u<<8)|(packet[0]&255u);
  msg[1]=packet[0];msg[2]=valid_ack?0:0xffffffff;
  table[29]=4;
- assert(hfi_exchange_watch(1,(uintptr_t)table,packet,3,"test",zero_ack,&plan)==valid_ack);
+ assert(hfi_exchange_watch(1,(uintptr_t)table,packet,3,general?"GENERAL_IB":"test",zero_ack,&plan)==valid_ack);
  assert(phases==(raw?6u:0u) && kicks==1 && diagnostics==(raw?2u:0u));
  assert(holds==((raw && pause)?2u:0u));
  assert(samples==(raw?2u:0u) && barriers==4 && table[28]==4);
@@ -82,7 +82,8 @@ static void run(bool raw,bool valid_ack,bool zero_ack,bool pause) {
 int main(void) {
  for(unsigned raw=0;raw<2;++raw)
   for(unsigned valid=0;valid<2;++valid)
-   for(unsigned zero=0;zero<2;++zero) for(unsigned pause=0;pause<2;++pause) run(raw,valid,zero,pause);
+   for(unsigned zero=0;zero<2;++zero) for(unsigned pause=0;pause<2;++pause)
+    for(unsigned general=0;general<2;++general)run(raw,valid,zero,pause,general);
  /* Disabled and full command queues must never publish or ring the doorbell. */
  for(unsigned full=0;full<2;++full) {
   memset(table,0,sizeof(table));phases=kicks=barriers=0;is_raw=false;
