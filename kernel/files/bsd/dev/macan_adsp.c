@@ -19,6 +19,7 @@
 #include <sys/waffle_adsp_power.h>
 #include <sys/waffle_adsp_rpmh.h>
 #include <sys/waffle_apm.h>
+#include <sys/waffle_glink_intent.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
 extern void ml_io_unmap(vm_offset_t addr, vm_size_t sz);
@@ -1459,10 +1460,7 @@ struct glink_channel {
  uint32_t theirs;
  bool asked, acknowledged, open;
  bool request_answered, request_granted;
- struct {
-  uint32_t id, size;
-  bool there, in_use;
- } their_intents[64];
+ struct waffle_glink_remote_intent their_intents[64];
  struct {
   uint32_t size, fill;
   uint8_t *data;
@@ -1721,23 +1719,16 @@ glink_pump(void)
    break;
   case GLINK_INTENT: {
    channel = glink_theirs(message.param1);
-   unsigned dropped = 0, largest_dropped = 0;
+   unsigned dropped = 0, largest_dropped = 0, replaced = 0, largest_new = 0;
    for (uint32_t i = 0; channel != NULL && i < message.param2; i++) {
     glink_peek(words, 8 + 8 * i, 8);
-    bool kept = false;
-    for (unsigned n = 0; n < sizeof(channel->their_intents) / sizeof(channel->their_intents[0]); n++) {
-     if (!channel->their_intents[n].there || channel->their_intents[n].id == words[1]) {
-      channel->their_intents[n].there = true;
-      channel->their_intents[n].in_use = false;
-      channel->their_intents[n].size = words[0];
-      channel->their_intents[n].id = words[1];
-      kept = true;
-      break;
-     }
-    }
-    if (!kept) { dropped++; if (words[0] > largest_dropped) { largest_dropped = words[0]; } }
+    uint32_t evicted = 0;
+    int slot = waffle_glink_intent_admit(channel->their_intents, 64, words[1], words[0], &evicted);
+    if (slot < 0) { dropped++; if (words[0] > largest_dropped) { largest_dropped = words[0]; } }
+    if (evicted) { replaced++; if (words[0] > largest_new) { largest_new = words[0]; } }
    }
    if (dropped) { printf("adsp: GLINK_INTENT_OVERFLOW channel=%s advertised=%u dropped=%u largest_dropped=%u table=64\n", channel->name, message.param2, dropped, largest_dropped); }
+   if (replaced) { printf("adsp: GLINK_INTENT_CACHE channel=%s replaced_unused=%u largest_new=%u table=64\n", channel->name, replaced, largest_new); }
    glink_advance(length);
    break;
   }

@@ -146,3 +146,19 @@ Run20261102T142409Z. Native DSP boot/GPR SPF1 mode7 passed. GRAPH_OPEN344/token2
 Added logging only: remote-intent table overflow counts/largest dropped intent; send errno, table occupancy/in-use/maximum size, request ACK/grant and FIFO room; graph transport error. Packet bytes and allocation behavior unchanged. Full XNU compile completed; loader built; UEFI packaging was interrupted at user request. No A11 hardware test was launched. Owned build processes terminated and no hardware runner remained; independent Android boot_completed1. Work remains stopped. Do not auto-resume tests due to the later request to publish Git updates.
 
 Publication verified: fcfb312987b5a2238eba055641ad56e14ba9bfd3 on qarzis/ios-waffle/waffle/gpu-bringup. User subsequently resumed hardware work; stop request revoked. Resume A11 trace capture without graph/intent allocation changes.
+
+## A11 hardware trace — root cause established, graph delivery FAIL
+
+Resumed after user explicitly reauthorized work. Run20261102T192851Z, auto192826Z. Large remote advertisements512/1024/4096 were each dropped by full64-entry table. Sender error55/ENOBUFS: entries64,used0,largest128,fits0,asked1,answered1,granted1,FIFOroom16368. Remote allocation was granted; TX FIFO space is sufficient; no credits are busy. Local metadata admission discards the larger valid credits. Graph packet remains unmodified344 bytes and was not delivered. PAS shutdown and automatic Android recovery confirmed; overall testFAIL remains recorded. Evidence A11-components.log/A11-result.json.
+
+## A12 minimal fix — bounded diverse remote credit cache
+
+Keep table64 and packet344 unchanged. Match existing IDs before empty slots; duplicate advertisements cannot clear in-flight ownership. Admit unused larger remote credits by replacing the smallest unused smaller cached credit only when full. Never replace in-use entries, never send/free a remote allocation, and never grow the local table or payload buffer. Discarding metadata for an unused remote-owned credit does not create an outstanding transfer. Native Linux tracks advertisements in its remote intent IDR; the old fixed cache limitation was local to this port.
+
+Host ASan/UBSan compiles the actual kernel glink_send: reproduces A11 ENOBUFS from64 unused128-byte entries with request/grant but no fitting cached credit; after admitting512/1024/4096, the same344-byte APM packet sends with512-byte credit and no request/table growth. Checks in-flight IDs survive duplicate/resize attempts, existing IDs win over earlier empty slots, and full-busy/malformed admission is rejected without mutation. Hardware test must show large-credit admission, OPEN/CLOSE correlated ACK0, PAS shutdown and Android recovery. If graph delivery still fails, review the new evidence before any further buffer or ABI changes.
+
+## A12 hardware result and architectural review
+
+Run20261102T193654Z: larger512/1024/4096 credits admitted without table growth; identical344-byte GRAPH_OPEN reached DSP. Correlated token2 BASIC_RSP_RESULT returned opcode01001000/status1 (generic failure). Transport correction measured; graph stillFAIL. PAS1/PAS36 shutdownOK; independent Android boot_completed1 confirmed after user resumed GPU work. Evidence A12-result.json/A12-components.log.
+
+Three graph attempts A10/A11/A12 now require architecture review before further experiments. Pinned AudioReach parser apm_gpr_cmd_parser.c (blobfb7a5dd4c8210787dab07d6ab078bbfaf73e855c) directly stores container property08001011 version1/type_id; current packet has legacy PP capability1. Modern GC type is0b001001, SC0b001000 (NOT1 or2). This is a compatibility hypothesis, not established firmware ABI: inspect container factory legacy translation before changing packet. No PCM/DMA/amp writes added.

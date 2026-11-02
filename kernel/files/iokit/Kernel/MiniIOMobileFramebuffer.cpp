@@ -677,7 +677,10 @@ IOMobileFramebuffer::drawLayer(MiniIOSurface * s, const int32_t * src, const int
  py0 = (int32_t) ((int64_t) dy * fPanelHeight / fHeight);
  px1 = (int32_t) ((int64_t) (dx + dw) * fPanelWidth / fWidth);
  py1 = (int32_t) ((int64_t) (dy + dh) * fPanelHeight / fHeight);
- if (px1 <= px0 || py1 <= py0) {
+ /* Reject invisible rectangles before the filtered row path indexes its
+  * clipped column interval. An entirely offscreen layer has no columns. */
+ if (px1 <= px0 || py1 <= py0 || px1 <= 0 || py1 <= 0 ||
+     px0 >= (int32_t) fPanelWidth || py0 >= (int32_t) fPanelHeight) {
   return;
  }
  if (filter && fBlendRowSize < (uint32_t) sw) {

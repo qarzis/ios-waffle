@@ -1,0 +1,177 @@
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GPR reply opcode=0x2001007 token=1 bytes=4 words=0x1,0
+adsp: APM_GRAPH request opcode=0x1001000 token=2 bytes=344 no_DMA=1 no_hw_endpoint=1
+adsp: GPR reply opcode=0x2001005 token=2 bytes=8 words=0x1001000,0x1
+adsp: APM_GRAPH response opcode=0x1001000 token=2 acknowledged=1 status=0x1
+adsp: FAIL stage=12 last=step 9 took up GLINK
+adsp: PAS 1 shutdown=OK
+adsp: PAS 36 shutdown=OK
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+adsp: GPR reply opcode=0x2001007 token=1 bytes=4 words=0x1,0
+adsp: APM_GRAPH request opcode=0x1001000 token=2 bytes=344 no_DMA=1 no_hw_endpoint=1
+adsp: GPR reply opcode=0x2001005 token=2 bytes=8 words=0x1001000,0x1
+adsp: APM_GRAPH response opcode=0x1001000 token=2 acknowledged=1 status=0x1
+adsp: FAIL stage=12 last=step 9 took up GLINK
+adsp: PAS 1 shutdown=OK
+adsp: PAS 36 shutdown=OK
+[   19.461707]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.461710]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.461714]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.461717]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.461721]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462873]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462877]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462880]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462884]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462887]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462891]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462894]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462898]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462901]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462905]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462908]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462912]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462915]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462919]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462922]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462926]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462929]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462933]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462936]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462940]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462943]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462947]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462950]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462954]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462957]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462961]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462964]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=512 table=64
+[   19.462968]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462971]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462974]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462978]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462982]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462985]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462988]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462992]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462996]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.462999]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.463003]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.463006]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.463009]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.463013]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.463017]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.463020]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=1024 table=64
+[   19.463024]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+[   19.463027]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+[   19.463031]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+[   19.463034]: adsp: GLINK_INTENT_CACHE channel=adsp_apps replaced_unused=1 largest_new=4096 table=64
+[   25.166133]: adsp: GPR reply opcode=0x2001007 token=1 bytes=4 words=0x1,0
+[   25.166142]: adsp: APM_GRAPH request opcode=0x1001000 token=2 bytes=344 no_DMA=1 no_hw_endpoint=1
+[   25.168410]: adsp: GPR reply opcode=0x2001005 token=2 bytes=8 words=0x1001000,0x1
+[   25.168414]: adsp: APM_GRAPH response opcode=0x1001000 token=2 acknowledged=1 status=0x1
+[   25.168416]: adsp: FAIL stage=12 last=step 9 took up GLINK
+[   25.895529]: adsp: PAS 1 shutdown=OK
+[   25.896086]: adsp: PAS 36 shutdown=OK
