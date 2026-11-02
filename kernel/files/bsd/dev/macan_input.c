@@ -177,6 +177,7 @@ redwood_input_init(void)
   waffle_adreno_init();
   waffle_synaptics_init();
   redwood_buttons_init();
+  macan_adsp_init();
   return;
  }
  redwood_cpufreq_init();

@@ -7,6 +7,15 @@
 int main(void)
 {
 #if defined(WAFFLE_USERLAND)
+    assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=3"));
+    assert(!waffle_cmdline_allowed("adsp=3"));
+    assert(!waffle_cmdline_allowed("loader_return_after=61 adsp=3"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=1"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=2"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=3 adsp=3"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=3 waffle_gpu=1"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=3 waffle_torch=3"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=3 cpus=7"));
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=2 loader_return_after=60"));
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=7 fbscale=2"));
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_torch=1"));

@@ -1,0 +1,74 @@
+{
+  "method": "static shortest-path analysis of pinned native node links; not a hardware vote test",
+  "routes": [
+    {
+      "start": "MASTER_LPASS_PROC",
+      "start_id": 43,
+      "destination_id": 512,
+      "path": [
+        "MASTER_LPASS_PROC",
+        "SLAVE_LPICX_NOC_LPIAON_NOC",
+        "MASTER_LPASS_LPINOC",
+        "SLAVE_LPIAON_NOC_LPASS_AG_NOC",
+        "MASTER_LPIAON_NOC",
+        "SLAVE_LPASS_GEM_NOC",
+        "MASTER_LPASS_GEM_NOC",
+        "SLAVE_LLCC",
+        "MASTER_LLCC",
+        "SLAVE_EBI1"
+      ],
+      "nodes": [
+        "qxm_lpinoc_dsp_axim",
+        "qns_lpi_aon_noc",
+        "qnm_lpass_lpinoc",
+        "qns_lpass_aggnoc",
+        "qnm_lpiaon_noc",
+        "qns_lpass_ag_noc_gemnoc",
+        "qnm_lpass_gemnoc",
+        "qns_llcc",
+        "llcc_mc",
+        "ebi"
+      ],
+      "bcm_names": [
+        "ACV",
+        "LP0",
+        "MC0",
+        "SH0"
+      ]
+    },
+    {
+      "start": "MASTER_CRYPTO",
+      "start_id": 41,
+      "destination_id": 512,
+      "path": [
+        "MASTER_CRYPTO",
+        "SLAVE_A2NOC_SNOC",
+        "MASTER_A2NOC_SNOC",
+        "SLAVE_SNOC_GEM_NOC_SF",
+        "MASTER_SNOC_SF_MEM_NOC",
+        "SLAVE_LLCC",
+        "MASTER_LLCC",
+        "SLAVE_EBI1"
+      ],
+      "nodes": [
+        "qxm_crypto",
+        "qns_a2noc_snoc",
+        "qnm_aggre2_noc",
+        "qns_gemnoc_sf",
+        "qnm_snoc_sf",
+        "qns_llcc",
+        "llcc_mc",
+        "ebi"
+      ],
+      "bcm_names": [
+        "ACV",
+        "CE0",
+        "MC0",
+        "SH0",
+        "SH1",
+        "SN0",
+        "SN3"
+      ]
+    }
+  ]
+}

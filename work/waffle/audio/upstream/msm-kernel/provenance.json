@@ -1,0 +1,13 @@
+{
+  "repo": "OnePlusOSS/android_kernel_oneplus_sm8650",
+  "revision": "e39bf7032e38c547d588372a11a5dd55eb714860",
+  "sha256": {
+    "drivers/remoteproc/qcom_q6v5_pas.c": "bcd1288e0550f7eaa128729a550e4c82c0e066ba9d4a44aef8c01fd05abbb0f2",
+    "drivers/remoteproc/qcom_q6v5.c": "d1dca77c7f813e6c897360cffebf14a2b84dff420e2dba0bcb2e87ca74b7e0bd",
+    "drivers/soc/qcom/mdt_loader.c": "20831e97abfa74effe2cdb1d160dba767a8769421f3366ae460d9a40728b5c2f",
+    "drivers/soc/qcom/rpmh-rsc.c": "476666e8c3b420d41f3bb81523660add260681f17861f415cd04b253fadf4ed6",
+    "drivers/hwspinlock/qcom_hwspinlock.c": "23d90884f565dcd869ced0c1e519b2a0b776d7e1874230c138c853545ce4e485",
+    "include/dt-bindings/interconnect/qcom,pineapple.h": "108e65fde8e9e13791dbaa47c0a854d75670b53faf9d42bdb65c98781c0ceffd",
+    "drivers/interconnect/qcom/pineapple.c": "5ffe4e07d87407b97325e967c6b151b0857fc4f82f394aa8aeb3ee8c907887b2"
+  }
+}

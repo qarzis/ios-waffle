@@ -1,0 +1,38 @@
+{
+  "source": "captured live DT plus pinned native qcom_q6v5_pas.c",
+  "adsp_node": "/soc/remoteproc-adsp@03000000",
+  "power_supplies": {
+    "cx": {
+      "node": "/soc/rsc@17a00000/drv@2/rpmh-regulator-lcxlvl/regulator-pm-v6d-s4-level",
+      "requested_voltage_load": "0000018000000000",
+      "properties": {
+        "regulator-name": "706d5f7636645f73345f6c6576656c00",
+        "qcom,set": "00000003",
+        "regulator-min-microvolt": "00000010",
+        "regulator-max-microvolt": "0000ffff",
+        "qcom,init-voltage-level": "00000010",
+        "phandle": "000000ae"
+      }
+    },
+    "mx": {
+      "node": "/soc/rsc@17a00000/drv@2/rpmh-regulator-lmxlvl/regulator-pm-v6d-l2-level",
+      "requested_voltage_load": "0000018000000000",
+      "properties": {
+        "regulator-name": "706d5f7636645f6c325f6c6576656c00",
+        "qcom,set": "00000003",
+        "regulator-min-microvolt": "00000010",
+        "regulator-max-microvolt": "0000ffff",
+        "qcom,init-voltage-level": "00000010",
+        "phandle": "000000af"
+      }
+    }
+  },
+  "interconnects": "000000b00000002b000000410000020000000040000000290000004100000200",
+  "interconnect_names": [
+    "rproc_ddr",
+    "crypto_ddr"
+  ],
+  "pas_adsp": 1,
+  "pas_dtb": 36,
+  "hardware_qualified": false
+}
