@@ -88,6 +88,10 @@ static int drm_param(struct waffle_msm_param *r)
  }
  return 0;
 }
+static void drm_root_refused(unsigned index,const struct waffle_msm_submit_cmd *cmd)
+{
+ redwood_tl("waffle-gpu: GENERAL root index=%u type=%u bo_index=%u offset=%u bytes=%u reloc_count=%u unused_reloc_pointer=%llx\n",index,cmd->type,cmd->submit_idx,cmd->submit_offset,cmd->size,cmd->nr_relocs,(unsigned long long)cmd->relocs);
+}
 static int drm_submit(struct waffle_msm_submit *r)
 {
  redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
@@ -118,12 +122,11 @@ static int drm_submit(struct waffle_msm_submit *r)
  for(unsigned i=0;i<r->nr_cmds;i++){
   struct waffle_msm_submit_cmd *cmd=&commands[i];
   struct drm_bo *bo=cmd->submit_idx<r->nr_bos?drm_buffer(bos[cmd->submit_idx].handle):NULL;
-  redwood_tl("waffle-gpu: GENERAL root index=%u type=%u bo_index=%u offset=%u bytes=%u reloc_count=%u unused_reloc_pointer=%llx\n",i,cmd->type,cmd->submit_idx,cmd->submit_offset,cmd->size,cmd->nr_relocs,(unsigned long long)cmd->relocs);
   /* Mesa softpin leaves relocs uninitialized when nr_relocs is zero.
    * A zero-length array has no pointer to validate or dereference. */
-  if(!bo || cmd->type!=1 || cmd->pad || cmd->nr_relocs){error=EINVAL;goto done;}
+  if(!bo || cmd->type!=1 || cmd->pad || cmd->nr_relocs){drm_root_refused(i,cmd);error=EINVAL;goto done;}
   roots[i]=(struct waffle_gpu_command){.buffer=bo->memory,.offset=cmd->submit_offset,.bytes=cmd->size};
-  if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS){error=EINVAL;goto done;}
+  if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS){drm_root_refused(i,cmd);error=EINVAL;goto done;}
   total+=cmd->size/4;
  }
  /* Controlled caller owns data consistency. Root bytes are snapshotted into

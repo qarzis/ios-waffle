@@ -662,6 +662,31 @@ input_thread(__unused void *arg)
  if (screen == NULL) {
   return NULL;
  }
+#ifdef WAFFLE_VOLUME_HUD_PROBE
+ /* Isolated RAM root only: exercise the existing HID path without a person
+  * holding the phone, using four bounded alternating up/down presses. */
+ if (buttons != NULL) {
+  dispatch_queue_t queue=dispatch_queue_create("waffle.hud.probe",NULL);
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW,35*NSEC_PER_SEC),queue,^{
+   struct redwood_touch press={.time=mach_absolute_time(),.type=REDWOOD_BUTTON_DOWN,.finger=REDWOOD_BUTTON_HOME};
+   say("waffle-hud: diagnostic Home pulse before volume measurement\n");
+   send_button(buttons,&press);usleep(80000);
+   press.time=mach_absolute_time();press.type=REDWOOD_BUTTON_UP;
+   send_button(buttons,&press);
+  });
+  for (unsigned i=0;i<4;i++) {
+   uint32_t finger=i%2 ? REDWOOD_BUTTON_VOLUME_DOWN : REDWOOD_BUTTON_VOLUME_UP;
+   dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(45+30*i)*NSEC_PER_SEC),queue,^{
+    struct redwood_touch press={.time=mach_absolute_time(),.type=REDWOOD_BUTTON_DOWN,.finger=finger};
+    say("waffle-hud: synthetic volume pulse=%u finger=%u\n",i,finger);
+    send_button(buttons,&press);
+    usleep(80000);
+    press.time=mach_absolute_time();press.type=REDWOOD_BUTTON_UP;
+    send_button(buttons,&press);
+   });
+  }
+ }
+#endif
  while (read(device, &t, sizeof(t)) == (ssize_t)sizeof(t)) {
   uint64_t read_at = mach_absolute_time();
   if (count++ < 4) {

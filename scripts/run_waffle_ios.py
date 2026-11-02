@@ -170,7 +170,7 @@ def gl_va_budget(text,pid,capacity,budget):
     value=re.search(r"\bVA_bytes=(\d+)\b",tail)
     if not value:raise RuntimeError("Malformed GPU VA budget")
     span=int(value[1])
-    if span!=budget and (budget,span)!=(134217728,268435456):
+    if span!=budget and (budget,span) not in ((134217728,268435456),(201326592,268435456)):
         raise RuntimeError("Unqualified GPU virtual/physical budget pair")
     return span
 
@@ -299,10 +299,10 @@ def validate_gl_log(text):
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded GL BO capacity")
     capacity=int(capacity[1])
-    budget=re.search(rf"GENERAL open pid=1 BO_limit={capacity} heap_bytes=(33554432|67108864|134217728)\b",text)
+    budget=re.search(rf"GENERAL open pid=1 BO_limit={capacity} heap_bytes=(33554432|67108864|134217728|201326592)\b",text)
     if not budget:raise RuntimeError("Missing bounded GL heap declaration")
     budget=int(budget[1])
-    if capacity>=4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
+    if capacity>=4096 and (capacity,budget) not in ((4096,67108864),(8192,134217728),(8192,201326592)):raise RuntimeError("Unqualified BO record capacity and physical heap pair")
     if "REBOOT REQUIRED" in text or "GENERAL_SUBMIT mismatch" in text:raise RuntimeError("GL GPU ownership or completion failed")
     markers=[f"GENERAL registered root_only=1 gated=1 BO_limit={capacity}",
        "waffle-gl-init: exec actual Darwin Mesa probe pid=1",
@@ -457,10 +457,10 @@ def validate_ui_workload_log(text):
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded UI BO capacity")
     capacity=int(capacity[1])
-    budget=re.search(rf"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=(33554432|67108864|134217728)\b",text)
+    budget=re.search(rf"GENERAL open pid={pid} BO_limit={capacity} heap_bytes=(33554432|67108864|134217728|201326592)\b",text)
     if not budget:raise RuntimeError("Missing bounded UI heap declaration")
     budget=int(budget[1])
-    if capacity>=4096 and capacity!=budget//16384:raise RuntimeError("BO record capacity does not follow the declared physical heap")
+    if capacity>=4096 and (capacity,budget) not in ((4096,67108864),(8192,134217728),(8192,201326592)):raise RuntimeError("Unqualified BO record capacity and physical heap pair")
     for marker in (
         "waffle-ui-init: GPU device owner=501 mode=600 chown=0 chmod=0 RAM_only=1",
         f"GENERAL open pid={pid} BO_limit={capacity} heap_bytes={budget}",
@@ -495,6 +495,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seconds", type=int, default=60, choices=range(1, 661), metavar="1..660")
     parser.add_argument("--bootcpu", type=int, default=7, choices=range(1, 8))
+    parser.add_argument("--cpus", type=int, choices=range(1, 8), help="XNU cores; one physical core remains with the resident USB loader")
+    parser.add_argument("--capture-requests", type=Path, help="Read *.request screenshot requests; this runner alone owns fastboot")
+    parser.add_argument("--torch-readonly", action="store_true", help="Waffle v7 SPMI flash module identification; no PMIC writes")
+    parser.add_argument("--torch-pulse", action="store_true", help="Waffle qualified module: one two-second pulse and verified darkness")
+    parser.add_argument("--torch-service",action="store_true",help="Expose the qualified flashlight driver to the iOS Control Center")
     parser.add_argument("--fbscale", type=int, default=2, choices=(1, 2, 3), help="Render scale: 1 is faster, 2 is sharper")
     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
     parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
@@ -526,6 +531,9 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
+    if args.torch_pulse and (args.torch_readonly or not args.gpu_gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
+    if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.gpu_ui):parser.error('--torch-service requires GPU UI and excludes torch probe modes')
     if args.gpu_ui and not args.gpu_gl_context:parser.error("--gpu-ui requires --gpu-gl-context")
     if args.seconds>300 and not (args.seconds==660 and args.gpu_ui and args.gpu_gl_context):parser.error("660 seconds is reserved for the bounded UI soak")
     if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
@@ -567,20 +575,35 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
 
     def command(*items, timeout=15):
-        result = subprocess.run([fastboot, "-s", "xnuloader", *map(str, items)],
-                                capture_output=True, text=True, timeout=timeout)
-        text = result.stdout + result.stderr
-        with (out / "host.log").open("a") as log:
-            log.write(" ".join(map(str, items)) + "\n" + text + "\n")
-        if result.returncode:
-            raise RuntimeError(text)
-        return text
+        # A lost read must not abort observation of a still-running kernel.
+        # Retry only read operations, never boot/stage/run or another mutation.
+        reads = items[:1] in (("getvar",),("get_staged",)) or items == ("oem","log")
+        for attempt in range(6 if reads else 1):
+            result = subprocess.run([fastboot, "-s", "xnuloader", *map(str, items)],
+                                    capture_output=True, text=True, timeout=timeout)
+            text = result.stdout + result.stderr
+            with (out / "host.log").open("a") as log:
+                log.write(" ".join(map(str, items)) + "\n" + text + "\n")
+            if not result.returncode:
+                return text
+            if not reads or not any(s in text for s in ("usb_read failed","No such device","device disconnected")):
+                break
+            time.sleep(.5)
+        raise RuntimeError(text)
 
     if "platform: waffle" not in command("getvar", "platform"):
         raise RuntimeError("Expected the waffle loader; select Boot iOS in the PJD110 UEFI menu")
     if "kernel-supported: software-userland-test" not in command("getvar", "kernel-supported"):
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
+    if args.cpus is not None:
+        arguments += f" cpus={args.cpus}"
+    if args.torch_readonly:
+        arguments += " waffle_torch=1"
+    if args.torch_pulse:
+        arguments += " waffle_torch=2"
+    if args.torch_service:
+        arguments += " waffle_torch=3"
     if args.gpu_probe:
         arguments += f" waffle_gpu={args.gpu_probe}"
     if args.gpu_access_matrix:
@@ -623,15 +646,36 @@ def main():
     ui_started=time.monotonic()
     ui_screenshots=set()
     ui_events=set()
+    hud_pulses=set()
     sequence = 0
     while time.monotonic() < deadline:
-        time.sleep(0.2 if args.gpu_ui else 0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
+        if args.capture_requests:
+            for request in sorted(args.capture_requests.glob('*.request')):
+                if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',request.stem):
+                    continue
+                if request.stem=='stop':
+                    command('oem','stop')
+                    request.rename(request.with_suffix('.done'))
+                    continue
+                screen=out/f'requested-{request.stem}.raw'
+                command('oem','screenshot')
+                command('get_staged',screen)
+                request.rename(request.with_suffix('.done'))
+                request.with_suffix('.json').write_text(json.dumps({'screenshot':str(screen),'bytes':screen.stat().st_size})+'\n')
+        time.sleep(0.2 if args.capture_requests or args.gpu_ui else 0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
         response = command("getvar", "result")
         line = next((s for s in response.splitlines() if s.startswith("result: ")), "")
         sequence += 1
         command("oem", "log")
         log_path = out / f"kernel-{sequence}.log"
         command("get_staged", log_path)
+        if args.capture_requests:
+            for pulse in re.findall(r'waffle-hud: synthetic volume pulse=(\d+) ',log_path.read_text(errors='replace')):
+                if pulse not in hud_pulses:
+                    time.sleep(.3)
+                    command('oem','screenshot')
+                    command('get_staged',out/f'hud-pulse-{pulse}.raw')
+                    hud_pulses.add(pulse)
         if args.gpu_ui:
             # Preserve early evidence before the finite console log fills.
             with (out/"ui-gpu-events.log").open("a") as events:
@@ -776,9 +820,9 @@ def main():
                     "RAW_STAGE67 debug preflight passed", "RAW_STAGE67 staged/restored words=11",
                     "no publication or doorbell")):
                 raise RuntimeError(f"RAW staging control did not complete; logs: {out}")
-            if args.gpu_probe >= 65 and "native ACD-first HFI order active" not in final_text:
+            if args.gpu_probe is not None and args.gpu_probe >= 65 and "native ACD-first HFI order active" not in final_text:
                 raise RuntimeError(f"Native ACD-first HFI ordering not confirmed; logs: {out}")
-            if args.gpu_probe >= 63:
+            if args.gpu_probe is not None and args.gpu_probe >= 63:
                 if "native optional-off profile: NAP/PREEMPTION/LPAC messages omitted" not in final_text or any(marker in final_text for marker in ("NAP_OFF ACK", "PREEMPTION_OFF ACK", "LPAC_OFF ACK")):
                     raise RuntimeError(f"Native optional-off profile not confirmed; logs: {out}")
             if args.gpu_probe == 62 and not re.search(r"LLCC62 GPU GBIF_SCACHE_CNTL0=[0-9a-f]{8} GBIF_SCACHE_CNTL1=[0-9a-f]{8}; RAW not sent", final_text):
@@ -902,6 +946,28 @@ def main():
                 raise RuntimeError(f"Native BCL feature not enabled; logs: {out}")
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
+            if args.torch_readonly and not all(s in final_text for s in (
+                    'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
+                    'torch: waffle read-only module=', 'no PMIC writes')):
+                raise RuntimeError(f"Waffle torch identification failed; logs: {out}")
+            if args.torch_pulse and not all(s in final_text for s in (
+                    'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
+                    'the light ON at 100 mA per channel', 'off again after 2 s', '(dark)')):
+                raise RuntimeError(f"Waffle torch pulse or shutdown proof failed; logs: {out}")
+            if args.torch_service and not all(s in final_text for s in (
+                    "torch: THE LIGHT IS IOS'S (/dev/redwood-torch)",
+                    "at the run's end the module reads: enable 0000, channels 0000")):
+                raise RuntimeError(f"Waffle torch service or dark shutdown proof failed; logs: {out}")
+            if args.cpus is not None and args.cpus>1:
+                counts=[int(n) for n in re.findall(r"GenericARMPE: (\d+) of \d+ processors are running",final_text)]
+                counts += [int(n) for n in re.findall(r"GenericARMPE: the slower cores started too: (\d+) processors running",final_text)]
+                active=[int(n) for n in re.findall(r"cpu_test: hw.ncpu \d+, hw.activecpu (\d+)",final_text)]
+                parallel=[float(n) for n in re.findall(r"(\d+\.\d+) processors at work, seen on",final_text)]
+                failures=any(s in final_text for s in ('was not started:','has not joined:','took an exception on its way in','did not stop: it is left running','THE KERNEL LEFT CORE'))
+                proof={'requested_cpus':args.cpus,'running_counts':counts,'active_cpus':active,'parallel_CPU_time_per_wall_time':parallel,'startup_or_stop_failure':failures,'GPU_requested':bool(args.gpu_probe),'passed':not failures and bool(counts) and max(counts)==args.cpus and bool(active) and max(active)==args.cpus and bool(parallel) and max(parallel)>1.0}
+                (out/'cpu-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+                if not proof['passed']:
+                    raise RuntimeError(f"Multicore proof failed; logs: {out}")
             if args.gpu_image and args.gpu_compute==2:
                 if args.gpu_ui:
                     print("Actual UI GPU workload and teardown validated; pixel correctness unverified",flush=True)

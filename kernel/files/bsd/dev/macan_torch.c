@@ -14,6 +14,11 @@ extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern kern_return_t thread_terminate(thread_t thread);
 extern void loader_log_putc(char c);
 static uint32_t level;
+static bool waffle_arb;
+static uint32_t arb_ppid(uint32_t entry)
+{
+ return waffle_arb ? (entry >> 8) & 0xfffu : entry & 0x1fffu;
+}
 static bool broken, leaving;
 static int say(const char *format, ...) __printflike(1, 2);
 static int
@@ -228,7 +233,7 @@ put(uint8_t reg, uint8_t value)
  for (size_t i = 0; i < sizeof(writable_regs); i++) {
   allowed |= writable_regs[i] == reg;
  }
- if ((broken && !(shutting_down && value == 0 &&
+ if (level < 2 || (broken && !(shutting_down && value == 0 &&
      (reg == FLASH_EN_LED_CTRL || reg == FLASH_MODULE_EN))) || !allowed || !flash.writable || flash.write == 0 || flash.id != 0x1ee) {
   give_up(allowed ? "a write that may not be made" : "a register that is not to be written");
   return false;
@@ -241,7 +246,7 @@ put(uint8_t reg, uint8_t value)
   give_up("a value outside the torch-only limits");
   return false;
  }
- if (((rd(arb_map + ARB_CHANNEL(flash.channel)) & 0x1fff) != flash.id ||
+ if ((arb_ppid(rd(arb_map + ARB_CHANNEL(flash.channel))) != flash.id ||
      (rd(arb_cnfg + ARB_OWNER(flash.channel)) & 7) != ARB_SYSTEM)) {
   give_up("the arbiter's channel is no longer the flash module's");
   return false;
@@ -293,7 +298,7 @@ find_channel(struct peripheral *p, uint32_t channels)
 {
  for (uint32_t n = 0; n < channels; n++) {
   uint32_t map = rd(arb_map + ARB_CHANNEL(n)), owner;
-  if (map == 0 || (map & 0x1fff) != p->id) {
+  if (map == 0 || arb_ppid(map) != p->id) {
    continue;
   }
   owner = rd(arb_cnfg + ARB_OWNER(n)) & 7;
@@ -528,22 +533,24 @@ torch_thread(__unused void *parameter, __unused wait_result_t result)
  say("torch: level %u: %s\n", level, level == 1 ? "a look, reading only" : level == 2 ? "the light on once" :
      "the light for iOS");
  arb_core = ml_io_map(ARB_CORE_PHYS, ARB_CORE_SIZE);
- arb_cnfg = ml_io_map(ARB_CNFG_PHYS, ARB_CNFG_SIZE);
- arb_observer = ml_io_map(ARB_OBSERVER_PHYS, ARB_OBSERVER_SIZE);
- arb_map = ml_io_map(ARB_MAP_PHYS, ARB_MAP_SIZE);
+ arb_cnfg = ml_io_map(waffle_arb ? 0x0c42d000UL : ARB_CNFG_PHYS,waffle_arb ? 0x4000 : ARB_CNFG_SIZE);
+ arb_observer = ml_io_map(waffle_arb ? 0x0c440000UL : ARB_OBSERVER_PHYS,waffle_arb ? 0x80000 : ARB_OBSERVER_SIZE);
+ arb_map = waffle_arb && arb_core ? arb_core+0x2000 : ml_io_map(ARB_MAP_PHYS, ARB_MAP_SIZE);
  if (!arb_core || !arb_cnfg || !arb_observer || !arb_map) {
   goto out;
  }
  version = rd(arb_core + ARB_VERSION);
- channels = rd(arb_core + 0x004) & 0x1fff;
- if (version < ARB_VERSION_8 || version >= 0x90000000u) {
-  say("torch: PMIC arbiter version %#x, not 8: nothing done\n", version);
+ channels = rd(arb_core + 0x004) & (waffle_arb ? 0x7ff : 0x1fff);
+ if (waffle_arb ? (version < 0x70000000u || version >= ARB_VERSION_8) :
+     (version < ARB_VERSION_8 || version >= 0x90000000u)) {
+  say("torch: unsupported PMIC arbiter version %#x for this platform: nothing done\n",version);
   goto out;
  }
- if (channels == 0 || channels > ARB_MAX_CHANNELS) {
+ if (channels == 0 || channels > (waffle_arb ? 1024 : ARB_MAX_CHANNELS)) {
   say("torch: invalid bus 0 APID count %u: nothing done\n", channels);
   goto out;
  }
+ say("torch: platform=%s arbiter=%x APIDs=%u level=%u\n",waffle_arb ? "waffle-v7" : "macan-v8",version,channels,level);
  find_channel(&flash, channels);
  find_channel(&alarm, channels);
  if (!flash.found || spmi_read(&flash, FLASH_TYPE, id, 2) != NULL || spmi_read(&flash, FLASH_REVISION1, &revision, 1) != NULL) {
@@ -552,7 +559,17 @@ torch_thread(__unused void *parameter, __unused wait_result_t result)
  }
  say("torch: the module says type %#x, subtype %#x, revision %#x%s\n", id[0], id[1], revision,
      id[0] == 0x18 && id[1] == 0x07 ? ": a flash LED module of four channels, as Android's driver expects" : ": NOT WHAT WAS EXPECTED");
- show_registers();
+ if (waffle_arb) {
+  uint8_t module=0xff,enabled=0xff,target0=0xff,target3=0xff,resolution=0xff;
+  if (id[0]!=0x18 || id[1]!=0x07 || !get(&flash,FLASH_MODULE_EN,&module) ||
+      !get(&flash,FLASH_EN_LED_CTRL,&enabled) || !get(&flash,FLASH_ITARGET0,&target0) ||
+      !get(&flash,FLASH_ITARGET0+3,&target3) || !get(&flash,FLASH_IRESOLUTION,&resolution)) {
+   say("torch: waffle read-only identification failed; no PMIC writes\n");goto out;
+  }
+  say("torch: waffle read-only module=%02x channels=%02x target0=%02x target3=%02x resolution=%02x; no PMIC writes\n",module,enabled,target0,target3,resolution);
+ } else {
+  show_registers();
+ }
  if (alarm.found && get(&alarm, ALARM_SUBTYPE, &alarm_subtype) && get(&alarm, ALARM_STATUS, &alarm_status)) {
   uint8_t stage = alarm_subtype == 0x08 ? alarm_status & 0x03 : (alarm_status >> 4) & 0x07;
   say("torch: the PMIC's temperature alarm (subtype %#x) says %#x: stage %u%s\n", alarm_subtype, alarm_status, stage,
@@ -567,7 +584,8 @@ torch_thread(__unused void *parameter, __unused wait_result_t result)
   say("torch: the channel is not ours to write through: nothing written\n");
   goto out;
  }
- flash.write = ml_io_map(ARB_CHNLS_PHYS + 0x200UL * flash.channel, 0x200);
+ flash.write = ml_io_map((waffle_arb ? 0x0c500000UL : ARB_CHNLS_PHYS) +
+     (waffle_arb ? 0x1000UL : 0x200UL) * flash.channel,0x200);
  if (flash.write == 0 || !alarm.found || (alarm_subtype != 0x08 && alarm_subtype != 0x09)) {
   say("torch: write mapping or PMIC temperature monitor unavailable: nothing written\n");
   goto out;
@@ -619,12 +637,19 @@ void
 macan_torch_init(void)
 {
  thread_t thread;
- uint32_t macan = 0;
- if (!PE_parse_boot_argn("macan", &macan, sizeof(macan)) || macan == 0) {
-  return;
+ uint32_t macan = 0,waffle=0;
+ waffle_arb=PE_parse_boot_argn("waffle",&waffle,sizeof(waffle)) && waffle;
+ if (waffle_arb) {
+  level=0;
+  PE_parse_boot_argn("waffle_torch",&level,sizeof(level));
+  /* Modes1/2 identified this module and verified the bounded pulse and
+   * darkness on Waffle; mode3 exposes the same checked path to iOS. */
+  if (level<1 || level>3) return;
+ } else {
+  if (!PE_parse_boot_argn("macan", &macan, sizeof(macan)) || macan == 0) return;
+  level = 3;
+  PE_parse_boot_argn("torch", &level, sizeof(level));
  }
- level = 3;
- PE_parse_boot_argn("torch", &level, sizeof(level));
  if (level == 0) {
   return;
  }

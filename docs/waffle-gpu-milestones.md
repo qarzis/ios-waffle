@@ -46,9 +46,9 @@ captures are retained locally; exact submitted-surface correlation is unverified
 
 One owning backboardd process uses synchronous GPU submissions. Large requests
 are partitioned in order into complete-root windows. The physical BO budget is
-128 MiB, the per-BO bound is 8 MiB, and 8,192 descriptor records are available.
+192 MiB, the per-BO bound is 8 MiB, and 8,192 descriptor records are available.
 Virtual placement spans 256 MiB;
-physical residency remains limited to 128 MiB.
+physical residency remains limited to 192 MiB.
 Closed BOs are revoked before release. Descriptor slots are reused with
 32-bit generation handles; exhausted generations are quarantined before wrap. GPU fences remain monotonic; serialized
 HFI tags cycle independently of them. The former 1,024-submission diagnostic cap
@@ -60,9 +60,8 @@ softpipe. A composite UI capture is not a pixel-reference test of every app.
 
 ## Remaining work
 
-- Qualify GPU access beyond the old 128 MiB VA boundary. E59 separates VA from
-  physical residency and passes the measured fragmentation host model, but its
-  hardware workload did not allocate above that boundary.
+- Extend reference-pixel coverage of the enlarged working set. E77/E78 exercised
+  residency above 128 MiB, but their UI captures are not full pixel-reference tests.
 - Qualify sustained interactive load after the focused queue-generation test.
 - Qualify sustained interactive load and persistent mode before removing timers.
 - Measure and improve readback, submission and logging costs; no measured FPS claim yet.
@@ -101,3 +100,45 @@ not panel FPS. The verified scalar path is restored; queue/BO fixes remain.
 
 [Readback comparison](../work/waffle/gpu/forensic-audit/E64-comparison.json),
 [submit comparison](../work/waffle/gpu/forensic-audit/E66-comparison.json).
+
+## November 2: CPU, flashlight and allocation pressure
+
+Four and seven XNU CPUs passed isolated startup and concurrency checks. The
+resident USB loader retains one physical core. GPU UI runs now request seven
+CPUs by default. This does not establish full eight-core handoff.
+
+The Waffle SPMI v7 flashlight path passed a bounded 100 mA/channel pulse and
+Control Center on/off was confirmed on the phone. Shutdown readbacks confirm
+the module is dark. Alert Slider modes and the displaced volume HUD remain
+unresolved.
+
+Mesa now has an opt-in, single retry after purging unused BO caches. An earlier
+version deadlocked by holding the table lock while destructors took that lock;
+that candidate was rejected. Cache reclamation alone could not accommodate
+128 MiB of live BOs. The physical budget is now 192 MiB with the same 8,192
+descriptor slots, 256 MiB VA range and 8 MiB per-BO limit. E77 completed its
+240-second GPU phase with 61,993 completions and 10,462 lifetime BOs, no logged
+allocation refusal or SIGSEGV, and a full context close. Its strict fence
+collector still reports missing/discontinuous events; original failures remain
+recorded. This is a bounded observation, not indefinite stability or an FPS
+claim.
+
+The bundled iOS 16 collection is exposed on the 375×812@2x canvas. Automatic
+selection is under hardware test; gallery availability alone does not prove
+the requested wallpaper is applied.
+
+E78 subsequently exhausted the full 192 MiB during interactive UI and backboardd
+crashed after 9,787 completions. Seven online CPUs and actual parallel execution
+were observed in this same run. The user reported GPU-phase stripes; the saved
+app-switcher capture also shows horizontal discontinuities. Their cause remains
+unproven. Further heap increases are stopped pending a live-BO ownership and
+presentation review. [Failure report](../work/waffle/gpu/forensic-audit/E78-result.json),
+[architecture review](../work/waffle/gpu/forensic-audit/E78-architecture-review.md).
+
+E79 confirmed seven online CPUs alongside GPU composition (3.7 CPU-time/wall-time
+ratio in the short concurrency probe), 1,140 GPU completions and full context
+close. The requested iOS16 wallpaper is visible in native captures. Its automatic
+configuration creation succeeded, but selection returned NSCocoaErrorDomain -1.
+The wallpaper was already visible before that attempt, so automatic default
+selection remains unverified. Original runner exit1 is retained.
+[Report](../work/waffle/gpu/forensic-audit/E79-result.json).

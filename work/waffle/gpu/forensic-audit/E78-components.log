@@ -1,0 +1,19 @@
+cpu_test: hw.ncpu 7, hw.activecpu 7, hw.physicalcpu 7, hw.logicalcpu 7
+cpu_test: one thread took 184 ms; 7 threads at once took 599 ms and were given 1076 ms of processor time: 1.7 processors at work, seen on 1 4 5 6
+waffle-wallpaper-auto: descriptors=2
+waffle-wallpaper-auto: descriptor=7400 info={
+    wallpaperRepresentingFileName = "7400.WWDC_2022-375w-812h@3x~iphone.wallpaper";
+    wallpaperRepresentingIdentifier = 7400;
+}
+waffle-wallpaper-auto: descriptor=5010 info={
+waffle-wallpaper-auto: descriptor=5010 info={
+    wallpaperRepresentingFileName = "5010.Multicolored.wallpaper";
+    wallpaperRepresentingIdentifier = 5010;
+}
+waffle-wallpaper-auto: exact iOS16 collection descriptor absent; no configuration created
+waffle-wallpaper-auto: exact iOS16 collection descriptor absent; no configuration created
+waffle-gpu: GENERAL allocation_refused bytes=5242880 flags=20000 count=2853 limit=8192 reason=registry live_count=2790 live_bytes=199933952 retired_count=63 retired_bytes=0 heap_limit=2013265waffle-gpu: GENERAL ioctl_refused op=42 error=12 pid=84
+waffle-gpu: GENERAL allocation_refused bytes=5242880 flags=20000 count=2853 limit=8192 reason=registry live_count=2803 live_bytes=198082560 retired_count=50 retired_bytes=0 heap_limit=2013265waffle-gpu: GENERAL ioctl_refused op=42 error=12 pid=84
+waffle-gpu: GENERAL allocation_refused bytes=16384 flags=20002 count=2853 limit=8192 reason=registry live_count=2840 live_bytes=201326592 retired_count=13 retired_bytes=0 heap_limit=201326592waffle-gpu: GENERAL ioctl_refused op=42 error=12 pid=84
+waffle-gpu: GENERAL close passed=1 completed=9787 buffers=8890 context_null=1
+com.apple.xpc.launchd|2026-11-02 12:49:12.707608 (user/501/com.apple.backboardd [84]) <Notice>: exited due to SIGSEGV

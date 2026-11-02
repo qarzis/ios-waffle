@@ -1,0 +1,15 @@
+{
+  "run": "work/waffle/runs/20261102T091741Z",
+  "optical_user_confirmation": "\u0412\u043a\u043b\u044e\u0447\u0430\u0435\u0442 \u0438 \u0432\u044b\u043a\u043b\u044e\u0447\u0430\u0435\u0442",
+  "Control_Center_flashlight_verified": true,
+  "mediaserverd_bridge_seen": false,
+  "final_dark_verified": true,
+  "GPU_original_runner_exit": 1,
+  "GPU_rendering_became_softpipe_after_crash": true,
+  "GPU_completed_at_close": 16518,
+  "live_bytes_at_OOM": 134217728,
+  "budget_bytes": 134217728,
+  "original_failure_retained": true,
+  "Android_confirmed": true,
+  "kernel_final_sha256": "ab8a885607161ede8b0539cb54dbd39ff69dbe1cc94e0148a5bba891d5c97d66"
+}

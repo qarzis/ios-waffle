@@ -10,8 +10,8 @@ from pathlib import Path
 import re
 
 
-def validate(text, eagl=False, frames=False, hook=False, fullsize=False):
-    hook = hook or fullsize
+def validate(text, eagl=False, frames=False, hook=False, fullsize=False, contexts=False):
+    hook = hook or fullsize or contexts
     root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("waffle_runner", root / "scripts/run_waffle_ios.py")
     runner = importlib.util.module_from_spec(spec)
@@ -82,8 +82,18 @@ def validate(text, eagl=False, frames=False, hook=False, fullsize=False):
         raise RuntimeError("Display worker timed out waiting for surface")
     if fullsize and "waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1" not in text:
         raise RuntimeError("Full surface pixel correctness not established")
+    if contexts:
+        for marker in (
+            "waffle-gl-contexts: begin actual_EAGLContext=2 same_PID=1",
+            "waffle-gl-contexts: second checked=256 wrong=0 GL_error=0 color=ffff0000 distinct_context=1",
+            "waffle-gl-contexts: first_restored checked=256 wrong=0 GL_error=0",
+            "waffle-gl-contexts: result=1 second_released=1",
+        ):
+            if marker not in text:
+                raise RuntimeError("EAGL context switching proof missing: " + marker)
     return dict(full_surface_pixels_checked=1218000 if fullsize else 256, surface=sid, swap=swap, stride=stride, pixels_checked=256, pixels_wrong=0,
                 actual_EAGL_GL_adapter=eagl or frames or hook, actual_EAGL_hook=hook,
+                EAGL_context_switch_isolation=contexts,
                 consecutive_frames=64 if frames else 1,
                 display_worker_resolved_surface=True, CPU_readback=True,
                 optical_visibility_verified=False, direct_GPU_scanout=False)
@@ -96,5 +106,6 @@ if __name__ == "__main__":
     parser.add_argument("--frames", action="store_true", help="Require64 correct alternating frames and actual GPU completions")
     parser.add_argument("--hook", action="store_true", help="Require the actual EAGL private table and hook-owned IOSurface readback")
     parser.add_argument("--fullsize", action="store_true", help="Require all750x1624 actual hook-owned pixels and fullscreen display")
+    parser.add_argument("--contexts", action="store_true", help="Require actual two-context blue/triangle switching and release")
     args = parser.parse_args()
-    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl, args.frames, args.hook, args.fullsize), indent=2))
+    print(json.dumps(validate(args.log.read_text(errors="replace"), args.eagl, args.frames, args.hook, args.fullsize, args.contexts), indent=2))

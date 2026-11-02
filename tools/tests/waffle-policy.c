@@ -6,6 +6,22 @@
 
 int main(void)
 {
+#if defined(WAFFLE_USERLAND)
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=2 loader_return_after=60"));
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=7 fbscale=2"));
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_torch=1"));
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_torch=2"));
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_torch=3"));
+#else
+    assert(!waffle_cmdline_allowed("cpus=2"));
+    assert(!waffle_cmdline_allowed("waffle_torch=1"));
+#endif
+    assert(!waffle_cmdline_allowed("waffle_torch=4"));
+    assert(!waffle_cmdline_allowed("waffle_torch=1 waffle_torch=1"));
+    assert(!waffle_cmdline_allowed("cpus=0"));
+    assert(!waffle_cmdline_allowed("cpus=9"));
+    assert(!waffle_cmdline_allowed("cpus=2 cpus=3"));
+    assert(!waffle_cmdline_allowed("cpus=2x"));
     assert(waffle_pll_control_requested("waffle_gpu=92"));
     assert(waffle_pll_control_requested("bootcpu=7 waffle_gpu=092 epoch=1"));
     assert(!waffle_pll_control_requested("waffle_gpu=91"));

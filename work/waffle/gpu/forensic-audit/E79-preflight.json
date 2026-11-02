@@ -1,0 +1,16 @@
+{
+  "root_manifest": "work/waffle/gpu/e79-gpu-wallpaper-auto-final-root/manifest.json",
+  "root_sha256": "062a9b0c6ac4bf0a0b8c067d01fbd42c10a34516008ebc4cfe3774a74163c9ff",
+  "GPU_seconds": 60,
+  "CPU_count": 7,
+  "RAM_only": true,
+  "kernel_sha256": "74b89933d2846c3059c1730b6b77a5bf3cdc57e768ee3ad61e8663a0968e6af1",
+  "wallpaper_selection": "exact observed descriptor7400 and actual wallpaperRepresentingIdentifier/fileName; existing matches reused before creation",
+  "GPU_known_issues_retained": [
+    "192MiB live BO exhaustion under interactive load",
+    "user-visible stripes; cause not yet established"
+  ],
+  "build_passed": true,
+  "backing_and_registry_host_tests_passed": true,
+  "hardware_result_pending": true
+}

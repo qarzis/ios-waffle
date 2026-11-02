@@ -1,0 +1,20 @@
+--- a/src/freedreno/drm/freedreno_bo.c
++++ b/src/freedreno/drm/freedreno_bo.c
+@@ -142,6 +142,17 @@
+       return bo;
+ 
+    bo = dev->funcs->bo_new(dev, size, flags);
++#if defined(__APPLE__)
++   if (!bo) {
++      const char *waffle = getenv("WAFFLE_GPU_DRM");
++      const char *reclaim = getenv("WAFFLE_GPU_RECLAIM_ON_OOM");
++      if (waffle && !strcmp(waffle, "1") && reclaim && !strcmp(reclaim, "1")) {
++         fd_bo_cache_cleanup(&dev->bo_cache, 0);
++         fd_bo_cache_cleanup(&dev->ring_cache, 0);
++         bo = dev->funcs->bo_new(dev, size, flags);
++      }
++   }
++#endif
+    if (!bo)
+       return NULL;
+ 

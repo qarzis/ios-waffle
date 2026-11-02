@@ -58,11 +58,21 @@ static inline int waffle_return_token_allowed(const char *word,size_t size)
 #endif
     return waffle_number(word,size,"loader_return_after=",1,WAFFLE_RETURN_LIMIT);
 }
+/* The resident USB loader owns one core; XNU may use the other seven. */
+static inline int waffle_cpu_token_allowed(const char *word,size_t size)
+{
+#if defined(WAFFLE_USERLAND)
+    return waffle_number(word,size,"cpus=",1,7);
+#else
+    (void)word; (void)size;
+    return 0;
+#endif
+}
 static inline int waffle_cmdline_allowed(const char *line)
 {
     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
-    unsigned soak=0,returns=0,gl_image=0;
+    unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0;
     while (*line) {
         while (*line == ' ') line++;
         const char *end = line;
@@ -71,6 +81,10 @@ static inline int waffle_cmdline_allowed(const char *line)
         if (!size) break;
         soak+=waffle_number(line,size,"loader_return_after=",660,660);
         returns+=waffle_return_token_allowed(line,size);
+        cpus+=waffle_cpu_token_allowed(line,size);
+#if defined(WAFFLE_USERLAND)
+        torch+=waffle_number(line,size,"waffle_torch=",1,3);
+#endif
         gl_image+=waffle_token_equal(line,size,"waffle_image=13");
         matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
         measure+=waffle_token_equal(line,size,"waffle_gpu_measure=1");
@@ -95,10 +109,14 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_number(line, size, "epoch=", 0, UINT32_MAX) &&
             !waffle_return_token_allowed(line, size) &&
             !waffle_number(line, size, "fbscale=", 1, 3) &&
+            !waffle_cpu_token_allowed(line,size) &&
+#if defined(WAFFLE_USERLAND)
+            !waffle_number(line,size,"waffle_torch=",1,3) &&
+#endif
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
     }
-    return ((!matrix && !measure) ||
+    return cpus<=1 && torch<=1 && ((!matrix && !measure) ||
         (matrix<=1 && measure<=1 && gpu_count==1 && prepare93)) &&
         (!lpac || (lpac==1 && gpu_count==1 && (prepare93 || native94))) &&
         (!zap || (zap==1 && lpac==1 && gpu_count==1 && native94)) &&
