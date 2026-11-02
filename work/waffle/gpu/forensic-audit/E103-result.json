@@ -1,0 +1,14 @@
+{
+  "experiment": "E103 native IOSurface consumer usage",
+  "passed": false,
+  "visual_result": "pending manual icon-transition observation",
+  "completed": 2469,
+  "lifetime_buffers": 1494,
+  "controlled_GPU_stop": true,
+  "full_context_close": true,
+  "unbalanced_usage_reported": false,
+  "original_collector_failure": "Dynamic BO publication/use/release not confirmed",
+  "kernel_return": "result: returned 1441823 0",
+  "raw_log_sha256": "be2756b15f8192bcf30b4aae44594ebd934f2466794ed10a9fe2a76fa59c43e1",
+  "android_independent_boot_completed": 1
+}

@@ -1,3 +1,15 @@
+# E103 completed; Android independently1; manual visual result pending
+
+Noactivephoneboot. E103fullclose2469/1494/normalreturn; originalrunner1preservedmissingDynamicBOproof. UserpendingquestionasksBLACKONLYduringactualicontapexpansion; LSprobeNOTequivalent. DoNOTclaimanimation/VSyncfixed. Latestpublic5733373hasleaseOFF; currentprivatecandidateleaseON/provenhostbutvisualunqualified. Next useuserresponse toselecttransitiontraceorleasequalification; noidenticaltestwithoutnewdata.
+
+# E103 hardware active run20261102T210030Z — awaiting manual icon result
+
+GPUopenPID84/currentobjectcap192MiB; noautolaunch. Userasyncquestionpending: onlyblackduringiconexpansion vsnormal. IndependentphoneAndroid1beforelaunch; nootherUSBowner. Originalstrictcollectoroutcomemustberetained; UI ends240s/kernel300; checkAndroid1after.
+
+# E103 launching — auto20261102T210006Z
+
+Artifactdiagnostic-display-lease-e103/fullbuild+validationPASS, root e103-manual-animation-root sourcebound/noautolaunch, nativeusageON. Soleouterrunner ownsUSB, logsauto-display-lease-e103.log; doNOTissueconcurrentfastboot. InitialAndroidindependent1, source/pairedkernelCRC/imagebindingsverified. Awaitactualkernelrun andusage_enabled1/holds>=1 thenaskuserrealicontapcheckONLYblackduringexpansion. FourminuteGPU/300skernelreturn; retainoriginalstrictresultandindependentAndroid1.
+
 # ACTIVE E103 display consumer lease test — user resumes 2026-11-02
 
 User clarifies blackONLYduringICONexpansion, appnormalafter; LSapplicationlaunchprobeNOTequivalent. VSyncafteranimationfix peruser. E102hostrunnerdisappeared, recoveredlogfullcontrolledGPUclose23197/5347butloaderrunning0, rebootAndroidandindependent1. Noactivephonebootnow; E103buildrunning diagnostic-display-lease-e103 andUIroot e103-manual-animation-root, noautolaunch. WaffleDisplayUse default1forthisexperiment, previouspublic5733373default0. Mustfinishbuild/bindpairedimage/currentkernel/source/root/validate, thenone240smanualicontest, useranswerneededforvisualtransition(noinventedinput). OtherGPUobjectlimitunchanged192MiBheap/VA256/8192. AudioA13passedOPEN/CLOSE/noPCM/Git5733373verified.

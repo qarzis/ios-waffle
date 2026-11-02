@@ -1,0 +1,7 @@
+# After A13: qualify memory ownership before PCM
+
+A13hardwareOPEN/CLOSEpassed modernGCtype0b001001. Do not addsharedmemorycommands with ordinaryphysicaladdress. Native msm_audio_ion.c appends(sid&mask)<<32 toIOVA; WafflefirstSID1001/maskf yieldsupperword1, IOVApool10000000..20000000. SecondIOMMUcell80isSMRmatchmask, notDMAflags.
+
+Minimum nextobservation: readAppsSMMU15000000 ID0/ID1 and onlyvalidSMR/S2CRmatchesfor1001/1081/1061, thenmatchedCB SCTLR/TCR/TTBR/CBAR/VMID andfaultstatewithoutanyclear/reset/ownershipchange. ID0SMS/EXIDSaffectvalidbitinterpretation; ID1pagesize/gr1layoutmustbedecodedbeforeCBreads. ExistingnativeAndroidmappingdoesnotproveUEFIinheritedCBisfree. Mustqualifyclock/poweraccessbeforeMMIO; useboundedknownregisterallowlist. NoDMAmap/streamreroutebeforeownershipknown.
+
+Aftermapping: silentperiods withampsOFF, explicitmediaformat48k/stereo/16bit, boundeduniqueGPRtokens/memmaphandle, requireactualperiodcompletion andreadback/guards, stopgraph/unmapbeforePASshutdown. Hardwareendpoint/TFAI2CprofileandiOSaudio_sinkremainseparatestages. Devicecapturedfirmware/ampcontainersprivate.
