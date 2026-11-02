@@ -1,0 +1,33 @@
+{
+  "run": "work/waffle/runs/20261102T094803Z",
+  "experiment": "seven CPUs,192MiB GPU, bounded automatic wallpaper discovery",
+  "requested_cpus": 7,
+  "observed_hw_counts": [
+    7,
+    7,
+    7,
+    7
+  ],
+  "CPU_parallel_time_ratio": 1.7,
+  "GPU_phase_failed": true,
+  "memory_refusal_live_bytes": 201326592,
+  "GPU_completions_at_close": 9787,
+  "lifetime_buffers": 8890,
+  "full_context_close": true,
+  "SIGSEGV": true,
+  "user_reports_GPU_stripes": true,
+  "native_capture_shows_horizontal_discontinuities": true,
+  "artifact_root_cause_unproven": true,
+  "wallpaper_applied": false,
+  "wallpaper_discovery": {
+    "descriptor": "7400",
+    "wallpaperRepresentingIdentifier": 7400,
+    "wallpaperRepresentingFileName": "7400.WWDC_2022-375w-812h@3x~iphone.wallpaper"
+  },
+  "GPU_budget_further_increase_rejected": true,
+  "next_GPU_step": "Architecture review of live BO ownership/working set and presentation synchronization, no repeated heap bump",
+  "evidence": "work/waffle/gpu/forensic-audit/E78-components.log",
+  "evidence_sha256": "5b34b23af13f5b586903d842d5a75ababb2b37f95f6c902eb122bd841f936837",
+  "Android_recovery_pending": false,
+  "android_confirmed": true
+}

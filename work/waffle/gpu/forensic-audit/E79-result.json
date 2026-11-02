@@ -1,0 +1,33 @@
+{
+  "run": "work/waffle/runs/20261102T095955Z",
+  "automatic_configuration_create": true,
+  "created_descriptor": "7400",
+  "created_configuration_UUID": "221CF774-1883-469C-BEDF-C4074A6B5BBA",
+  "create_error": null,
+  "selection_callback_error": "NSCocoaErrorDomain -1",
+  "automatic_selection_success_unproven": true,
+  "exact_wallpaper_visible_in_native_captures": [
+    35,
+    45
+  ],
+  "wallpaper_visible_before_delayed_selection_attempt": true,
+  "do_not_attribute_visible_wallpaper_to_this_automatic_selection": true,
+  "CPU_counts": [
+    7,
+    7,
+    7,
+    7
+  ],
+  "CPU_parallel_time_ratio": 3.7,
+  "GPU_completions_at_close": 1140,
+  "lifetime_buffers": 2050,
+  "full_context_close": true,
+  "GPU_phase_seconds": 60,
+  "original_runner_exit": 1,
+  "outer_success": false,
+  "Android_confirmed": true,
+  "artifact_issue_fixed": false,
+  "RAM_only": true,
+  "evidence": "work/waffle/gpu/forensic-audit/E79-components.log",
+  "evidence_sha256": "299d083347f66b7d9c068de3516c6034d13fbe3b81cfe2e54ca1088d5f64b280"
+}

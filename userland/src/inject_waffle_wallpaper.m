@@ -93,16 +93,18 @@ static BOOL hasEncoding(Class cls,const char *name,const char *encoding)
     Method method=class_getInstanceMethod(cls,sel_registerName(name));
     return method && !strcmp(method_getTypeEncoding(method),encoding);
 }
-static NSString *posterInfo(id poster)
+static NSDictionary *posterInfo(id poster)
 {
     if(!hasEncoding(object_getClass(poster),"loadUserInfoWithError:","@24@0:8o^@16"))return nil;
     NSError *error=nil;id info=[poster loadUserInfoWithError:&error];
-    return error?nil:[info description];
+    return !error && [info isKindOfClass:NSDictionary.class]?info:nil;
 }
-static BOOL targetInfo(NSString *info)
+static BOOL targetInfo(NSDictionary *info)
 {
-    return [info rangeOfString:@"23EC2CF1-0188-49FC-B214-EC1AB37FE5C4" options:NSCaseInsensitiveSearch].location!=NSNotFound && info!=nil;
+    return [[info[@"wallpaperRepresentingIdentifier"] description] isEqualToString:@"7400"] &&
+           [info[@"wallpaperRepresentingFileName"] isEqualToString:bundleName];
 }
+
 static void selectPoster(id service,id configuration)
 {
     if(!hasEncoding(object_getClass(configuration),"serverUUID","@16@0:8")){
@@ -132,7 +134,7 @@ static void installDefaultPoster(void)
                     autoLog([NSString stringWithFormat:@"fetch configurations error=%@ class=%@",error,[configurations class]]);return;
                 }
                 for(id configuration in [(NSArray *)configurations subarrayWithRange:NSMakeRange(0,MIN([configurations count],32))]){
-                    NSString *info=posterInfo(configuration);
+                    NSDictionary *info=posterInfo(configuration);
                     if(targetInfo(info)) {autoLog(@"reusing existing iOS16 configuration");selectPoster(service,configuration);return;}
                 }
                 [service fetchPosterDescriptorsForExtension:provider completion:^(id descriptors,id fetchError){
@@ -143,11 +145,10 @@ static void installDefaultPoster(void)
                         autoLog([NSString stringWithFormat:@"descriptors=%lu",(unsigned long)[descriptors count]]);
                         for(id descriptor in [(NSArray *)descriptors subarrayWithRange:NSMakeRange(0,MIN([descriptors count],32))]){
                             if(!hasEncoding(object_getClass(descriptor),"identifier","@16@0:8"))continue;
-                            id identifier=[descriptor identifier];NSString *info=posterInfo(descriptor);
-                            autoLog([NSString stringWithFormat:@"descriptor=%@ info=%@",identifier,[info substringToIndex:MIN(info.length,1400)]]);
+                            id identifier=[descriptor identifier];NSDictionary *info=posterInfo(descriptor);NSString *description=info.description;
+                            autoLog([NSString stringWithFormat:@"descriptor=%@ info=%@",identifier,[description substringToIndex:MIN(description.length,1400)]]);
                             if(![identifier isKindOfClass:NSString.class])continue;
-                            BOOL exact=[identifier caseInsensitiveCompare:@"23EC2CF1-0188-49FC-B214-EC1AB37FE5C4"]==NSOrderedSame;
-                            if(!exact && !targetInfo(info))continue;
+                            if(![identifier isEqualToString:@"7400"] || !targetInfo(info))continue;
                             [service createPosterConfigurationForProviderIdentifier:provider posterDescriptorIdentifier:identifier completion:^(id configuration,id createError){
                                 @try {
                                     autoLog([NSString stringWithFormat:@"create descriptor=%@ class=%@ error=%@",identifier,[configuration class],createError]);

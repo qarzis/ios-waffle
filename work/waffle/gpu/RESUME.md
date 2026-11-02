@@ -1,3 +1,9 @@
+# STOPPED after scoped work and requested publication — 2026-11-02
+
+No active hardware runner. E79run095955Z/auto095932Z completed, Androidindependently1. User requested wallpaper/7cores thenstop+GitHub; latestcontinue resumed interruptedtest, nowboundedfollowupfinished. SevenCPUsdefaultGPUUI, actualallcounts7+3.7CPUparallelratioE79. TorchControlCenteruserverified. GPU192MiBinteractiveE78FAILEDfullheap+SIGSEGV9787commands; stripesuserconfirmed+capture; doNOTbumpheapagain, E78architecturereviewpendingonresume.
+
+Automaticwallpapercode now usesexactobserveddescriptor7400+userInfokeysfilename/identifier; reusesexistingmatchbeforecreate. E79createconfigurationSUCCEEDEDbutselectcallback NSCocoaErrorDomain-1. Exactblue/yellowwallpaperalreadyvisiblein35/45capturesBEFOREautoattempt, soautoselectionnotqualified. MustresolvePosterselection/snapshoterrorbeforeclaimdefaultfixed. E79reportretainsouterrunner1. Nextonresumeauditselectedconfigurationreadback/nativePosterrefresherror; donotpretenddisplayprovesautoselection. NoHUDwork(userabandoned), AlertSlidertopDND/middlevibration/bottomringpending.
+
 # CURRENT 2026-11-02T09:44:24.661789+00:00 — next GPU UI boot uses seven cores
 
 User requests seven cores. tools/run-waffle-auto.py now defaults GPU UI to --cpus 7 with explicit override preserved and multicore_loader manifest gate. Syntax/default-selection/policy tests passed. No new hardware boot for this change; independent Android boot_completed=1. Seven-core isolated qualification: run 20261102T072252Z. E77 completed, no active runner. Next combined UI must use seven cores + GPU + qualified torch service.
