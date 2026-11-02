@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifact', type=Path, required=True)
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
-    parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test; resident loader owns the eighth core')
+    parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
     parser.add_argument('--torch-readonly', action='store_true', help='Separate Waffle flash module identification without PMIC writes')
     parser.add_argument('--torch-pulse',action='store_true',help='Single two-second flash-module pulse in the GPU UI workload')
@@ -59,6 +59,8 @@ def main():
     if args.torch_pulse and (args.torch_readonly or not args.gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
     if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.ui_workload):parser.error('--torch-service requires GPU UI and excludes probe modes')
     if args.cpus is not None and not (args.cpu_ui_test or args.ui_workload):parser.error('--cpus requires a UI workload')
+    if args.ui_workload and args.cpus is None:
+        args.cpus=7
     if args.cpu_ui_test and any((args.prepare_gpu,args.lpac_cp_init,args.gl_context,args.ui_workload,args.compute,args.session,args.lpac_map,args.access_matrix,args.measure_clocks,args.image,args.image_copy,args.image_present,args.copy_jobs,args.worker,args.user_copy,args.data_bo,args.glsl,args.user_va,args.msm,args.mesa_transport,args.mapped,args.dynamic_bo,args.ib,args.writeback,args.zap,args.ui_long_test,args.ui_soak_test)):
         parser.error('--cpu-ui-test must run separately from GPU experiments')
     if args.ui_workload and not args.gl_context:parser.error('--ui-workload requires --gl-context')
@@ -95,6 +97,8 @@ def main():
     if args.session and not args.ib:
         parser.error('--session requires --ib')
     manifest = json.loads((artifact / 'manifest.json').read_text())
+    if args.cpus is not None and args.cpus>1 and not manifest.get('multicore_loader'):
+        parser.error('Artifact lacks the opt-in multicore loader policy')
     if args.torch_readonly and not manifest.get('torch_readonly_loader'):parser.error('Artifact lacks the torch read-only policy')
     if args.torch_pulse and not manifest.get('torch_pulse_loader'):parser.error('Artifact lacks the bounded torch pulse policy')
     if args.torch_service and not manifest.get('torch_service_loader'):parser.error('Artifact lacks the iOS torch-service policy')

@@ -45,14 +45,14 @@ static const char *describe(id value)
 
 __attribute__((constructor)) static void start(void)
 {
-    if (strcmp(getprogname(),"SpringBoard")) return;
+    if (strcmp(getprogname(),"SpringBoard") && strcmp(getprogname(),"CollectionsPoster")) return;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW,25*NSEC_PER_SEC),dispatch_get_main_queue(),^{
         int fd=open("/dev/console",O_WRONLY);if(fd<0)return;
         @try {
             dlopen("/System/Library/PrivateFrameworks/WallpaperKit.framework/WallpaperKit",RTLD_LAZY|RTLD_LOCAL);
             id manager=object0(NSClassFromString(@"WKWallpaperRepresentingCollectionsManager"),"defaultManager");
             NSInteger count=count0(manager,"numberOfWallpaperCollections");
-            dprintf(fd,"waffle-poster-inventory: manager=%s collections=%ld read_only=1\n",manager?object_getClassName(manager):"nil",(long)count);
+            dprintf(fd,"waffle-poster-inventory: manager=%s collections=%ld read_only=1 process=%s\n",manager?object_getClassName(manager):"nil",(long)count,getprogname());
             for (NSInteger i=0;i<count && i<16;i++) {
                 id collection=indexed(manager,"wallpaperCollectionAtIndex:",i);
                 NSInteger papers=count0(collection,"numberOfWallpapers");

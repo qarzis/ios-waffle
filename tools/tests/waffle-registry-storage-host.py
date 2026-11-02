@@ -39,9 +39,10 @@ int main(void){
   mode=0;assert(waffle_gpu_registry_destroy(&owner.registry,true));
   assert(destroyed==1 && storage_frees==1 && !owner.registry.buffers);
  }
- /* Record capacity follows the physical budget, not an arbitrary array size. */
+ /* Physical residency and the fixed generation-handle slot ABI are separate. */
  reset_owner(&owner);
- assert(WAFFLE_GPU_BO_LIMIT==WAFFLE_GPU_BO_HEAP_BYTES/16384 && (WAFFLE_GPU_BO_LIMIT==4096 || WAFFLE_GPU_BO_LIMIT==8192));
+ assert((WAFFLE_GPU_BO_LIMIT==4096 && WAFFLE_GPU_BO_HEAP_BYTES==67108864) ||
+        (WAFFLE_GPU_BO_LIMIT==8192 && (WAFFLE_GPU_BO_HEAP_BYTES==134217728 || WAFFLE_GPU_BO_HEAP_BYTES==201326592)));
  for(unsigned i=0;i<WAFFLE_GPU_BO_LIMIT;i++){
   struct waffle_gpu_memory *bo=smmu_registry_new(&owner,4096,WAFFLE_GPU_BO_WC);assert(bo);
   assert(bo==&owner.registry.buffers[i] && bo->allocation_bytes==16384);
@@ -50,7 +51,7 @@ int main(void){
    assert((entry&PTE_ADDRESS)==waffle_gpu_memory_page(bo,off) && (entry&0xc3)==0x43);
   }
  }
- assert(objects==WAFFLE_GPU_BO_LIMIT && owner.registry.used==WAFFLE_GPU_BO_HEAP_BYTES && storage_allocs==1 && !storage_frees && owner.pool.count<=TABLE_LIMIT);
+ assert(objects==WAFFLE_GPU_BO_LIMIT && owner.registry.used==WAFFLE_GPU_BO_LIMIT*16384u && owner.registry.used<=WAFFLE_GPU_BO_HEAP_BYTES && storage_allocs==1 && !storage_frees && owner.pool.count<=TABLE_LIMIT);
  assert(!smmu_registry_new(&owner,4096,WAFFLE_GPU_BO_WC) && objects==WAFFLE_GPU_BO_LIMIT);
  assert(!waffle_gpu_registry_destroy(&owner.registry,false) && !destroyed && !storage_frees);
  assert(waffle_gpu_registry_destroy(&owner.registry,true));
@@ -60,14 +61,15 @@ int main(void){
 '''
 with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);parts=ns['parts']
- for budget,limit in [(67108864,64),(134217728,128)]:
+ for budget,limit,slots in [(67108864,64,4096),(134217728,128,8192),(201326592,160,8192)]:
   header=(root/'kernel/files/bsd/sys/waffle_gpu_memory.h').read_text()
   header=re.sub(r'#define WAFFLE_GPU_BO_HEAP_BYTES .*',f'#define WAFFLE_GPU_BO_HEAP_BYTES {budget}u',header)
+  header=re.sub(r'#define WAFFLE_GPU_BO_LIMIT .*',f'#define WAFFLE_GPU_BO_LIMIT {slots}u',header)
   (p/'waffle_gpu_memory.h').write_text(header)
   for name in ['waffle_gpu_registry.h','waffle_gpu_reclaim.h']:(p/name).write_text((root/'kernel/files/bsd/sys'/name).read_text())
-  harness=h.replace('memory[64][16384]','memory[128][16384]').replace('allocated<64','allocated<128')
+  harness=h.replace('memory[64][16384]','memory[160][16384]').replace('allocated<64','allocated<160')
   mapping=re.sub(r'#define TABLE_LIMIT \d+',f'#define TABLE_LIMIT {limit}',parts['mapping'])
   (p/'test.c').write_text(harness+mapping+parts['types']+parts['dynamic']+t)
   subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-misleading-indentation','-fsanitize=address,undefined','-I',str(p),'-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
   subprocess.run([str(p/'test')],check=True)
-print('Actual registry/SMMU metadata ownership:allocation/empty/partial-failure retention and BO-before-storage teardown; both4096/64MiB/64tables and8192/128MiB/128tables minimumBO spans/all PTEs pass with stable offstack descriptors and synthetic36bit physical pages; host model only')
+print('Actual registry/SMMU metadata ownership:allocation/empty/partial-failure retention and BO-before-storage teardown; historical4096/64MiB and8192/128MiB plus current8192slots/192MiB pass minimum-BO slot exhaustion with unchanged generation capacity, stable offstack descriptors and synthetic36bit PTEs; host model only')

@@ -73,7 +73,10 @@ with tempfile.TemporaryDirectory() as directory:
   new='uint64_t end=WAFFLE_GPU_BO_VA_BASE+CANDIDATE_VA_BYTES-allocated;'
   assert old in registry;registry=registry.replace(old,new)
   (p/'waffle_gpu_registry.h').write_text(registry)
-  for header in ['waffle_gpu_memory.h','waffle_gpu_reclaim.h']:(p/header).write_text((root/'kernel/files/bsd/sys'/header).read_text())
+  for name in ['waffle_gpu_memory.h','waffle_gpu_reclaim.h']:
+   header=(root/'kernel/files/bsd/sys'/name).read_text()
+   if name=='waffle_gpu_memory.h':header=re.sub(r'#define WAFFLE_GPU_BO_HEAP_BYTES .*','#define WAFFLE_GPU_BO_HEAP_BYTES 134217728u',header)
+   (p/name).write_text(header)
   h=ns['h'].replace('memory[64][16384]',f'memory[{limit}][16384]').replace('allocated<64',f'allocated<{limit}')
   mapping=re.sub(r'#define TABLE_LIMIT \d+',f'#define TABLE_LIMIT {limit}',ns['ns']['parts']['mapping'])
   (p/'test.c').write_text(h+mapping+ns['types']+ns['ns']['parts']['dynamic']+ns['extra']+fixture+test)

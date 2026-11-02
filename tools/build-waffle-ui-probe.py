@@ -26,11 +26,13 @@ def main():
  parser.add_argument('--posterboard-providers',action='store_true',help='Restore the qualified duetexpertd/mobileassetd provider configuration')
  parser.add_argument('--service-audit',action='store_true',help='Read-only actual Focus/ringer/Poster service interface discovery')
  parser.add_argument('--poster-inventory',action='store_true',help='Read-only actual wallpaper collection and logical-screen inventory')
+ parser.add_argument('--ios16-wallpaper',action='store_true',help='Test scoped availability of bundled iOS16 artwork for375x812@2x')
  parser.add_argument('--cpu-proof',action='store_true',help='Run the delayed CPU concurrency probe alongside the GPU UI')
  parser.add_argument('--mesa-library',type=Path,help='Use an explicitly bound candidate Mesa library')
  parser.add_argument('--reclaim-on-oom',action='store_true',help='Opt in to one bounded BO-cache purge/retry in candidate Mesa')
  args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)
  if args.poster_inventory and not args.service_audit:parser.error('--poster-inventory requires --service-audit')
+ if args.ios16_wallpaper and not args.service_audit:parser.error('--ios16-wallpaper requires --service-audit')
  sdk=ROOT/'work/theos/sdks/iPhoneOS16.5.sdk'
  cc=str(ROOT/'xnu-deps/host/bin/xnu-clang')
  mesa=args.mesa_library.resolve() if args.mesa_library else ROOT/'xnu-deps/build/mesa/out-26.3.0-rc1/libOSMesa.8.dylib'
@@ -78,7 +80,7 @@ def main():
   (jobs/'org.waffle.cpu-proof.plist').write_bytes(plistlib.dumps(cpu_job))
  if args.service_audit:
   helper=out/'libwaffle-service-audit.dylib'
-  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-fobjc-arc','-dynamiclib','-framework','Foundation',str(ROOT/'userland/src/waffle_service_audit.m'),*([str(ROOT/'userland/src/waffle_poster_inventory.m')] if args.poster_inventory else []),'-o',str(helper)])
+  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-fobjc-arc','-dynamiclib','-framework','Foundation',*(['-framework','UIKit'] if args.ios16_wallpaper else []),str(ROOT/'userland/src/waffle_service_audit.m'),*([str(ROOT/'userland/src/waffle_poster_inventory.m')] if args.poster_inventory else []),*([str(ROOT/'userland/src/inject_waffle_wallpaper.m')] if args.ios16_wallpaper else []),'-o',str(helper)])
   pf.add_file(tree,'lib/libwaffle-service-audit.dylib',str(helper),mode=0o100755)
   injection=pf.node_at(tree,'etc/inject.conf');assert injection and injection.source
   config=scratch/'inject.conf';lines=[]
@@ -88,7 +90,7 @@ def main():
    assert pf.node_at(tree,'lib/'+Path(library).name)
    alias=f'{i}.dylib';pf.add_symlink(tree,'lib/'+alias,Path(library).name)
    lines.append('/redwood/lib/'+alias+' '+programs)
-  lines.append('/redwood/lib/libwaffle-service-audit.dylib SpringBoard')
+  lines.append('/redwood/lib/libwaffle-service-audit.dylib SpringBoard'+(' PosterBoard CollectionsPoster' if args.ios16_wallpaper else ''))
   config.write_text('\n'.join(lines)+'\n');assert len(config.read_bytes().rstrip())+1<=512
   pf.add_file(tree,'etc/inject.conf',str(config))
  for path in sorted(jobs.iterdir()):pf.add_file(tree,'LaunchDaemons/'+path.name,str(path))
@@ -105,11 +107,13 @@ def main():
  if args.cpu_proof:sources.append('userland/src/cpu_test.c')
  if args.service_audit:sources.append('userland/src/waffle_service_audit.m')
  if args.poster_inventory:sources.append('userland/src/waffle_poster_inventory.m')
+ if args.ios16_wallpaper:sources.append('userland/src/inject_waffle_wallpaper.m')
  manifest=dict(experiment='E46 first actual backboardd GPU workload; no UI success claim',hardware_tested=False,RAM_only=True,normal_image_mutated=False,GPU_process='backboardd',GPU_process_uid=501,device_mode='0600',process_stop_seconds=30,job_KeepAlive=False,other_processes_softpipe=True,root_sha256=hashlib.sha256(root.read_bytes()).hexdigest(),root_bytes=root.stat().st_size,inject_sha256=hashlib.sha256(inject.read_bytes()).hexdigest(),hook_sha256=hashlib.sha256(hook.read_bytes()).hexdigest(),mesa_sha256=hashlib.sha256(mesa.read_bytes()).hexdigest(),firmware=firmware,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources})
  manifest['process_stop_seconds']=args.stop_seconds
  manifest['posterboard_providers']=args.posterboard_providers
  manifest['service_audit']=args.service_audit
  manifest['poster_inventory']=args.poster_inventory
+ manifest['ios16_wallpaper']=args.ios16_wallpaper
  manifest['cpu_proof']=args.cpu_proof
  manifest['reclaim_on_oom']=args.reclaim_on_oom
  if hook_manifest:

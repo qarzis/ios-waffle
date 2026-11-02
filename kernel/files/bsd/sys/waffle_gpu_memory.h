@@ -3,10 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #define WAFFLE_GPU_BO_MAX_BYTES (8u*1024u*1024u)
-#define WAFFLE_GPU_BO_HEAP_BYTES (128u*1024u*1024u)
+#define WAFFLE_GPU_BO_HEAP_BYTES (192u*1024u*1024u)
 /* Virtual placement can contain vacant holes without consuming backing. */
 #define WAFFLE_GPU_BO_VA_BYTES (256u*1024u*1024u)
-#define WAFFLE_GPU_BO_LIMIT (WAFFLE_GPU_BO_HEAP_BYTES/16384u)
+/* Handle generations retain the qualified 8192-slot encoding independently
+ * of physical residency. Increasing backing must not change that ABI. */
+#define WAFFLE_GPU_BO_LIMIT 8192u
 #define WAFFLE_GPU_BO_WC 0x00020000u
 #define WAFFLE_GPU_BO_READONLY 2u
 struct waffle_gpu_memory {
