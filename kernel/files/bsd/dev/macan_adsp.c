@@ -35,6 +35,8 @@ static uint32_t new_from;
 static char last_write[96] = "nothing written";
 static bool leaving;
 static volatile bool stopping, boot_runs, link_failed;
+static bool waffle_board;
+static bool scm_incomplete;
 extern void loader_log_putc(char c);
 static LCK_MTX_DECLARE(say_lock, &adsp_lock_group);
 static void
@@ -944,14 +946,19 @@ static bool smp2p_agreed, smp2p_restart_acks, smp2p_restart_acked;
 static int32_t
 scm(const char *what, uint64_t function, uint64_t arguments, uint64_t first, uint64_t second, uint64_t third, uint64_t *answer)
 {
+ if (waffle_board && scm_incomplete) {
+  printf("adsp: SCM refused %s: previous secure continuation unresolved; Android reset required\n", what);
+  return -EBUSY;
+ }
  uint64_t session = 0, call = function | SCM_64 | SCM_SIP, first_arg = first, args = arguments;
+ uint64_t began = now_us();
  bool resume = false;
- unsigned busy = 0, sleeps = 0;
+ unsigned busy = 0, sleeps = 0, interrupted = 0;
  function = call;
  printf("adsp: %u: about to ask TrustZone %s: smc %#llx, arguments %#llx, %#llx, %#llx\n", step, what, function, first,
      second, third);
  snprintf(last_write, sizeof(last_write), "step %u asked TrustZone %#llx(%#llx, %#llx)", step, function, first, second);
- for (int i = 0; i < 100; i++) {
+ for (int i = 0; i < (waffle_board ? 100000 : 100); i++) {
   register uint64_t x0 __asm__("x0") = resume ? SCM_INTERRUPTED : call;
   register uint64_t x1 __asm__("x1") = args;
   register uint64_t x2 __asm__("x2") = first_arg;
@@ -964,7 +971,23 @@ scm(const char *what, uint64_t function, uint64_t arguments, uint64_t first, uin
       "+r" (x7) : : "x8", "x9", "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "memory");
   session = x6;
   if (sleeps && x0 != SCM_WAITQ_SLEEP) { printf("adsp: %u: after the resume: %d, %#llx\n", step, (int32_t)x0, x1); }
-  if (x0 == SCM_INTERRUPTED) { resume = true; continue; }
+  if (x0 == SCM_INTERRUPTED) {
+   interrupted++;
+   if (waffle_board) {
+    if (now_us() - began >= 2000000) {
+     scm_incomplete = true;
+     printf("adsp: SCM continuation unresolved after %llu us interrupted=%u; no new secure calls\n", now_us()-began, interrupted);
+     return -ETIMEDOUT;
+    }
+    sleep_us(100);
+   }
+   resume = true; continue;
+  }
+  if (waffle_board && (x0 == 2 || x0 == 3)) {
+   scm_incomplete = true;
+   printf("adsp: SCM WAITQ unresolved kind=%llu queue=%#llx context=%#llx flags=%#llx; native wake handling required\n",x0,x1,x2,x3);
+   return -EWOULDBLOCK;
+  }
   if ((int32_t)x0 == -12 && busy++ < 20) { resume = false; session = 0; sleep_us(30000); continue; }
   if (x0 == SCM_WAITQ_SLEEP && sleeps < 10000) {
    uint64_t queue = x1, context = x2;
@@ -983,11 +1006,13 @@ scm(const char *what, uint64_t function, uint64_t arguments, uint64_t first, uin
    continue;
   }
   if (x0 != SCM_INTERRUPTED) {
+   if (waffle_board && interrupted) { printf("adsp: SCM continuation completed interrupted=%u elapsed_us=%llu\n",interrupted,now_us()-began); }
    printf("adsp: %u: TrustZone returns %d, answer %#llx\n", step, (int32_t)x0, x1);
    *answer = x1;
    return (int32_t)x0;
   }
  }
+ if (waffle_board) { scm_incomplete = true; }
  printf("adsp: %u: TrustZone keeps saying the call was interrupted\n", step);
  return -1;
 }
@@ -1239,13 +1264,20 @@ dsp_shutdown(const char *why)
  printf("adsp: stop: %s\n", why);
  if (!leaving) { link_stop(); }
  if (dsp_started) { stopped_by_its_word = dsp_ask_to_stop(leaving ? 1000 : 5000); }
+ if (waffle_board && ipcc.base) { printf("adsp: PRE_PAS_STOP IPCC_RX=%#x SMP2P_stop_ack=%u\n", rd(ipcc.base + IPCC_RECEIVED), stopped_by_its_word); }
  for (int i = 1; i >= 0; i--) {
   struct pas_image *im = &images[i];
   if (im->touched) {
    uint64_t answer = ~0ull;
    bool down = scm("PAS shutdown", SCM_PAS_SHUTDOWN, SCM_ONE_VALUE, im->pas, 0, 0, &answer) == 0 && answer == 0;
    printf("adsp: PAS %u shutdown=%s\n", im->pas, down ? "OK" : "FAIL");
-   if (down) { im->touched = im->authenticated = false; } else { ok = false; }
+   if (down) { im->touched = im->authenticated = false; } else {
+    ok = false;
+    if (waffle_board) {
+     printf("adsp: native shutdown halted at PAS%u; metadata, dependent PAS and power state retained for Android reset\n", im->pas);
+     return false;
+    }
+   }
   }
   if (!leaving && !im->touched && im->metadata) {
    kmem_free(kernel_map, im->metadata, im->metadata_size);
@@ -2278,7 +2310,9 @@ step_ready(void)
    if (!handover && (state & DSP_HANDOVER)) {
     handover = true;
     printf("adsp: SMP2P handover seen state=%#x\n", state);
-    if (adsp_vote && (!interconnect(false) || !rails(0))) { return false; }
+    if (waffle_board) {
+     printf("adsp: native power votes retained after handover until Android reset\n");
+    } else if (adsp_vote && (!interconnect(false) || !rails(0))) { return false; }
     rails_asked = false;
    }
    if (ready && handover && smp2p_agreed) { return true; }
@@ -2295,14 +2329,18 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  for (unsigned n = 0; n < 300 && rootvnode == NULLVP && !stopping; n++) { sleep_ms(200); }
  lck_mtx_lock(&dsp_lock);
  if (stopping) { goto out; }
- if (mode == 3 || mode == 4) {
+ if (mode == 3 || mode == 4 || mode == 5) {
   bool valid = firmware_check(&images[0]) && firmware_check(&images[1]) && waffle_power_preflight();
   if (mode == 3) {
    printf("adsp: WAFFLE PREFLIGHT %s: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes\n",
        valid ? "OK" : "FAIL");
-  } else {
+  } else if (mode == 4) {
    printf("adsp: WAFFLE INPUT_CHECK %s: native firmware and power plan; DSP and amps off\n", valid ? "OK" : "FAIL");
    if (valid) { valid = waffle_power_apply(); }
+  } else {
+   step = 1;
+   if (valid) { valid = step_survey(); }
+   printf("adsp: WAFFLE DSP_SURVEY %s: SMEM and IPCC read only; no DSP reset, PAS or power writes\n", valid ? "OK" : "FAIL");
   }
   for (unsigned i = 0; i < 2; i++) {
    file_free(images[i].mdt, images[i].mdt_size, images[i].owned);
@@ -2313,7 +2351,17 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
   goto out;
  }
  step = 1;
- if (!step_survey()) { goto fail; }
+ if (!step_survey()) {
+  if (waffle_board) { printf("adsp: WAFFLE DSP_BOOT refused: state survey failed; no reset\n"); goto out; }
+  goto fail;
+ }
+ if (waffle_board) {
+  struct smp2p inherited;
+  if (dsp_words(&inherited)) {
+   printf("adsp: WAFFLE DSP_BOOT refused: inherited DSP state=%#x; no reset of unowned DSP\n", dsp_state(&inherited));
+   goto out;
+  }
+ }
  step = 2;
  if (!firmware_check(&images[0]) || !firmware_check(&images[1])) { goto fail; }
  step = 3;
@@ -2321,6 +2369,11 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  step = 4;
  struct smp2p old;
  if (dsp_words(&old)) {
+  if (waffle_board) {
+   printf("adsp: WAFFLE DSP_BOOT refused: DSP state appeared before ownership\n");
+   for (unsigned i = 0; i < 2; i++) { file_free(images[i].mdt, images[i].mdt_size, images[i].owned); images[i].mdt = NULL; }
+   goto out;
+  }
   images[0].touched = images[1].touched = true;
   image_on = true;
   dsp_started = true;
@@ -2330,7 +2383,9 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  }
  if (!step_our_item()) { goto fail; }
  step = 5;
- if (adsp_vote) {
+ if (waffle_board) {
+  if (!waffle_power_apply()) { goto fail; }
+ } else if (adsp_vote) {
   rails_asked = true;
   if (!rails(256) || !interconnect(true)) { goto fail; }
  } else {
@@ -2362,7 +2417,14 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  printf("adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR node=%u services=%u GPR SPF=1 mode=%u\n",
      qrtr_peer, services, mode);
  success = true;
- if (mode == 2) { stopping = true; bool clean = dsp_shutdown("adsp=2 complete"); printf("adsp: adsp=2 stopped clean=%u\n", clean); }
+ if (mode == 2 || mode == 6) {
+  stopping = true;
+  bool clean = dsp_shutdown(mode == 6 ? "waffle bounded DSP boot complete" : "adsp=2 complete");
+  if (mode == 6) {
+   printf("adsp: WAFFLE DSP_BOOT result=%u stop_clean=%u; GPR SPF state only, no PCM or amplifier startup\n", clean, clean);
+   success = clean;
+  } else { printf("adsp: adsp=2 stopped clean=%u\n", clean); }
+ }
  lck_mtx_unlock(&dsp_lock);
  while (mode == 1 && !stopping && !link_failed) {
   sleep_ms(50);
@@ -2388,7 +2450,7 @@ macan_adsp_stop(void)
  stopping = true;
  if (!mode) { return; }
  for (unsigned n = 0; n < 2000 && boot_runs; n++) { sleep_ms(1); }
- if (mode == 3 || mode == 4) { return; }
+ if (mode == 3 || mode == 4 || mode == 5) { return; }
  lck_mtx_lock(&dsp_lock);
  dsp_shutdown("loader return");
  lck_mtx_unlock(&dsp_lock);
@@ -2398,7 +2460,7 @@ macan_adsp_quiesce(void)
 {
  if (!mode) { return; }
  leaving = stopping = true;
- if (mode == 3 || mode == 4) { return; }
+ if (mode == 3 || mode == 4 || mode == 5) { return; }
  link_wanted = false;
  dsp_shutdown("panic/loader quiesce");
 }
@@ -2412,14 +2474,16 @@ macan_adsp_init(void)
  if (!mode) { return; }
  PE_parse_boot_argn("waffle", &waffle, sizeof(waffle));
  if (waffle) {
-  if (mode != 3 && mode != 4) {
-   printf("adsp: Waffle permits only adsp=3 preflight or adsp=4 power probe; DSP boot is not qualified\n");
+  if (mode < 3 || mode > 6) {
+   printf("adsp: Waffle permits only adsp=3 preflight,4 power probe,5 survey,6 bounded DSP boot\n");
    mode = 0; return;
   }
   images[0].base = 0x9de80000u;
   images[0].capacity = 0x00080000u;
   images[1].base = 0x9df00000u;
   images[1].capacity = 0x05280000u;
+  ipcc.phys = 0x00406000u;
+  waffle_board = true;
  } else {
   if (mode > 2 || !PE_parse_boot_argn("macan", &macan, sizeof(macan)) || !macan) {
    printf("adsp: requires macan=1 and adsp=1 or adsp=2\n");
@@ -2431,9 +2495,9 @@ macan_adsp_init(void)
  if (kernel_thread_start(adsp_thread, NULL, &thread) != KERN_SUCCESS) {
   boot_runs = false;
   printf("adsp: FAIL stage=0 no worker thread\n");
-  if (mode != 3 && mode != 4) { show_crash_reason(); }
+  if (mode != 3 && mode != 4 && mode != 5) { show_crash_reason(); }
   return;
  }
  thread_deallocate(thread);
- printf("adsp: %s worker started adsp=%u (0 is default/off)\n", mode == 4 ? "native power probe" : mode == 3 ? "firmware preflight" : "stage 1", mode);
+ printf("adsp: %s worker started adsp=%u (0 is default/off)\n", mode == 5 ? "read-only DSP survey" : mode == 4 ? "native power probe" : mode == 3 ? "firmware preflight" : "stage 1", mode);
 }

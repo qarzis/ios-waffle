@@ -1,0 +1,224 @@
+adsp: stage 1 worker started adsp=6 (0 is default/off)
+adsp: step 1: read our partition with the audio DSP in the shared memory (0x81d00000), and its items
+adsp: 1: the partition for us and the audio DSP (0 and 2): at 0x81e9f000, 0x60000 bytes, of which 0x5bfa0 free; 2 items
+adsp: 1:   items (bytes): 478 (32) 479 (16384)
+adsp: 1: the DSP's SMP2P item (443) is not there: it has not run since the phone was started
+adsp: 1: our SMP2P item (429): not there; GLINK's descriptor (478): there, our queue (479): there, the DSP's (480): not there (the DSP makes it)
+adsp: 1: item 423, the DSP's last words: not there
+adsp: 1: the doorbells say 0xffffffff
+adsp: 2: adsp_dtb.mdt 4044 bytes from the image
+adsp: 2: adsp_dtb.b01 56884 bytes from the image in 0 ms
+adsp: MDT adsp_dtb phdrs=3 loads=1 metadata=4044 relocation=-0 span=0xe000 destination=[0x9de80000,0x9de8e000)
+adsp: 2: adsp.mdt 8364 bytes from the image
+adsp: 2: adsp.b01 21032 bytes from the image in 0 ms
+adsp: 2: adsp.b02 131532 bytes from the image in 0 ms
+adsp: 2: adsp.b03 88232 bytes from the image in 0 ms
+adsp: 2: adsp.b04 28084 bytes from the image in 0 ms
+adsp: 2: adsp.b05 51280 bytes from the image in 0 ms
+adsp: 2: adsp.b06 733184 bytes from the image in 0 ms
+adsp: 2: adsp.b07 240 bytes from the image in 0 ms
+adsp: 2: adsp.b08 9732 bytes from the image in 0 ms
+adsp: 2: adsp.b09 2811364 bytes from the image in 0 ms
+adsp: 2: adsp.b10 370764 bytes from the image in 0 ms
+adsp: 2: adsp.b11 2584 bytes from the image in 0 ms
+adsp: 2: adsp.b12 11872 bytes from the image in 0 ms
+adsp: 2: adsp.b13 1212 bytes from the image in 0 ms
+adsp: 2: adsp.b14 239752 bytes from the image in 0 ms
+adsp: 2: adsp.b15 154732 bytes from the image in 0 ms
+adsp: 2: adsp.b16 1032192 bytes from the image in 0 ms
+adsp: 2: adsp.b17 3071972 bytes from the image in 0 ms
+adsp: 2: adsp.b18 43272 bytes from the image in 0 ms
+adsp: 2: adsp.b19 272 bytes from the image in 0 ms
+adsp: 2: adsp.b20 451780 bytes from the image in 0 ms
+adsp: 2: adsp.b21 598016 bytes from the image in 0 ms
+adsp: 2: adsp.b22 3034360 bytes from the image in 0 ms
+adsp: 2: adsp.b23 7380996 bytes from the image in 0 ms
+adsp: 2: adsp.b25 108 bytes from the image in 0 ms
+adsp: 2: adsp.b26 12492 bytes from the image in 0 ms
+adsp: 2: adsp.b27 39304 bytes from the image in 0 ms
+adsp: 2: adsp.b28 778644 bytes from the image in 0 ms
+adsp: 2: adsp.b29 199792 bytes from the image in 0 ms
+adsp: 2: adsp.b30 169860 bytes from the image in 0 ms
+adsp: 2: adsp.b31 8412 bytes from the image in 0 ms
+adsp: 2: adsp.b32 104753 bytes from the image in 0 ms
+adsp: 2: adsp.b33 17652 bytes from the image in 0 ms
+adsp: 2: adsp.b34 174016 bytes from the image in 0 ms
+adsp: 2: adsp.b35 90424 bytes from the image in 0 ms
+adsp: 2: adsp.b36 68040 bytes from the image in 0 ms
+adsp: 2: adsp.b37 8648 bytes from the image in 0 ms
+adsp: 2: adsp.b38 54092 bytes from the image in 0 ms
+adsp: 2: adsp.b39 82 bytes from the image in 0 ms
+adsp: 2: adsp.b40 372736 bytes from the image in 0 ms
+adsp: 2: adsp.b41 11608580 bytes from the image in 0 ms
+adsp: 2: adsp.b42 1118216 bytes from the image in 0 ms
+adsp: 2: adsp.b43 20 bytes from the image in 0 ms
+adsp: 2: adsp.b44 77944 bytes from the image in 0 ms
+adsp: 2: adsp.b45 28172 bytes from the image in 0 ms
+adsp: 2: adsp.b46 32264 bytes from the image in 0 ms
+adsp: 2: adsp.b47 501612 bytes from the image in 0 ms
+adsp: 2: adsp.b48 10948 bytes from the image in 0 ms
+adsp: 2: adsp.b49 375016 bytes from the image in 0 ms
+adsp: 2: adsp.b50 933888 bytes from the image in 0 ms
+adsp: 2: adsp.b51 83815 bytes from the image in 0 ms
+adsp: 2: adsp.b52 962560 bytes from the image in 0 ms
+adsp: 2: adsp.b53 53248 bytes from the image in 0 ms
+adsp: 2: adsp.b54 5139992 bytes from the image in 0 ms
+adsp: MDT adsp phdrs=57 loads=55 metadata=8364 relocation=-0 span=0x5280000 destination=[0x9df00000,0xa3180000)
+adsp: 3: mailbox magic (0xc300000) = 0x4d41494c
+adsp: 3: mailbox version (0xc300004) = 0x1
+adsp: 3: mailbox our mailbox (0xc300038) = 0x128
+adsp: 3: mailbox our mailbox's size (0xc300034) = 0x2d8
+adsp: 3: about to write mailbox their link, seen by us at 0xc300010: 0xffff
+adsp: 3: about to write mailbox our link at 0xc300024: 0xffff
+adsp: 3: about to write mailbox our channel at 0xc30002c: 0xffff
+adsp: 3: about to write mailbox their channel, seen by us at 0xc300018: 0xffff
+adsp: 3: THE MAILBOX TO THE ALWAYS-ON PROCESSOR IS OPEN
+adsp: step 4: look for an SMP2P item of ours (429) in our partition with the audio DSP, make it if there is none, and fill it in
+adsp: 4: about to take the lock (0x1f43000), write an entry for item 429 with 344 bytes behind it at the partition's mark, move the mark by 360, and release the lock
+adsp: 4: the lock is released (it reads 0)
+adsp: 4: item 429 made, at 0x81ea3070
+adsp: 4: our item reads back: SMP2P version 1, features 0x1, from processor 0 to 2, flags 0, 1 of 16 entries: master-kernel = 0;
+adsp: 4: GLINK's descriptor at 0x81e9f030: our queue read to 0 and written to 0, the DSP's read to 0 and written to 0
+adsp: POWER_RSC version=0x30200 config=0x800c8104 TCS0=0x1 TCS1=0x1 TCS2=0x1 IRQ=0
+adsp: POWER_APPLY BCM result=1 wait_mask=0xf5 retained_until_Android_reset=1
+adsp: POWER_ACK BCM0 status=0x10101
+adsp: POWER_ACK BCM1 status=0x10101
+adsp: POWER_ACK BCM2 status=0x10101
+adsp: POWER_ACK BCM3 status=0x10101
+adsp: POWER_ACK BCM4 status=0x10101
+adsp: POWER_ACK BCM5 status=0x10101
+adsp: POWER_ACK BCM6 status=0x10101
+adsp: POWER_ACK BCM7 status=0x10101
+adsp: POWER_APPLY ARC result=1 indices=7/4/3 retained_until_Android_reset=1
+adsp: POWER_ACK ARC0 status=0x10101
+adsp: POWER_ACK ARC1 status=0x10101
+adsp: POWER_ACK ARC2 status=0x10101
+adsp: WAFFLE POWER_APPLY OK: TCS buffers restored=1; votes retained; DSP and amplifiers off
+adsp: 5: about to tell the always-on processor "{class: image, res: load_state, name: adsp, val: on}"
+adsp: 5: the always-on processor has taken it
+adsp: 6: about to ask TrustZone PAS init metadata: smc 0x42000201, arguments 0x24, 0x8d227c000, 0
+adsp: 6: TrustZone returns 0, answer 0
+adsp: 6: about to ask TrustZone PAS memory setup: smc 0x42000202, arguments 0x24, 0x9de80000, 0xe000
+adsp: PAS 36 loaded bytes=56884 bss=0 readback=OK
+adsp: 7: about to ask TrustZone PAS authenticate/reset: smc 0x42000205, arguments 0x24, 0, 0
+adsp: 7: TrustZone returns 0, answer 0
+adsp: PAS 36 authenticated and running (adsp_dtb)
+adsp: 7: about to ask TrustZone PAS init metadata: smc 0x42000201, arguments 0x1, 0x8d22e0000, 0
+adsp: 7: about to ask TrustZone PAS memory setup: smc 0x42000202, arguments 0x1, 0x9df00000, 0x5280000
+adsp: PAS 1 loaded bytes=43293786 bss=43207031 readback=OK
+adsp: 8: about to ask TrustZone PAS authenticate/reset: smc 0x42000205, arguments 0x1, 0, 0
+adsp: 8: TrustZone returns 0, answer 0
+adsp: PAS 1 authenticated and running (adsp)
+adsp: 8: the DSP and we agree on SMP2P: version 1, features 0x1
+adsp: SMP2P ready seen state=0x2
+adsp: SMP2P handover seen state=0x6
+adsp: native power votes retained after handover until Android reset
+adsp: step 9: find GLINK's descriptor and the two queues, and read what the audio DSP has put into its own
+adsp: 9: our queue: 16384 bytes at 0x81e9f060, written to 0, read by the DSP to 0; the DSP's: 16384 bytes at 0x81ea8a08, written to 0x8, read by us to 0
+adsp: 9:   in the DSP's queue at 0: version 1 0x7 
+adsp: step 9: take up GLINK with the audio DSP: our version, then whatever its messages call for; a thread of ours listens from here on, every millisecond
+adsp: glink: > version 1 0x1
+adsp: glink: < version 1 0x7
+adsp: glink: > version-ack 1 0x1
+adsp: glink: < version-ack 1 0x1
+adsp: glink: < open 1 0x9
+adsp: glink: the DSP opens "pcie_drv" as its channel 1: acknowledged, and opened from our side as channel 3
+adsp: glink: > open-ack 1 0
+adsp: glink: > open 3 0x9
+adsp: glink: < open 2 0x8
+adsp: glink: the DSP opens "mhi_sat" as its channel 2: acknowledged, and opened from our side as channel 4
+adsp: glink: > open-ack 2 0
+adsp: glink: > open 4 0x8
+adsp: glink: < open 3 0x7
+adsp: glink: the DSP opens "IPCRTR" as its channel 3: acknowledged, and opened from our side as channel 1
+adsp: glink: > open-ack 3 0
+adsp: glink: > open 1 0x7
+adsp: glink: < open-ack 3 0
+adsp: glink: THE CHANNEL "pcie_drv" IS OPEN both ways (ours 3, the DSP's 1); telling the DSP our intents
+adsp: glink: > intent 3 0x1
+adsp: glink: < open-ack 4 0
+adsp: glink: THE CHANNEL "mhi_sat" IS OPEN both ways (ours 4, the DSP's 2); telling the DSP our intents
+adsp: glink: > intent 4 0x1
+adsp: glink: < open-ack 1 0
+adsp: glink: THE CHANNEL "IPCRTR" IS OPEN both ways (ours 1, the DSP's 3); telling the DSP our intents
+adsp: glink: > intent 1 0x1
+adsp: glink: < intent-request 3 0x34
+adsp: glink: > intent-request-ack 1 0x1
+adsp: glink: < open 4 0x13
+adsp: glink: the DSP opens "LOOPBACK_CTL_LPASS" as its channel 4: acknowledged, and opened from our side as channel 5
+adsp: glink: > open-ack 4 0
+adsp: glink: > open 5 0x13
+adsp: glink: > done-reuse 1 0x1
+adsp: qrtr: HELLO FROM NODE 5; ours to it: SENT
+adsp: glink: < open-ack 5 0
+adsp: glink: THE CHANNEL "LOOPBACK_CTL_LPASS" IS OPEN both ways (ours 5, the DSP's 4); telling the DSP our intents
+adsp: glink: > intent 5 0x1
+adsp: glink: > done-reuse 1 0xb
+adsp: glink: > done-reuse 1 0x2
+adsp: glink: > done-reuse 1 0x3
+adsp: glink: > done-reuse 1 0x4
+adsp: QRTR service id=66 hex=0x42 instance_raw=0x4a01 version=1 instance=74 node=5 port=2
+adsp: QRTR service id=43 hex=0x2b instance_raw=0x1402 version=2 instance=20 node=5 port=5
+adsp: QRTR service id=15 hex=0xf instance_raw=0x2001 version=1 instance=32 node=5 port=1
+adsp: QRTR service id=51 hex=0x33 instance_raw=0x501 version=1 instance=5 node=5 port=6
+adsp: glink: < open 5 0x16
+adsp: glink: the DSP opens "fastrpcglink-apps-dsp" as its channel 5: acknowledged, and opened from our side as channel 6
+adsp: glink: > open-ack 5 0
+adsp: glink: > open 6 0x16
+adsp: glink: < open 6 0xa
+adsp: glink: the DSP opens "adsp_apps" as its channel 6: acknowledged, and opened from our side as channel 2
+adsp: glink: > open-ack 6 0
+adsp: glink: > open 2 0xa
+adsp: glink: < open-ack 6 0
+adsp: glink: THE CHANNEL "fastrpcglink-apps-dsp" IS OPEN both ways (ours 6, the DSP's 5); telling the DSP our intents
+adsp: glink: > intent 6 0x1
+adsp: glink: < open 7 0x18
+adsp: glink: the DSP opens "sleepmonglink-apps-adsp" as its channel 7: acknowledged, and opened from our side as channel 7
+adsp: glink: > open-ack 7 0
+adsp: glink: > open 7 0x18
+adsp: glink: < open-ack 2 0
+adsp: glink: THE CHANNEL "adsp_apps" IS OPEN both ways (ours 2, the DSP's 6); telling the DSP our intents
+adsp: glink: > intent 2 0x1
+adsp: QRTR service id=24 hex=0x18 instance_raw=0x101 version=1 instance=1 node=5 port=8
+adsp: glink: THE CHANNEL "sleepmonglink-apps-adsp" IS OPEN both ways (ours 7, the DSP's 7); telling the DSP our intents
+adsp: QRTR service id=15 hex=0xf instance_raw=0x2301 version=1 instance=35 node=5 port=9
+adsp: QRTR service id=15 hex=0xf instance_raw=0x2101 version=1 instance=33 node=5 port=10
+adsp: QRTR service id=51 hex=0x33 instance_raw=0x901 version=1 instance=9 node=5 port=12
+adsp: QRTR service id=769 hex=0x301 instance_raw=0x1 version=1 instance=0 node=5 port=13
+adsp: 9: 53 ms after our version: versions agreed features=0x1 IPCRTR=OPEN adsp_apps=OPEN
+adsp: step 10: listen to QRTR on the channel: the DSP's hello (answered from the link's thread), and the services it tells of
+adsp: QRTR service id=15 hex=0xf instance_raw=0x2201 version=1 instance=34 node=5 port=15
+adsp: QRTR service id=51 hex=0x33 instance_raw=0xc01 version=1 instance=12 node=5 port=17
+adsp: QRTR service id=5017 hex=0x1399 instance_raw=0xa version=10 instance=0 node=5 port=18
+adsp: QRTR service id=400 hex=0x190 instance_raw=0x1 version=1 instance=0 node=5 port=20
+adsp: glink: the DSP opens "PMIC_RTR_ADSP_APPS" as its channel 8: acknowledged, and opened from our side as channel 8
+adsp: glink: the DSP opens "PMIC_LOGS_ADSP_APPS" as its channel 9: acknowledged, and opened from our side as channel 9
+adsp: glink: THE CHANNEL "PMIC_RTR_ADSP_APPS" IS OPEN both ways (ours 8, the DSP's 8); telling the DSP our intents
+adsp: glink: THE CHANNEL "PMIC_LOGS_ADSP_APPS" IS OPEN both ways (ours 9, the DSP's 9); telling the DSP our intents
+adsp: 10: after 5 s: HELLO BOTH WAYS; the DSP is node 5 and has told of 13 services; it looked for 0 of ours; QRTR received 14 and sent 2 datagrams
+adsp: GPR APM_CMD_GET_SPF_STATE opcode=0x1001021 token=1
+adsp: GPR reply opcode=0x2001007 token=1 bytes=4 words=0x1,0
+adsp: SPF state=1 status=0 token=1
+adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR node=5 services=13 GPR SPF=1 mode=6
+adsp: stop: waffle bounded DSP boot complete
+adsp: link: down; GLINK said 115 and heard 236 messages, QRTR sent 2 and received 14 datagrams, GPR 1 and 1 packets; its doorbells heard: GLINK 42, SMP2P 4
+adsp: 11: about to ask the DSP to stop: bit 0 of our entry "master-kernel" at 0x81ea3094, and its SMP2P doorbell
+adsp: 11: THE AUDIO DSP ACKNOWLEDGES THE STOP after 42.657 ms; its entry says 0x10e
+adsp: 11: about to ask TrustZone PAS shutdown: smc 0x42000206, arguments 0x1, 0, 0
+adsp: 11: TrustZone keeps saying the call was interrupted
+adsp: PAS 1 shutdown=FAIL
+adsp: 11: about to ask TrustZone PAS shutdown: smc 0x42000206, arguments 0x24, 0, 0
+adsp: 11: TrustZone sleeps on wait queue 0x1 (call 0x1a9): waiting for its wake
+adsp: 11: TrustZone returns 2, answer 0x1
+adsp: PAS 36 shutdown=FAIL
+adsp: 11: about to tell the always-on processor "{class: image, res: load_state, name: adsp, val: off}"
+adsp: 11: the always-on processor has taken it
+adsp: FAIL stage=11 shutdown incomplete
+adsp: 11: THE AUDIO DSP'S LAST WORDS (item 423, 256 bytes):
+adsp: crash423 +0: sys_m_smsm.c:329:APPS force stop
+adsp: WAFFLE DSP_BOOT result=0 stop_clean=0; GPR SPF state only, no PCM or amplifier startup
+adsp: stage 1 stopped before completion
+adsp: stop: loader return
+adsp: 11: the DSP is not asked to stop: its entry says 0x10e, that it has stopped when asked before
+adsp: 11: TrustZone returns -12, answer 0x1
+adsp: stop: panic/loader quiesce

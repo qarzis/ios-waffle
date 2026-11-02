@@ -11,6 +11,9 @@
     "drivers/interconnect/qcom/pineapple.c": "5ffe4e07d87407b97325e967c6b151b0857fc4f82f394aa8aeb3ee8c907887b2",
     "drivers/interconnect/qcom/bcm-voter.c": "b5e5f9b62c06ca685d2c19783210fb768201ad616c2c28a73651def283e726cb",
     "drivers/interconnect/qcom/icc-rpmh.c": "2cfb239a2c3910569df1494f6b5ed8ef97ed81eb411c906144a08eb38fe2db7d",
-    "include/soc/qcom/tcs.h": "3183aaa5964d6354cdb47cd87930c084d1feaf19e7481fefe1b973dd102d8c8f"
+    "include/soc/qcom/tcs.h": "3183aaa5964d6354cdb47cd87930c084d1feaf19e7481fefe1b973dd102d8c8f",
+    "drivers/firmware/qcom_scm.c": "482ebae8fdefbc33aa4d18d039d1c8f15c7822e6b5c1108b0f41c1a585080f41",
+    "drivers/firmware/qcom_scm-smc.c": "3478b65bd2df3c3c0659b91ab0a80137392f4f2889b1dc963a68b7fbbc6a8e70",
+    "drivers/firmware/qcom_scm.h": "777ebd4d0389453868372f9e41610cfb461de66a11a202dc2123ef6b3aea836a"
   }
 }

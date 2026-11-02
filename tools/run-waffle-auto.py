@@ -21,6 +21,8 @@ def main():
     parser.add_argument('--artifact', type=Path, required=True)
     parser.add_argument('--audio-preflight', action='store_true', help='Isolated60-second native ADSP firmware validation, without DSP startup')
     parser.add_argument('--audio-power', action='store_true', help='With --audio-preflight: qualify native RPMh upvotes, retain until Android reset')
+    parser.add_argument('--audio-survey', action='store_true', help='With --audio-preflight: read-only SMEM/SMP2P/GLINK state survey')
+    parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
@@ -58,6 +60,8 @@ def main():
     parser.add_argument('--ui-soak-test',action='store_true',help='Ten-minute UI with660-second return; requires matching600-second root and generation handles')
     args = parser.parse_args()
     if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
+    if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
+    if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
     if args.audio_preflight and any(getattr(args, name) for name in (
             'cpu_ui_test','cpus','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
             'measure_clocks','lpac_cp_init','gl_context','mapped','mesa_transport','msm','user_va','glsl',
@@ -107,6 +111,10 @@ def main():
         parser.error('--session requires --ib')
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if args.audio_preflight:
+        if args.audio_boot:
+            for name in ('A06-result.json','A07-result.json'):
+                proof=json.loads((ROOT/'work/waffle/audio'/name).read_text())
+                if not proof.get('passed') or not proof['auto_runner'].get('android_confirmed'):parser.error('Missing qualified audio prerequisite: '+name)
         audio_root=artifact/'audio-probe/root.packfs'
         audio_system=artifact/'audio-probe/system.packfs'
         audio_manifest=json.loads((artifact/'audio-probe/manifest.json').read_text())
@@ -210,13 +218,20 @@ def main():
             raise RuntimeError('Automatic loader platform mismatch')
         report['automatic_loader_verified'] = True
         if args.audio_preflight:
+            if args.audio_boot:
+                recovery_log=(output/'recovery.log').open('w')
+                collector=subprocess.Popen([sys.executable,'tools/capture-waffle-crash.py','--collect','--wait-seconds','180'],cwd=ROOT,stdout=recovery_log,stderr=subprocess.STDOUT)
             items=[sys.executable,'scripts/run_waffle_ios.py','--seconds','60','--audio-preflight',
                 '--kernel',str(artifact/'kernel'),'--root',str(audio_system),'--system',str(audio_root),
                 '--fastboot',args.fastboot]
             if args.audio_power:items.append('--audio-power')
+            if args.audio_survey:items.append('--audio-survey')
+            if args.audio_boot:items.append('--audio-boot')
             result=command(items,timeout=240)
             report['audio_preflight']=True
             report['audio_power']=args.audio_power
+            report['audio_survey']=args.audio_survey
+            report['audio_boot']=args.audio_boot
             report['runner_exit']=result.returncode
             if result.returncode:raise RuntimeError('Audio firmware preflight failed; inspect preserved logs')
             p=command([args.fastboot,'-s','xnuloader','reboot'])

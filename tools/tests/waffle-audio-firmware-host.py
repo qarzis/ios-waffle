@@ -60,9 +60,11 @@ typedef uintptr_t thread_t;
 #define KERN_SUCCESS 0
 static uint32_t mode, adsp_vote, new_from;
 static bool boot_runs;
+static bool waffle_board;
 static uint32_t arg_mode, arg_waffle, arg_macan;
 static unsigned workers, crash_reads;
 static struct pas_image images[2];
+static struct { uint32_t phys; } ipcc;
 static bool PE_parse_boot_argn(const char *name, void *out, size_t size) {
  assert(size == 4);
  if (!strcmp(name, "adsp")) *(uint32_t *)out = arg_mode;
@@ -94,20 +96,22 @@ int main(int argc, char **argv) {
  for (int damage = 1; damage <= 4; ++damage)
   check("adsp", 0x9df00000, 0x5280000, damage, false);
  arg_waffle = 1; arg_macan = 1;
- for (unsigned requested = 0; requested <= 5; ++requested) {
+ for (unsigned requested = 0; requested <= 7; ++requested) {
   workers = 0; arg_mode = requested; boot_runs = false;
   macan_adsp_init();
-  assert(workers == (requested == 3 || requested == 4));
+  assert(workers == (requested >= 3 && requested <= 6));
   assert(!crash_reads);
-  if (requested == 3 || requested == 4) {
+  if (requested >= 3 && requested <= 6) {
    assert(images[0].base == 0x9de80000 && images[0].capacity == 0x80000);
    assert(images[1].base == 0x9df00000 && images[1].capacity == 0x5280000);
+   assert(ipcc.phys == 0x406000);
+   assert(waffle_board);
   }
  }
  arg_waffle = 0; arg_mode = 3; workers = 0; macan_adsp_init(); assert(!workers);
  arg_mode = 1; macan_adsp_init(); assert(workers == 1);
  puts("PASS: native ADSP/DTB accepted; donor capacity and four damaged inputs rejected");
- puts("PASS: Waffle permits only firmware preflight or power probe; donor DSP mode gates preserved");
+ puts("PASS: Waffle diagnostic mode gates and native resources; donor boot modes preserved");
 }
 '''
     with tempfile.TemporaryDirectory(prefix="waffle-audio-host-") as temp:
