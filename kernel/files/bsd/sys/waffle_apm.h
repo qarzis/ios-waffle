@@ -9,6 +9,9 @@
 #define WAFFLE_APM_CONTAINER 0x5f00u
 #define WAFFLE_APM_WRITE_EP 0x6f00u
 #define WAFFLE_APM_READ_EP 0x6f01u
+/* Modern AudioReach property08001011 carries version1/type_id. The
+ * legacy Linux PP capability1 is not a generic-container type ID. */
+#define WAFFLE_APM_CONTAINER_TYPE_GC 0x0b001001u
 
 static inline size_t
 waffle_apm_packet(uint32_t *out, size_t capacity, uint32_t opcode, uint32_t token)
@@ -17,7 +20,7 @@ waffle_apm_packet(uint32_t *out, size_t capacity, uint32_t opcode, uint32_t toke
   1,0x08001001,48,0,1,WAFFLE_APM_SUBGRAPH,3,
   0x0800100e,4,2,0x0800100f,4,2,0x08001010,4,1,
   1,0x08001000,64,0,1,WAFFLE_APM_CONTAINER,4,
-  0x08001011,8,1,1,0x08001012,4,1,0x08001013,4,0xffffffff,0x08001014,4,2,
+  0x08001011,8,1,WAFFLE_APM_CONTAINER_TYPE_GC,0x08001012,4,1,0x08001013,4,0xffffffff,0x08001014,4,2,
   1,0x08001002,32,0,1,WAFFLE_APM_SUBGRAPH,WAFFLE_APM_CONTAINER,2,
   0x07001000,WAFFLE_APM_WRITE_EP,0x07001001,WAFFLE_APM_READ_EP,
   1,0x08001003,56,0,2,

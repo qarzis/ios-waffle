@@ -1,0 +1,11 @@
+{
+  "cache": "20F66__iPhone10,3_6",
+  "image": "/System/Library/Frameworks/IOSurface.framework/IOSurface",
+  "uuid": "670c7178be7e3a25a57957625c5ed860",
+  "isInUse_fastpath": "0x1a39322d0",
+  "shared_pointer_offset": 112,
+  "shared_global_use_count_offset": 24,
+  "code_sha256": "ea9c36f4119f6f57260454c89908b59326babae27b959456ddffa0b58857bfd2",
+  "sdk_header_sha256": "45e0c333f158623925cf5bee169892b90b48ba389c238aa1038d7b6bc1b520cc",
+  "finding": "fast path loads64-bit shared useCount atoffset24 and returns nonzero; kernel struct matches; ordinary MiniIOSurfaceCopy holds lifetime without incrementing it"
+}

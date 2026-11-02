@@ -1,3 +1,9 @@
+# ACTIVE audio A13 PASS — 2026-11-02
+
+User continues audio plusGPUartifact/performancework. A13run20261102T203337Z/auto203313Z passesDSPboot/SPF1/OPEN344token2ACK0/CLOSE64token3ACK0/PAS1+36shutdown/normalXNUreturn/outer0/Androidindependent1. OnechangedAPMwordlegacycap1→modernGC0b001001, primaryfactoryproofvalidatedonactualfirmware. A12boundedGLINKintentcachealsohardwarefixed. NoPCM/DMA/hardwareendpoint/amplifierstartup. Nextblocker nativeAppsSMMU/audioDMA ownership+map/periodcompletion. NativeaudioIon appendslow4bitSID<<32toIOVA; DT1001(mask80),1061(mask0), IOVApool10000000..20000000. DoNOTsendrawphysicaladdresses/borrowredwood1801.
+
+GPUtestsremainseparate/RAMonly; latestE101automaticappscene running(checkGPUresume/logs), no concurrentUSB. LatestA13evidenceA13-result.json/components. Noactiveaudioboottest. Firmwareprivate.
+
 User resumed after Git publication; A11 diagnostic hardware continuation is now authorized. Public code: fcfb312987b5a2238eba055641ad56e14ba9bfd3.
 
 # Current stop state — A10/A11, 2026-11-02

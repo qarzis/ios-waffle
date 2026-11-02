@@ -162,3 +162,13 @@ Host ASan/UBSan compiles the actual kernel glink_send: reproduces A11 ENOBUFS fr
 Run20261102T193654Z: larger512/1024/4096 credits admitted without table growth; identical344-byte GRAPH_OPEN reached DSP. Correlated token2 BASIC_RSP_RESULT returned opcode01001000/status1 (generic failure). Transport correction measured; graph stillFAIL. PAS1/PAS36 shutdownOK; independent Android boot_completed1 confirmed after user resumed GPU work. Evidence A12-result.json/A12-components.log.
 
 Three graph attempts A10/A11/A12 now require architecture review before further experiments. Pinned AudioReach parser apm_gpr_cmd_parser.c (blobfb7a5dd4c8210787dab07d6ab078bbfaf73e855c) directly stores container property08001011 version1/type_id; current packet has legacy PP capability1. Modern GC type is0b001001, SC0b001000 (NOT1 or2). This is a compatibility hypothesis, not established firmware ABI: inspect container factory legacy translation before changing packet. No PCM/DMA/amp writes added.
+
+## A13 architecture review completed — modern container type hypothesis
+
+Pinned containerfactory cu.c directly looks up type in{0b001000SC,0b001001GC,0b001002OLC,0b00100dPTC}; unknown1 returnsAR_EFAILED. Pinnedparser stores08001011/version1/typewithoutlegacytranslation; WR_SH_MEM_EP API supportsGC. Actualfactoryhostrejects1 andacceptsGC, currentA12packetfailscontract. This is stronger than stack/topologyhypotheses, but nativefirmwarecompatibility stillrequiresdeviceproof.
+
+A13 changes exactlyONE32-bit OPENword1→0b001001; size344, SG/modules/ports/stack/domain/transport unchanged; CLOSE64identical. Host uses actualLinuxserializer withlegacyinput first (exactoneworddifference), thenmodernGCinput(byte-identical); actualenginefactoryacceptscandidate. NoDMA/PCM/amps. Expected OPEN/CLOSEcorrelatedACK0/cleanPASstop/Android; ifstatus1remains doNOTrepeattypechangewithoutnewdata. CurrentGPUtestsfinishbeforeany audioUSBboot.
+
+## A13 hardware PASS — native APM graph lifecycle
+
+Run20261102T203337Z/auto203313Z: identical344-byteOPEN exceptGCtypeword returnedcorrelatedtoken2/status0; CLOSE64token3/status0; lifecycle1/moduleWR/RD/oneconnection/noDMA/noPCM/ampsOFF. PAS1/36shutdownOK, DSP_BOOTresult1/stop_clean1, normalreturn, outerrunner0/autosuccess andindependentAndroid1. EvidenceA13-result.json/A13-components.log. Confirmsmoderncontainer-typeABI correction for thisfirmware; doNOTreverttolegacyPPcap1. Nextblocker DSPPCMmemorymapping+periodcompletion, thenhardwareendpoint/TFAroute/iOSsink; graphPASSisNOTaudibleplayback.

@@ -43,6 +43,14 @@ except RuntimeError:pass
 else:raise AssertionError('Inconsistent capacity/physical budget accepted')
 larger=updated.replace('BO_limit=4096','BO_limit=8192').replace('heap_bytes=67108864','heap_bytes=134217728')
 assert m.validate_gl_log(larger)==pixels
+backing192=larger.replace('heap_bytes=134217728','heap_bytes=201326592 VA_bytes=268435456')
+assert m.validate_gl_log(backing192)==pixels
+for bad in (backing192.replace('BO_limit=8192','BO_limit=12288'),
+            backing192.replace('heap_bytes=201326592','heap_bytes=268435456'),
+            backing192.replace('VA_bytes=268435456','VA_bytes=536870912')):
+ try:m.validate_gl_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Unqualified192MiB physical/slot/VA budget accepted')
 for bad in [larger.replace('heap_bytes=134217728','heap_bytes=67108864'),
             larger.replace('BO_limit=8192','BO_limit=4096')]:
  try:m.validate_gl_log(bad)
@@ -79,6 +87,24 @@ for bad in [ui60.replace('stop_seconds=60','stop_seconds=90'),
 print('UI observation-window proof: legacy30/declared60 accepted; unknown/mismatched window, missing presentation and failed teardown refused; synthetic host fixtures only')
 
 pub1='GENERAL_BO published index=1 VA=100000000 bytes=4096 allocated=16384 flags=20000 pages=4'
+object10=pub1.replace('bytes=4096 allocated=16384','bytes=10485760 allocated=10485760').replace('pages=4','pages=2560')
+assert m.validate_gl_log(text.replace(pub1,object10))==pixels
+heap_object=backing192.replace(pub1,pub1.replace('bytes=4096 allocated=16384','bytes=201326592 allocated=201326592').replace('pages=4','pages=49152'))
+try:m.validate_gl_log(heap_object)
+except RuntimeError:pass
+else:raise AssertionError('Large object accepted without explicit capability declaration')
+heap_object=heap_object.replace('VA_bytes=268435456','VA_bytes=268435456 object_max_bytes=201326592')
+assert m.validate_gl_log(heap_object)==pixels
+for bad in (heap_object.replace('object_max_bytes=201326592','object_max_bytes=268435456'),
+            heap_object.replace('object_max_bytes=201326592','object_max_bytes=garbage'),
+            heap_object.replace('heap_bytes=201326592','heap_bytes=134217728')):
+ try:m.validate_gl_log(bad)
+ except RuntimeError:pass
+ else:raise AssertionError('Unqualified single-object capability accepted')
+oversize=object10.replace('bytes=10485760 allocated=10485760','bytes=10485761 allocated=10502144').replace('pages=2560','pages=2564')
+try:m.validate_gl_log(text.replace(pub1,oversize))
+except RuntimeError:pass
+else:raise AssertionError('BO larger than observed10MiB cap accepted')
 pub2=pub1.replace('index=1','index=2')
 freed='GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0'
 release='GENERAL_BO released after GPU stop and context detach count=1 reclaimed_earlier=1 total=2'

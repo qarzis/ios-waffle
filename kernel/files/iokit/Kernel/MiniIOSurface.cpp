@@ -611,6 +611,45 @@ MiniIOSurfaceUsage(uint32_t * count, uint64_t * bytes)
  *count = gSurfaceCount;
  *bytes = gSurfaceBytes;
 }
+MiniIOSurface *
+MiniIOSurfaceCopyForDisplay(uint32_t sid)
+{
+ MiniIOSurface * s = NULL;
+ if (gSurfaceLock == NULL || sid == 0 || sid >= MINISURF_TABLE_SIZE) {
+  return NULL;
+ }
+ IOLockLock(gSurfaceLock);
+ s = gSurfaceTable[sid];
+ if (s != NULL) {
+  if (s->useCount[0] == UINT32_MAX || s->displayUses == UINT32_MAX) {
+   s = NULL;
+  } else {
+   surfaceHold(s);
+   s->displayUses++;
+   s->useCount[0]++;
+   s->shared()->useCount = (uint64_t) s->useCount[1] << 32 | s->useCount[0];
+  }
+ }
+ IOLockUnlock(gSurfaceLock);
+ return s;
+}
+void
+MiniIOSurfaceDropForDisplay(MiniIOSurface * s)
+{
+ if (s == NULL) {
+  return;
+ }
+ IOLockLock(gSurfaceLock);
+ if (s->displayUses != 0 && s->useCount[0] != 0) {
+  s->displayUses--;
+  s->useCount[0]--;
+  s->shared()->useCount = (uint64_t) s->useCount[1] << 32 | s->useCount[0];
+  surfaceUnhold(s);
+ } else {
+  IOLog("MiniIOSurface: display usage unbalanced for surface %u; retaining backing\n", s->sid);
+ }
+ IOLockUnlock(gSurfaceLock);
+}
 void
 MiniIOSurfaceDrop(MiniIOSurface * s)
 {

@@ -1,0 +1,9 @@
+# Native display synchronization audit
+
+The current MiniIOMobileFramebuffer has software thread_call VSync notifications; drawRows writes directly to inherited scanout fBase. SwapWait returns immediately and the queue slot is released before drawLayer finishes. A retained IOSurface prevents destruction, not producer reuse. These are architectural gaps, not proof which one caused a particular visible discontinuity.
+
+Native Android connector advertises1440x3168 at60/90/120Hz in command mode. Read-only DRM snapshot reports crtc215/crtc0 active, connectorDSI1, mode1440x3168x120cmd, pixelclock599808, htotal1562/vtotal3200. Snapshot was captured while Android was dozing; plane_mask0, so it does not establish the UEFI scanout source or boot mode. Debugfs temporarily mounted for reads and always unmounted afterward; no DRM modeset/power/register changes.
+
+Live DT mdss_mdp@ae00000 owns MDP0xae00000 length0x84000, INTF offsets35000/36000/37000/38000, SSPP offsets5000/7000/9000/b000/25000/27000/29000/2b000/2d000/2f000, CTL16000..1b000. IRQ SPI83 level-high (GIC ID115). Native pinned sde_hw_intf has TEAR_OUT_LINE_COUNT/LINE_COUNT and VSYNC_TIMESTAMP registers, with command/video mode-specific interpretation; native CTL/SSPP/interrupt sources retained with SHA provenance. Do not infer which INTF/SSPP/CTL UEFI enabled from Android's later state.
+
+Next minimum synchronization experiment must read only the inherited active DPU path and timestamps; establish register access/clock ownership, actual scanout address/stride and TE progression first. Atomic flip additionally requires a qualified DPU IOVA mapping for a second framebuffer plus shadow flush/start/retire ordering. Merely changing refreshHz or adding sleeps cannot prove tear-free presentation. No guessed register writes, IRQ acknowledgment or arbitrary120Hz option introduced.

@@ -1,0 +1,20 @@
+{
+  "experiment": "E96 framebuffer offscreen clipping",
+  "passed": false,
+  "host_clipping_cases": 40,
+  "completed": 37578,
+  "lifetime_buffers": 6866,
+  "full_context_close": true,
+  "controlled_GPU_stop": true,
+  "android_independent": 1,
+  "original_runner": 1,
+  "failure": "Dynamic BO publication/use/release not confirmed by strict rolling-log collector",
+  "visible_artifacts_remaining": true,
+  "user_reports": [
+    "wallpaper absent",
+    "black screen opening apps",
+    "tearing"
+  ],
+  "screen_evidence": "work/waffle/runs/20261102T195010Z/requested-app-black.png",
+  "kernel_log_sha256": "46225fae32846ddc335708718aa544a6aafa7a3ecc61aa0c59a13e4628d6eb59"
+}
