@@ -54,3 +54,17 @@ Actual RAM boot 20261102T130159Z, auto-run 20261102T130135Z. Native static PID1 
 Pinned native qcom_q6v5_pas.c confirms PAS1+DTB PAS36. Live CX/MX requests are level384, whereas donor rails() requests256. Native ICC graph reconstructed from pineapple.c+matching header and checked against DT endpoints: LPASS43->EBI512 uses LP0/SH0/MC0/ACV; crypto41->EBI512 uses CE0/SN3/SN0/SH1/SH0/MC0/ACV. Donor code votes SN2 and omits SN3/SH1. SH1 has an enable mask, so blindly treating every BCM as a scalar bandwidth vote is invalid. Details native-icc-routes.json and native-adsp-power-contract.json; static analysis is not a hardware qualification.
 
 Next experiment must isolate correct native rail/ICC requests and teardown before enabling PAS authentication/reset; preserve the Waffle hardware-start guard until those requirements are covered. Do not retry unchanged donor votes.
+
+## A04 implementation — native power plan, no RPMh writes
+
+Added waffle_adsp_power.h with native Waffle rail levels384/384/128, required8 BCM resources, exact one-hot SH1/ACV enable values, increasing VCD order and commit only on each VCD boundary. ARC indices and BCM auxiliary VCDs must match the current command database; unknown/missing/malformed resources fail closed. Kernel adsp=3 now validates this plan after firmware, still without starting PAS/DSP or writing mailbox/RPMh/IPCC/amps. An explicit bounded write transaction is not enabled yet.
+
+Fresh native Android capture after mounting debugfs read-only confirms lcx30030/lmx30040/xo300d0 and native level tables. Debugfs was unmounted after collection. Captured regulator summary shows the remoteproc proxy CX/MX consumers released in Android, but this does not prove every inherited BCM vote can be dropped under XNU. No zero/release writes were introduced.
+
+ASan/UBSan host checks compare all8 encoded BCM commands with the actual pinned native tcs_cmd_gen function and real cmd-db resource data: rail indices7/4/3;6 VCD commits;6 resource corruption cases rejected. The actual kernel command-database lookup is also compiled and tested against native resource layout plus invalid magic/count/aux bounds/slave ID. Firmware regression tests pass. Full XNU/UEFI build and paired image validation pass.
+
+## A04 hardware result PASS — power plan remains a dry run
+
+Actual XNU run20261102T131242Z, auto-run20261102T131218Z. Live command database produced all11 planned commands: ARC7/4/3 plus8BCMs,6VCD commits. Explicit POWER_PLAN OK and PREFLIGHT OK. Kernel returned33449 log bytes normally, outer exit0, automatic Android recovery and independent ADB boot_completed1 confirmed. No DSP, amplifier or RPMh power write performed. See A04-components.log and A04-result.json. Final output includes4 identical copies of command records through combined logging; every copy was compared, not counted as4 tests.
+
+Next measurable step: bounded native RPMh transaction with busy/pending guards, per-command status checks, waiting only on VCD commit boundaries, and no writes on an unqualified table. Preserve inherited/shared resource requests; do not use donor zero/release sequence. A successful TCS acknowledgement would only qualify command transport, not DSP boot or sound.

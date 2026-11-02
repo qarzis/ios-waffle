@@ -8,6 +8,9 @@
     "drivers/soc/qcom/rpmh-rsc.c": "476666e8c3b420d41f3bb81523660add260681f17861f415cd04b253fadf4ed6",
     "drivers/hwspinlock/qcom_hwspinlock.c": "23d90884f565dcd869ced0c1e519b2a0b776d7e1874230c138c853545ce4e485",
     "include/dt-bindings/interconnect/qcom,pineapple.h": "108e65fde8e9e13791dbaa47c0a854d75670b53faf9d42bdb65c98781c0ceffd",
-    "drivers/interconnect/qcom/pineapple.c": "5ffe4e07d87407b97325e967c6b151b0857fc4f82f394aa8aeb3ee8c907887b2"
+    "drivers/interconnect/qcom/pineapple.c": "5ffe4e07d87407b97325e967c6b151b0857fc4f82f394aa8aeb3ee8c907887b2",
+    "drivers/interconnect/qcom/bcm-voter.c": "b5e5f9b62c06ca685d2c19783210fb768201ad616c2c28a73651def283e726cb",
+    "drivers/interconnect/qcom/icc-rpmh.c": "2cfb239a2c3910569df1494f6b5ed8ef97ed81eb411c906144a08eb38fe2db7d",
+    "include/soc/qcom/tcs.h": "3183aaa5964d6354cdb47cd87930c084d1feaf19e7481fefe1b973dd102d8c8f"
   }
 }

@@ -16,6 +16,7 @@
 #include <vm/vm_kern.h>
 #include <sys/macan_firmware.h>
 #include <sys/macan_dsp.h>
+#include <sys/waffle_adsp_power.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
 extern void ml_io_unmap(vm_offset_t addr, vm_size_t sz);
@@ -568,6 +569,50 @@ struct cmd_db_entry {
  uint16_t length, offset;
 };
 static const struct cmd_db_header *cmd_db;
+static bool
+waffle_power_lookup(__unused void *context, const char *name, struct waffle_adsp_resource *result)
+{
+ if (!cmd_db) { cmd_db = (const struct cmd_db_header *)ml_io_map_unmappable(CMD_DB_PHYS, CMD_DB_SIZE, VM_WIMG_WCOMB); }
+ if (!cmd_db || memcmp(cmd_db->magic, "\xdb\x30\x03\x0c", 4)) { return false; }
+ char id[8] = { 0 };
+ if (strlen(name) >= sizeof(id)) { return false; }
+ strlcpy(id, name, sizeof(id));
+ const size_t size = CMD_DB_SIZE - sizeof(*cmd_db);
+ bool found = false;
+ for (unsigned s = 0; s < 8; s++) {
+  const struct cmd_db_slave *slave = &cmd_db->slave[s];
+  if (!slave->id) { continue; }
+  if (slave->count > 512 || (uint64_t)slave->header_offset + slave->count * sizeof(struct cmd_db_entry) > size) { return false; }
+  const struct cmd_db_entry *entry = (const void *)(cmd_db->data + slave->header_offset);
+  for (unsigned i = 0; i < slave->count; i++) {
+   if (memcmp(entry[i].id, id, sizeof(id))) { continue; }
+   size_t offset = (size_t)slave->data_offset + entry[i].offset;
+   if (found || entry[i].length > sizeof(result->aux) || offset > size || entry[i].length > size - offset ||
+       slave->id != ((entry[i].address >> 16) & 7)) { return false; }
+   result->address = entry[i].address;
+   result->length = entry[i].length;
+   memcpy(result->aux, cmd_db->data + offset, result->length);
+   found = true;
+  }
+ }
+ return found;
+}
+static bool
+waffle_power_preflight(void)
+{
+ struct waffle_adsp_power_command commands[11];
+ if (!waffle_adsp_power_plan(waffle_power_lookup, NULL, commands)) {
+  printf("adsp: WAFFLE POWER_PLAN FAIL: command database differs from native contract; no power writes\n");
+  return false;
+ }
+ for (unsigned i = 0; i < 11; i++) {
+  const struct waffle_adsp_power_command *c = &commands[i];
+  printf("adsp: POWER_PLAN %u name=%s address=%#x value=%#x vcd=%u commit=%u dry_run=1\n",
+      i, c->name, c->address, c->value, c->vcd, c->commit);
+ }
+ printf("adsp: WAFFLE POWER_PLAN OK: rails384 BCMs8 native_VCD_order=1; no power writes, shared votes retained\n");
+ return true;
+}
 static struct block rsc = { "rsc", 0x18920000, 0x10000 };
 #define RSC_TCS_BASE 0xd00
 #define RSC_IRQ_ENABLE (RSC_TCS_BASE + 0x00)
@@ -2195,7 +2240,7 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  lck_mtx_lock(&dsp_lock);
  if (stopping) { goto out; }
  if (mode == 3) {
-  bool valid = firmware_check(&images[0]) && firmware_check(&images[1]);
+  bool valid = firmware_check(&images[0]) && firmware_check(&images[1]) && waffle_power_preflight();
   printf("adsp: WAFFLE PREFLIGHT %s: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes\n",
       valid ? "OK" : "FAIL");
   for (unsigned i = 0; i < 2; i++) {

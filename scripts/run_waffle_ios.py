@@ -971,6 +971,7 @@ def main():
             if args.audio_preflight:
                 required = ('waffle-audio-probe: PID1 ready',
                             'adsp: MDT adsp_dtb phdrs=3', 'adsp: MDT adsp phdrs=57',
+                            'adsp: WAFFLE POWER_PLAN OK: rails384 BCMs8 native_VCD_order=1',
                             'adsp: WAFFLE PREFLIGHT OK: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes')
                 if not all(s in final_text for s in required) or any(s in final_text for s in ('adsp: FAIL', 'adsp: WAFFLE PREFLIGHT FAIL', 'adsp: PAS ', 'adsp: RPMh ')):
                     raise RuntimeError(f'ADSP firmware preflight evidence missing or hardware path reached; logs: {out}')

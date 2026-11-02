@@ -1,0 +1,126 @@
+{
+  "stage": "A04 native power plan dry-run in actual XNU",
+  "passed": true,
+  "auto_run": "work/waffle/auto-runs/20261102T131218Z",
+  "kernel_run": "work/waffle/runs/20261102T131242Z",
+  "kernel_return": "result: returned 33449 0",
+  "power_writes": false,
+  "DSP_started": false,
+  "audio_playback": false,
+  "android_independent_adb_boot_completed": "1",
+  "identical_log_copies": 4,
+  "commands": [
+    {
+      "name": "lcx.lvl",
+      "address": "0x30030",
+      "value": "0x7",
+      "vcd": 0,
+      "commit": false
+    },
+    {
+      "name": "lmx.lvl",
+      "address": "0x30040",
+      "value": "0x4",
+      "vcd": 0,
+      "commit": false
+    },
+    {
+      "name": "xo.lvl",
+      "address": "0x300d0",
+      "value": "0x3",
+      "vcd": 0,
+      "commit": false
+    },
+    {
+      "name": "MC0",
+      "address": "0x50000",
+      "value": "0x6fffffff",
+      "vcd": 0,
+      "commit": true
+    },
+    {
+      "name": "SH0",
+      "address": "0x50004",
+      "value": "0x2fffffff",
+      "vcd": 1,
+      "commit": false
+    },
+    {
+      "name": "SH1",
+      "address": "0x50008",
+      "value": "0x60000001",
+      "vcd": 1,
+      "commit": true
+    },
+    {
+      "name": "SN0",
+      "address": "0x50010",
+      "value": "0x2fffffff",
+      "vcd": 3,
+      "commit": false
+    },
+    {
+      "name": "SN3",
+      "address": "0x5001c",
+      "value": "0x6fffffff",
+      "vcd": 3,
+      "commit": true
+    },
+    {
+      "name": "CE0",
+      "address": "0x50034",
+      "value": "0x6fffffff",
+      "vcd": 6,
+      "commit": true
+    },
+    {
+      "name": "LP0",
+      "address": "0x50050",
+      "value": "0x6fffffff",
+      "vcd": 10,
+      "commit": true
+    },
+    {
+      "name": "ACV",
+      "address": "0x50068",
+      "value": "0x60000001",
+      "vcd": 12,
+      "commit": true
+    }
+  ],
+  "auto_runner": {
+    "started_utc": "20261102T131218Z",
+    "flash_operations": false,
+    "gpu_raw": false,
+    "prepare_gpu": false,
+    "access_matrix": false,
+    "measure_clocks": false,
+    "lpac_map": false,
+    "lpac_cp_init": false,
+    "zap": false,
+    "writeback": false,
+    "ib": false,
+    "session": false,
+    "dynamic_bo": false,
+    "compute": null,
+    "image": false,
+    "image_copy": false,
+    "image_present": false,
+    "copy_jobs": false,
+    "worker": false,
+    "user_copy": false,
+    "data_bo": false,
+    "glsl": false,
+    "user_va": false,
+    "msm": false,
+    "mesa_transport": false,
+    "mapped": false,
+    "gl_context": false,
+    "physical_boot_selection": false,
+    "android_confirmed": true,
+    "automatic_loader_verified": true,
+    "audio_preflight": true,
+    "runner_exit": 0,
+    "success": true
+  }
+}
