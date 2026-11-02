@@ -1,0 +1,11 @@
+adsp: PAS 36 loaded bytes=56884 bss=0 readback=OK
+adsp: PAS 36 authenticated and running (adsp_dtb)
+adsp: PAS 1 loaded bytes=43293786 bss=43207031 readback=OK
+adsp: PAS 1 authenticated and running (adsp)
+adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR node=5 services=13 GPR SPF=1 mode=7
+adsp: APM_GRAPH request opcode=0x1001000 token=2 bytes=344 no_DMA=1 no_hw_endpoint=1
+adsp: FAIL stage=12 last=step 9 took up GLINK
+adsp: link: down; GLINK said 117 and heard 238 messages, QRTR sent 2 and received 14 datagrams, GPR 1 and 1 packets; its doorbells heard: GLINK 45, SMP2P 5
+adsp: PAS 1 shutdown=OK
+adsp: PAS 36 shutdown=OK
+result: returned 56979 0

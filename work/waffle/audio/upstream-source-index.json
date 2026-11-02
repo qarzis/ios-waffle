@@ -40,6 +40,22 @@
       "sha": "0e9f08ab5dbd7054989a41dfc8288cfd25fc4626",
       "size": 17367,
       "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/0e9f08ab5dbd7054989a41dfc8288cfd25fc4626"
+    },
+    {
+      "path": "vendor/qcom/opensource/audio-kernel/dsp/msm_audio_ion.c",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "b5e81d6c6ea8d5a9cd35b9e7dc50d2a7edfc63d3",
+      "size": 28403,
+      "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/b5e81d6c6ea8d5a9cd35b9e7dc50d2a7edfc63d3"
+    },
+    {
+      "path": "vendor/qcom/opensource/audio-kernel/include/dsp/msm_audio_ion.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "56a7294eec7803e0d7f39d887636c9e89f4c2233",
+      "size": 786,
+      "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/56a7294eec7803e0d7f39d887636c9e89f4c2233"
     }
   ]
 }

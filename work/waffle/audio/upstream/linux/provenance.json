@@ -1,0 +1,14 @@
+{
+  "repo": "torvalds/linux",
+  "tag": "v6.12",
+  "revision": "adc218676eef25575469234709c2d87185ca223a",
+  "sha256": {
+    "include/dt-bindings/soc/qcom,gpr.h": "b9addff68ed701eecff494348be58a5a78b8243686ef7824adcf671a4909421e",
+    "include/linux/soc/qcom/apr.h": "79a8f8408031a1503e10605f7b0007e651fa926ce0fcc95e9735de3b9fa462cf",
+    "drivers/soc/qcom/apr.c": "991ead5114afa0f1b69c0a493cd84187c1483972683633fe0b69581ba0cad45b",
+    "sound/soc/qcom/qdsp6/q6apm.h": "9fc944773afbfba074d5d2eda1bbb92758a8fafb54448110c7005fcf0cb77619",
+    "sound/soc/qcom/qdsp6/q6apm.c": "0410986834522af36ef9e5691b9f70e9f31ab5a7d225aa30bc975451890e68a1",
+    "sound/soc/qcom/qdsp6/audioreach.h": "2047e57f89967b15470498e72772515c802b341b39ac95cfe43026724155287a",
+    "sound/soc/qcom/qdsp6/audioreach.c": "929e6d07e27671405a7f517325158ad0f6585482e58c9e7ecdcad504d9d4dc76"
+  }
+}

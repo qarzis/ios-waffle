@@ -14,6 +14,10 @@
     "include/soc/qcom/tcs.h": "3183aaa5964d6354cdb47cd87930c084d1feaf19e7481fefe1b973dd102d8c8f",
     "drivers/firmware/qcom_scm.c": "482ebae8fdefbc33aa4d18d039d1c8f15c7822e6b5c1108b0f41c1a585080f41",
     "drivers/firmware/qcom_scm-smc.c": "3478b65bd2df3c3c0659b91ab0a80137392f4f2889b1dc963a68b7fbbc6a8e70",
-    "drivers/firmware/qcom_scm.h": "777ebd4d0389453868372f9e41610cfb461de66a11a202dc2123ef6b3aea836a"
+    "drivers/firmware/qcom_scm.h": "777ebd4d0389453868372f9e41610cfb461de66a11a202dc2123ef6b3aea836a",
+    "drivers/iommu/arm/arm-smmu/arm-smmu.c": "a7c0d4543fad01d526c2efae8ab5d3f0dcd189c1df9863e3332b2e3d376a73f9",
+    "drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c": "fd5f8258302d9899d93be0747e49cf981f903ad14bdb953bc695dc3f44740873",
+    "drivers/iommu/arm/arm-smmu/arm-smmu.h": "ad504868b094ccaf4ee5d5c1b5ced20aca4390ec3be2200d03d23dff5518c1d3",
+    "drivers/iommu/arm/arm-smmu/arm-smmu-qcom.h": "62e8fa49af1fa08f4d82eff0b9541d349d5bc4cdb97f4770296cc6b859aa6981"
   }
 }

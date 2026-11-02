@@ -532,12 +532,14 @@ def main():
     parser.add_argument("--audio-power", action="store_true", help="With --audio-preflight: bounded native RPMh upvotes retained until Android reset; no DSP boot")
     parser.add_argument("--audio-survey", action="store_true", help="With --audio-preflight: read-only native SMEM/SMP2P/GLINK state survey")
     parser.add_argument("--audio-boot", action="store_true", help="With --audio-preflight: bounded native ADSP boot, GPR state query and shutdown; no PCM")
+    parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
     if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
+    if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
     if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
@@ -606,7 +608,7 @@ def main():
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.audio_preflight:
-        arguments += " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
+        arguments += " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
     if args.torch_readonly:
@@ -979,10 +981,12 @@ def main():
                     markers=('adsp: PAS 36 authenticated and running', 'adsp: PAS 1 authenticated and running',
                              'adsp: SMP2P ready seen', 'adsp: SMP2P handover seen',
                              'adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR',
-                             'GPR SPF=1 mode=6', 'adsp: PAS 1 shutdown=OK', 'adsp: PAS 36 shutdown=OK',
+                             'GPR SPF=1 mode='+('7' if args.audio_graph else '6'), 'adsp: PAS 1 shutdown=OK', 'adsp: PAS 36 shutdown=OK',
                              'adsp: WAFFLE DSP_BOOT result=1 stop_clean=1')
                     if not all(m in final_text for m in markers) or 'adsp: FAIL' in final_text:
                         raise RuntimeError(f'Native ADSP boot/GPR/shutdown not confirmed; logs: {out}')
+                    if args.audio_graph and 'adsp: APM_GRAPH lifecycle=1 modules=write_shmem/read_shmem connection=1 no_DMA=1 no_PCM=1 amps_off=1' not in final_text:
+                        raise RuntimeError(f'Native APM graph open/close not confirmed; logs: {out}')
                     print('Native ADSP boot, GPR SPF state and shutdown validated; no PCM playback',flush=True)
                     return
                 required = ('waffle-audio-probe: PID1 ready',

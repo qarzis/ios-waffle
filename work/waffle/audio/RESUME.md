@@ -1,3 +1,31 @@
+User resumed after Git publication; A11 diagnostic hardware continuation is now authorized. Public code: fcfb312987b5a2238eba055641ad56e14ba9bfd3.
+
+# Current stop state — A10/A11, 2026-11-02
+
+User stopped hardware work and requested Git publication only. Phone is in Android,
+boot_completed1 checked; no hardware runner or build remains active.
+
+A09 remains the last qualified complete DSP lifecycle. A10 added a two-module
+WR_SHMEM->RD_SHMEM APM graph open/close prototype. OPEN344/CLOSE64 compare byte-for-byte
+with actual pinned Linux v6.12 builders; reply correlation sanitizer tests pass.
+The hardware GRAPH_OPEN failed locally in glink_send after about5.65s before an
+APM reply; GPR counters stayed1out/1in (SPF only). Exact errno/root cause unknown.
+Do not mark graph operation, DMA or PCM as working.
+
+Current source is A11 diagnostic instrumentation: GLINK intent overflow and send
+state/error logging, with unchanged packet/allocation behavior. XNU compile passed;
+UEFI packaging stopped by user, no A11 device test. Next authorized continuation
+should capture this trace, then fix only the proven transport cause. Do not blindly
+increase buffers or change graph ABI without evidence. Native audio Apps SMMU is
+15000000 with SID1001/1061; DMA remains unported.
+
+A10-result.json, A10-components.log and AUDIO_DEBUG_LOG.md preserve evidence.
+Primary source caches: upstream/linux (v6.12 adc218676eef25575469234709c2d87185ca223a),
+upstream/audioreach-engine API headers and pinned OnePlus msm_audio_ion sources.
+Private firmware remains excluded from publication.
+
+---
+
 # OnePlus 12 audio — resume after A09
 
 2026-11-02. Active task: bring up audio using the local HakiOS reference.

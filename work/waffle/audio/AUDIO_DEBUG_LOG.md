@@ -128,3 +128,21 @@ SCM continuation evidence:417 interruptions/205418us on an earlier call; PAS shu
 Qualified milestone: native firmware lifecycle and GPR control transport. Next architectural gap is an AudioReach/APM PCM graph and DSP buffer mapping, then board-specific TFA amplifier configuration and the iOS PCM sink. Local HakiOS legacy APR/ASM/ADM path is a reference, not a drop-in for this GPR firmware.
 
 Publication: source and concise status published to qarzis/ios-waffle branch waffle/gpu-bringup at272c92d48c7634d210823ab89baffd7b7d053a01. Push and ls-remote verified; public worktree clean. Proprietary firmware excluded. Audio resume state saved in work/waffle/audio/RESUME.md.
+
+## A10 architecture audit and experiment plan — APM graph before DMA
+
+Pinned Linux v6.12 revision adc218676eef25575469234709c2d87185ca223a AudioReach/APM/GPR builders, plus AudioReach/audioreach-engine API headers (tree b38cb85a1a2543aa28aa1b27f4c380cafa5024bb, individual Git blob hashes verified). Native OnePlus msm_audio_ion.c and live DT establish audio SID1001 and1061 (low4-bit mask1), IOVA pool10000000..20000000 and Apps SMMU15000000; the audio device is Android IOMMU group52. Redwood SID1801 is inapplicable. Do not send ordinary physical addresses as PCM DMA addresses. Correct mapping still needs implementation and hardware ownership qualification.
+
+Selected hypothesis: firmware accepts a minimal WR_SHMEM->RD_SHMEM graph through existing GPR/APM transport. Test only GRAPH_OPEN and GRAPH_CLOSE: one native subgraph/container, two endpoints, one port1->port2 connection. No PREPARE/START, media format, shared-memory map, DMA address, hardware endpoint or amplifier writes. IDs use the documented Linux private ranges. Perf=lowlatency2, directionRX2, scenario playback1, container PP capability1/stream position1/stack defaultffffffff/ADSP2 are from primary API definitions, not guessed. Closure targets only this graph; a failure unwinds the owned DSP via qualified PAS shutdown.
+
+waffle_apm.h emits OPEN344 and CLOSE64 bytes. Host ASan/UBSan test compiles actual Linux graph population, serialization and close builders with minimal host list/allocation shims; both packets compare byte-identically. Capacity guard, unsupported opcode and token output tested. Actual kernel GPR reply parser is tested for token/opcode/domain/ports/length, ACK0/error, stale/duplicate rejection and preservation of SPF's dedicated state response requirement. Mode7 adds graph lifecycle to bounded native boot; prior mode6 still performs only SPF query. Successful compilation/serialization does not prove firmware accepts the graph. Expected hardware result: both correlated APM ACK status0, clean PAS shutdown and Android recovery. PCM transfer remains untested even if graph lifecycle succeeds.
+
+## A10 hardware FAIL before graph delivery
+
+Run20261102T142409Z. Native DSP boot/GPR SPF1 mode7 passed. GRAPH_OPEN344/token2 logged at24.922219s; stage12 failure at30.575201s. No APM response log. Link shutdown reports GPR1out/1in, corresponding only to SPF query, so graph delivery failed inside local glink_send. Exact transport errno was not yet instrumented. Native FIFO capacity16384 bytes, so packet size alone is not proven as cause; remote-intent capacity/allocation/request completion remain unqualified. PAS1/PAS36 shutdownOK, normal kernel return and Android recovery confirmed. Whole graph test FAIL; do not claim firmware rejected or accepted the graph. Evidence A10-components.log/A10-result.json.
+
+## A11 instrumentation, user STOP
+
+Added logging only: remote-intent table overflow counts/largest dropped intent; send errno, table occupancy/in-use/maximum size, request ACK/grant and FIFO room; graph transport error. Packet bytes and allocation behavior unchanged. Full XNU compile completed; loader built; UEFI packaging was interrupted at user request. No A11 hardware test was launched. Owned build processes terminated and no hardware runner remained; independent Android boot_completed1. Work remains stopped. Do not auto-resume tests due to the later request to publish Git updates.
+
+Publication verified: fcfb312987b5a2238eba055641ad56e14ba9bfd3 on qarzis/ios-waffle/waffle/gpu-bringup. User subsequently resumed hardware work; stop request revoked. Resume A11 trace capture without graph/intent allocation changes.

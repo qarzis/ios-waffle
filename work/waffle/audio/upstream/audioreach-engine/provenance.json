@@ -1,0 +1,12 @@
+{
+  "repo": "AudioReach/audioreach-engine",
+  "revision": "b38cb85a1a2543aa28aa1b27f4c380cafa5024bb",
+  "sha256": {
+    "fwk/api/apm/apm_api.h": "63cb5cb2ee1935f4491c5a0d594712c4ac94b7e776f0a1056c5fefe39e912059",
+    "fwk/api/apm/apm_container_api.h": "167c77982f8e05159acce32058357fdc3d292f7663e2ee5aee66775b7dd3b03b",
+    "fwk/api/apm/apm_graph_properties.h": "5d4fdd39e85a01608f4f724f0b111686cb75032b742fc0510967effa1b027597",
+    "fwk/api/apm/apm_sub_graph_api.h": "449ffbf04e5d1a479c0dc228e6fe6dc0f7ddf339d46b1569c947f4aa0b60b024",
+    "fwk/api/modules/rd_sh_mem_ep_api.h": "37ddf9ca720d10444ce5fd67e978178936df42778c6ecf364a9370d774d33404",
+    "fwk/api/modules/wr_sh_mem_ep_api.h": "1e626f32e5171644357d5a6ace2bce9ac44e04f8083d1d539e7c099ae635d497"
+  }
+}
