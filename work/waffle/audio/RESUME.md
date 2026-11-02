@@ -1,0 +1,54 @@
+# OnePlus 12 audio — resume after A09
+
+2026-11-02. Active task: bring up audio using the local HakiOS reference.
+Phone was returned to Android; independent `sys.boot_completed=1` confirmed.
+No hardware test remains running.
+
+## Qualified milestone
+
+A09 run `work/waffle/runs/20261102T135600Z`, automatic run
+`work/waffle/auto-runs/20261102T135536Z` passed native ADSP firmware boot,
+fresh SMP2P ready/handover, GLINK, QRTR node5/services13, GPR SPF state1,
+PAS1/PAS36 shutdown and normal kernel return. No PCM or amplifier startup.
+
+- Artifact: `work/waffle/diagnostic-audio-scm-continuation-a09`.
+- Evidence: `A09-result.json`, `A09-components.log`, `AUDIO_DEBUG_LOG.md`.
+- Public commit: `272c92d48c7634d210823ab89baffd7b7d053a01`, verified on
+  `qarzis/ios-waffle`, branch `waffle/gpu-bringup`.
+- Qualified private code checkpoint: `03019f75ab1dfacbf063ff99b66241c0969d0416`.
+- Public documentation: `docs/waffle-audio.md`; sound remains marked unavailable.
+
+## Do not repeat
+
+The donor ADSP carveouts, IPCC and RSC addresses were wrong for Waffle.
+Native resources and all firmware blobs have been captured and verified.
+A05 confirmed RPMh requests but panicked on unmapping a permanent mapping;
+A06 corrected that and passed. A08 booted DSP and queried GPR but failed to
+stop because the SCM loop aborted after100 interrupted returns. A09 preserved
+the continuation for a bounded2s; PAS shutdown needed273 interruptions/649168us.
+An earlier call needed417 interruptions. Do not restore the100-call cap.
+
+WAITQ wake handling is still unsupported on Waffle: it is refused and dependent
+secure calls are blocked instead of blindly resuming an unresolved context.
+A08's dependent PAS36 WAITQ followed the abandoned PAS1 call; it did not recur
+when PAS1 completed in A09. Pending IPCC30002 was observed even during a clean
+A09 stop, so do not add speculative IRQ clearing as a fix for this resolved case.
+
+## Remaining work
+
+There is no AudioReach/APM PCM graph, DSP PCM-buffer mapping/period completion,
+ported speaker amplifier initialization or connection to the iOS audio sink.
+Next investigate the actual GPR/APM graph and mapping ABI from primary source,
+then qualify consumption of silent PCM periods with amplifiers off. Native
+Android has two TFA devices at I2C4-0034/0035 and an ODM speaker profile; the
+exact speaker route still needs qualification. WCD939x enumeration alone does
+not establish the speaker route. HakiOS redwood uses legacy APR/ASM/ADM/AFE;
+its playback packets and addresses cannot be copied into Waffle's GPR path.
+
+Native captures/private firmware: `android-baseline/`. Pinned OnePlus references:
+`upstream/`, `upstream-source-index.json`, `upstream/msm-kernel/provenance.json`.
+Never publish the captured firmware or amplifier container.
+
+All tests are RAM-only. Keep the existing native power ownership/retention and
+stop guards; modes3/4/5/6 are isolated bounded diagnostics, not ordinary iOS audio.
+Do not run concurrent fastboot commands while the hardware runner owns USB.
