@@ -29,7 +29,7 @@ __attribute__((constructor)) static void start(void)
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW,20*NSEC_PER_SEC),dispatch_get_main_queue(),^{
         int fd=open("/dev/console",O_WRONLY);
         if (fd<0) return;
-        for (NSString *name in @[@"DoNotDisturb",@"PosterBoardServices",@"PosterKit"]) {
+        for (NSString *name in @[@"DoNotDisturb",@"PosterBoardServices",@"PosterKit",@"WallpaperKit"]) {
             NSString *path=[NSString stringWithFormat:@"/System/Library/PrivateFrameworks/%@.framework/%@",name,name];
             void *handle=dlopen(path.UTF8String,RTLD_LAZY|RTLD_LOCAL);
             dprintf(fd,"waffle-service: load %s result=%d read_only=1\n",name.UTF8String,handle!=NULL);
@@ -38,14 +38,16 @@ __attribute__((constructor)) static void start(void)
         for (NSString *name in @[@"DNDModeAssertionService",@"DNDModeAssertionDetails",@"DNDModeAssertionLifetime",
                 @"DNDModeAssertionUserRequestedLifetime",@"DNDModeSelectionService",@"DNDModeConfigurationService",
                 @"SBRingerControl",@"SBVolumeControl",@"SBVolumeControlState",
-                @"PRPosterConfiguration",@"PRPosterDescriptor",@"PRSPosterConfiguration",@"PRSPosterDescriptor"]) {
+                @"PRPosterConfiguration",@"PRPosterDescriptor",@"PRSPosterConfiguration",@"PRSPosterDescriptor",
+                @"WKWallpaperBundle",@"WKWallpaperBundleCollection",@"WKWallpaperRepresentingCollection",
+                @"WKWallpaperRepresentingCollectionsManager",@"PBFPosterConfigurationStoreCoordinator",@"PRSService"]) {
             Class cls=NSClassFromString(name);
             dprintf(fd,"waffle-service: class %s present=%d\n",name.UTF8String,cls!=Nil);
             if (cls) { methods(fd,cls,YES);methods(fd,cls,NO); }
         }
         int capacity=objc_getClassList(NULL,0);
         if (capacity>0 && capacity<100000) {
-            Class *classes=calloc((size_t)capacity,sizeof(Class));
+            Class __unsafe_unretained *classes=(Class __unsafe_unretained *)calloc((size_t)capacity,sizeof(Class));
             if (classes) {
                 int count=objc_getClassList(classes,capacity);unsigned printed=0;
                 for (int i=0;i<MIN(count,capacity) && printed<40;i++) {

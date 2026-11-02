@@ -498,6 +498,8 @@ def main():
     parser.add_argument("--cpus", type=int, choices=range(1, 8), help="XNU cores; one physical core remains with the resident USB loader")
     parser.add_argument("--capture-requests", type=Path, help="Read *.request screenshot requests; this runner alone owns fastboot")
     parser.add_argument("--torch-readonly", action="store_true", help="Waffle v7 SPMI flash module identification; no PMIC writes")
+    parser.add_argument("--torch-pulse", action="store_true", help="Waffle qualified module: one two-second pulse and verified darkness")
+    parser.add_argument("--torch-service",action="store_true",help="Expose the qualified flashlight driver to the iOS Control Center")
     parser.add_argument("--fbscale", type=int, default=2, choices=(1, 2, 3), help="Render scale: 1 is faster, 2 is sharper")
     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
     parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
@@ -530,6 +532,8 @@ def main():
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
     if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
+    if args.torch_pulse and (args.torch_readonly or not args.gpu_gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
+    if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.gpu_ui):parser.error('--torch-service requires GPU UI and excludes torch probe modes')
     if args.gpu_ui and not args.gpu_gl_context:parser.error("--gpu-ui requires --gpu-gl-context")
     if args.seconds>300 and not (args.seconds==660 and args.gpu_ui and args.gpu_gl_context):parser.error("660 seconds is reserved for the bounded UI soak")
     if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
@@ -596,6 +600,10 @@ def main():
         arguments += f" cpus={args.cpus}"
     if args.torch_readonly:
         arguments += " waffle_torch=1"
+    if args.torch_pulse:
+        arguments += " waffle_torch=2"
+    if args.torch_service:
+        arguments += " waffle_torch=3"
     if args.gpu_probe:
         arguments += f" waffle_gpu={args.gpu_probe}"
     if args.gpu_access_matrix:
@@ -942,6 +950,14 @@ def main():
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
                     'torch: waffle read-only module=', 'no PMIC writes')):
                 raise RuntimeError(f"Waffle torch identification failed; logs: {out}")
+            if args.torch_pulse and not all(s in final_text for s in (
+                    'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
+                    'the light ON at 100 mA per channel', 'off again after 2 s', '(dark)')):
+                raise RuntimeError(f"Waffle torch pulse or shutdown proof failed; logs: {out}")
+            if args.torch_service and not all(s in final_text for s in (
+                    "torch: THE LIGHT IS IOS'S (/dev/redwood-torch)",
+                    "at the run's end the module reads: enable 0000, channels 0000")):
+                raise RuntimeError(f"Waffle torch service or dark shutdown proof failed; logs: {out}")
             if args.cpus is not None and args.cpus>1:
                 counts=[int(n) for n in re.findall(r"GenericARMPE: (\d+) of \d+ processors are running",final_text)]
                 counts += [int(n) for n in re.findall(r"GenericARMPE: the slower cores started too: (\d+) processors running",final_text)]

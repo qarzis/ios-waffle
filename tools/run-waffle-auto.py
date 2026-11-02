@@ -23,6 +23,8 @@ def main():
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test; resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
     parser.add_argument('--torch-readonly', action='store_true', help='Separate Waffle flash module identification without PMIC writes')
+    parser.add_argument('--torch-pulse',action='store_true',help='Single two-second flash-module pulse in the GPU UI workload')
+    parser.add_argument('--torch-service',action='store_true',help='Expose the qualified Waffle flashlight driver in the GPU UI')
     parser.add_argument('--prepare-gpu', action='store_true', help='Run existing probe93; no RAW')
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
@@ -54,6 +56,8 @@ def main():
     parser.add_argument('--ui-soak-test',action='store_true',help='Ten-minute UI with660-second return; requires matching600-second root and generation handles')
     args = parser.parse_args()
     if args.torch_readonly and not (args.cpu_ui_test or args.ui_workload):parser.error('--torch-readonly requires a CPU or GPU UI workload')
+    if args.torch_pulse and (args.torch_readonly or not args.gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
+    if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.ui_workload):parser.error('--torch-service requires GPU UI and excludes probe modes')
     if args.cpus is not None and not (args.cpu_ui_test or args.ui_workload):parser.error('--cpus requires a UI workload')
     if args.cpu_ui_test and any((args.prepare_gpu,args.lpac_cp_init,args.gl_context,args.ui_workload,args.compute,args.session,args.lpac_map,args.access_matrix,args.measure_clocks,args.image,args.image_copy,args.image_present,args.copy_jobs,args.worker,args.user_copy,args.data_bo,args.glsl,args.user_va,args.msm,args.mesa_transport,args.mapped,args.dynamic_bo,args.ib,args.writeback,args.zap,args.ui_long_test,args.ui_soak_test)):
         parser.error('--cpu-ui-test must run separately from GPU experiments')
@@ -92,6 +96,8 @@ def main():
         parser.error('--session requires --ib')
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if args.torch_readonly and not manifest.get('torch_readonly_loader'):parser.error('Artifact lacks the torch read-only policy')
+    if args.torch_pulse and not manifest.get('torch_pulse_loader'):parser.error('Artifact lacks the bounded torch pulse policy')
+    if args.torch_service and not manifest.get('torch_service_loader'):parser.error('Artifact lacks the iOS torch-service policy')
     if args.cpu_ui_test:
         if not manifest.get('multicore_loader'):
             parser.error('Artifact lacks the opt-in multicore loader policy')
@@ -185,6 +191,7 @@ def main():
             requests.mkdir()
             items=[sys.executable,'scripts/run_waffle_ios.py','--seconds',str(args.cpu_seconds),'--cpus',str(args.cpus or 2),'--kernel',str(artifact/'kernel'),'--root',str(cpu_root),'--fastboot',args.fastboot,'--capture-requests',str(requests)]
             if args.torch_readonly:items.append('--torch-readonly')
+            if args.torch_pulse:items.append('--torch-pulse')
             result=command(items,timeout=args.cpu_seconds+240)
             report['cpu_ui_test']=True
             report['requested_cpus']=args.cpus or 2
@@ -201,6 +208,8 @@ def main():
                 stdout=recovery_log, stderr=subprocess.STDOUT)
             items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '94' if args.lpac_cp_init else '93', str(artifact)]
             if args.torch_readonly:items.append('--torch-readonly')
+            if args.torch_pulse:items.append('--torch-pulse')
+            if args.torch_service:items.append('--torch-service')
             if args.cpus is not None:items.append(f'--cpus={args.cpus}')
             if args.access_matrix:
                 items.append('--access-matrix')

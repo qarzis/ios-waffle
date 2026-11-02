@@ -584,7 +584,8 @@ torch_thread(__unused void *parameter, __unused wait_result_t result)
   say("torch: the channel is not ours to write through: nothing written\n");
   goto out;
  }
- flash.write = ml_io_map(ARB_CHNLS_PHYS + 0x200UL * flash.channel, 0x200);
+ flash.write = ml_io_map((waffle_arb ? 0x0c500000UL : ARB_CHNLS_PHYS) +
+     (waffle_arb ? 0x1000UL : 0x200UL) * flash.channel,0x200);
  if (flash.write == 0 || !alarm.found || (alarm_subtype != 0x08 && alarm_subtype != 0x09)) {
   say("torch: write mapping or PMIC temperature monitor unavailable: nothing written\n");
   goto out;
@@ -641,9 +642,9 @@ macan_torch_init(void)
  if (waffle_arb) {
   level=0;
   PE_parse_boot_argn("waffle_torch",&level,sizeof(level));
-  /* First qualify identification and bus ownership. Waffle writes remain
-   * disabled until the read-only hardware evidence has been inspected. */
-  if (level!=1) return;
+  /* Modes1/2 identified this module and verified the bounded pulse and
+   * darkness on Waffle; mode3 exposes the same checked path to iOS. */
+  if (level<1 || level>3) return;
  } else {
   if (!PE_parse_boot_argn("macan", &macan, sizeof(macan)) || macan == 0) return;
   level = 3;

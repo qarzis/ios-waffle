@@ -1,0 +1,1 @@
+PASS actual Mesa bo_new: disabled policy preserved, both caches purged without holding table lock; simulated destructor can lock it, one bounded retry, permanent failure preserved, success/cache-hit fast paths unchanged, ring path covered. Host only.

@@ -1,0 +1,15 @@
+{
+  "run": "work/waffle/runs/20261102T091108Z",
+  "optical_confirmation": "User: \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u0444\u043e\u043d\u0430\u0440\u0438\u043a",
+  "torch_pulse_seconds": 2,
+  "per_channel_current_mA": 100,
+  "channels_mask": 9,
+  "native_ramp_up_observed": true,
+  "pulse_off_verified": true,
+  "final_module_and_channels_zero": true,
+  "final_dark_verified": true,
+  "GPU_pixel_control": "E75-mesa-pixel-result.json",
+  "original_runner_exit": 0,
+  "Android_independently_confirmed": true,
+  "kernel_final_sha256": "e35c7a51f3f07a1668428c9e310966e1cc66d85483a6a8e00b458689c8204202"
+}

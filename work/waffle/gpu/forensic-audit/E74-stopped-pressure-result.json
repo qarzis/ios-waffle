@@ -1,0 +1,16 @@
+{
+  "run": "work/waffle/runs/20261102T090445Z",
+  "user_report": "phone frozen",
+  "user_requested_recovery": true,
+  "stop_sent": true,
+  "Android_confirmed": true,
+  "requested_torch_pulse_not_forwarded": true,
+  "actual_cmdline_contains_torch_token": false,
+  "corrected_forwarding_not_yet_hardware_tested": true,
+  "GPU_pressure_candidate_deadlock_identified": "bo_new held table_lock while fd_bo_cache_cleanup destroys BOs through fd_bo_fini_common, which acquires the same mutex",
+  "rejected_candidate_SHA256": "5cd4d47cc8161c56c7121301bc9030a85c22a9d469511d0c7c2d69b3316b5a99",
+  "evidence": [
+    "waffle-gpu: GENERAL allocation_refused bytes=1310720 flags=20000 count=1916 limit=8192 reason=registry live_count=1916 live_bytes=133742592 retired_count=0 retired_bytes=0 heap_limit=13421772waffle-gpu: GENERAL ioctl_refused op=42 error=12 pid=84"
+  ],
+  "original_runner_exit": 1
+}

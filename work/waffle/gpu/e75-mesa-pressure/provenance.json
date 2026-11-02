@@ -1,0 +1,11 @@
+{
+  "source": "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/drm/freedreno_bo.c",
+  "source_sha256": "de2b9a70db172b138af6b54289a9ac571c5b3ec15601b457c8e5e1fadd1fd409",
+  "candidate_Mesa_sha256": "749e5da7ca49a294dc57b90a50e9c45b2dc0251198462f46bee955b89c699a0f",
+  "baseline_Mesa_sha256": "7e02650d1a5b7402e7b4db7bf84aba6aa3a7afd528e84a3a284e781caf2c5a47",
+  "rejected_candidate_Mesa_sha256": "5cd4d47cc8161c56c7121301bc9030a85c22a9d469511d0c7c2d69b3316b5a99",
+  "guard": "WAFFLE_GPU_DRM=1 and WAFFLE_GPU_RECLAIM_ON_OOM=1",
+  "change": "No outer table_lock across cache destruction: fd_bo_fini_common owns the table lock when removing handles. One backend retry remains bounded.",
+  "host_regression": "rejected/destructor-lock-regression.log fails; destructor-lock-fixed.log passes; source function under test is extracted without adaptation.",
+  "hardware_qualified": false
+}

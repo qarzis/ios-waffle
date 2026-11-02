@@ -83,7 +83,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         returns+=waffle_return_token_allowed(line,size);
         cpus+=waffle_cpu_token_allowed(line,size);
 #if defined(WAFFLE_USERLAND)
-        torch+=waffle_token_equal(line,size,"waffle_torch=1");
+        torch+=waffle_number(line,size,"waffle_torch=",1,3);
 #endif
         gl_image+=waffle_token_equal(line,size,"waffle_image=13");
         matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
@@ -111,7 +111,7 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_number(line, size, "fbscale=", 1, 3) &&
             !waffle_cpu_token_allowed(line,size) &&
 #if defined(WAFFLE_USERLAND)
-            !waffle_token_equal(line,size,"waffle_torch=1") &&
+            !waffle_number(line,size,"waffle_torch=",1,3) &&
 #endif
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;

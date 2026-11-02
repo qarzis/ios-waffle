@@ -10,12 +10,13 @@ int main(void)
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=2 loader_return_after=60"));
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=7 fbscale=2"));
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_torch=1"));
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_torch=2"));
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_torch=3"));
 #else
     assert(!waffle_cmdline_allowed("cpus=2"));
     assert(!waffle_cmdline_allowed("waffle_torch=1"));
 #endif
-    assert(!waffle_cmdline_allowed("waffle_torch=2"));
-    assert(!waffle_cmdline_allowed("waffle_torch=3"));
+    assert(!waffle_cmdline_allowed("waffle_torch=4"));
     assert(!waffle_cmdline_allowed("waffle_torch=1 waffle_torch=1"));
     assert(!waffle_cmdline_allowed("cpus=0"));
     assert(!waffle_cmdline_allowed("cpus=9"));

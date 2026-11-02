@@ -103,6 +103,8 @@ micros(uint64_t absolute)
  return ns / 1000;
 }
 static TUNABLE(uint32_t, gMacan, "macan", 0);
+static TUNABLE(uint32_t, gWaffle, "waffle", 0);
+static TUNABLE(uint32_t, gWaffleTorch, "waffle_torch", 0);
 static TUNABLE(uint32_t, gMacan14, "macan_14pm", 0);
 static inline uint32_t
 refreshHz(void)
@@ -181,6 +183,20 @@ macanPeripheralNodes(void)
    camera->setProperty("flash", &yes, sizeof(yes));
    camera->release();
   }
+ }
+ product->release();
+}
+static void
+wafflePeripheralNodes(void)
+{
+ if (gWaffleTorch != 3) return;
+ IORegistryEntry *product=IORegistryEntry::fromPath("/product",gIODTPlane);
+ if (product==NULL) return;
+ IORegistryEntry *camera=macanProductChild(product,"camera");
+ if (camera!=NULL) {
+  uint32_t yes=1;
+  camera->setProperty("flash",&yes,sizeof(yes));
+  camera->release();
  }
  product->release();
 }
@@ -387,6 +403,7 @@ IOMobileFramebuffer::start(IOService * provider)
  if (gMacan != 0) {
   macanPeripheralNodes();
  }
+ if (gWaffle != 0) wafflePeripheralNodes();
  if (gMacan != 0 && gMacan14 != 0 && gFBWidth == kFBDefaultWidth && gFBHeight == kFBDefaultHeight &&
      (gFBScale == 0 || gFBScale == kFBDefaultScale)) {
   uint32_t subtype = kFBMacanSubtype;

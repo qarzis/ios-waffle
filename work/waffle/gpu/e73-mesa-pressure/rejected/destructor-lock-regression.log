@@ -1,0 +1,9 @@
+test: /tmp/waffle-bo-pressure-cp8p1nfy/test.c:26: fd_bo_cache_cleanup: Assertion `!locked && t==0' failed.
+Traceback (most recent call last):
+  File "/home/qarzis/ios-macan/work/waffle/gpu/e73-mesa-pressure/host-test.py", line 50, in <module>
+    p=Path(directory);(p/'test.c').write_text(preamble+function+tests);subprocess.run(['cc','-std=c11','-D__APPLE__','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',str(p/'test.c'),'-o',str(p/'test')],check=True);subprocess.run([str(p/'test')],check=True)
+                                                                                                                                                                                                                                ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/waffle-bo-pressure-cp8p1nfy/test']' died with <Signals.SIGABRT: 6>.
