@@ -1,3 +1,13 @@
+# STOPPED 2026-11-02T12:30:29.560686+00:00 — user «стопать и добавь на гит»
+
+No further development or hardware tests until explicit resume. E95run122548Zcompletedcontrolledstop/Androidindependent1; noactiverunner. QualifiedTOPrealDND+nativeFocusmoonbanner/MIDDLEsilent-vibratepolicy+SilentModeOn/BOTTOMring+Off. Physicalvibmotor/audiooutputunsupported. UserconfirmsnoDNDOffoverlayandcorrectlabels. Ownassertiononlyrelease; allowlistedHIDclient; delayedOncancelledperphysicalchange; revokeourFocusbannerbeforeRingerHUD; neverpostOff. HUDintmiddle0/bottom1nativegetter/userverified. OriginalGPUrunner1retained; noGPUstabilityclaim. Publishonlyremainingtask.
+
+# ACTIVE E95 ringer HUD polarity — 2026-11-02
+
+E95auto1225/run20261102T122548Z exec59298 stdoutgpu/auto-slider-HUD-polarity-e95.log, artifactdiagnostic-slider-HUD-polarity-e95, rootgpu/e95-ringer-HUD-polarity-root. GPU240s/7CPU/torch; soleinnerownsfastboot. UserlatestE94nodelayedDNDOFFoverlayconfirmed, butmiddleSilentModeOfftextwrongdespiteactualmuted1. E95correctsONLYHUDintstate middle0=SilentModeOn, bottom1=Off (actualnativebodycmpw20#0/setRingerSilent). Addsactualhud.isRingerSilentreadback+vibrategetter/nativeHUDmarker->SOLErunnercapture. NeeduserTOP->MIDDLE On andBOTTOM Off, verifyrealFocusoff/actualmute1or0+nodelayedoverlay, thenreturnAndroidindependent1/save/publish. Nochangephysicaldriver/GPU. LatestmappingTOPrealDND/MIDDLEvibrate-mode(noactualhapticmotor)/BOTTOMring(noaudiooutputyet).
+
+E93nativeFocusOnmoonbannervisible/userconfirmed/actualDidAppear, thenUSBtimeoutrequiredmanualAndroid. E94fixpostONLYconfirmedFocusOn; onanyphysicalchangecanceloldrequestgeneration; onleaveToprevokeONLYourFocuspresentableBEFOREringerHUD; noDNDOffpresentable. Userconfirmsnooverlay. E94run122057Zendedcontrolledstop/Androidindependent1. E94originalrunner1retained. E90serviceXPCfixedrealallowlistedHIDclient; ownassertiondetailsorg.waffle.alert-slider sootherFocusnotcleared. Publicstill2f9dd0a; localarchivea838711. NoVolumeHUDplacementwork.
+
 # ACTIVE E94 banner ordering fix — user nuance 2026-11-02
 
 E94autorun20261102T122033Z/run122057Z, artifactdiagnostic-slider-banner-order-e94, stdoutgpu/auto-slider-banner-order-e94.log; exec86002. GPU240s/7CPU/torchservice, soleinnerownsfastboot. NeeduserTOP->MIDDLEafter1sec confirmNOdelayedDNDOffoverlay; logdefaultmodeNULL/muted1 + noenabled0Focuspost. AlsocanceloldOnrequestonanyphysicalchange. CurrentrootcodepostONLYOn, pendinggenerationincrementperstate, revokeourmanagerbeforeSilentModeHUD. NoFocus/Hall/GPUchangesotherwise.

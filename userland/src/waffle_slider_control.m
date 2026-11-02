@@ -135,8 +135,17 @@ void waffle_slider_apply(int position)
   }
   [ringer setRingerMuted:position==2];
   if(position!=1 && abi(ringer,"activateRingerHUDFromMuteSwitch:","v20@0:8i16"))
-   [ringer activateRingerHUDFromMuteSwitch:position==2];
+   [ringer activateRingerHUDFromMuteSwitch:position==2?0:1];
   logState([NSString stringWithFormat:@"ringer position=%d muted=%d",position,[ringer isRingerMuted]]);
+  if(position!=1){
+   id hud=getter(ringer,"ringerHUDViewController");
+   BOOL silent=NO;
+   if(abi(hud,"isRingerSilent","B16@0:8"))silent=((BOOL(*)(id,SEL))objc_msgSend)(hud,sel_registerName("isRingerSilent"));
+   BOOL vibrate=NO;Class prefs=NSClassFromString(@"SBSoundPreferences");
+   if(abi(prefs,"vibrateWhenSilent","B16@0:8"))vibrate=((BOOL(*)(id,SEL))objc_msgSend)(prefs,sel_registerName("vibrateWhenSilent"));
+   static unsigned changes;
+   logState([NSString stringWithFormat:@"position=%d change=%u muted=%d native_vibrate_when_silent=%d native_HUD=1 HUD_isRingerSilent=%d",position,++changes,[ringer isRingerMuted],vibrate,silent]);
+  }
   NSString *owner=@"org.waffle.alert-slider";
   id service=[serviceClass serviceForClientIdentifier:@"com.apple.springboard.donotdisturb.hid"];
   if(!abi(service,"activeModeAssertionWithError:","@24@0:8^@16") ||

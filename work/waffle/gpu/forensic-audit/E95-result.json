@@ -1,0 +1,27 @@
+{
+  "run": "work/waffle/runs/20261102T122548Z",
+  "hardware_qualified_scope": "physical Alert Slider, native iOS mode state and user-visible banner transitions",
+  "mapping": {
+    "top": "real Do Not Disturb with native moon banner",
+    "middle": "ringer muted + vibrateWhenSilent1 + native Silent Mode On",
+    "bottom": "ringer unmuted + native Silent Mode Off"
+  },
+  "Focus_request_client": "com.apple.springboard.donotdisturb.hid",
+  "only_own_Focus_assertion_invalidated": true,
+  "delayed_Focus_Off_banner_removed": true,
+  "pending_Focus_On_cancelled_on_subsequent_physical_change": true,
+  "user_confirms_no_banner_overlap": true,
+  "user_confirms_correct_On_Off_labels": true,
+  "native_middle_HUD_isRingerSilent": 1,
+  "native_bottom_HUD_isRingerSilent": 0,
+  "native_Focus_post_accepted_and_DidAppear": true,
+  "actual_vibration_motor_supported": false,
+  "actual_audio_output_supported": false,
+  "GPU_stability_not_established_by_this_test": true,
+  "controlled_end_after_functional_qualification": true,
+  "Android_recovery_pending": false,
+  "evidence": "work/waffle/gpu/forensic-audit/E95-slider-components.log",
+  "evidence_sha256": "588adece8d67d309a35485cc15669e06adf4fcf4c69ae3e4104117e31c26d7a0",
+  "Android_after_run_independently_confirmed": true,
+  "original_runner_exit": 1
+}

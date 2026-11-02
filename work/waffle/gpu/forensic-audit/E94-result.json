@@ -1,0 +1,12 @@
+{
+  "run": "work/waffle/runs/20261102T122057Z",
+  "user_confirms_Off_banner_no_longer_overlays": true,
+  "Focus_Off_banner_requested": false,
+  "pending_On_cancelled_on_physical_change": true,
+  "native_Focus_banner_revoked_before_ringer_HUD": true,
+  "Focus_service_state_changes_preserved": true,
+  "new_user_issue": "middle displays Silent Mode Off despite real muted1",
+  "next_fix": "HUD API int state uses0 for silent,1 for ring; do not change actual mute policy",
+  "Android_after_run_independently_confirmed": true,
+  "original_runner_exit": 1
+}
