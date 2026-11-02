@@ -20,8 +20,10 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--hud-probe', action='store_true', help='Read-only SpringBoard geometry audit and bounded synthetic volume presses')
     parser.add_argument('--hud-relocate', action='store_true', help='Test scoped portrait side-HUD model placement')
+    parser.add_argument('--service-audit', action='store_true', help='Read-only enumeration of actual Focus/ringer/Poster service methods')
     args = parser.parse_args()
     if args.hud_relocate and not args.hud_probe:parser.error('--hud-relocate requires --hud-probe')
+    if args.service_audit and not args.hud_probe:parser.error('--service-audit requires --hud-probe')
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=True)
     scratch = out / 'scratch'
@@ -61,7 +63,8 @@ def main():
         run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-fobjc-arc','-dynamiclib',
              '-framework','UIKit','-framework','Foundation','-framework','CoreFoundation','-framework','CoreGraphics','-lMobileGestalt',
              str(ROOT/'userland/src/waffle_hud_probe.m'),
-             *([str(ROOT/'userland/src/inject_waffle_hud.m')] if args.hud_relocate else []),'-o',str(helper)])
+             *([str(ROOT/'userland/src/inject_waffle_hud.m')] if args.hud_relocate else []),
+             *([str(ROOT/'userland/src/waffle_service_audit.m')] if args.service_audit else []),'-o',str(helper)])
         pf.add_file(tree,'lib/libwaffle-hud-probe.dylib',str(helper),mode=0o100755)
         # This port selects libraries through kern.exec_inject, configured by
         # init from this file; launch-job DYLD_INSERT_LIBRARIES is ignored.
@@ -91,11 +94,13 @@ def main():
     sources = ['tools/build-waffle-cpu-ui-probe.py', 'userland/src/cpu_test.c', 'userland/src/inject.c', 'userland/mkjobs.py', 'tools/assemble.py']
     if args.hud_probe: sources.append('userland/src/waffle_hud_probe.m')
     if args.hud_relocate:sources.append('userland/src/inject_waffle_hud.m')
+    if args.service_audit:sources.append('userland/src/waffle_service_audit.m')
     manifest = {'RAM_only': True, 'GPU_enabled': False, 'hardware_tested': False,
                 'cpu_probe_delay_seconds': 35, 'root_sha256': hashlib.sha256(root.read_bytes()).hexdigest(),
                 'posterboard_base_sha256': hashlib.sha256(base.read_bytes()).hexdigest(),
                 'posterboard_providers': ['duetexpertd','mobileassetd'], 'hud_probe':args.hud_probe,
                 'hud_relocate':args.hud_relocate,
+                'service_audit':args.service_audit,
                 'source_sha256': {s: hashlib.sha256((ROOT / s).read_bytes()).hexdigest() for s in sources}}
     (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(json.dumps(manifest, indent=2))

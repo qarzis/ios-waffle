@@ -27,9 +27,6 @@ static uint64_t payload_base, panic_log_base;
 #endif
 static uint64_t payload_bytes;
 static int kernel_hung;
-#if defined(XNU_PLATFORM_WAFFLE)
-static int waffle_hud_requested;
-#endif
 #define KERNEL_VIRT_BASE 0xFFFFFFF004000000ULL
 #define KERNEL_LINK_OFFSET 0x03000000ULL
 #define BASE_ALIGN 0x02000000ULL
@@ -354,17 +351,6 @@ static void
 dt_identity(struct dt_writer *w, const struct identity_prop *props, uint32_t count, const unsigned char *data)
 {
  for (uint32_t i = 0; i < count; i++) {
-#if defined(XNU_PLATFORM_WAFFLE)
-  if (waffle_hud_requested && (str_eq(props[i].name,"volume-up-button-location") ||
-      str_eq(props[i].name,"volume-down-button-location"))) {
-   unsigned char adjusted[20];
-   if (waffle_hud_location_candidate(data+props[i].offset,props[i].length,adjusted)) {
-    dt_prop(w,props[i].name,adjusted,sizeof(adjusted));
-    print("waffle-hud: DT %s vertical field +160000; dimensions and units preserved\n",props[i].name);
-    continue;
-   }
-  }
-#endif
   if (str_eq(props[i].name, "artwork-display-gamut")) {
    dt_prop(w, props[i].name, "sRGB", 5);
    continue;
@@ -1590,15 +1576,6 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
  }
  uint64_t this_mpidr = READ_SYSREG(MPIDR_EL1) & 0xFFFFFF, kernel_mpidr = this_mpidr;
  int more_cores = 0, battery_requested = 0;
-#if defined(XNU_PLATFORM_WAFFLE)
- waffle_hud_requested=0;
- for (const char *p=pi.cmdline;*p;) {
-  while (*p==' ') p++;
-  const char *end=p;while (*end && *end!=' ') end++;
-  waffle_hud_requested|=waffle_hud_token_allowed(p,(size_t)(end-p));
-  p=end;
- }
-#endif
  for (const char *c = pi.cmdline; *c; c++) {
   if (starts_with(c, "bootcpu=") && (c == pi.cmdline || c[-1] == ' ') && c[8] >= '0' && c[8] <= '7') {
    kernel_mpidr = platform_mpidr(PLAT, c[8] - '0');

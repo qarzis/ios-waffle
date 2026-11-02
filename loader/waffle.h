@@ -68,38 +68,11 @@ static inline int waffle_cpu_token_allowed(const char *word,size_t size)
     return 0;
 #endif
 }
-static inline int waffle_hud_token_allowed(const char *word,size_t size)
-{
-#if defined(WAFFLE_USERLAND)
-    return waffle_token_equal(word,size,"waffle_hud=1");
-#else
-    (void)word; (void)size; return 0;
-#endif
-}
-/* Experimental relocation of the existing five-word button descriptor.
- * Preserve dimensions, button extent and units; move only its vertical field.
- * The hardware experiment must prove that iOS uses this field for the HUD. */
-static inline int waffle_hud_location_candidate(const unsigned char *source,
-    size_t size,unsigned char output[20])
-{
-    if (size!=20) return 0;
-    uint32_t words[5];
-    for (unsigned i=0;i<5;i++) {
-        const unsigned char *p=source+4*i;
-        words[i]=(uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;
-    }
-    if (words[0]!=635000 || words[1]!=1349375 || words[3]!=105930 ||
-        words[4]!=10000 || (words[2]!=254000 && words[2]!=381000)) return 0;
-    words[2]+=160000;
-    for (unsigned i=0;i<5;i++) for (unsigned j=0;j<4;j++)
-        output[4*i+j]=(unsigned char)(words[i]>>(8*j));
-    return 1;
-}
 static inline int waffle_cmdline_allowed(const char *line)
 {
     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
-    unsigned soak=0,returns=0,gl_image=0,cpus=0,hud=0;
+    unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0;
     while (*line) {
         while (*line == ' ') line++;
         const char *end = line;
@@ -109,7 +82,9 @@ static inline int waffle_cmdline_allowed(const char *line)
         soak+=waffle_number(line,size,"loader_return_after=",660,660);
         returns+=waffle_return_token_allowed(line,size);
         cpus+=waffle_cpu_token_allowed(line,size);
-        hud+=waffle_hud_token_allowed(line,size);
+#if defined(WAFFLE_USERLAND)
+        torch+=waffle_token_equal(line,size,"waffle_torch=1");
+#endif
         gl_image+=waffle_token_equal(line,size,"waffle_image=13");
         matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
         measure+=waffle_token_equal(line,size,"waffle_gpu_measure=1");
@@ -135,11 +110,13 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_return_token_allowed(line, size) &&
             !waffle_number(line, size, "fbscale=", 1, 3) &&
             !waffle_cpu_token_allowed(line,size) &&
-            !waffle_hud_token_allowed(line,size) &&
+#if defined(WAFFLE_USERLAND)
+            !waffle_token_equal(line,size,"waffle_torch=1") &&
+#endif
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
     }
-    return cpus<=1 && hud<=1 && ((!matrix && !measure) ||
+    return cpus<=1 && torch<=1 && ((!matrix && !measure) ||
         (matrix<=1 && measure<=1 && gpu_count==1 && prepare93)) &&
         (!lpac || (lpac==1 && gpu_count==1 && (prepare93 || native94))) &&
         (!zap || (zap==1 && lpac==1 && gpu_count==1 && native94)) &&

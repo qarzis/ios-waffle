@@ -277,7 +277,10 @@ redwood_audio_init(void)
  report_call = thread_call_allocate(audio_report, NULL);
  audio_recording_init();
  uint32_t waffle = 0;
- if (PE_parse_boot_argn("waffle", &waffle, sizeof(waffle)) && waffle) return;
+ if (PE_parse_boot_argn("waffle", &waffle, sizeof(waffle)) && waffle) {
+  macan_torch_init();
+  return;
+ }
  macan_haptic_init();
  macan_torch_init();
 }

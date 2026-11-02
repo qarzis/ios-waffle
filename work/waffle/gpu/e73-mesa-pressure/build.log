@@ -1,0 +1,5 @@
+ninja: Entering directory `xnu-deps/build/mesa/build-26.3.0-rc1-softpipe-freedreno'
+[1/9] Generating src/git_sha1.h with a custom command
+[2/4] Compiling C object src/freedreno/drm/libfreedreno_drm.a.p/freedreno_bo.c.o
+[3/4] Linking static target src/freedreno/drm/libfreedreno_drm.a
+[4/4] Linking target src/gallium/targets/osmesa/libOSMesa.8.dylib

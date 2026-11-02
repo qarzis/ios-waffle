@@ -497,7 +497,7 @@ def main():
     parser.add_argument("--bootcpu", type=int, default=7, choices=range(1, 8))
     parser.add_argument("--cpus", type=int, choices=range(1, 8), help="XNU cores; one physical core remains with the resident USB loader")
     parser.add_argument("--capture-requests", type=Path, help="Read *.request screenshot requests; this runner alone owns fastboot")
-    parser.add_argument("--hud-button-offset", action="store_true", help="Experimental Waffle button-descriptor relocation")
+    parser.add_argument("--torch-readonly", action="store_true", help="Waffle v7 SPMI flash module identification; no PMIC writes")
     parser.add_argument("--fbscale", type=int, default=2, choices=(1, 2, 3), help="Render scale: 1 is faster, 2 is sharper")
     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
     parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
@@ -529,6 +529,7 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
     if args.gpu_ui and not args.gpu_gl_context:parser.error("--gpu-ui requires --gpu-gl-context")
     if args.seconds>300 and not (args.seconds==660 and args.gpu_ui and args.gpu_gl_context):parser.error("660 seconds is reserved for the bounded UI soak")
     if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
@@ -593,8 +594,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
-    if args.hud_button_offset:
-        arguments += " waffle_hud=1"
+    if args.torch_readonly:
+        arguments += " waffle_torch=1"
     if args.gpu_probe:
         arguments += f" waffle_gpu={args.gpu_probe}"
     if args.gpu_access_matrix:
@@ -937,6 +938,10 @@ def main():
                 raise RuntimeError(f"Native BCL feature not enabled; logs: {out}")
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
+            if args.torch_readonly and not all(s in final_text for s in (
+                    'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
+                    'torch: waffle read-only module=', 'no PMIC writes')):
+                raise RuntimeError(f"Waffle torch identification failed; logs: {out}")
             if args.cpus is not None and args.cpus>1:
                 counts=[int(n) for n in re.findall(r"GenericARMPE: (\d+) of \d+ processors are running",final_text)]
                 counts += [int(n) for n in re.findall(r"GenericARMPE: the slower cores started too: (\d+) processors running",final_text)]
