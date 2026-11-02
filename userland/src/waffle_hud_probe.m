@@ -21,6 +21,13 @@ static void views(UIView *view, UIWindow *window, unsigned depth)
         dprintf(console,"waffle-hud: view=%s window=%s rect=%.2f,%.2f,%.2f,%.2f hidden=%d alpha=%.2f\n",
                 name.UTF8String,NSStringFromClass(window.class).UTF8String,
                 r.origin.x,r.origin.y,r.size.width,r.size.height,view.hidden,view.alpha);
+        if ([name isEqualToString:@"SBElasticVolumeSliderView"]) {
+            CGPoint point=CGPointMake(CGRectGetMidX(r),CGRectGetMidY(r));
+            UIView *hit=[window hitTest:point withEvent:nil];
+            dprintf(console,"waffle-hud: slider center hit=%s descendant=%d model_y=%.2f\n",
+                    hit ? NSStringFromClass(hit.class).UTF8String : "nil",
+                    hit ? [hit isDescendantOfView:view] : 0,point.y);
+        }
     }
     for (UIView *child in view.subviews) views(child,window,depth+1);
 }

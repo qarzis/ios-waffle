@@ -497,6 +497,7 @@ def main():
     parser.add_argument("--bootcpu", type=int, default=7, choices=range(1, 8))
     parser.add_argument("--cpus", type=int, choices=range(1, 8), help="XNU cores; one physical core remains with the resident USB loader")
     parser.add_argument("--capture-requests", type=Path, help="Read *.request screenshot requests; this runner alone owns fastboot")
+    parser.add_argument("--hud-button-offset", action="store_true", help="Experimental Waffle button-descriptor relocation")
     parser.add_argument("--fbscale", type=int, default=2, choices=(1, 2, 3), help="Render scale: 1 is faster, 2 is sharper")
     parser.add_argument("--reuse-system", action="store_true", help="Reuse the system image in this same loader session")
     parser.add_argument("--gpu-probe", type=int, choices=range(1, 95), help="Probe SM8650 GPU power/clocks/SMMU/firmware or AOP QMP; return before iOS starts")
@@ -592,6 +593,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
+    if args.hud_button_offset:
+        arguments += " waffle_hud=1"
     if args.gpu_probe:
         arguments += f" waffle_gpu={args.gpu_probe}"
     if args.gpu_access_matrix:
@@ -640,6 +643,10 @@ def main():
         if args.capture_requests:
             for request in sorted(args.capture_requests.glob('*.request')):
                 if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',request.stem):
+                    continue
+                if request.stem=='stop':
+                    command('oem','stop')
+                    request.rename(request.with_suffix('.done'))
                     continue
                 screen=out/f'requested-{request.stem}.raw'
                 command('oem','screenshot')

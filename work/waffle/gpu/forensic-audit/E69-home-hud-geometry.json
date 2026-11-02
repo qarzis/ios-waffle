@@ -1,0 +1,74 @@
+{
+  "run": "work/waffle/runs/20261102T075156Z",
+  "actual_class": "SBElasticVolumeSliderView",
+  "actual_window": "SBHUDWindow",
+  "unique_geometry_records": [
+    {
+      "x": 10.01,
+      "y": 50.03,
+      "width": 46.98,
+      "height": 147.94,
+      "center_y": 124.0,
+      "first_snapshot": "kernel-145.log"
+    },
+    {
+      "x": -1.01,
+      "y": 62.99,
+      "width": 38.75,
+      "height": 122.01,
+      "center_y": 123.995,
+      "first_snapshot": "kernel-145.log"
+    },
+    {
+      "x": -34.23,
+      "y": 66.07,
+      "width": 36.8,
+      "height": 115.87,
+      "center_y": 124.005,
+      "first_snapshot": "kernel-146.log"
+    },
+    {
+      "x": 10.19,
+      "y": 53.29,
+      "width": 44.91,
+      "height": 141.41,
+      "center_y": 123.995,
+      "first_snapshot": "kernel-229.log"
+    },
+    {
+      "x": 8.35,
+      "y": 51.68,
+      "width": 45.93,
+      "height": 144.64,
+      "center_y": 124.0,
+      "first_snapshot": "kernel-230.log"
+    },
+    {
+      "x": -67.64,
+      "y": 76.45,
+      "width": 30.2,
+      "height": 95.1,
+      "center_y": 124.0,
+      "first_snapshot": "kernel-230.log"
+    }
+  ],
+  "center_y_median": 124.0,
+  "center_y_min": 123.995,
+  "center_y_max": 124.005,
+  "screen_points": [
+    375,
+    812
+  ],
+  "scale": 2,
+  "native_screenshot_files": [
+    "hud-pulse-0.raw",
+    "hud-pulse-1.raw"
+  ],
+  "source_log_sha256": {
+    "kernel-145.log": "cdd2bd77dfc4cef8023d17e3f18c284e66a0aaac58c5a31939af573be7363464",
+    "kernel-146.log": "e60e461748802dc99fd28129fbf15d8e8a99f1ec5a91feb511c85ffb457f9977",
+    "kernel-229.log": "c3e04ce8de4a04a6c42eecf0ab8d38e58523b0c624761789544874bb8e35e9c2",
+    "kernel-230.log": "f5efa6d54a6e9e277f9efc3747b420a01044464c7a347daf9c9aa76d7109e723"
+  },
+  "global_DPI_mismatch_observed": false
+}

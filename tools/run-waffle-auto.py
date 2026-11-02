@@ -21,7 +21,8 @@ def main():
     parser.add_argument('--artifact', type=Path, required=True)
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), default=2, help='XNU cores for --cpu-ui-test; resident loader owns the eighth core')
-    parser.add_argument('--cpu-seconds', type=int, choices=(60,180,240), default=60, help='Bounded CPU/UI observation window')
+    parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
+    parser.add_argument('--hud-button-offset', action='store_true', help='Controlled Waffle button descriptor experiment; CPU UI test only')
     parser.add_argument('--prepare-gpu', action='store_true', help='Run existing probe93; no RAW')
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
@@ -52,6 +53,7 @@ def main():
     parser.add_argument('--ui-long-test',action='store_true',help='Four-minute bounded UI with300-second kernel return; requires matching240-second UI root')
     parser.add_argument('--ui-soak-test',action='store_true',help='Ten-minute UI with660-second return; requires matching600-second root and generation handles')
     args = parser.parse_args()
+    if args.hud_button_offset and not args.cpu_ui_test:parser.error('--hud-button-offset requires --cpu-ui-test')
     if args.cpu_ui_test and any((args.prepare_gpu,args.lpac_cp_init,args.gl_context,args.ui_workload,args.compute,args.session,args.lpac_map,args.access_matrix,args.measure_clocks,args.image,args.image_copy,args.image_present,args.copy_jobs,args.worker,args.user_copy,args.data_bo,args.glsl,args.user_va,args.msm,args.mesa_transport,args.mapped,args.dynamic_bo,args.ib,args.writeback,args.zap,args.ui_long_test,args.ui_soak_test)):
         parser.error('--cpu-ui-test must run separately from GPU experiments')
     if args.ui_workload and not args.gl_context:parser.error('--ui-workload requires --gl-context')
@@ -180,6 +182,9 @@ def main():
             requests=output/'capture-requests'
             requests.mkdir()
             items=[sys.executable,'scripts/run_waffle_ios.py','--seconds',str(args.cpu_seconds),'--cpus',str(args.cpus),'--kernel',str(artifact/'kernel'),'--root',str(cpu_root),'--fastboot',args.fastboot,'--capture-requests',str(requests)]
+            if args.hud_button_offset:
+                if not manifest.get('hud_button_offset_loader'):raise RuntimeError('Artifact lacks the HUD descriptor policy')
+                items.append('--hud-button-offset')
             result=command(items,timeout=args.cpu_seconds+240)
             report['cpu_ui_test']=True
             report['requested_cpus']=args.cpus

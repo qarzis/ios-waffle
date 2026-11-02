@@ -1,0 +1,14 @@
+{
+  "run": "work/waffle/runs/20261102T080041Z",
+  "both_modified_descriptors_verified": true,
+  "baseline_center_y": 124.0,
+  "candidate_center_y_median": 124.0025,
+  "candidate_center_y_range": [
+    123.99499999999999,
+    124.13999999999999
+  ],
+  "hypothesis_refuted": true,
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "conclusion": "Changing donor button location words did not move the side HUD. Withdraw this candidate; do not repeat without new evidence."
+}

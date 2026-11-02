@@ -3,15 +3,37 @@
 #include "../../loader/platform.h"
 #include "../../loader/waffle.h"
 #include "../../loader/waffle-memory.h"
+#include "../../loader/identity.h"
 
 int main(void)
 {
 #if defined(WAFFLE_USERLAND)
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=2 loader_return_after=60"));
     assert(waffle_cmdline_allowed("bootcpu=7 cpus=7 fbscale=2"));
+    assert(waffle_cmdline_allowed("bootcpu=7 cpus=4 waffle_hud=1"));
 #else
     assert(!waffle_cmdline_allowed("cpus=2"));
+    assert(!waffle_cmdline_allowed("waffle_hud=1"));
 #endif
+    assert(!waffle_cmdline_allowed("waffle_hud=1 waffle_hud=1"));
+    assert(!waffle_cmdline_allowed("waffle_hud=2"));
+    (void)identity_root; (void)identity_root_data;
+    unsigned locations=0;
+    for (unsigned n=0;n<sizeof(identity_product)/sizeof(identity_product[0]);n++) {
+        const struct identity_prop *p=&identity_product[n];
+        if (strcmp(p->name,"volume-up-button-location") && strcmp(p->name,"volume-down-button-location")) continue;
+        const unsigned char *source=identity_product_data+p->offset;
+        unsigned char changed[20],bad[20];uint32_t before,after;
+        assert(waffle_hud_location_candidate(source,p->length,changed));
+        memcpy(&before,source+8,4);memcpy(&after,changed+8,4);
+        assert(after==before+160000 && !memcmp(source,changed,8) && !memcmp(source+12,changed+12,8));
+        assert(!waffle_hud_location_candidate(source,19,changed));
+        assert(!waffle_hud_location_candidate(source,21,changed));
+        memcpy(bad,source,20);bad[16]^=1;
+        assert(!waffle_hud_location_candidate(bad,20,changed));
+        locations++;
+    }
+    assert(locations==2);
     assert(!waffle_cmdline_allowed("cpus=0"));
     assert(!waffle_cmdline_allowed("cpus=9"));
     assert(!waffle_cmdline_allowed("cpus=2 cpus=3"));
