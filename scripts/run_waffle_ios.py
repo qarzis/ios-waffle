@@ -229,6 +229,13 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     release=releases[0]
     if any(m.groups()!=release.groups() for m in releases):raise RuntimeError("Conflicting GL release counts")
     if va_budget is None:va_budget=budget
+    object_limits=set(re.findall(r'object_max_bytes=([^\s]+)',text))
+    object_max=10*1024*1024  # Prior qualified object bound, including E98.
+    if object_limits:
+        if (object_limits!={'201326592'} or capacity!=8192 or
+            budget!=201326592 or va_budget!=268435456):
+            raise RuntimeError("Unqualified GL object/heap/VA bound declaration")
+        object_max=201326592
     generations=gl_generation_handles(text)
     buffers={};active={};seen={};used=0;retired=0;retired_indices=set();append_end=0x100000000
     for event in re.finditer(f"(?P<publication>{publication})|(?P<reclaim>{reclaim})",text):
@@ -244,7 +251,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             va,logical,allocated,flags,pages=int(values[1],16),int(values[2]),int(values[3]),int(values[4],16),int(values[5])
             if index!=len(buffers)+1 or index>0xffffffff or (index>capacity and not generations):raise RuntimeError("Missing GL BO publication")
             if len(active)>=capacity:raise RuntimeError("Live GL BO descriptor capacity exceeded")
-            if (not 0<logical<=8*1024*1024 or allocated!=((logical+16383)&~16383) or
+            if (not 0<logical<=object_max or allocated!=((logical+16383)&~16383) or
                 flags not in (0x20000,0x20002) or pages!=allocated//4096 or va&16383 or
                 va<0x100000000 or va+allocated>0x100000000+va_budget):
                 raise RuntimeError("Invalid GL BO range/permission publication")
@@ -658,6 +665,8 @@ def main():
     deadline = time.monotonic() + args.seconds + 90
     ui_started=time.monotonic()
     ui_screenshots=set()
+    ui_animation_seen=set()
+    ui_animation_pending=[]
     ui_events=set()
     hud_pulses=set()
     slider_huds=set()
@@ -706,6 +715,22 @@ def main():
                     time.sleep(.15)
                     command("oem","screenshot")
                     command("get_staged",out/f"focus-banner-{enabled}-{change}.raw")
+        if args.gpu_ui:
+            # Capture settled output, not just a live scanout during motion.
+            for pid,step,bundle in re.findall(r"waffle-ui-animation: pid=(\d+) step=(\d+) bundle=([A-Za-z0-9_.]+) accepted=1 state=returned",log_path.read_text(errors="replace")):
+                key=(pid,step)
+                if 1<=int(step)<=5 and key not in ui_animation_seen and len(ui_animation_seen)<5:
+                    ui_animation_seen.add(key)
+                    for delay in (2,4):
+                        ui_animation_pending.append((time.monotonic()+delay,pid,step,delay,bundle))
+            for capture in list(ui_animation_pending):
+                due,pid,step,delay,bundle=capture
+                if time.monotonic()>=due:
+                    screen=out/f"animation-{pid}-{step}-{delay}s.raw"
+                    command("oem","screenshot")
+                    command("get_staged",screen)
+                    screen.with_suffix('.json').write_text(json.dumps({'bundle':bundle,'launch_step':int(step),'delay_after_observed_return_seconds':delay,'capture_is_live_scanout':True})+'\n')
+                    ui_animation_pending.remove(capture)
         if args.gpu_ui:
             # Preserve early evidence before the finite console log fills.
             with (out/"ui-gpu-events.log").open("a") as events:

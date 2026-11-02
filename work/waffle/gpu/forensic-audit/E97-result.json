@@ -1,0 +1,11 @@
+{
+  "experiment": "E97 allocation argument trace + scoped iOS16 module",
+  "passed": false,
+  "root_cause_confirmed": "10MiB BO requests rejected by8MiB per-object guard while live_bytes below192MiB",
+  "completed": 23101,
+  "lifetime_buffers": 27248,
+  "full_context_close": true,
+  "android_independent": 1,
+  "wallpaper_visible": true,
+  "tearing_remaining": true
+}

@@ -25,6 +25,7 @@ def main():
  parser.add_argument('--base-kit',type=Path,default=ROOT/'work/waffle/posterboard/client-gl-kit')
  parser.add_argument('--posterboard-providers',action='store_true',help='Restore the qualified duetexpertd/mobileassetd provider configuration')
  parser.add_argument('--service-audit',action='store_true',help='Read-only actual Focus/ringer/Poster service interface discovery')
+ parser.add_argument('--animation-probe',action='store_true',help='Opt-in five timed native application launches for presentation A/B tests')
  parser.add_argument('--poster-inventory',action='store_true',help='Read-only actual wallpaper collection and logical-screen inventory')
  parser.add_argument('--ios16-wallpaper',action='store_true',help='Test scoped availability of bundled iOS16 artwork for375x812@2x')
  parser.add_argument('--focus-diagnostic',action='store_true',help='Three read-only stack samples of donotdisturbd')
@@ -34,6 +35,7 @@ def main():
  parser.add_argument('--mesa-library',type=Path,help='Use an explicitly bound candidate Mesa library')
  parser.add_argument('--reclaim-on-oom',action='store_true',help='Opt in to one bounded BO-cache purge/retry in candidate Mesa')
  args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)
+ if args.animation_probe and not args.service_audit:parser.error('--animation-probe requires --service-audit')
  if args.slider_control and not args.slider_monitor:parser.error('--slider-control requires --slider-monitor')
  if args.slider_monitor and not args.service_audit:parser.error('--slider-monitor requires --service-audit')
  if args.poster_inventory and not args.service_audit:parser.error('--poster-inventory requires --service-audit')
@@ -90,7 +92,7 @@ def main():
   (jobs/'org.waffle.focus-diag.plist').write_bytes(plistlib.dumps(dict(Label='org.waffle.focus-diag',ProgramArguments=['/redwood/bin/focus_diag','--focus'],RunAtLoad=True,KeepAlive=False,StandardOutPath='/dev/console',StandardErrorPath='/dev/console')))
  if args.service_audit:
   helper=out/'libwaffle-service-audit.dylib'
-  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-fobjc-arc',*(['-DWAFFLE_SLIDER_CONTROL'] if args.slider_control else []),'-dynamiclib','-framework','Foundation',*(['-framework','UIKit'] if args.ios16_wallpaper else []),str(ROOT/'userland/src/waffle_service_audit.m'),*([str(ROOT/'userland/src/waffle_slider_control.m')] if args.slider_control else []),*([str(ROOT/'userland/src/waffle_slider.m')] if args.slider_monitor else []),*([str(ROOT/'userland/src/waffle_poster_inventory.m')] if args.poster_inventory else []),*([str(ROOT/'userland/src/inject_waffle_wallpaper.m')] if args.ios16_wallpaper else []),'-o',str(helper)])
+  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-fobjc-arc',*(['-DWAFFLE_SLIDER_CONTROL'] if args.slider_control else []),'-dynamiclib','-framework','Foundation',*(['-framework','UIKit'] if args.ios16_wallpaper else []),str(ROOT/'userland/src/waffle_service_audit.m'),*([str(ROOT/'userland/src/waffle_ui_animation_probe.m')] if args.animation_probe else []),*([str(ROOT/'userland/src/waffle_slider_control.m')] if args.slider_control else []),*([str(ROOT/'userland/src/waffle_slider.m')] if args.slider_monitor else []),*([str(ROOT/'userland/src/waffle_poster_inventory.m')] if args.poster_inventory else []),*([str(ROOT/'userland/src/inject_waffle_wallpaper.m')] if args.ios16_wallpaper else []),'-o',str(helper)])
   pf.add_file(tree,'lib/libwaffle-service-audit.dylib',str(helper),mode=0o100755)
   injection=pf.node_at(tree,'etc/inject.conf');assert injection and injection.source
   config=scratch/'inject.conf';lines=[]
@@ -119,12 +121,14 @@ def main():
  if args.slider_monitor:sources.append('userland/src/waffle_slider.m')
  if args.cpu_proof:sources.append('userland/src/cpu_test.c')
  if args.service_audit:sources.append('userland/src/waffle_service_audit.m')
+ if args.animation_probe:sources.append('userland/src/waffle_ui_animation_probe.m')
  if args.poster_inventory:sources.append('userland/src/waffle_poster_inventory.m')
  if args.ios16_wallpaper:sources.append('userland/src/inject_waffle_wallpaper.m')
  manifest=dict(experiment='E46 first actual backboardd GPU workload; no UI success claim',hardware_tested=False,RAM_only=True,normal_image_mutated=False,GPU_process='backboardd',GPU_process_uid=501,device_mode='0600',process_stop_seconds=30,job_KeepAlive=False,other_processes_softpipe=True,root_sha256=hashlib.sha256(root.read_bytes()).hexdigest(),root_bytes=root.stat().st_size,inject_sha256=hashlib.sha256(inject.read_bytes()).hexdigest(),hook_sha256=hashlib.sha256(hook.read_bytes()).hexdigest(),mesa_sha256=hashlib.sha256(mesa.read_bytes()).hexdigest(),firmware=firmware,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources})
  manifest['process_stop_seconds']=args.stop_seconds
  manifest['posterboard_providers']=args.posterboard_providers
  manifest['service_audit']=args.service_audit
+ manifest['animation_probe']=args.animation_probe
  manifest['poster_inventory']=args.poster_inventory
  manifest['ios16_wallpaper']=args.ios16_wallpaper
  manifest['cpu_proof']=args.cpu_proof

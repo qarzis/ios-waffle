@@ -1,0 +1,13 @@
+{
+  "stage": "A12 remote intent cache",
+  "passed": false,
+  "transport_fixed": true,
+  "graph_acknowledged": true,
+  "graph_status": 1,
+  "kernel_run": "work/waffle/runs/20261102T193654Z",
+  "auto_run": "work/waffle/auto-runs/20261102T193630Z",
+  "PAS1_shutdown": true,
+  "PAS36_shutdown": true,
+  "android_independent_boot_completed": 1,
+  "raw_log_sha256": "c6a5f625afb935629b421fef8812005a1e72fe1fcf8627df2f21eacb5a492efe"
+}

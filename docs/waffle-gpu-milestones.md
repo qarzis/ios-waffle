@@ -1,7 +1,7 @@
 # OnePlus 12 GPU progress
 
 Adreno 750 runs actual CoreAnimation/backboardd composition through Darwin Mesa.
-The latest RAM-only UI session completed its planned **600-second** window,
+The longest bounded RAM-only UI session completed its planned **600-second** window,
 **1,670 GPU submissions**, and full GPU shutdown. It was mostly idle after
 desktop startup, with periodic clock updates. This is not a continuous load or
 FPS benchmark. Native captures show the desktop, icons and Calendar text.
@@ -161,3 +161,28 @@ entitlements. Physical vibration and speaker output remain unsupported.
 [state and banner journal](../work/waffle/gpu/forensic-audit/E95-slider-components.log).
 Android recovery was independently confirmed. Original GPU runner exit1 is
 retained; these peripheral checks do not establish overall GPU stability.
+
+## Current allocation and presentation investigation — November 2
+
+- A fully offscreen layer could enter filtering with an empty clipped interval
+  and read outside memory. The actual layer/row code reproduces the fault under
+  ASan; the clipping guard passes 40 independent pixel/canary cases.
+- Native Mesa requests of 10 and 12 MiB were rejected by the old 8 MiB object
+  limit while aggregate residency still had room. The object bound now follows
+  the existing 192 MiB heap; physical residency, 256 MiB VA, 8,192 slots and
+  160 translation tables are unchanged. Host tests cover every PTE of a single
+  192 MiB object, full-budget refusal, revocation and reuse.
+- E100 completed 20,251 GPU commands and full context cleanup. Its original
+  strict runner failure remains recorded because the rolling-log collector
+  lacked complete Dynamic BO proof. This is not an end-to-end UI pass.
+- A display IOSurface usage lease is implemented as a candidate, disabled by
+  default. Hardware VSync/page flipping, animation correctness and an FPS gain
+  remain unqualified. The optional native application-launch probe is also
+  experimental; its first system launch request was declined.
+
+Desktop wallpaper improvement does not establish that wallpaper previews or
+app-opening animations are fixed. Raw loader screenshots read live scanout,
+so a capture during movement can itself combine multiple frames. Completed
+rolling logs can be packed with `tools/archive-waffle-run-logs.py`; every archive
+member is hash-verified before loose snapshots are removed. Final logs and
+results are retained.

@@ -1,0 +1,11 @@
+[   25.269931]: adsp: GPR reply opcode=0x2001007 token=1 bytes=4 words=0x1,0
+[   25.269940]: adsp: APM_GRAPH request opcode=0x1001000 token=2 bytes=344 no_DMA=1 no_hw_endpoint=1
+[   25.272230]: adsp: GPR reply opcode=0x2001005 token=2 bytes=8 words=0x1001000,0
+[   25.272233]: adsp: APM_GRAPH response opcode=0x1001000 token=2 acknowledged=1 status=0
+[   25.272236]: adsp: APM_GRAPH request opcode=0x1001004 token=3 bytes=64 no_DMA=1 no_hw_endpoint=1
+[   25.274526]: adsp: GPR reply opcode=0x2001005 token=3 bytes=8 words=0x1001004,0
+[   25.274530]: adsp: APM_GRAPH response opcode=0x1001004 token=3 acknowledged=1 status=0
+[   25.274533]: adsp: APM_GRAPH lifecycle=1 modules=write_shmem/read_shmem connection=1 no_DMA=1 no_PCM=1 amps_off=1
+[   25.974661]: adsp: PAS 1 shutdown=OK
+[   25.975219]: adsp: PAS 36 shutdown=OK
+[   25.975493]: adsp: WAFFLE DSP_BOOT result=1 stop_clean=1; GPR graph lifecycle, no PCM or amplifier startup

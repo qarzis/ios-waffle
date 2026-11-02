@@ -26,7 +26,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | Packages | ⚪ | Sileo and tweaks unverified |
 | Dynamic Island | ⚪ | Unverified |
 | 120 Hz | ⚪ | Unverified |
-| Sound | ❌ | DSP ready; playback pending |
+| Sound | ❌ | DSP and APM graph verified; playback pending |
 | Microphone | ❌ | |
 | Camera | ❌ | |
 | Sensors | ❌ | |

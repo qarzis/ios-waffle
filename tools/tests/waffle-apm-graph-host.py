@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare graph packets byte-for-byte with pinned Linux AudioReach builders."""
+"""Compare Linux graph serialization with explicit modern GC type selection."""
 import argparse
 from pathlib import Path
 import re
@@ -89,7 +89,16 @@ int main(void) {
  struct gpr_pkt *reference=audioreach_alloc_graph_pkt(NULL,&info);assert(!IS_ERR(reference));
  uint32_t packet[128];memset(packet,0xa5,sizeof(packet));
  size_t size=waffle_apm_packet(packet,sizeof(packet),WAFFLE_APM_GRAPH_OPEN,0);
- assert(size==344 && reference->hdr.pkt_size==size && !memcmp(reference,packet,size));free(reference);
+ assert(size==344 && reference->hdr.pkt_size==size);
+ unsigned differences=0;
+ for(unsigned i=0;i<size/4;i++)if(((uint32_t *)reference)[i]!=packet[i]){
+  assert(i>=3 && packet[i-3]==0x08001011 && packet[i-2]==8 && packet[i-1]==1);
+  assert(((uint32_t *)reference)[i]==1 && packet[i]==WAFFLE_APM_CONTAINER_TYPE_GC);differences++;
+ }
+ assert(differences==1);free(reference);
+ cont.capability_id=WAFFLE_APM_CONTAINER_TYPE_GC;
+ reference=audioreach_alloc_graph_pkt(NULL,&info);assert(!IS_ERR(reference));
+ assert(!memcmp(reference,packet,size));free(reference);
  struct audioreach_graph graph={.info=&info};assert(!audioreach_graph_mgmt_cmd(&graph,APM_CMD_GRAPH_CLOSE));
  size=waffle_apm_packet(packet,sizeof(packet),WAFFLE_APM_GRAPH_CLOSE,0);
  assert(size==64 && close_size==size && !memcmp(reference_close,packet,size));
@@ -97,7 +106,7 @@ int main(void) {
  for(unsigned i=0;i<128;i++) assert(packet[i]==0xa5a5a5a5);
  assert(!waffle_apm_packet(packet,sizeof(packet),0x01001013,0));
  assert(waffle_apm_packet(packet,sizeof(packet),WAFFLE_APM_GRAPH_OPEN,17)==344 && packet[4]==17);
- puts("PASS: APM OPEN344/CLOSE64 byte-identical to actual Linux v6.12 builders; no DMA addresses; buffer capacity/unsupported command refusal and token publication checked");
+ puts("PASS: OPEN344 differs from legacy Linux by exactly one type word; byte-identical serializer with explicit modernGC input; CLOSE64 unchanged. No DMA addresses; capacity/opcode/token checked; native firmware unqualified.");
 }
 '''
     with tempfile.TemporaryDirectory(prefix='waffle-apm-host-') as temp:

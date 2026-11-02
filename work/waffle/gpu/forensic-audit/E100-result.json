@@ -1,0 +1,17 @@
+{
+  "experiment": "E100 object limit tied to unchanged aggregate heap",
+  "passed": false,
+  "completed": 20251,
+  "lifetime_buffers": 6883,
+  "full_context_close": true,
+  "android_independent": 1,
+  "original_runner_exit": 1,
+  "collector_failure": "Dynamic BO publication/use/release not confirmed",
+  "max_object_bytes": 201326592,
+  "physical_budget_bytes": 201326592,
+  "virtual_budget_bytes": 268435456,
+  "display_usage_candidate_enabled": false,
+  "object_size_refusal_recorded": false,
+  "registry_pressure_recorded": true,
+  "raw_log_sha256": "2ad8fa4f35c99f9765a42d942d3c9f0eb01b24325e030a9ee1a67031c6238c69"
+}

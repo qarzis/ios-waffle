@@ -1,7 +1,7 @@
 # OnePlus 12 audio bring-up
 
-The OnePlus 12 PJD110 now passes a bounded ADSP firmware boot, GPR state query,
-and shutdown test in XNU. **iOS audio playback is not implemented yet.**
+The OnePlus 12 PJD110 passes bounded ADSP boot, GPR state query, APM graph
+open/close and shutdown tests in XNU. **iOS audio playback is not implemented yet.**
 
 ## Verified on hardware
 
@@ -50,7 +50,7 @@ continuation loop. Hardware results are recorded separately from build results.
 |---|---|
 | Signed firmware lifecycle | Verified in A09 |
 | SMP2P, GLINK, QRTR and GPR control transport | Verified in A09 |
-| AudioReach/APM PCM graph | Prototype; graph send blocked in GLINK |
+| AudioReach/APM control graph | WR_SHMEM → RD_SHMEM open/close verified in A13; no PCM transfer |
 | DSP PCM buffer mapping and period completion | Missing |
 | Native speaker route and TFA amplifier initialization | Not ported |
 | Connection to the iOS PCM sink | Missing |
@@ -65,24 +65,31 @@ revision `38d50357db2728300a61b6f757f2d3a09651c155`.
 Firmware and amplifier containers are obtained from the connected phone and are
 not included in the repository.
 
-## Graph prototype: A10/A11
+## Graph transport and firmware ABI: A10–A13
 
 The prototype connects WR_SHMEM to RD_SHMEM without a hardware endpoint or DMA.
-Its 344-byte GRAPH_OPEN and 64-byte GRAPH_CLOSE packets compare byte-for-byte
-with the actual Linux v6.12 AudioReach builders at revision
-`adc218676eef25575469234709c2d87185ca223a`. GPR parser sanitizer tests cover
-token/opcode correlation, malformed/stale replies and the existing SPF query.
+The 344-byte GRAPH_OPEN and 64-byte GRAPH_CLOSE use the actual Linux v6.12
+serializers at revision `adc218676eef25575469234709c2d87185ca223a` as a reference.
+GPR parser sanitizer tests cover token/opcode correlation, malformed/stale
+replies and the existing SPF query.
 
-In A10, DSP boot and SPF state succeeded, but `glink_send` failed before the graph
-packet was published. No APM graph reply was received. The exact transport error
-was not yet logged, so the graph format has not been blamed or changed. PAS
-shutdown and return to Android succeeded; the graph test remains failed.
+In A10/A11, the graph was not delivered: 64 small unused remote intents filled
+the local cache, which discarded larger advertised intents. A11 measured
+`ENOBUFS`, despite a granted request and adequate FIFO space. A12 retained larger
+unused credits without increasing the table or replacing in-flight entries.
+The graph then reached the DSP, which returned status `1`.
 
-A11 adds intent-table overflow, remote-intent/request state, FIFO-room and send
-error logging. Its XNU compilation passed; UEFI packaging was stopped by the user
-and A11 has not been tested on the phone. This is diagnostic work in progress,
-not PCM playback support. The next test should establish the transport failure
-before changing allocation or packet format.
+A13 changed exactly one 32-bit field: legacy PP capability `1` became the modern
+generic-container type `0x0B001001`. The pinned AudioReach parser and container
+factory establish this distinction; the actual firmware confirmed it. On
+2026-11-02 at 20:33:37 UTC, OPEN/token2 and CLOSE/token3 both returned status `0`.
+PAS1/PAS36 shutdown, normal XNU return and independent Android recovery passed.
+No DMA, PCM, hardware endpoint or amplifier startup occurred.
+
+Host tests compare the legacy and modern packets for exactly one changed word,
+then compare modern serialization byte-for-byte. The container-factory test
+uses `AudioReach/audioreach-engine` tree
+`b38cb85a1a2543aa28aa1b27f4c380cafa5024bb`.
 
 Native audio DMA uses Apps SMMU streams `0x1001/0x1061`; the redwood `0x1801`
 mapping is inapplicable. Buffer mapping and completion events remain unimplemented.

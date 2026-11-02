@@ -1,0 +1,13 @@
+{
+  "experiment": "E98 single-object10MiB",
+  "passed": false,
+  "completed": 42371,
+  "lifetime_buffers": 17246,
+  "controlled_stop": true,
+  "android_independent": 1,
+  "user_wallpaper_background_clean": true,
+  "user_wallpaper_preview_corrupt": true,
+  "user_all_app_open_animation_black": true,
+  "next_proven_refused_size": 12582912,
+  "raw_log_sha256": "eef378133b18ad0a2df1b859b96909d33a8acc7194df0b0c40beab93013f86cc"
+}

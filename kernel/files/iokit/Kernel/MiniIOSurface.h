@@ -97,6 +97,7 @@ public:
  struct minisurf_plane planes[MINISURF_MAX_PLANES];
  OSDictionary * values;
  uint32_t useCount[2];
+ uint32_t displayUses;
  uint32_t purgeable;
  bool traced;
  virtual bool
@@ -123,6 +124,9 @@ public:
  void updateValuesState(void);
 };
 MiniIOSurface * MiniIOSurfaceCopy(uint32_t sid);
+/* Display reads must also prevent native IOSurface pool recycling. */
+MiniIOSurface * MiniIOSurfaceCopyForDisplay(uint32_t sid);
+void MiniIOSurfaceDropForDisplay(MiniIOSurface * surface);
 void MiniIOSurfaceCost(uint32_t * made, uint64_t * making, uint32_t * freed, uint64_t * freeing, uint32_t * again);
 void MiniIOSurfaceClearKept(void);
 bool MiniIOSurfaceDrawn(MiniIOSurface * surface, uint64_t milliseconds);

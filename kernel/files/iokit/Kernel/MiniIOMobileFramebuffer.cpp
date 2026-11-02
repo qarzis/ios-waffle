@@ -104,6 +104,9 @@ micros(uint64_t absolute)
 }
 static TUNABLE(uint32_t, gMacan, "macan", 0);
 static TUNABLE(uint32_t, gWaffle, "waffle", 0);
+/* Keep the independently testable display-usage candidate off while the
+ * compositor allocation experiment is qualified. */
+static TUNABLE(uint32_t, gWaffleDisplayUse, "waffle_display_use", 0);
 static TUNABLE(uint32_t, gWaffleTorch, "waffle_torch", 0);
 static TUNABLE(uint32_t, gMacan14, "macan_14pm", 0);
 static inline uint32_t
@@ -677,7 +680,10 @@ IOMobileFramebuffer::drawLayer(MiniIOSurface * s, const int32_t * src, const int
  py0 = (int32_t) ((int64_t) dy * fPanelHeight / fHeight);
  px1 = (int32_t) ((int64_t) (dx + dw) * fPanelWidth / fWidth);
  py1 = (int32_t) ((int64_t) (dy + dh) * fPanelHeight / fHeight);
- if (px1 <= px0 || py1 <= py0) {
+ /* Reject invisible rectangles before the filtered row path indexes its
+  * clipped column interval. An entirely offscreen layer has no columns. */
+ if (px1 <= px0 || py1 <= py0 || px1 <= 0 || py1 <= 0 ||
+     px0 >= (int32_t) fPanelWidth || py0 >= (int32_t) fPanelHeight) {
   return;
  }
  if (filter && fBlendRowSize < (uint32_t) sw) {
@@ -806,7 +812,8 @@ IOMobileFramebuffer::present(const uint8_t * swap)
  memcpy(fSwap[slot], swap, SWAP_SIZE);
  for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
   uint32_t sid = swapWord(swap, SWAP_SURFACE(layer));
-  fSwapSurfaces[slot][layer] = sid != 0 ? MiniIOSurfaceCopy(sid) : NULL;
+  fSwapSurfaces[slot][layer] = sid == 0 ? NULL :
+      gWaffle && gWaffleDisplayUse ? MiniIOSurfaceCopyForDisplay(sid) : MiniIOSurfaceCopy(sid);
  }
  fSwapsWaiting++;
  IOLockWakeup(fSwapLock, fSwap, true);
@@ -833,7 +840,11 @@ IOMobileFramebuffer::presenter(void)
   show(swap, surfaces);
   for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
    if (surfaces[layer] != NULL) {
-    MiniIOSurfaceDrop(surfaces[layer]);
+    if (gWaffle && gWaffleDisplayUse) {
+     MiniIOSurfaceDropForDisplay(surfaces[layer]);
+    } else {
+     MiniIOSurfaceDrop(surfaces[layer]);
+    }
    }
   }
   MiniIOSurfaceClearKept();
@@ -934,6 +945,10 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
   }
   if (s == NULL) {
    continue;
+  }
+  if (gWaffle && report) {
+   IOLog("MiniIOMobileFramebuffer: display read surface %u usage_enabled=%u holds=%u system_use=%llu\n",
+       sid, gWaffleDisplayUse, s->displayUses, (unsigned long long) s->shared()->useCount);
   }
   if (s->info.bytesPerElement == 4 && s->info.planeCount == 0) {
    if (!fGraphics) {
