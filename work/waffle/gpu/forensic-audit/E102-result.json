@@ -1,0 +1,13 @@
+{
+  "experiment": "E102 background LaunchServices requests",
+  "passed": false,
+  "host_interrupted": true,
+  "kernel_result_at_recovery": "running 0 0",
+  "controlled_GPU_stop": true,
+  "completed": 23197,
+  "lifetime_buffers": 5347,
+  "full_context_close": true,
+  "android_independent": 1,
+  "tests_real_icon_animation": false,
+  "user_clarification": "black only during icon expansion, normal application after transition"
+}

@@ -104,9 +104,8 @@ micros(uint64_t absolute)
 }
 static TUNABLE(uint32_t, gMacan, "macan", 0);
 static TUNABLE(uint32_t, gWaffle, "waffle", 0);
-/* Keep the independently testable display-usage candidate off while the
- * compositor allocation experiment is qualified. */
-static TUNABLE(uint32_t, gWaffleDisplayUse, "waffle_display_use", 0);
+/* Waffle display consumer lease: held until CPU presentation completes. */
+static TUNABLE(uint32_t, gWaffleDisplayUse, "waffle_display_use", 1);
 static TUNABLE(uint32_t, gWaffleTorch, "waffle_torch", 0);
 static TUNABLE(uint32_t, gMacan14, "macan_14pm", 0);
 static inline uint32_t

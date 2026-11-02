@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/sysctl.h>
+#include <time.h>
 #include <unistd.h>
 
 @interface NSObject (WaffleApplicationLaunchProbe)
@@ -34,20 +35,32 @@ __attribute__((constructor)) static void start(void)
                                   @"com.apple.Preferences",@"com.apple.mobiletimer",@"com.apple.Preferences"];
     for(unsigned i=0;i<sizeof(delays)/sizeof(delays[0]);i++){
         unsigned step=i+1;NSString *bundle=bundles[i];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)delays[i]*NSEC_PER_SEC),dispatch_get_main_queue(),^{
+        /* This synchronous LaunchServices call can route back to SpringBoard.
+         * Keep its main run loop available to service the open request. */
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)delays[i]*NSEC_PER_SEC),
+                       dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0),^{
             @try {
                 dlopen("/System/Library/Frameworks/CoreServices.framework/CoreServices",RTLD_LAZY|RTLD_LOCAL);
                 Class cls=NSClassFromString(@"LSApplicationWorkspace");
                 Method factory=class_getClassMethod(cls,@selector(defaultWorkspace));
-                Method open=class_getInstanceMethod(cls,@selector(openApplicationWithBundleID:));
-                if(!factory || !open || strcmp(method_getTypeEncoding(factory),"@16@0:8") ||
-                   strcmp(method_getTypeEncoding(open),"B24@0:8@16")){
+                Method open_method=class_getInstanceMethod(cls,@selector(openApplicationWithBundleID:));
+                if(!factory || !open_method || strcmp(method_getTypeEncoding(factory),"@16@0:8") ||
+                   strcmp(method_getTypeEncoding(open_method),"B24@0:8@16")){
                     report(step,bundle,NO,"ABI_mismatch");return;
                 }
                 id workspace=[cls defaultWorkspace];
                 report(step,bundle,NO,"request");
+                struct timespec began={0},ended={0};
+                clock_gettime(CLOCK_MONOTONIC,&began);
                 BOOL accepted=[workspace openApplicationWithBundleID:bundle];
+                clock_gettime(CLOCK_MONOTONIC,&ended);
                 report(step,bundle,accepted,"returned");
+                int fd=open("/dev/console",O_WRONLY);
+                if(fd>=0){
+                    int64_t elapsed=(ended.tv_sec-began.tv_sec)*1000000000LL+ended.tv_nsec-began.tv_nsec;
+                    dprintf(fd,"waffle-ui-animation: pid=%d step=%u launch_elapsed_ms=%lld main_queue=0\n",
+                            getpid(),step,(long long)(elapsed/1000000));close(fd);
+                }
             }@catch(NSException *exception){
                 (void)exception;report(step,bundle,NO,"exception");
             }

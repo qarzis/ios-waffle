@@ -1,0 +1,7 @@
+# E103 icon transition presentation test
+
+User observation: opening any app by tapping its home icon shows black ONLY during expansion, then applicationcontentnormal. SystemLSlaunchesareNOTequivalent; E102capturescannotqualifythistransition.
+
+Three distinct hypotheses: (1) queued/readIOSurface recycled beforeCPUdisplayfinishes, supportedbylifetime-onlyhold/nativeisInUseABI; (2) transition-specificCoreAnimationdraw/shader/temporarytexture unsupported, requiringactualicontransitiontrace; (3) scanoutreadswhilecopywrites, supportedbydirectfBase/softwarevsyncarchitecturebutdoesnotaloneexplainallblacktransition.
+
+Select1minimalleaseexperiment: SAMEE100objectbounds/Mesa/EAGL/manualUIconfig; WaffleDisplayUse0→1 withnativeglobalusagehelduntilCPUreadhelpersfinish. Noadditionalframecopy/refreshchange/BOheapincrease. AudioGCcodepresentbutadsp0defaultOFFandnoaudioDSPstartupinGPUtest. Needactualdisplayusage_enabled1/hold>=1 plususermanualicontapbefore240sdeadline; noautomatedLSworkload. Preserveoriginalrunnerfailure, returnAndroid+independent1. Ifblackunchanged, doNOTrepeatleasefix; nexttracehypothesis2. RealVSyncstillseparatework.
