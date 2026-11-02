@@ -1,0 +1,13 @@
+{
+  "run": "work/waffle/runs/20261102T120417Z",
+  "Focus_mode_enabled_readback": true,
+  "native_FocusUI_manager_post_invoked": true,
+  "native_banner_visible": false,
+  "user_reports_no_banner": true,
+  "GOP_capture": "focus-banner-1-1.raw",
+  "moon_in_status_bar_visible": true,
+  "manager_post_ignored_error_pointer": true,
+  "next_experiment": "capture actual SBBannerManager BOOL and NSError without changing request",
+  "ended_after_diagnosis": true,
+  "Android_after_run_independently_confirmed": true
+}

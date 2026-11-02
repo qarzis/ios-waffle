@@ -1,0 +1,15 @@
+{
+  "run": "work/waffle/runs/20261102T121341Z",
+  "real_DND_on_readback": true,
+  "native_FocusUI_post_accepted": true,
+  "native_presentable_did_appear_callback": true,
+  "native_moon_banner_optical_capture": "focus-banner-1-1.png",
+  "user_confirms_moon_banner": true,
+  "new_user_issue": "DND Off delayed banner overlays Silent Mode when leaving top",
+  "USB_later_timed_out": true,
+  "original_runner_failure_retained": true,
+  "full_GPU_stability_not_qualified": true,
+  "user_manual_rebooted_Android": true,
+  "Android_independently_confirmed_before_E94": true,
+  "followup": "E94 no DND Off banner; revoke/cancel old Focus On before ringer HUD"
+}

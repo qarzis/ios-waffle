@@ -1,0 +1,18 @@
+{
+  "run": "work/waffle/runs/20261102T120845Z",
+  "actual_native_SBBannerManager_post_accepted": true,
+  "native_post_error": null,
+  "requester": "com.apple.FocusUIFCUIFocusEnablementIndicatorBannerManager",
+  "options": 0,
+  "userInfo": {
+    "SBUIPresentableShouldBypassScreenSharingUserInfoKey": 1
+  },
+  "Focus_state_readback_default_owned": true,
+  "visible_banner_unproven": true,
+  "presentation_pipeline_hypotheses": [
+    "late active-activity update revokes presentable",
+    "native template presentable accepted but not hosted"
+  ],
+  "next_minimal_experiment": "log real didAppear/revoke callbacks and settle shared ActivityManager for500ms before post",
+  "Android_after_run_independently_confirmed": true
+}

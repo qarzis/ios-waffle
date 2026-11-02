@@ -3,6 +3,7 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #include <dlfcn.h>
+#include <dispatch/dispatch.h>
 #include <fcntl.h>
 #include <stdio.h>
 
@@ -36,8 +37,52 @@ static id getter(id object,const char *selector)
 {
  return abi(object,selector,"@16@0:8")?((id(*)(id,SEL))objc_msgSend)(object,sel_registerName(selector)):nil;
 }
+static id focusBannerManager;
+static unsigned focusBannerRevision;
+static BOOL (*originalPostPresentable)(id,SEL,id,NSUInteger,id,NSError *__autoreleasing *);
+static BOOL observedPostPresentable(id self,SEL selector,id presentable,NSUInteger options,id userInfo,NSError *__autoreleasing *error)
+{
+ NSError *__autoreleasing localError=nil;
+ BOOL result;
+ if(error)result=originalPostPresentable(self,selector,presentable,options,userInfo,error);
+ else result=originalPostPresentable(self,selector,presentable,options,userInfo,&localError);
+ if([presentable isKindOfClass:NSClassFromString(@"FCUIFocusEnablementIndicatorBannerPresentable")])
+  logState([NSString stringWithFormat:@"native Focus post accepted=%d error=%@ requester=%@ options=%lu userInfo=%@",result,error?*error:localError,getter(presentable,"requesterIdentifier"),(unsigned long)options,userInfo]);
+ return result;
+}
+static void observeFocusPoster(id poster)
+{
+ if(originalPostPresentable)return;
+ SEL selector=sel_registerName("postPresentable:withOptions:userInfo:error:");
+ Method method=class_getInstanceMethod(object_getClass(poster),selector);
+ if(!method || strcmp(method_getTypeEncoding(method),"B48@0:8@16Q24@32o^@40"))return;
+ originalPostPresentable=(void *)method_setImplementation(method,(IMP)observedPostPresentable);
+}
+static void (*originalFocusRevoke)(id,SEL,id);
+static void observedFocusRevoke(id self,SEL selector,id reason)
+{
+ logState([NSString stringWithFormat:@"native Focus revoke reason=%@",reason]);
+ originalFocusRevoke(self,selector,reason);
+}
+static void (*originalFocusAppear)(id,SEL,id);
+static void observedFocusAppear(id self,SEL selector,id banner)
+{
+ logState(@"native Focus presentable did appear");
+ originalFocusAppear(self,selector,banner);
+}
+static void observeFocusLifecycle(Class managerClass)
+{
+ Method revoke=class_getInstanceMethod(managerClass,sel_registerName("revokeWithReason:"));
+ if(!originalFocusRevoke && revoke && !strcmp(method_getTypeEncoding(revoke),"v24@0:8@16"))
+  originalFocusRevoke=(void *)method_setImplementation(revoke,(IMP)observedFocusRevoke);
+ Class presentable=NSClassFromString(@"FCUIFocusEnablementIndicatorBannerPresentable");
+ Method appear=class_getInstanceMethod(presentable,sel_registerName("presentableDidAppearAsBanner:"));
+ if(!originalFocusAppear && appear && !strcmp(method_getTypeEncoding(appear),"v24@0:8@16"))
+  originalFocusAppear=(void *)method_setImplementation(appear,(IMP)observedFocusAppear);
+}
 static void postFocusBanner(id application,id mode,BOOL enabled)
 {
+ if(!enabled)return;
  dlopen("/System/Library/PrivateFrameworks/Focus.framework/Focus",RTLD_LAZY|RTLD_LOCAL);
  dlopen("/System/Library/PrivateFrameworks/FocusUI.framework/FocusUI",RTLD_LAZY|RTLD_LOCAL);
  id activityManager=getter(NSClassFromString(@"FCActivityManager"),"sharedActivityManager");
@@ -51,17 +96,27 @@ static void postFocusBanner(id application,id mode,BOOL enabled)
     !abi(poster,"postPresentable:withOptions:userInfo:error:","B48@0:8@16Q24@32o^@40")){
   logState(@"native Focus banner dependencies unavailable");return;
  }
- static id manager;
- if(!manager)manager=((id(*)(id,SEL,id))objc_msgSend)(cls,sel_registerName("managerWithBannerPoster:"),poster);
+ observeFocusPoster(poster);
+ observeFocusLifecycle(cls);
+ if(!focusBannerManager)focusBannerManager=((id(*)(id,SEL,id))objc_msgSend)(cls,sel_registerName("managerWithBannerPoster:"),poster);
+ id manager=focusBannerManager;
  if(!abi(manager,"postActivity:enabled:","v28@0:8@16B24")){logState(@"native Focus banner ABI mismatch");return;}
- ((void(*)(id,SEL,id,BOOL))objc_msgSend)(manager,sel_registerName("postActivity:enabled:"),activity,enabled);
- static unsigned sequence;
- logState([NSString stringWithFormat:@"native_Focus_banner enabled=%d sequence=%u activity=%@",enabled,++sequence,getter(activity,"activityIdentifier")]);
+ unsigned request=focusBannerRevision;
+ dispatch_after(dispatch_time(DISPATCH_TIME_NOW,500*NSEC_PER_MSEC),dispatch_get_main_queue(),^{
+  if(request!=focusBannerRevision){logState(@"Focus banner superseded before presentation");return;}
+  id liveActivity=getter(activityManager,"activeActivity");
+  logState([NSString stringWithFormat:@"native Focus UI activity=%@ expected_enabled=%d",getter(liveActivity,"activityIdentifier"),enabled]);
+  ((void(*)(id,SEL,id,BOOL))objc_msgSend)(manager,sel_registerName("postActivity:enabled:"),activity,enabled);
+  logState([NSString stringWithFormat:@"native_Focus_banner enabled=%d sequence=%u activity=%@",enabled,request,getter(activity,"activityIdentifier")]);
+ });
 }
 void waffle_slider_apply(int position)
 {
  if(position<1 || position>3)return;
+ ++focusBannerRevision;
  @try {
+  if(position!=1 && abi(focusBannerManager,"revokeWithReason:","v24@0:8@16"))
+   ((void(*)(id,SEL,id))objc_msgSend)(focusBannerManager,sel_registerName("revokeWithReason:"),@"Alert Slider changed mode");
   dlopen("/System/Library/PrivateFrameworks/DoNotDisturb.framework/DoNotDisturb",RTLD_LAZY|RTLD_LOCAL);
   Class serviceClass=NSClassFromString(@"DNDModeAssertionService");
   Class detailsClass=NSClassFromString(@"DNDModeAssertionDetails");
@@ -115,8 +170,8 @@ void waffle_slider_apply(int position)
   id afterDetails=getter(after,"details");
   BOOL confirmedOn=[getter(afterDetails,"identifier") isEqual:owner] &&
       [getter(afterDetails,"modeIdentifier") isEqual:getter(defaultMode,"modeIdentifier")];
-  if(changedFocus && !error && ((position==1 && confirmedOn) || (position!=1 && !after)))
-   postFocusBanner(application,defaultMode,position==1);
+  if(changedFocus && !error && position==1 && confirmedOn)
+   postFocusBanner(application,defaultMode,YES);
   BOOL silentVibrate=NO;Class prefs=NSClassFromString(@"SBSoundPreferences");
   if(abi(prefs,"vibrateWhenSilent","B16@0:8"))silentVibrate=((BOOL(*)(id,SEL))objc_msgSend)(prefs,sel_registerName("vibrateWhenSilent"));
   logState([NSString stringWithFormat:@"position=%d muted=%d vibrate_when_silent=%d active_mode=%@ owner=%@ focus_read_error=%@ haptic_driver_unavailable=1",position,[ringer isRingerMuted],silentVibrate,getter(afterDetails,"modeIdentifier"),getter(afterDetails,"identifier"),error]);

@@ -1,0 +1,13 @@
+waffle-slider-control: ringer position=1 muted=0
+waffle-slider-control: position=1 muted=0 vibrate_when_silent=1 active_mode=com.apple.donotdisturb.mode.default owner=org.waffle.alert-slider focus_read_error=(null) haptic_driver_unavailable=1
+waffle-slider-control: native Focus revoke reason=Revoking for mode change
+waffle-slider-control: native Focus UI activity=com.apple.donotdisturb.mode.default expected_enabled=1
+waffle-slider-control: native Focus post accepted=1 error=(null) requester=com.apple.FocusUIFCUIFocusEnablementIndicatorBannerManager options=0 userInfo={
+waffle-slider-control: native_Focus_banner enabled=1 sequence=1 activity=com.apple.donotdisturb.mode.default
+waffle-slider-control: native Focus presentable did appear
+waffle-slider-control: ringer position=2 muted=1
+waffle-slider-control: position=2 muted=1 vibrate_when_silent=1 active_mode=(null) owner=(null) focus_read_error=(null) haptic_driver_unavailable=1
+waffle-slider-control: native Focus revoke reason=Revoking for mode end
+waffle-slider-control: native Focus UI activity=(null) expected_enabled=0
+waffle-slider-control: native_Focus_banner enabled=0 sequence=2 activity=com.apple.donotdisturb.mode.default
+waffle-slider-control: native_Focus_banner enabled=1 sequence=3 activity=com.apple.donotdisturb.mode.default

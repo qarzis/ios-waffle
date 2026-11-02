@@ -1,3 +1,23 @@
+# ACTIVE E94 banner ordering fix — user nuance 2026-11-02
+
+E94autorun20261102T122033Z/run122057Z, artifactdiagnostic-slider-banner-order-e94, stdoutgpu/auto-slider-banner-order-e94.log; exec86002. GPU240s/7CPU/torchservice, soleinnerownsfastboot. NeeduserTOP->MIDDLEafter1sec confirmNOdelayedDNDOffoverlay; logdefaultmodeNULL/muted1 + noenabled0Focuspost. AlsocanceloldOnrequestonanyphysicalchange. CurrentrootcodepostONLYOn, pendinggenerationincrementperstate, revokeourmanagerbeforeSilentModeHUD. NoFocus/Hall/GPUchangesotherwise.
+
+E93nativeFocusbanneractuallyqualified: run121341Z validclientHIDmode/readback; managerrevokeformodechangehappenedBEFOREnew500msdelayedpost, activitydefaultsettled, postaccepted1/errorNULL/nativeDidAppear/userconfirmed. NativeGOPfocus-banner1-1.pngshowsDoNotDisturbOnmoon. UsernewissueTOP->middleSilentModebannerfollowedbydelayedDNDOffoverlay. E94fixabove. E93laterUSB-oemlogtimeout, nofullGPUstabilityclaim; userrequestedreboot, manualAndroidconfirmedthenADB1independentbeforeE94. NativeFOCUSfunctionisreal, middlevibrationmode(noactualhapticdriver),bottomring. E93failureandproofreportforensic-audit/E93-result.json. Publicstill2f9dd0a; latestlocalarchivea63e447. No newUIresolutionorHUDplacementwork.
+
+# ACTIVE Focus banner diagnostic E92 — 2026-11-02
+
+E92autoabout1208/run20261102T120845Z, artifactdiagnostic-focus-post-e92, stdoutgpu/auto-focus-post-e92.log. GPU240s/7cores/torch, soleinnerownsfastboot. Root e92-focus-post-error-root usesqualifiedE84kernel+actualFocusservicefixedHIDclient. ModeTOPDND/MIDDLEvibrate/BOTTOMring. Noactiveagents/goal.
+
+E90run115641Z FIXEDrealFocusXPC viaexactallowlistedclientcom.apple.springboard.donotdisturb.hid. TOPdefaultmodeownedorg.waffle.alert-slider/errorNULL, exitBOTTOMdefaultNULL/errorNULL literalorderedkernel279. Userconfirmsmodeonbutnobanner. GPUfullclose12591/1999; originalrunner1retained; Androidindependent1.
+
+E91run120417Z actualFCUIFocusEnablementIndicatorBannerManager createdfromSpringBoard.bannerManager; activity=FCActivityManager.defaultActivity(_FCActivity fallbacknativeDNDMode). postActivity:enabled calledONLYafterconfirmedownmodechange. UserNObanner; screenshotfocus-banner1-1showsstatusbarmoononly. ActualmanagerignoresNSErrorbyNULL. E92read-onlyobservesnativeSBBannerManagerpostBOOL+NSError forFocuspresentable, forwardsidenticalrequest/options/userInfo, no duplicatepost. Needcapturelivefailurethenminimalfix; after3failedcosmetictrialsreviewarchitecture. ExistingE91completedcontrolledstop/Androidindependent1. E92sources/rootmanifestverified. Runnercapturesfocus-banner-enabled-sequence.raw afternativepostmarker viaSOLEtransport. NativeFocusbannerrealclassnotfakecustomUI.
+
+Top alternativefullsilent/thirdpill NEVERBOOTEDandremoved; latestuserrequestTOPrealDNDmoon. E87physicalslider+nativeSilentModeHUDfullyqualifiedbutoldmapping. SharedHallpowers/touchlock/nativegain+measurement/sourcehosttestsdetailsbelow. Publicstill2f9dd0a; localcheckpointa63e447. CleanupremovedhistoricalpayloadXNUPonly andhardlinkedimmutablelog/raw/png; doNOTrewriteoldevidenceinplace.
+
+# ACTIVE 2026-11-02T11:57:58.633092+00:00 — user resumed Alert Slider / Focus
+
+E90 running auto20261102T115617Z/run20261102T115641Z viaexec24850; artifactdiagnostic-focus-client-e90; GPU240s/7cores/torchservice, exactsignedHIDFocusclientcom.apple.springboard.donotdisturb.hid. Soleinnerownsfastboot; no concurrentcommands. InitialAndroidindependently1; image/sourcehashesverified. Followprogressauto-focus-e90.log. LatestTOPDNDmoon/MIDDLEvibrate/BOTTOMring, noalternatepillprototype. NeedliveFocusresponse+nativebanner/readback/transitions, read-onlyfocusstack3samplesifstillfails.
+
 # STOPPED 2026-11-02T11:12:37.391215+00:00 — explicit user «стопай»
 
 No further builds, hardware boots or GitHub work until explicit resume. No active phone runner at stop. Latest E89 attempt run20261102T110819Z/auto110755Z FAILED during56MiB payload transfer with USB transport endpoint shutdown; NO system transfer/kernel start/Focus stack sample. USB absent after attempt. User says Android loaded/cable connected, but independentADB immediatelystillnotfound; pendingconfirmation. Do NOT claim independently recovered.
@@ -4442,3 +4462,5 @@ pathandattemptsAndroidfinally. OnUSB900e manualuserrecovery required.
 Older details preservedRESUME-before-dms41.md andRESUME-before-native-trace-
 split39.md. NativeKprobe/BTFcapture scripts/phoneko/rawtraces/layoutjsonsaved.
 No more nativecapturesneededwithoutnewpurpose.
+
+Cleanup2026-11-02: generated runs/*/payload.xnup removed (recreate using loader/mkpayload.py from retained kernel/root). Exact duplicate saved .log/.raw/.png records hardlinked with byte verification; do not rewrite historical evidence in place. Source/build images remain independent. Full cleanup manifest work/waffle/cleanup/result.json. GPU/Focus work remains explicitly stopped.
