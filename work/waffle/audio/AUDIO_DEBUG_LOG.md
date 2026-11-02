@@ -68,3 +68,25 @@ ASan/UBSan host checks compare all8 encoded BCM commands with the actual pinned 
 Actual XNU run20261102T131242Z, auto-run20261102T131218Z. Live command database produced all11 planned commands: ARC7/4/3 plus8BCMs,6VCD commits. Explicit POWER_PLAN OK and PREFLIGHT OK. Kernel returned33449 log bytes normally, outer exit0, automatic Android recovery and independent ADB boot_completed1 confirmed. No DSP, amplifier or RPMh power write performed. See A04-components.log and A04-result.json. Final output includes4 identical copies of command records through combined logging; every copy was compared, not counted as4 tests.
 
 Next measurable step: bounded native RPMh transaction with busy/pending guards, per-command status checks, waiting only on VCD commit boundaries, and no writes on an unqualified table. Preserve inherited/shared resource requests; do not use donor zero/release sequence. A successful TCS acknowledgement would only qualify command transport, not DSP boot or sound.
+
+## A05 implementation — bounded native RPMh request transport
+
+New mode adsp=4 runs firmware and command-db validation, then one whitelisted BCM batch and one ARC batch under macan_rpmh_lock. DSP/PAS/QMP/IPCC and amplifier startup remain disabled. Native RSC drv2 base17a20000/TCS0 is used; major3/4, capacity, all3 active TCS idle and no pending IRQ required before writing. BCM wait mask0xf5 waits only at the six VCD commit boundaries; ARC wait mask7. Per-command issued and requested-completion bits checked, IRQ+idle required, bounded200ms polling. Completed transactions restore saved TCS programming with trigger stripped and verify readback. Timeout leaves in-flight registers untouched, latches failure and forbids subsequent batch/retry.
+
+This experiment never drops resource votes. Scalar BCMs use maximum encoded bandwidth and CX/MX/XO highest native levels7/4/3. ACV is deliberately raised to enable+performance mask3 instead of the dry-run native no-performance mask1, to preserve any inherited performance bit. All votes remain through EFI return until Android reset, as in the previously qualified sensor power path. No donor release sequence is called for mode4.
+
+ASan/UBSan tests execute the actual transaction function with mocked RSC: v3/v4 success, exact command/wait whitelist, stale trigger removal, saved programming restoration, busy/pending/capacity/version rejection before writes, incomplete command status, bounded timeout and no retry. Native planner and actual firmware/mode gate regression tests pass. Physical acknowledgement still pending.
+
+A05 build integration: first full XNU compile rejected the new helper because stopping was declared below it. Moved the existing shared state declaration ahead of the helper; no runtime logic change. Original compiler log retained as A05-first-build-failure.log. This was a compile-order failure, not a hardware experiment.
+
+## A05 hardware FAIL — requests acknowledged, MMIO cleanup panicked
+
+Run20261102T132502Z, auto-run20261102T132438Z. Native RSC version30200/config800c8104; active TCS0/1/2 all idle; IRQ0. BCM batch result1/waitf5 and ARC batch result1/indices7/4/3; all11 command status10101. Then exact panic vm_map_delete: Attempting to remove permanent VM map entry. Cause: new wrapper used ml_io_map (permanent) then ml_io_unmap. Confirmed from local XNU machine_routines.c: ml_io_map passes unmappable=false, ml_io_map_unmappable passes true. Whole experiment FAIL; hardware requests acknowledged does not override cleanup failure. Runner retained panic and restored Android successfully. Evidence A05-components.log and A05-result.json.
+
+A06 correction is limited to correct MMIO ownership: use ml_io_map_unmappable with VM_WIMG_IO and pair with ml_io_unmap. Extended ASan/UBSan test compiles actual kernel wrapper, actual cmd-db parser and actual transaction function together; checks removable mapping contract, shared lock across both batches and unmap after unlocking, plus stopped/mapping failure guards. Native11 resource lookups and malformed input tests remain passing. No changes to resource values, retry policy or DSP gates.
+
+## A06 hardware PASS — native power requests plus clean MMIO teardown
+
+Run20261102T132912Z, auto-run20261102T132848Z. Both native BCM/ARC batches result1; all11 distinct command statuses10101. Explicit POWER_APPLY OK/TCS buffers restored1 after removable mapping was unmapped. No panic, normal kernel return, outer runner exit0, automatic Android recovery and independent ADB boot_completed1. Corrected map/unmap contract resolves A05 panic. Votes intentionally retained until Android takes ownership. This qualifies power request transport, not actual DSP execution, clocks or audio playback. Literal evidence A06-components.log and A06-result.json.
+
+Next: read-only native SMEM/SMP2P/GLINK state survey. Current donor full-boot path treats any historical SMP2P item as an active previous DSP run and attempts shutdown; that assumption is unqualified for Waffle. Establish actual inherited state before enabling reset/authentication or reusing readiness flags. No DSP boot yet.

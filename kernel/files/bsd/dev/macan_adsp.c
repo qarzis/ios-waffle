@@ -17,6 +17,7 @@
 #include <sys/macan_firmware.h>
 #include <sys/macan_dsp.h>
 #include <sys/waffle_adsp_power.h>
+#include <sys/waffle_adsp_rpmh.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
 extern void ml_io_unmap(vm_offset_t addr, vm_size_t sz);
@@ -33,6 +34,7 @@ static uint32_t step;
 static uint32_t new_from;
 static char last_write[96] = "nothing written";
 static bool leaving;
+static volatile bool stopping, boot_runs, link_failed;
 extern void loader_log_putc(char c);
 static LCK_MTX_DECLARE(say_lock, &adsp_lock_group);
 static void
@@ -613,6 +615,61 @@ waffle_power_preflight(void)
  printf("adsp: WAFFLE POWER_PLAN OK: rails384 BCMs8 native_VCD_order=1; no power writes, shared votes retained\n");
  return true;
 }
+static uint32_t
+waffle_power_read(void *context, unsigned offset)
+{
+ return rd((vm_offset_t)context + offset);
+}
+static void
+waffle_power_write(void *context, unsigned offset, uint32_t value)
+{
+ wr((vm_offset_t)context + offset, value);
+ settle();
+}
+static void
+waffle_power_pause(__unused void *context)
+{
+ sleep_us(100);
+}
+static bool
+waffle_power_apply(void)
+{
+ struct waffle_adsp_power_command plan[11];
+ if (!waffle_adsp_power_plan(waffle_power_lookup, NULL, plan) || stopping) { return false; }
+ vm_offset_t base = ml_io_map_unmappable(0x17a20000, 0x10000, VM_WIMG_IO);
+ if (!base) { return false; }
+ struct waffle_adsp_rpmh_io io = { .context = (void *)base,
+     .read = waffle_power_read, .write = waffle_power_write, .pause = waffle_power_pause };
+ uint32_t addresses[8], values[8];
+ unsigned wait = 0;
+ for (unsigned i = 0; i < 8; i++) {
+  addresses[i] = plan[i+3].address;
+  values[i] = plan[i+3].value;
+  wait |= (unsigned)plan[i+3].commit << i;
+ }
+ /* Preserve an inherited ACV performance request as well as its enable bit.
+  * This bounded probe only raises votes; Android reset owns their release. */
+ values[7] |= 2;
+ lck_mtx_lock(&macan_rpmh_lock);
+ printf("adsp: POWER_RSC version=%#x config=%#x TCS0=%#x TCS1=%#x TCS2=%#x IRQ=%#x\n",
+     rd(base), rd(base+0xc), rd(base+0xd28), rd(base+0xd28+672), rd(base+0xd28+1344), rd(base+0xd04));
+ int bcm = stopping ? 0 : waffle_adsp_rpmh_batch(&io, addresses, values, 8, wait);
+ printf("adsp: POWER_APPLY BCM result=%d wait_mask=%#x retained_until_Android_reset=1\n", bcm, wait);
+ for (unsigned i = 0; i < 8; i++) printf("adsp: POWER_ACK BCM%u status=%#x\n", i, io.statuses[i]);
+ int arc = 0;
+ if (bcm == 1 && !stopping) {
+  for (unsigned i = 0; i < 3; i++) { addresses[i] = plan[i].address; values[i] = plan[i].value; }
+  memset(io.statuses, 0, sizeof(io.statuses));
+  arc = waffle_adsp_rpmh_batch(&io, addresses, values, 3, 7);
+  printf("adsp: POWER_APPLY ARC result=%d indices=7/4/3 retained_until_Android_reset=1\n", arc);
+  for (unsigned i = 0; i < 3; i++) printf("adsp: POWER_ACK ARC%u status=%#x\n", i, io.statuses[i]);
+ }
+ lck_mtx_unlock(&macan_rpmh_lock);
+ ml_io_unmap(base, 0x10000);
+ printf("adsp: WAFFLE POWER_APPLY %s: TCS buffers restored=%u; votes retained; DSP and amplifiers off\n",
+     bcm == 1 && arc == 1 ? "OK" : "FAIL", bcm == 1 && arc == 1);
+ return bcm == 1 && arc == 1;
+}
 static struct block rsc = { "rsc", 0x18920000, 0x10000 };
 #define RSC_TCS_BASE 0xd00
 #define RSC_IRQ_ENABLE (RSC_TCS_BASE + 0x00)
@@ -1046,7 +1103,6 @@ static struct pas_image images[] = {
  { .name = "adsp_dtb", .pas = PAS_DTB, .base = DTB_MEMORY, .capacity = DTB_MEMORY_SIZE },
  { .name = "adsp", .pas = PAS_ADSP, .base = ADSP_MEMORY, .capacity = ADSP_MEMORY_SIZE },
 };
-static volatile bool stopping, boot_runs, link_failed;
 static bool image_on;
 static bool
 firmware_check(struct pas_image *im)
@@ -2239,10 +2295,15 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  for (unsigned n = 0; n < 300 && rootvnode == NULLVP && !stopping; n++) { sleep_ms(200); }
  lck_mtx_lock(&dsp_lock);
  if (stopping) { goto out; }
- if (mode == 3) {
+ if (mode == 3 || mode == 4) {
   bool valid = firmware_check(&images[0]) && firmware_check(&images[1]) && waffle_power_preflight();
-  printf("adsp: WAFFLE PREFLIGHT %s: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes\n",
-      valid ? "OK" : "FAIL");
+  if (mode == 3) {
+   printf("adsp: WAFFLE PREFLIGHT %s: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes\n",
+       valid ? "OK" : "FAIL");
+  } else {
+   printf("adsp: WAFFLE INPUT_CHECK %s: native firmware and power plan; DSP and amps off\n", valid ? "OK" : "FAIL");
+   if (valid) { valid = waffle_power_apply(); }
+  }
   for (unsigned i = 0; i < 2; i++) {
    file_free(images[i].mdt, images[i].mdt_size, images[i].owned);
    images[i].mdt = NULL;
@@ -2327,7 +2388,7 @@ macan_adsp_stop(void)
  stopping = true;
  if (!mode) { return; }
  for (unsigned n = 0; n < 2000 && boot_runs; n++) { sleep_ms(1); }
- if (mode == 3) { return; }
+ if (mode == 3 || mode == 4) { return; }
  lck_mtx_lock(&dsp_lock);
  dsp_shutdown("loader return");
  lck_mtx_unlock(&dsp_lock);
@@ -2337,7 +2398,7 @@ macan_adsp_quiesce(void)
 {
  if (!mode) { return; }
  leaving = stopping = true;
- if (mode == 3) { return; }
+ if (mode == 3 || mode == 4) { return; }
  link_wanted = false;
  dsp_shutdown("panic/loader quiesce");
 }
@@ -2351,8 +2412,8 @@ macan_adsp_init(void)
  if (!mode) { return; }
  PE_parse_boot_argn("waffle", &waffle, sizeof(waffle));
  if (waffle) {
-  if (mode != 3) {
-   printf("adsp: Waffle permits only adsp=3 firmware preflight; hardware boot is not qualified\n");
+  if (mode != 3 && mode != 4) {
+   printf("adsp: Waffle permits only adsp=3 preflight or adsp=4 power probe; DSP boot is not qualified\n");
    mode = 0; return;
   }
   images[0].base = 0x9de80000u;
@@ -2370,9 +2431,9 @@ macan_adsp_init(void)
  if (kernel_thread_start(adsp_thread, NULL, &thread) != KERN_SUCCESS) {
   boot_runs = false;
   printf("adsp: FAIL stage=0 no worker thread\n");
-  if (mode != 3) { show_crash_reason(); }
+  if (mode != 3 && mode != 4) { show_crash_reason(); }
   return;
  }
  thread_deallocate(thread);
- printf("adsp: %s worker started adsp=%u (0 is default/off)\n", mode == 3 ? "firmware preflight" : "stage 1", mode);
+ printf("adsp: %s worker started adsp=%u (0 is default/off)\n", mode == 4 ? "native power probe" : mode == 3 ? "firmware preflight" : "stage 1", mode);
 }

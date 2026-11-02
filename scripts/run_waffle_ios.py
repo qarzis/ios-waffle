@@ -529,9 +529,11 @@ def main():
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
     parser.add_argument("--audio-preflight", action="store_true", help="Firmware-only ADSP validation; no DSP boot or amplifier writes")
+    parser.add_argument("--audio-power", action="store_true", help="With --audio-preflight: bounded native RPMh upvotes retained until Android reset; no DSP boot")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
     if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
@@ -600,7 +602,7 @@ def main():
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.audio_preflight:
-        arguments += " adsp=3"
+        arguments += " adsp=4" if args.audio_power else " adsp=3"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
     if args.torch_readonly:
@@ -972,8 +974,11 @@ def main():
                 required = ('waffle-audio-probe: PID1 ready',
                             'adsp: MDT adsp_dtb phdrs=3', 'adsp: MDT adsp phdrs=57',
                             'adsp: WAFFLE POWER_PLAN OK: rails384 BCMs8 native_VCD_order=1',
-                            'adsp: WAFFLE PREFLIGHT OK: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes')
-                if not all(s in final_text for s in required) or any(s in final_text for s in ('adsp: FAIL', 'adsp: WAFFLE PREFLIGHT FAIL', 'adsp: PAS ', 'adsp: RPMh ')):
+                            *(['adsp: WAFFLE INPUT_CHECK OK', 'adsp: POWER_APPLY BCM result=1 wait_mask=0xf5',
+                               'adsp: POWER_APPLY ARC result=1 indices=7/4/3',
+                               'adsp: WAFFLE POWER_APPLY OK: TCS buffers restored=1; votes retained; DSP and amplifiers off'] if args.audio_power else
+                              ['adsp: WAFFLE PREFLIGHT OK: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes']))
+                if not all(s in final_text for s in required) or any(s in final_text for s in ('adsp: FAIL', 'adsp: WAFFLE PREFLIGHT FAIL', 'adsp: WAFFLE POWER_APPLY FAIL', 'adsp: PAS ', 'adsp: RPMh ')):
                     raise RuntimeError(f'ADSP firmware preflight evidence missing or hardware path reached; logs: {out}')
             if args.torch_readonly and not all(s in final_text for s in (
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',

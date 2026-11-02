@@ -29,6 +29,7 @@ def main():
     native = source[source.index('static inline void tcs_cmd_gen('):source.index('static void tcs_list_gen(')]
     kernel = (ROOT/'kernel/files/bsd/dev/macan_adsp.c').read_text()
     lookup_source = kernel[kernel.index('#define CMD_DB_PHYS'):kernel.index('static bool\nwaffle_power_preflight(')]
+    wrapper = kernel[kernel.index('static uint32_t\nwaffle_power_read('):kernel.index('static struct block rsc =')]
     c = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -40,12 +41,35 @@ typedef uint64_t u64;
 #define cpu_to_le32(v) (v)
 #include "include/soc/qcom/tcs.h"
 #include "waffle_adsp_power.h"
+#include "waffle_adsp_rpmh.h"
 #define __unused __attribute__((unused))
 #define VM_WIMG_WCOMB 0
+#define VM_WIMG_IO 1
 typedef uintptr_t vm_offset_t;
+static uint32_t io_regs[0x10000/4];
+static unsigned mapped,unmaps,triggers;
+static int macan_rpmh_lock,locked;
+static bool stopping,mapfail;
 static vm_offset_t ml_io_map_unmappable(vm_offset_t p, size_t n, unsigned f) {
- (void)p; (void)n; (void)f; return 0;
+ assert(p==0x17a20000 && n==0x10000 && f==VM_WIMG_IO && !mapped);
+ if(mapfail) return 0;
+ mapped=1;return (vm_offset_t)io_regs;
 }
+static void ml_io_unmap(vm_offset_t p,size_t n) { assert(mapped && !locked && p==(vm_offset_t)io_regs && n==sizeof(io_regs));mapped=0;unmaps++; }
+static uint32_t rd(vm_offset_t p) { assert(mapped && p>=(vm_offset_t)io_regs && p<(vm_offset_t)io_regs+sizeof(io_regs));return *(uint32_t *)p; }
+static void wr(vm_offset_t p,uint32_t v) {
+ assert(mapped && locked && p>=(vm_offset_t)io_regs && p<(vm_offset_t)io_regs+sizeof(io_regs));
+ unsigned off=(unsigned)(p-(vm_offset_t)io_regs);*(uint32_t *)p=v;
+ if(off==0xd08) io_regs[0xd04/4]&=~v;
+ if(off==0xd24 && (v&(1u<<24))) {
+  triggers++;io_regs[0xd04/4]|=1;
+  for(unsigned i=0;i<8;i++) io_regs[(0xd40+i*24)/4]=0x10101;
+ }
+}
+static void settle(void) {}
+static void sleep_us(unsigned n) { (void)n; }
+static void lck_mtx_lock(int *p) { assert(p==&macan_rpmh_lock && !locked);locked=1; }
+static void lck_mtx_unlock(int *p) { assert(p==&macan_rpmh_lock && locked);locked=0; }
 static size_t strlcpy(char *dst,const char *src,size_t size) {
  size_t n=strlen(src);
  if(size) { size_t copy=n<size-1?n:size-1; memcpy(dst,src,copy);dst[copy]=0; }
@@ -54,6 +78,7 @@ static size_t strlcpy(char *dst,const char *src,size_t size) {
 '''
     c += native
     c += lookup_source
+    c += wrapper
     c += '\nstatic const struct { const char *name; struct waffle_adsp_resource r; } fixture[] = {\n'+',\n'.join(fixture)+'\n};\n'
     c += r'''
 static int fault;
@@ -103,6 +128,12 @@ int main(void) {
  }
  cmd_db=db;
  assert(waffle_adsp_power_plan(waffle_power_lookup,NULL,plan));
+ io_regs[0]=0x30200;io_regs[3]=0x800c8104;
+ for(unsigned i=0;i<3;i++) io_regs[(0xd28+i*672)/4]=1;
+ assert(waffle_power_apply());
+ assert(!mapped && !locked && unmaps==1 && triggers==2);
+ stopping=true;assert(!waffle_power_apply() && unmaps==1);stopping=false;
+ mapfail=true;assert(!waffle_power_apply() && !mapped && !locked && unmaps==1);
  db->magic[0]=0;assert(!waffle_adsp_power_plan(waffle_power_lookup,NULL,plan));db->magic[0]=0xdb;
  db->slave[0].count=513;assert(!waffle_adsp_power_plan(waffle_power_lookup,NULL,plan));db->slave[0].count=3;
  db->slave[0].data_offset=65535;
@@ -112,6 +143,7 @@ int main(void) {
  assert(waffle_adsp_power_plan(waffle_power_lookup,NULL,plan));
  puts("PASS: native rail indices7/4/3; all8 BCMs match native tcs_cmd_gen;6 VCD commits;6 corrupt/missing-resource cases rejected");
  puts("PASS: actual kernel cmd-db parser accepts native resource layout and rejects invalid magic/count/aux bounds/slave ID");
+ puts("PASS: actual kernel power wrapper uses removable IO mapping, holds shared lock during both batches, unmaps after unlock, and refuses stopped/failed mappings");
 }
 '''
     with tempfile.TemporaryDirectory(prefix='waffle-adsp-power-') as temp:

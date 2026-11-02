@@ -94,12 +94,12 @@ int main(int argc, char **argv) {
  for (int damage = 1; damage <= 4; ++damage)
   check("adsp", 0x9df00000, 0x5280000, damage, false);
  arg_waffle = 1; arg_macan = 1;
- for (unsigned requested = 0; requested <= 4; ++requested) {
+ for (unsigned requested = 0; requested <= 5; ++requested) {
   workers = 0; arg_mode = requested; boot_runs = false;
   macan_adsp_init();
-  assert(workers == (requested == 3));
+  assert(workers == (requested == 3 || requested == 4));
   assert(!crash_reads);
-  if (requested == 3) {
+  if (requested == 3 || requested == 4) {
    assert(images[0].base == 0x9de80000 && images[0].capacity == 0x80000);
    assert(images[1].base == 0x9df00000 && images[1].capacity == 0x5280000);
   }
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
  arg_waffle = 0; arg_mode = 3; workers = 0; macan_adsp_init(); assert(!workers);
  arg_mode = 1; macan_adsp_init(); assert(workers == 1);
  puts("PASS: native ADSP/DTB accepted; donor capacity and four damaged inputs rejected");
- puts("PASS: Waffle permits only firmware preflight; donor mode gates preserved");
+ puts("PASS: Waffle permits only firmware preflight or power probe; donor DSP mode gates preserved");
 }
 '''
     with tempfile.TemporaryDirectory(prefix="waffle-audio-host-") as temp:

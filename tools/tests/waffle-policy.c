@@ -8,6 +8,11 @@ int main(void)
 {
 #if defined(WAFFLE_USERLAND)
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=3"));
+    assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=4"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=3 adsp=4"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=4 adsp=4"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=4 waffle_gpu=1"));
+    assert(!waffle_cmdline_allowed("loader_return_after=61 adsp=4"));
     assert(!waffle_cmdline_allowed("adsp=3"));
     assert(!waffle_cmdline_allowed("loader_return_after=61 adsp=3"));
     assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=1"));
