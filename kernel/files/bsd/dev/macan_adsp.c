@@ -18,6 +18,7 @@
 #include <sys/macan_dsp.h>
 #include <sys/waffle_adsp_power.h>
 #include <sys/waffle_adsp_rpmh.h>
+#include <sys/waffle_apm.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
 extern void ml_io_unmap(vm_offset_t addr, vm_size_t sz);
@@ -1718,22 +1719,28 @@ glink_pump(void)
     }
    }
    break;
-  case GLINK_INTENT:
+  case GLINK_INTENT: {
    channel = glink_theirs(message.param1);
+   unsigned dropped = 0, largest_dropped = 0;
    for (uint32_t i = 0; channel != NULL && i < message.param2; i++) {
     glink_peek(words, 8 + 8 * i, 8);
+    bool kept = false;
     for (unsigned n = 0; n < sizeof(channel->their_intents) / sizeof(channel->their_intents[0]); n++) {
      if (!channel->their_intents[n].there || channel->their_intents[n].id == words[1]) {
       channel->their_intents[n].there = true;
       channel->their_intents[n].in_use = false;
       channel->their_intents[n].size = words[0];
       channel->their_intents[n].id = words[1];
+      kept = true;
       break;
      }
     }
+    if (!kept) { dropped++; if (words[0] > largest_dropped) { largest_dropped = words[0]; } }
    }
+   if (dropped) { printf("adsp: GLINK_INTENT_OVERFLOW channel=%s advertised=%u dropped=%u largest_dropped=%u table=64\n", channel->name, message.param2, dropped, largest_dropped); }
    glink_advance(length);
    break;
+  }
   case GLINK_DONE:
   case GLINK_DONE_REUSE:
    channel = glink_theirs(message.param1);
@@ -1874,6 +1881,14 @@ glink_send(struct glink_channel *channel, const void *data, uint32_t length)
    asked = true;
   }
   if (waited >= 5000 || (!fits && asked && channel->request_answered && !channel->request_granted)) {
+   unsigned entries = 0, used = 0, largest = 0;
+   for (unsigned n = 0; n < 64; n++) {
+    if (!channel->their_intents[n].there) { continue; }
+    entries++; used += channel->their_intents[n].in_use;
+    if (channel->their_intents[n].size > largest) { largest = channel->their_intents[n].size; }
+   }
+   printf("adsp: GLINK_SEND_FAIL channel=%s length=%u error=%d entries=%u used=%u largest=%u fits=%u asked=%u answered=%u granted=%u room=%u\n",
+       channel->name, length, found < 0 ? ENOBUFS : EAGAIN, entries, used, largest, fits, asked, channel->request_answered, channel->request_granted, glink_room());
    lck_mtx_unlock(&glink_lock);
    return found < 0 ? ENOBUFS : EAGAIN;
   }
@@ -2040,7 +2055,7 @@ qrtr_input(const uint8_t *data, uint32_t length)
 struct gpr_header {
  uint32_t packet, domains, source_port, dest_port, token, opcode;
 };
-static uint32_t gpr_token, gpr_state, gpr_error, gpr_in, gpr_out;
+static uint32_t gpr_token, gpr_state, gpr_error, gpr_in, gpr_out, gpr_expected_opcode;
 static bool gpr_answered, audio_up;
 static LCK_MTX_DECLARE(gpr_lock, &adsp_lock_group);
 static void
@@ -2059,11 +2074,13 @@ gpr_input(const uint8_t *data, uint32_t length)
  printf("adsp: GPR reply opcode=%#x token=%u bytes=%u words=%#x,%#x\n", h.opcode, h.token, length - header_size, words[0], words[1]);
  lck_mtx_lock(&gpr_lock);
  if (h.token != gpr_token || os_atomic_load(&gpr_answered, acquire)) { lck_mtx_unlock(&gpr_lock); return; }
- if (h.opcode == APM_CMD_RSP_GET_SPF_STATE && length - header_size >= 4) {
+ if (gpr_expected_opcode == APM_CMD_GET_SPF_STATE && h.opcode == APM_CMD_RSP_GET_SPF_STATE && length - header_size >= 4) {
   gpr_state = words[0]; gpr_error = 0;
   os_atomic_store(&gpr_answered, true, release);
- } else if (h.opcode == GPR_BASIC_RSP_RESULT && length - header_size >= 8 && words[0] == APM_CMD_GET_SPF_STATE) {
-  if (words[1]) { gpr_error = words[1]; os_atomic_store(&gpr_answered, true, release); }
+ } else if (h.opcode == GPR_BASIC_RSP_RESULT && length - header_size >= 8 && words[0] == gpr_expected_opcode) {
+  if (words[1] || gpr_expected_opcode != APM_CMD_GET_SPF_STATE) {
+   gpr_error = words[1]; os_atomic_store(&gpr_answered, true, release);
+  }
  }
  lck_mtx_unlock(&gpr_lock);
 }
@@ -2081,6 +2098,7 @@ step_gpr(void)
       .source_port = 1, .dest_port = 1, .opcode = APM_CMD_GET_SPF_STATE } };
   lck_mtx_lock(&gpr_lock);
   packet.h.token = ++gpr_token;
+  gpr_expected_opcode = APM_CMD_GET_SPF_STATE;
   gpr_state = 0; gpr_error = 0;
   os_atomic_store(&gpr_answered, false, release);
   lck_mtx_unlock(&gpr_lock);
@@ -2096,6 +2114,31 @@ step_gpr(void)
   sleep_ms(200);
  }
  return false;
+}
+static bool
+step_apm_graph(void)
+{
+ static const uint32_t commands[] = { WAFFLE_APM_GRAPH_OPEN, WAFFLE_APM_GRAPH_CLOSE };
+ for (unsigned i = 0; i < 2; i++) {
+  uint32_t packet[128];
+  lck_mtx_lock(&gpr_lock);
+  uint32_t token = ++gpr_token;
+  gpr_expected_opcode = commands[i]; gpr_error = 0;
+  os_atomic_store(&gpr_answered, false, release);
+  lck_mtx_unlock(&gpr_lock);
+  size_t length = waffle_apm_packet(packet, sizeof(packet), commands[i], token);
+  if (!length || stopping || link_failed) { return false; }
+  printf("adsp: APM_GRAPH request opcode=%#x token=%u bytes=%lu no_DMA=1 no_hw_endpoint=1\n", commands[i], token, length);
+  int error = glink_send(&glink.channel[CHANNEL_GPR], packet, (uint32_t)length);
+  if (error) { printf("adsp: APM_GRAPH transport_error=%d opcode=%#x token=%u\n", error, commands[i], token); return false; }
+  gpr_out++;
+  for (unsigned ms = 0; ms < 5000 && !stopping && !link_failed && !os_atomic_load(&gpr_answered, acquire); ms++) { sleep_ms(1); }
+  bool acknowledged = os_atomic_load(&gpr_answered, acquire);
+  printf("adsp: APM_GRAPH response opcode=%#x token=%u acknowledged=%u status=%#x\n", commands[i], token, acknowledged, gpr_error);
+  if (!acknowledged || gpr_error) { return false; }
+ }
+ printf("adsp: APM_GRAPH lifecycle=1 modules=write_shmem/read_shmem connection=1 no_DMA=1 no_PCM=1 amps_off=1\n");
+ return true;
 }
 static volatile bool link_wanted, link_runs;
 static void
@@ -2416,12 +2459,14 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  for (unsigned i = 0; i < 64; i++) { services += qrtr_servers[i].there; }
  printf("adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR node=%u services=%u GPR SPF=1 mode=%u\n",
      qrtr_peer, services, mode);
+ if (mode == 7) { step = 12; if (!step_apm_graph()) { goto fail; } }
  success = true;
- if (mode == 2 || mode == 6) {
+ if (mode == 2 || mode == 6 || mode == 7) {
   stopping = true;
-  bool clean = dsp_shutdown(mode == 6 ? "waffle bounded DSP boot complete" : "adsp=2 complete");
-  if (mode == 6) {
-   printf("adsp: WAFFLE DSP_BOOT result=%u stop_clean=%u; GPR SPF state only, no PCM or amplifier startup\n", clean, clean);
+  bool clean = dsp_shutdown(mode >= 6 ? "waffle bounded DSP boot complete" : "adsp=2 complete");
+  if (mode == 6 || mode == 7) {
+   printf("adsp: WAFFLE DSP_BOOT result=%u stop_clean=%u; %s, no PCM or amplifier startup\n", clean, clean,
+       mode == 7 ? "GPR graph lifecycle" : "GPR SPF state only");
    success = clean;
   } else { printf("adsp: adsp=2 stopped clean=%u\n", clean); }
  }
@@ -2474,7 +2519,7 @@ macan_adsp_init(void)
  if (!mode) { return; }
  PE_parse_boot_argn("waffle", &waffle, sizeof(waffle));
  if (waffle) {
-  if (mode < 3 || mode > 6) {
+  if (mode < 3 || mode > 7) {
    printf("adsp: Waffle permits only adsp=3 preflight,4 power probe,5 survey,6 bounded DSP boot\n");
    mode = 0; return;
   }

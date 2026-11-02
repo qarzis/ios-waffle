@@ -72,7 +72,7 @@ static inline int waffle_cmdline_allowed(const char *line)
 {
     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
-    unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0;
+    unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0,audio=0,audio_budget=0;
     while (*line) {
         while (*line == ' ') line++;
         const char *end = line;
@@ -84,6 +84,8 @@ static inline int waffle_cmdline_allowed(const char *line)
         cpus+=waffle_cpu_token_allowed(line,size);
 #if defined(WAFFLE_USERLAND)
         torch+=waffle_number(line,size,"waffle_torch=",1,3);
+        audio+=waffle_token_equal(line,size,"adsp=3") || waffle_token_equal(line,size,"adsp=4") || waffle_token_equal(line,size,"adsp=5") || waffle_token_equal(line,size,"adsp=6") || waffle_token_equal(line,size,"adsp=7");
+        audio_budget+=waffle_number(line,size,"loader_return_after=",1,60);
 #endif
         gl_image+=waffle_token_equal(line,size,"waffle_image=13");
         matrix+=waffle_token_equal(line,size,"waffle_ecats_access=1");
@@ -112,11 +114,13 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_cpu_token_allowed(line,size) &&
 #if defined(WAFFLE_USERLAND)
             !waffle_number(line,size,"waffle_torch=",1,3) &&
+            !waffle_token_equal(line,size,"adsp=3") && !waffle_token_equal(line,size,"adsp=4") && !waffle_token_equal(line,size,"adsp=5") && !waffle_token_equal(line,size,"adsp=6") && !waffle_token_equal(line,size,"adsp=7") &&
 #endif
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
     }
-    return cpus<=1 && torch<=1 && ((!matrix && !measure) ||
+    return (!audio || (audio==1 && returns==1 && audio_budget==1 && !gpu_count && !torch && !cpus)) &&
+        cpus<=1 && torch<=1 && ((!matrix && !measure) ||
         (matrix<=1 && measure<=1 && gpu_count==1 && prepare93)) &&
         (!lpac || (lpac==1 && gpu_count==1 && (prepare93 || native94))) &&
         (!zap || (zap==1 && lpac==1 && gpu_count==1 && native94)) &&

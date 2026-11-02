@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--audio-power', action='store_true', help='With --audio-preflight: qualify native RPMh upvotes, retain until Android reset')
     parser.add_argument('--audio-survey', action='store_true', help='With --audio-preflight: read-only SMEM/SMP2P/GLINK state survey')
     parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
+    parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
@@ -62,6 +63,7 @@ def main():
     if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
+    if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
     if args.audio_preflight and any(getattr(args, name) for name in (
             'cpu_ui_test','cpus','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
             'measure_clocks','lpac_cp_init','gl_context','mapped','mesa_transport','msm','user_va','glsl',
@@ -227,11 +229,13 @@ def main():
             if args.audio_power:items.append('--audio-power')
             if args.audio_survey:items.append('--audio-survey')
             if args.audio_boot:items.append('--audio-boot')
+            if args.audio_graph:items.append('--audio-graph')
             result=command(items,timeout=240)
             report['audio_preflight']=True
             report['audio_power']=args.audio_power
             report['audio_survey']=args.audio_survey
             report['audio_boot']=args.audio_boot
+            report['audio_graph']=args.audio_graph
             report['runner_exit']=result.returncode
             if result.returncode:raise RuntimeError('Audio firmware preflight failed; inspect preserved logs')
             p=command([args.fastboot,'-s','xnuloader','reboot'])

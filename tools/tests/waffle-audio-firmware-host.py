@@ -96,12 +96,12 @@ int main(int argc, char **argv) {
  for (int damage = 1; damage <= 4; ++damage)
   check("adsp", 0x9df00000, 0x5280000, damage, false);
  arg_waffle = 1; arg_macan = 1;
- for (unsigned requested = 0; requested <= 7; ++requested) {
+ for (unsigned requested = 0; requested <= 8; ++requested) {
   workers = 0; arg_mode = requested; boot_runs = false;
   macan_adsp_init();
-  assert(workers == (requested >= 3 && requested <= 6));
+  assert(workers == (requested >= 3 && requested <= 7));
   assert(!crash_reads);
-  if (requested >= 3 && requested <= 6) {
+  if (requested >= 3 && requested <= 7) {
    assert(images[0].base == 0x9de80000 && images[0].capacity == 0x80000);
    assert(images[1].base == 0x9df00000 && images[1].capacity == 0x5280000);
    assert(ipcc.phys == 0x406000);

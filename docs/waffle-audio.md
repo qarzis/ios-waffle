@@ -50,7 +50,7 @@ continuation loop. Hardware results are recorded separately from build results.
 |---|---|
 | Signed firmware lifecycle | Verified in A09 |
 | SMP2P, GLINK, QRTR and GPR control transport | Verified in A09 |
-| AudioReach/APM PCM graph | Missing |
+| AudioReach/APM PCM graph | Prototype; graph send blocked in GLINK |
 | DSP PCM buffer mapping and period completion | Missing |
 | Native speaker route and TFA amplifier initialization | Not ported |
 | Connection to the iOS PCM sink | Missing |
@@ -64,3 +64,25 @@ revision `38d50357db2728300a61b6f757f2d3a09651c155`.
 
 Firmware and amplifier containers are obtained from the connected phone and are
 not included in the repository.
+
+## Graph prototype: A10/A11
+
+The prototype connects WR_SHMEM to RD_SHMEM without a hardware endpoint or DMA.
+Its 344-byte GRAPH_OPEN and 64-byte GRAPH_CLOSE packets compare byte-for-byte
+with the actual Linux v6.12 AudioReach builders at revision
+`adc218676eef25575469234709c2d87185ca223a`. GPR parser sanitizer tests cover
+token/opcode correlation, malformed/stale replies and the existing SPF query.
+
+In A10, DSP boot and SPF state succeeded, but `glink_send` failed before the graph
+packet was published. No APM graph reply was received. The exact transport error
+was not yet logged, so the graph format has not been blamed or changed. PAS
+shutdown and return to Android succeeded; the graph test remains failed.
+
+A11 adds intent-table overflow, remote-intent/request state, FIFO-room and send
+error logging. Its XNU compilation passed; UEFI packaging was stopped by the user
+and A11 has not been tested on the phone. This is diagnostic work in progress,
+not PCM playback support. The next test should establish the transport failure
+before changing allocation or packet format.
+
+Native audio DMA uses Apps SMMU streams `0x1001/0x1061`; the redwood `0x1801`
+mapping is inapplicable. Buffer mapping and completion events remain unimplemented.
