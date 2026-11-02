@@ -26,6 +26,7 @@ def main():
  parser.add_argument('--posterboard-providers',action='store_true',help='Restore the qualified duetexpertd/mobileassetd provider configuration')
  parser.add_argument('--service-audit',action='store_true',help='Read-only actual Focus/ringer/Poster service interface discovery')
  parser.add_argument('--animation-probe',action='store_true',help='Opt-in five timed native application launches for presentation A/B tests')
+ parser.add_argument('--transition-frames',action='store_true',help='Enable existing EAGL per-frame draw/refusal metadata for manual icon transitions')
  parser.add_argument('--poster-inventory',action='store_true',help='Read-only actual wallpaper collection and logical-screen inventory')
  parser.add_argument('--ios16-wallpaper',action='store_true',help='Test scoped availability of bundled iOS16 artwork for375x812@2x')
  parser.add_argument('--focus-diagnostic',action='store_true',help='Three read-only stack samples of donotdisturbd')
@@ -62,6 +63,9 @@ def main():
  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-DWAFFLE_UI_GPU_PROBE',f'-DWAFFLE_UI_GPU_STOP_SECONDS={args.stop_seconds}','-dynamiclib','-install_name','/redwood/lib/libredwood.dylib','-framework','CoreFoundation','-framework','IOKit','-lobjc',str(ROOT/'userland/src/inject.c'),'-o',str(inject)])
  scratch=out/'scratch';scratch.mkdir(exist_ok=True)
  tree=pf.scan_tar(str(args.base_kit/'root-base.tar'),str(scratch/'base'))
+ if args.transition_frames:
+  gl_args=scratch/'gl.args';gl_args.write_text('glframes=1\n')
+  pf.add_file(tree,'etc/gl.args',str(gl_args))
  normal=pf.node_at(tree,'sbin/init');assert normal and normal.source
  pf.add_file(tree,'sbin/init.real',normal.source,mode=0o100755)
  pf.add_file(tree,'sbin/init',str(init),mode=0o100755)
@@ -129,6 +133,7 @@ def main():
  manifest['posterboard_providers']=args.posterboard_providers
  manifest['service_audit']=args.service_audit
  manifest['animation_probe']=args.animation_probe
+ manifest['transition_frames']=args.transition_frames
  manifest['poster_inventory']=args.poster_inventory
  manifest['ios16_wallpaper']=args.ios16_wallpaper
  manifest['cpu_proof']=args.cpu_proof

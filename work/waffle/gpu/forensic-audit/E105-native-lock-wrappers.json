@@ -1,0 +1,40 @@
+[
+  {
+    "selector": "lockWithOptions:seed:",
+    "types": "i28@0:8I16^I20",
+    "address": "0x1a393440c",
+    "instructions": [
+      "1a393440c: mov x1, x2",
+      "1a3934410: ldr x0, [x0, #8]",
+      "1a3934414: mov x2, x3",
+      "1a3934418: b #0x1a3930928",
+      "1a393441c: mov x1, x2",
+      "1a3934420: ldr x0, [x0, #8]",
+      "1a3934424: mov x2, x3",
+      "1a3934428: b #0x1a3930ecc",
+      "1a393442c: ldr x0, [x0, #8]",
+      "1a3934430: b #0x1a3933b9c",
+      "1a3934434: ldr x0, [x0, #8]",
+      "1a3934438: b #0x1a3933c3c"
+    ]
+  },
+  {
+    "selector": "unlockWithOptions:seed:",
+    "types": "i28@0:8I16^I20",
+    "address": "0x1a393441c",
+    "instructions": [
+      "1a393441c: mov x1, x2",
+      "1a3934420: ldr x0, [x0, #8]",
+      "1a3934424: mov x2, x3",
+      "1a3934428: b #0x1a3930ecc",
+      "1a393442c: ldr x0, [x0, #8]",
+      "1a3934430: b #0x1a3933b9c",
+      "1a3934434: ldr x0, [x0, #8]",
+      "1a3934438: b #0x1a3933c3c",
+      "1a393443c: ldr x0, [x0, #8]",
+      "1a3934440: b #0x1a3934014",
+      "1a3934444: ldr x0, [x0, #8]",
+      "1a3934448: b #0x1a3934cf0"
+    ]
+  }
+]

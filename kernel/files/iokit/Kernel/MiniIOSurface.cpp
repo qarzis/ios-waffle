@@ -772,7 +772,7 @@ class IOSurfaceRootUserClient : public IOUserClient
  IOReturn trapUnlock(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6);
  IOReturn trapDetach(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6);
  IOReturn trapRelease(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6);
- IOReturn lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut);
+ IOReturn lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut, bool unlocking);
  IOReturn useCountCommon(uint32_t sid, uint32_t category, int delta);
 public:
  virtual bool initWithTask(task_t owningTask, void * securityID, UInt32 type, OSDictionary * properties) APPLE_KEXT_OVERRIDE;
@@ -1519,7 +1519,7 @@ IOSurfaceRootUserClient::trapDecrementUseCount(void * p1, void * p2, void * p3, 
  return useCountCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, -1);
 }
 IOReturn
-IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut)
+IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut, bool unlocking)
 {
  struct minisurf_client_ref * ref;
  uint32_t seed = 0;
@@ -1527,7 +1527,9 @@ IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t 
  ref = findRef(sid, false);
  if (ref != NULL) {
   struct minisurf_shared * sh = ref->surface->shared();
-  if (!(options & kSurfaceLockReadOnly)) {
+  /* A writer publishes its new content version at unlock. Publishing at
+   * lock can make a texture cache consume an unfinished update. */
+  if (unlocking && !(options & kSurfaceLockReadOnly)) {
    sh->seed++;
   }
   seed = sh->seed;
@@ -1544,12 +1546,12 @@ IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t 
 IOReturn
 IOSurfaceRootUserClient::trapLock(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6)
 {
- return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3);
+ return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3, false);
 }
 IOReturn
 IOSurfaceRootUserClient::trapUnlock(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6)
 {
- return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3);
+ return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3, true);
 }
 IOReturn
 IOSurfaceRootUserClient::trapDetach(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6)

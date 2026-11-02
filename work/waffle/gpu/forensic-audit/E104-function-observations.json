@@ -1,0 +1,110 @@
+{
+  "observed": [
+    {
+      "frame": 1,
+      "operations": "61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 28,
+      "operations": "45 vcm kind 3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 34,
+      "operations": "61 edr kind 0 x1;"
+    },
+    {
+      "frame": 35,
+      "operations": "45 vcm kind 3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 40,
+      "operations": "61 edr kind 0 x1;"
+    },
+    {
+      "frame": 41,
+      "operations": "45 vcm kind 3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 79,
+      "operations": "61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 81,
+      "operations": "45 vcm kind 3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 83,
+      "operations": "61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 85,
+      "operations": "45 vcm kind 3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 87,
+      "operations": "61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 89,
+      "operations": "45 vcm kind 3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 122,
+      "operations": "61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 471,
+      "operations": "refused 40 sb3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 472,
+      "operations": "53 hom kind 2 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 477,
+      "operations": "45 vcm kind 3 x8; 53 hom kind 2 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 478,
+      "operations": "53 hom kind 2 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 491,
+      "operations": "45 vcm kind 3 x8; 53 hom kind 2 x2; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 492,
+      "operations": "45 vcm kind 3 x8; 53 hom kind 2 x2; 61 edr kind 0 x1; 66 lub kind 0 x1; groups: 2 covered, 2 laid, 0 flattened;"
+    },
+    {
+      "frame": 502,
+      "operations": "45 vcm kind 3 x8; 53 hom kind 2 x1; 61 edr kind 0 x1; 66 lub kind 0 x1; groups: 2 covered, 2 laid, 0 flattened;"
+    },
+    {
+      "frame": 503,
+      "operations": "45 vcm kind 3 x8; 61 edr kind 0 x1; 66 lub kind 0 x1; groups: 2 covered, 2 laid, 0 flattened;"
+    },
+    {
+      "frame": 511,
+      "operations": "45 vcm kind 3 x10; 61 edr kind 0 x1; 66 lub kind 0 x1; groups: 0 covered, 0 laid, 1 flattened;"
+    },
+    {
+      "frame": 512,
+      "operations": "45 vcm kind 3 x10; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 516,
+      "operations": "45 vcm kind 3 x1; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 699,
+      "operations": "45 vcm kind 3 x2; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    },
+    {
+      "frame": 700,
+      "operations": "45 vcm kind 3 x6; 61 edr kind 0 x1; 66 lub kind 0 x1;"
+    }
+  ],
+  "user_icon_timing_confirmed": false,
+  "warning": "EDR/LUB skipped during startup too; not proof of black-transition root cause; live screenshot may mix frames"
+}

@@ -1,0 +1,10 @@
+{
+  "experiment": "E104 manual icon per-frame operation trace",
+  "passed": false,
+  "user_black_icon_animation_confirmed": true,
+  "root_cause_identified": false,
+  "full_context_close": true,
+  "normal_kernel_return": "result: returned 1441823 0",
+  "android_recovery_independent": false,
+  "recovery_blocker": "Android USB enumerates22d9:2769 but logind ACL removed after lid lock; ADBno permissions"
+}

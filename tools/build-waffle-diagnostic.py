@@ -60,6 +60,7 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-glink-intent-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-framebuffer-clipping-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-display-usecount-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-iosurface-seed-host.py"])
     for variant,flags in (("user",["-DWAFFLE_USERLAND=1"]),("soak",["-DWAFFLE_USERLAND=1","-DWAFFLE_UI_SOAK_TEST=1"])):
         run(["cc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",*flags,
              ROOT / "tools/tests/waffle-policy.c","-o",output / f"test-policy-{variant}"])
@@ -273,6 +274,7 @@ def main():
                      "kernel/files/iokit/Kernel/MiniIOSurface.h",
                      "tools/tests/waffle-framebuffer-clipping-host.py",
                      "tools/tests/waffle-display-usecount-host.py",
+                     "tools/tests/waffle-iosurface-seed-host.py",
                      "tools/tests/waffle-10mb-object-host.py"):
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)

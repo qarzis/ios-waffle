@@ -1,0 +1,6 @@
+{
+  "manual_icon_black_reproduced": true,
+  "user_report": "Repeated2\u20133 icon openings; black animation present",
+  "latest_observed_frame": 1016,
+  "causality": "EDR/LUB kind0 also baseline; SB3 refusal in some transitions; none proves black root cause"
+}
