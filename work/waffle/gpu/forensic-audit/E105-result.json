@@ -1,0 +1,13 @@
+{
+  "experiment": "E105 write-unlock seed publication",
+  "passed": false,
+  "user_black_animation_remains": true,
+  "contract_fix_host_pass": true,
+  "animation_hypothesis_sufficient": false,
+  "completed": 3569,
+  "lifetime_buffers": 2129,
+  "full_context_close": true,
+  "android_independent": 1,
+  "original_runner_exit": 1,
+  "raw_log_sha256": "70d8a1d60c36b0a037cd1a08c1356224b7ce2b281e75fa858a0ca428a2f7e544"
+}

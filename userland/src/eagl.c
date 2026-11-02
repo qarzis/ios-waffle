@@ -542,6 +542,32 @@ surface_to_texture(struct eagl *e, struct image *image)
   base = flipped;
  }
  glGetIntegerv(GL_UNPACK_ROW_LENGTH, &row_length);
+ /* Diagnostic only: sample already-locked, converted upload bytes. This
+  * distinguishes an empty input picture from a later rendering failure. */
+ if (frame_lines && pixel == 4 && image->width >= 375 && image->height >= 700 &&
+     row >= (size_t)image->width * 4 && base != NULL) {
+  static unsigned sampled;
+  if (sampled++ < 96) {
+   unsigned nonzero[4] = {0}, samples = 0;
+   uint32_t fingerprint = 2166136261u;
+   for (unsigned gy = 0; gy < 4; gy++) {
+    size_t y = (size_t)(image->height - 1) * gy / 3;
+    for (unsigned gx = 0; gx < 4; gx++) {
+     size_t x = (size_t)(image->width - 1) * gx / 3;
+     const uint8_t *p = base + y * row + x * 4;
+     for (unsigned c = 0; c < 4; c++) {
+      nonzero[c] += p[c] != 0;
+      fingerprint = (fingerprint ^ p[c]) * 16777619u;
+     }
+     samples++;
+    }
+   }
+   say("waffle-upload: frame=%u surface=%u texture=%u target=%u wrapped=%u alpha_first=%u invert=%u width=%d height=%d row=%zu format=%x type=%x samples=%u nonzero=%u/%u/%u/%u hash=%x\n",
+       e->frames + 1, IOSurfaceGetID(surface), image->texture, image->target, image->wrapped,
+       alpha_first, image->invert, image->width, image->height, row, image->format, image->type,
+       samples, nonzero[0], nonzero[1], nonzero[2], nonzero[3], fingerprint);
+  }
+ }
  glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
  glPixelStorei(GL_UNPACK_ROW_LENGTH, (GLint)(row / pixel));
  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
