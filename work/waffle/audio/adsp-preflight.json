@@ -1,0 +1,457 @@
+{
+  "dtb_sha256": "c0a4036689044dd47e4a46076285d1fca13361f4c280690c5e2e80ed7382a92a",
+  "driver_sha256": "ff760dc5dd287739fdf4a4f58d2f0382f955b1e8e2df9578cc76fb5a8c9d8c85",
+  "profile": {
+    "adsp_base": 2649751552,
+    "adsp_size": 86507520,
+    "dtb_base": 2649227264,
+    "dtb_size": 524288,
+    "ipcc": 4218880,
+    "aoss": 204472320,
+    "cmd_db": 2177236992,
+    "smem": 2177892352,
+    "rsc": 396492800,
+    "tcs_offset": 3328,
+    "smem_lock": 32780288
+  },
+  "images": {
+    "adsp": {
+      "base": 2649751552,
+      "capacity": 86507520,
+      "span": 86507520,
+      "relocatable": true,
+      "metadata_sha256": "03de3bf9888dd213a28db2334fa27f6e8bbbe840c8ad727f83547e98d11435fb",
+      "segments": [
+        {
+          "index": 1,
+          "destination": 2649751552,
+          "file_size": 21032,
+          "memory_size": 24576,
+          "sha256": "e5b65995f625b7c08533f589765c53bd6fa4fa6012a60e789dfb3abfbda35327"
+        },
+        {
+          "index": 2,
+          "destination": 2649776128,
+          "file_size": 131532,
+          "memory_size": 4313088,
+          "sha256": "8288327619e122660fee5ba70c7c671adf4fab187fa007822576808503fe04bd"
+        },
+        {
+          "index": 3,
+          "destination": 2654089216,
+          "file_size": 88232,
+          "memory_size": 90112,
+          "sha256": "53eda52e7ce9e1a16dc1ec37921b54610045ef9195cd994d7b9ff88522743a89"
+        },
+        {
+          "index": 4,
+          "destination": 2654179328,
+          "file_size": 28084,
+          "memory_size": 28672,
+          "sha256": "6f7368a04b51c4be803fdfc09b4b711cf04157ca9ef0df14884dabc6830c09cd"
+        },
+        {
+          "index": 5,
+          "destination": 2654208000,
+          "file_size": 51280,
+          "memory_size": 53248,
+          "sha256": "e2fbbd2ecde76d1977c5e2635807326be694596fc44054f6d114c99acd255987"
+        },
+        {
+          "index": 6,
+          "destination": 2654261248,
+          "file_size": 733184,
+          "memory_size": 733184,
+          "sha256": "ce93364330af94b8d70948d0e5732b5b37d74fea3b694a10effef25bf82db1ba"
+        },
+        {
+          "index": 7,
+          "destination": 2654994432,
+          "file_size": 240,
+          "memory_size": 4096,
+          "sha256": "913f2f1c676b8f7afa16d21f5eb92578ea5bf8eda9a3f8ee352ec2ffd1b43a8a"
+        },
+        {
+          "index": 8,
+          "destination": 2654998528,
+          "file_size": 9732,
+          "memory_size": 12288,
+          "sha256": "43ce90eead9e9c71c01d98fd98ae12a852d28fb4a6f02d57db923e326540237d"
+        },
+        {
+          "index": 9,
+          "destination": 2655010816,
+          "file_size": 2811364,
+          "memory_size": 2813952,
+          "sha256": "e509fa245490bcdb3d381a05afb37c1221e6600f52ed18465811e64a7a79601d"
+        },
+        {
+          "index": 10,
+          "destination": 2657824768,
+          "file_size": 370764,
+          "memory_size": 11448320,
+          "sha256": "c343b4491c511e8cac9df6bed9400d3bafa5b180f8f8f55dd7f81e26eb93ae28"
+        },
+        {
+          "index": 11,
+          "destination": 2669273088,
+          "file_size": 2584,
+          "memory_size": 4096,
+          "sha256": "49567f2c4919bc87dec0dbc6abeb441802e30820b23c77358d7b68a9b7d2ca6a"
+        },
+        {
+          "index": 12,
+          "destination": 2669277184,
+          "file_size": 11872,
+          "memory_size": 12288,
+          "sha256": "a2eb7630b5fe7f7224ccec6bab197d4cdd31e3c9a58484dd0e476a5a91957ef1"
+        },
+        {
+          "index": 13,
+          "destination": 2669289472,
+          "file_size": 1212,
+          "memory_size": 4096,
+          "sha256": "6db58e079d61bd49ec10d05569fd171e89a7d58993b969c830cfcc4f12a1f27a"
+        },
+        {
+          "index": 14,
+          "destination": 2669293568,
+          "file_size": 239752,
+          "memory_size": 239752,
+          "sha256": "f4443c2277a0d79ad0a9b6f41ec9074724c819b2bbff92640467111de8d5eb26"
+        },
+        {
+          "index": 15,
+          "destination": 2669533320,
+          "file_size": 154732,
+          "memory_size": 157560,
+          "sha256": "21a13161023bbb540b8151e682ead4fd7c829b434ad514aa44135d974a2e6ee5"
+        },
+        {
+          "index": 16,
+          "destination": 2669690880,
+          "file_size": 1032192,
+          "memory_size": 1032192,
+          "sha256": "d79b47bc2ce87f955bca165e224162d8675f59ae7d6552b1ca70dec2cb501f04"
+        },
+        {
+          "index": 17,
+          "destination": 2670723072,
+          "file_size": 3071972,
+          "memory_size": 3072000,
+          "sha256": "51eb82f7f757a405bd3be318e380f981bcb572a450ea632f682d1c6dbcd1747f"
+        },
+        {
+          "index": 18,
+          "destination": 2673795072,
+          "file_size": 43272,
+          "memory_size": 1114112,
+          "sha256": "78868724c0e953b682772390e3d3417f9e46f45db2dce9324e4537c5b5cd58a1"
+        },
+        {
+          "index": 19,
+          "destination": 2674909184,
+          "file_size": 272,
+          "memory_size": 4096,
+          "sha256": "8e46c92b029f938d8e2677a8687ced8374ee1fd54f66105ba01c783ca59a13a8"
+        },
+        {
+          "index": 20,
+          "destination": 2674913280,
+          "file_size": 451780,
+          "memory_size": 454656,
+          "sha256": "17b28df261c6cf2e0f1c1559806ee33388f08fa6d4e21d2e8b12a1d081df0589"
+        },
+        {
+          "index": 21,
+          "destination": 2675367936,
+          "file_size": 598016,
+          "memory_size": 598016,
+          "sha256": "e4002e69ba185f601d84b3e00e92dc75b2c9cbeb09e2f844d4c9d0699a544950"
+        },
+        {
+          "index": 22,
+          "destination": 2675965952,
+          "file_size": 3034360,
+          "memory_size": 3035136,
+          "sha256": "633ab07c06c3c6657a3808438117746fbe22c38297f690fb5f675728f46998f1"
+        },
+        {
+          "index": 23,
+          "destination": 2679001088,
+          "file_size": 7380996,
+          "memory_size": 7385088,
+          "sha256": "602269046d40b6a03e11834e5e8d8a067cf512744dc484bbac26c10a1c4d0bca"
+        },
+        {
+          "index": 24,
+          "destination": 2686386176,
+          "file_size": 0,
+          "memory_size": 10072064
+        },
+        {
+          "index": 25,
+          "destination": 2696458240,
+          "file_size": 108,
+          "memory_size": 4096,
+          "sha256": "8948a6b88376b9d3f75e89f33ea0c03e149d6ebde637874951c121d0b6b17efd"
+        },
+        {
+          "index": 26,
+          "destination": 2696462336,
+          "file_size": 12492,
+          "memory_size": 16384,
+          "sha256": "36ac0618047ad978240745d845efc855910eabf057bd9220a34b897259d8c406"
+        },
+        {
+          "index": 27,
+          "destination": 2696478720,
+          "file_size": 39304,
+          "memory_size": 40960,
+          "sha256": "0d65418237487ca21b5ca1686019e7a6b12f2bdd3442922d401d6e43fdcda9a1"
+        },
+        {
+          "index": 28,
+          "destination": 2696519680,
+          "file_size": 778644,
+          "memory_size": 782336,
+          "sha256": "59923fea79aba5dccd96324d86cb47b7bdb2fc95992f98b2478576a28f7fb06d"
+        },
+        {
+          "index": 29,
+          "destination": 2697302016,
+          "file_size": 199792,
+          "memory_size": 200704,
+          "sha256": "255299f46aacf9d84eca92ab14e14587be9c3753e1d4e57fb8bfb3301f05c535"
+        },
+        {
+          "index": 30,
+          "destination": 2697502720,
+          "file_size": 169860,
+          "memory_size": 172032,
+          "sha256": "ef3cf9556be0ce877ae60cc8c96eb04e801c793ebe297a06a9d427a27ec00d90"
+        },
+        {
+          "index": 31,
+          "destination": 2697674752,
+          "file_size": 8412,
+          "memory_size": 12288,
+          "sha256": "105e1e47f0a7f2cba97e620f0b1228e8f7324b7a1eaac0569215543d1526e507"
+        },
+        {
+          "index": 32,
+          "destination": 2697687040,
+          "file_size": 104753,
+          "memory_size": 106496,
+          "sha256": "fb10f05c894aee19b166c3b3da399dcfa0cb78086f2b50de05ecc3bef4288535"
+        },
+        {
+          "index": 33,
+          "destination": 2697793536,
+          "file_size": 17652,
+          "memory_size": 20480,
+          "sha256": "326374442092002e5e60ce008c1d68768ba5af21dbce4889fd3c5639111c3b05"
+        },
+        {
+          "index": 34,
+          "destination": 2697814016,
+          "file_size": 174016,
+          "memory_size": 212992,
+          "sha256": "0b1fc41049b097839a7db2f728aa4f7b958bc5caa8ccc6d59cb2fbf8d236f68d"
+        },
+        {
+          "index": 35,
+          "destination": 2698027008,
+          "file_size": 90424,
+          "memory_size": 94208,
+          "sha256": "2e87598ddfb72eb3e9f18723231eee59cf4bcca6f12a8c8c211b270bca7b67bd"
+        },
+        {
+          "index": 36,
+          "destination": 2698121216,
+          "file_size": 68040,
+          "memory_size": 466944,
+          "sha256": "0c31b938cb912ffcd19ea06e7b41ea7a30ed4e67c3959b60136d8d075a3c6ad9"
+        },
+        {
+          "index": 37,
+          "destination": 2698588160,
+          "file_size": 8648,
+          "memory_size": 12288,
+          "sha256": "98953409cacb84dd9a0e467647b61e59431f584768f49308882362a2c64f36db"
+        },
+        {
+          "index": 38,
+          "destination": 2698600448,
+          "file_size": 54092,
+          "memory_size": 57344,
+          "sha256": "1af6aa1899d6f16c907dbd6b2da17fc246aca2d8bf9e3db4d03965c74ff3e96b"
+        },
+        {
+          "index": 39,
+          "destination": 2698657792,
+          "file_size": 82,
+          "memory_size": 82,
+          "sha256": "cfa5063c8aa324965d3658db10236d23437267960ed2ef669fbceb5d81c5c060"
+        },
+        {
+          "index": 40,
+          "destination": 2698661888,
+          "file_size": 372736,
+          "memory_size": 372736,
+          "sha256": "dca35109dbb82c6362fa3faa1b96dc9baa12d77b49d2e76a285fbb716d83131c"
+        },
+        {
+          "index": 41,
+          "destination": 2699034624,
+          "file_size": 11608580,
+          "memory_size": 11612160,
+          "sha256": "6afe9489b87b8c9a5c5b2e4800354f3abbc4648e6e371539840861179a492866"
+        },
+        {
+          "index": 42,
+          "destination": 2710646784,
+          "file_size": 1118216,
+          "memory_size": 11579392,
+          "sha256": "3cedc673e347e291a3a7137726591b85153dec498a5a6f7c2c189728e1fb8d61"
+        },
+        {
+          "index": 43,
+          "destination": 2722226176,
+          "file_size": 20,
+          "memory_size": 4096,
+          "sha256": "271c5783def587733c57edd67523fd9890a97b12fd2ee0ad4237226454bb6b85"
+        },
+        {
+          "index": 44,
+          "destination": 2722230272,
+          "file_size": 77944,
+          "memory_size": 81920,
+          "sha256": "cf555ec935ba87c3155f29f4a4a7b2fa6112925ca508e69391591f2f95d230e4"
+        },
+        {
+          "index": 45,
+          "destination": 2722312192,
+          "file_size": 28172,
+          "memory_size": 28672,
+          "sha256": "57f13c592419b2fe187dabe4c3761fa3f1001ffd7aeb5a87485a7812befdac45"
+        },
+        {
+          "index": 46,
+          "destination": 2722340864,
+          "file_size": 32264,
+          "memory_size": 32768,
+          "sha256": "90e52930027a160880aafdd60616e15686607700da2630e690e4621ef36bc721"
+        },
+        {
+          "index": 47,
+          "destination": 2722373632,
+          "file_size": 501612,
+          "memory_size": 503808,
+          "sha256": "ca8ad621d326cfe09eff272c91ef5253b57c11e9d13594bd8049eb18d1ece575"
+        },
+        {
+          "index": 48,
+          "destination": 2722877440,
+          "file_size": 10948,
+          "memory_size": 12288,
+          "sha256": "d5cb0b546ace04cd80a5445b87f2a6f0896aacab3ddec50b385301a6acf6bc71"
+        },
+        {
+          "index": 49,
+          "destination": 2722889728,
+          "file_size": 375016,
+          "memory_size": 376832,
+          "sha256": "a3e7cefb5905997dabae6926307680e7bd958a7543bbcc557fa839fbdbab5c00"
+        },
+        {
+          "index": 50,
+          "destination": 2723266560,
+          "file_size": 933888,
+          "memory_size": 933888,
+          "sha256": "5c19d0cee2f325c5f728fbc21b4d217c978628b417acef15e46e6808fe1f6bb4"
+        },
+        {
+          "index": 51,
+          "destination": 2724200448,
+          "file_size": 83815,
+          "memory_size": 83815,
+          "sha256": "4118b3104645a74de1d62b0296dc00fa130dcf2ad48a0362d206eb6b20612fbf"
+        },
+        {
+          "index": 52,
+          "destination": 2724286464,
+          "file_size": 962560,
+          "memory_size": 962560,
+          "sha256": "88ed3dde28304a3be3092b4f627599d1dedd7c7a20d4ef903bc93b653693c635"
+        },
+        {
+          "index": 53,
+          "destination": 2725249024,
+          "file_size": 53248,
+          "memory_size": 53248,
+          "sha256": "b4ffd9ec65fa418e3075c766544135dd7941a4afb22b14c3af83aff2586a717c"
+        },
+        {
+          "index": 54,
+          "destination": 2725302272,
+          "file_size": 5139992,
+          "memory_size": 5139992,
+          "sha256": "2afc635e365319d3b549f7c806fd0145b4c6d6116692db9bbccb43ad09f180fa"
+        },
+        {
+          "index": 55,
+          "destination": 2730442752,
+          "file_size": 0,
+          "memory_size": 5816320
+        }
+      ]
+    },
+    "adsp_dtb": {
+      "base": 2649227264,
+      "capacity": 524288,
+      "span": 57344,
+      "relocatable": true,
+      "metadata_sha256": "b423ca93d51d84a4783d1fdcf05719e07b40222c401f6742536985c5b0b1a5fc",
+      "segments": [
+        {
+          "index": 1,
+          "destination": 2649227264,
+          "file_size": 56884,
+          "memory_size": 56884,
+          "sha256": "507d06b89f7ab47ca7bb3d69a229c9326fcba8f0af8834922af6d4c68740b623"
+        }
+      ]
+    }
+  },
+  "driver_mismatches": [
+    {
+      "resource": "adsp_base",
+      "driver": 2668625920,
+      "live_dt": 2649751552
+    },
+    {
+      "resource": "adsp_size",
+      "driver": 78643200,
+      "live_dt": 86507520
+    },
+    {
+      "resource": "dtb_base",
+      "driver": 2668101632,
+      "live_dt": 2649227264
+    },
+    {
+      "resource": "ipcc",
+      "driver": 17850368,
+      "live_dt": 4218880
+    },
+    {
+      "resource": "rsc",
+      "driver": 412221440,
+      "live_dt": 396492800
+    }
+  ],
+  "native_firmware_fits_dt": true,
+  "driver_matches_dt": false,
+  "hardware_boot_tested": false
+}

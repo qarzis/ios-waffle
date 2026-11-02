@@ -1,0 +1,17 @@
+{
+  "stage": "A01 firmware preflight",
+  "built_at": "2026-11-02T12:55:10.006074+00:00",
+  "kernel_sha256": "6dd495c8aa5b3a6d20bf5903fdde8beca6a6d8381c209d83c45ac96bdbe641ee",
+  "kernel_build": "PASS",
+  "host_sanitizers": "PASS",
+  "native_adsp_span": 86507520,
+  "donor_adsp_capacity": 78643200,
+  "hardware_tested": false,
+  "playback_implemented": false,
+  "source_sha256": {
+    "kernel/files/bsd/dev/macan_adsp.c": "68684d413efa0f5b070fa35fa33a25ba784ca09db7542ca0b992b52dafa1a405",
+    "tools/check-waffle-audio.py": "76b4d395c58635ba515b96850b26d9cd83ab19fc1434112a2cb9a43fc958f6eb",
+    "tools/tests/waffle-audio-firmware-host.py": "c2660182fdd84c5bc166e5e9ad276eadd517d7fb27daf4904c4ee9dd8cb01e36",
+    "tools/build-waffle-diagnostic.py": "f145608eda17d9df23e7f48635af71ebcb86abfd38e9f7ce93300485ceb99599"
+  }
+}

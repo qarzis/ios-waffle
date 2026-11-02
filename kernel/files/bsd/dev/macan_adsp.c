@@ -2194,6 +2194,18 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  for (unsigned n = 0; n < 300 && rootvnode == NULLVP && !stopping; n++) { sleep_ms(200); }
  lck_mtx_lock(&dsp_lock);
  if (stopping) { goto out; }
+ if (mode == 3) {
+  bool valid = firmware_check(&images[0]) && firmware_check(&images[1]);
+  printf("adsp: WAFFLE PREFLIGHT %s: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes\n",
+      valid ? "OK" : "FAIL");
+  for (unsigned i = 0; i < 2; i++) {
+   file_free(images[i].mdt, images[i].mdt_size, images[i].owned);
+   images[i].mdt = NULL;
+   images[i].owned = false;
+  }
+  success = valid;
+  goto out;
+ }
  step = 1;
  if (!step_survey()) { goto fail; }
  step = 2;
@@ -2270,6 +2282,7 @@ macan_adsp_stop(void)
  stopping = true;
  if (!mode) { return; }
  for (unsigned n = 0; n < 2000 && boot_runs; n++) { sleep_ms(1); }
+ if (mode == 3) { return; }
  lck_mtx_lock(&dsp_lock);
  dsp_shutdown("loader return");
  lck_mtx_unlock(&dsp_lock);
@@ -2279,29 +2292,42 @@ macan_adsp_quiesce(void)
 {
  if (!mode) { return; }
  leaving = stopping = true;
+ if (mode == 3) { return; }
  link_wanted = false;
  dsp_shutdown("panic/loader quiesce");
 }
 void
 macan_adsp_init(void)
 {
- uint32_t macan = 0;
+ uint32_t macan = 0, waffle = 0;
  thread_t thread;
  PE_parse_boot_argn("adsp", &mode, sizeof(mode));
  PE_parse_boot_argn("adsp_vote", &adsp_vote, sizeof(adsp_vote));
  if (!mode) { return; }
- if (mode > 2 || !PE_parse_boot_argn("macan", &macan, sizeof(macan)) || !macan) {
-  printf("adsp: requires macan=1 and adsp=1 or adsp=2\n");
-  mode = 0; return;
+ PE_parse_boot_argn("waffle", &waffle, sizeof(waffle));
+ if (waffle) {
+  if (mode != 3) {
+   printf("adsp: Waffle permits only adsp=3 firmware preflight; hardware boot is not qualified\n");
+   mode = 0; return;
+  }
+  images[0].base = 0x9de80000u;
+  images[0].capacity = 0x00080000u;
+  images[1].base = 0x9df00000u;
+  images[1].capacity = 0x05280000u;
+ } else {
+  if (mode > 2 || !PE_parse_boot_argn("macan", &macan, sizeof(macan)) || !macan) {
+   printf("adsp: requires macan=1 and adsp=1 or adsp=2\n");
+   mode = 0; return;
+  }
  }
  new_from = ~0u;
  boot_runs = true;
  if (kernel_thread_start(adsp_thread, NULL, &thread) != KERN_SUCCESS) {
   boot_runs = false;
   printf("adsp: FAIL stage=0 no worker thread\n");
-  show_crash_reason();
+  if (mode != 3) { show_crash_reason(); }
   return;
  }
  thread_deallocate(thread);
- printf("adsp: stage 1 worker started adsp=%u (0 is default/off)\n", mode);
+ printf("adsp: %s worker started adsp=%u (0 is default/off)\n", mode == 3 ? "firmware preflight" : "stage 1", mode);
 }

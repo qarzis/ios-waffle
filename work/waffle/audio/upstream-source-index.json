@@ -1,0 +1,45 @@
+{
+  "revision": "38d50357db2728300a61b6f757f2d3a09651c155",
+  "sources": [
+    {
+      "path": "vendor/oplus/kernel/audio/codecs/tfa98xx-v6/tfa98xx_v6.c",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "ac36a11a8cc695c8aef92222b97cfee40448b063",
+      "size": 176305,
+      "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/ac36a11a8cc695c8aef92222b97cfee40448b063"
+    },
+    {
+      "path": "vendor/qcom/opensource/audio-kernel/asoc/pineapple.c",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "9bc98db7caf22734b03ac499eaf33888b51ce7b4",
+      "size": 78531,
+      "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/9bc98db7caf22734b03ac499eaf33888b51ce7b4"
+    },
+    {
+      "path": "vendor/qcom/opensource/audio-kernel/include/dsp/apr_audio-v2.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "504a91ab9da2c82a86ca1635906c0d76ced5d3d9",
+      "size": 404062,
+      "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/504a91ab9da2c82a86ca1635906c0d76ced5d3d9"
+    },
+    {
+      "path": "vendor/qcom/opensource/audio-kernel/ipc/audio-pkt.c",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "0046fee7bae169bafe1dcac7c3cf71564af4ee4f",
+      "size": 22487,
+      "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/0046fee7bae169bafe1dcac7c3cf71564af4ee4f"
+    },
+    {
+      "path": "vendor/qcom/opensource/audio-kernel/ipc/gpr-lite.c",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "0e9f08ab5dbd7054989a41dfc8288cfd25fc4626",
+      "size": 17367,
+      "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/git/blobs/0e9f08ab5dbd7054989a41dfc8288cfd25fc4626"
+    }
+  ]
+}
