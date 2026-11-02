@@ -1,0 +1,4 @@
+waffle-slider: identification failed ids=0,0 opf=0,0; stopped
+waffle-slider-user: read-only Hall position monitor started; no Focus/ringer changes
+waffle-slider-user: position=0 up=0 down=0 read_only=1
+waffle-gpu: GENERAL close passed=1 completed=5352 buffers=1799 context_null=1

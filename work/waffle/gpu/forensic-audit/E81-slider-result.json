@@ -1,0 +1,9 @@
+{
+  "run": "work/waffle/runs/20261102T101848Z",
+  "actual_slider_qualified": false,
+  "sensor_register_writes": false,
+  "Focus_or_ringer_changes": false,
+  "observed": "I2C start cannot raise SCL",
+  "important_limit": "E81 exploratory SPMI rail PPIDs were not established; do not infer actual Hall rail state from those reads",
+  "Android_after_test_independently_confirmed": true
+}

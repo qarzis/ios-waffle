@@ -1,0 +1,7 @@
+waffle-slider: rail0 status=0 voltage=006 mode=0 enable=0 error=none read_only=1
+waffle-slider: rail1 status=0 voltage=000 mode=0 enable=0 error=APID absent read_only=1
+waffle-slider: pin206 cfg=801 io=0 pin207 cfg=801 io=0
+waffle-slider: identification failed ids=0,0 opf=0,0 phase=1; stopped
+waffle-slider-user: read-only Hall position monitor started; no Focus/ringer changes
+waffle-slider-user: position=0 up=0 down=0 read_only=1
+waffle-gpu: GENERAL close passed=1 completed=3776 buffers=1665 context_null=1

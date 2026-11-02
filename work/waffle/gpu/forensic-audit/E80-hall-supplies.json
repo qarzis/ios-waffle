@@ -1,0 +1,20 @@
+{
+  "/soc/rsc@17a00000/drv@2/rpmh-regulator-ldob1/regulator-pm-humu-l1": {
+    "regulator-name": "706d5f68756d755f6c3100",
+    "qcom,set": "00000003",
+    "regulator-min-microvolt": "001b7740",
+    "regulator-max-microvolt": "001b7740",
+    "qcom,init-voltage": "001b7740",
+    "qcom,init-mode": "00000004",
+    "phandle": "00000387"
+  },
+  "/soc/rsc@17a00000/drv@2/rpmh-regulator-ldob2/regulator-pm-humu-l2": {
+    "regulator-name": "706d5f68756d755f6c3200",
+    "qcom,set": "00000003",
+    "regulator-min-microvolt": "002de600",
+    "regulator-max-microvolt": "002de600",
+    "qcom,init-voltage": "002de600",
+    "qcom,init-mode": "00000004",
+    "phandle": "00000388"
+  }
+}

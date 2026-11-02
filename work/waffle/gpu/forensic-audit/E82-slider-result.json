@@ -1,0 +1,25 @@
+{
+  "run": "work/waffle/runs/20261102T102340Z",
+  "RPMh_power_votes_completed": {
+    "ldob1": "0x40700,1800mV,HPM7,on",
+    "ldob2": "0x40f00,3000mV,HPM7,on"
+  },
+  "SDA_SCL_after_power": [
+    1,
+    1
+  ],
+  "MXM1120_device_IDs": [
+    "0x9c",
+    "0x9c"
+  ],
+  "OPF_before_measurement": [
+    0,
+    0
+  ],
+  "power_hypothesis_confirmed": true,
+  "position_still_unknown_reason": "measurement engines in standby",
+  "sensor_register_writes": false,
+  "Focus_or_ringer_changes": false,
+  "ended_early_after_diagnosis": true,
+  "Android_after_test_independently_confirmed": true
+}

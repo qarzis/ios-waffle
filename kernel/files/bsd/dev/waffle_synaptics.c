@@ -8,6 +8,7 @@
 #include <mach/mach_types.h>
 #include <sys/systm.h>
 #include <sys/macan_input.h>
+#include <sys/macan_dsp.h>
 #include "macan_touch_report.h"
 
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
@@ -59,7 +60,7 @@ static void rw(vm_offset_t base, unsigned off, uint32_t value)
     *(volatile uint32_t *)(base + off) = value;
     __asm__ volatile("dsb sy");
 }
-static int enable_vdd(void)
+static int sensor_power_vote(uint32_t resource,uint32_t millivolts)
 {
     /* Live FDT: apps_rsc drv-2 17A20000, tcs-offset D00.
      * Android debugfs cmd-db: ldob4=41C00. Stock voltage=1800mV, HPM=7.
@@ -88,8 +89,8 @@ static int enable_vdd(void)
     saved[2] &= ~(1u << 24);
     rw(t, 0x24, saved[2]);
     rw(t, 0x24, saved[2] & ~(1u << 16));
-    const uint32_t addr[] = {0x41c00, 0x41c08, 0x41c04};
-    const uint32_t data[] = {1800, 7, 1};
+    const uint32_t addr[] = {resource, resource+8, resource+4};
+    const uint32_t data[] = {millivolts, 7, 1};
     for (unsigned i = 0; i < 3; ++i) {
         rw(t, 0x34 + i * 24, 0x10108);
         rw(t, 0x38 + i * 24, addr[i]);
@@ -115,8 +116,22 @@ static int enable_vdd(void)
     for (unsigned i = 13; i > 0; --i) rw(t, off[i - 1], saved[i - 1]);
     /* Keep the volatile 1.8V vote through EFI return; Android owns DRV2
      * again after reboot. Never drop an inherited/shared rail on exit. */
-    say("waffle-touch: VDD ldob4 1800mV HPM enabled=%d\n", ok);
+    say("waffle-sensor: RPMh resource=%x millivolts=%u HPM enabled=%d\n",resource,millivolts,ok);
     return ok;
+}
+int waffle_sensor_power(uint32_t resource,uint32_t millivolts)
+{
+    if(!((resource==0x41c00 && millivolts==1800) ||
+         (resource==0x40700 && millivolts==1800) ||
+         (resource==0x40f00 && millivolts==3000)))return 0;
+    lck_mtx_lock(&macan_rpmh_lock);
+    int result=sensor_power_vote(resource,millivolts);
+    lck_mtx_unlock(&macan_rpmh_lock);
+    return result;
+}
+static int enable_vdd(void)
+{
+    return waffle_sensor_power(0x41c00,1800);
 }
 static void gpio(unsigned p, int output, unsigned drive)
 {
