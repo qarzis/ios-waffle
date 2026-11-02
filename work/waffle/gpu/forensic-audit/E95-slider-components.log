@@ -1,0 +1,20 @@
+kernel-115.log: waffle-slider-control: ringer position=3 muted=0
+kernel-115.log: waffle-slider-control: position=3 change=1 muted=0 native_vibrate_when_silent=1 native_HUD=1 HUD_isRingerSilent=0
+kernel-115.log: waffle-slider-control: position=3 muted=0 vibrate_when_silent=1 active_mode=(null) owner=(null) focus_read_error=(null) haptic_driver_unavailable=1
+kernel-137.log: waffle-slider-control: ringer position=2 muted=1
+kernel-137.log: waffle-slider-control: position=2 change=2 muted=1 native_vibrate_when_silent=1 native_HUD=1 HUD_isRingerSilent=1
+kernel-137.log: waffle-slider-control: position=2 muted=1 vibrate_when_silent=1 active_mode=(null) owner=(null) focus_read_error=(null) haptic_driver_unavailable=1
+kernel-144.log: waffle-slider-control: ringer position=1 muted=0
+kernel-144.log: waffle-slider-control: position=1 muted=0 vibrate_when_silent=1 active_mode=com.apple.donotdisturb.mode.default owner=org.waffle.alert-slider focus_read_error=(null) haptic_driver_unavailable=1
+kernel-144.log: waffle-slider-control: native Focus revoke reason=Revoking for mode change
+kernel-146.log: waffle-slider-control: native Focus UI activity=com.apple.donotdisturb.mode.default expected_enabled=1
+kernel-146.log: waffle-slider-control: native Focus post accepted=1 error=(null) requester=com.apple.FocusUIFCUIFocusEnablementIndicatorBannerManager options=0 userInfo={
+kernel-146.log: waffle-slider-control: native_Focus_banner enabled=1 sequence=3 activity=com.apple.donotdisturb.mode.default
+kernel-147.log: waffle-slider-control: native Focus presentable did appear
+kernel-152.log: waffle-slider-control: native Focus revoke reason=Alert Slider changed mode
+kernel-152.log: waffle-slider-control: position=3 change=3 muted=0 native_vibrate_when_silent=1 native_HUD=1 HUD_isRingerSilent=0
+kernel-152.log: waffle-slider-control: native Focus revoke reason=Revoking for mode end
+kernel-235.log: waffle-slider-control: position=2 change=4 muted=1 native_vibrate_when_silent=1 native_HUD=1 HUD_isRingerSilent=1
+kernel-247.log: waffle-slider-control: native_Focus_banner enabled=1 sequence=6 activity=com.apple.donotdisturb.mode.default
+kernel-248.log: waffle-slider-control: position=2 change=5 muted=1 native_vibrate_when_silent=1 native_HUD=1 HUD_isRingerSilent=1
+kernel-250.log: waffle-slider-control: position=3 change=6 muted=0 native_vibrate_when_silent=1 native_HUD=1 HUD_isRingerSilent=0

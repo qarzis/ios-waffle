@@ -142,3 +142,22 @@ configuration creation succeeded, but selection returned NSCocoaErrorDomain -1.
 The wallpaper was already visible before that attempt, so automatic default
 selection remains unverified. Original runner exit1 is retained.
 [Report](../work/waffle/gpu/forensic-audit/E79-result.json).
+
+## Alert Slider
+
+The MXM1120 Hall pair now drives native iOS modes: top enables Do Not Disturb
+with its system moon banner, middle mutes the ringer and enables vibrate-in-silent,
+and bottom restores ring mode. Leaving the top releases only the assertion
+created by this driver. The Focus Off banner is suppressed so it cannot cover
+Silent Mode; pending old banners are cancelled on physical changes. Native
+Silent Mode On/Off labels and all three modes were confirmed on the phone.
+
+The driver uses stock calibration, native RPMh power resources, verified
+volatile gain/measurement settings, debounced samples and a power lock shared
+with touch. Focus uses the HID client allowed by the original SpringBoard
+entitlements. Physical vibration and speaker output remain unsupported.
+
+[E95 report](../work/waffle/gpu/forensic-audit/E95-result.json),
+[state and banner journal](../work/waffle/gpu/forensic-audit/E95-slider-components.log).
+Android recovery was independently confirmed. Original GPU runner exit1 is
+retained; these peripheral checks do not establish overall GPU stability.

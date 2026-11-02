@@ -647,6 +647,7 @@ def main():
     ui_screenshots=set()
     ui_events=set()
     hud_pulses=set()
+    slider_huds=set()
     sequence = 0
     while time.monotonic() < deadline:
         if args.capture_requests:
@@ -677,11 +678,27 @@ def main():
                     command('get_staged',out/f'hud-pulse-{pulse}.raw')
                     hud_pulses.add(pulse)
         if args.gpu_ui:
+            for position,change in re.findall(r"waffle-slider-control: position=(\d+) change=(\d+) muted=\d+ native_vibrate_when_silent=\d+ native_HUD=1",log_path.read_text(errors="replace")):
+                key=(position,change)
+                if key not in slider_huds:
+                    slider_huds.add(key)
+                    time.sleep(.15)
+                    command("oem","screenshot")
+                    command("get_staged",out/f"slider-hud-{position}-{change}.raw")
+        if args.gpu_ui:
+            for enabled,change in re.findall(r"waffle-slider-control: native_Focus_banner enabled=(\d+) sequence=(\d+)",log_path.read_text(errors="replace")):
+                key=("focus",enabled,change)
+                if key not in slider_huds:
+                    slider_huds.add(key)
+                    time.sleep(.15)
+                    command("oem","screenshot")
+                    command("get_staged",out/f"focus-banner-{enabled}-{change}.raw")
+        if args.gpu_ui:
             # Preserve early evidence before the finite console log fills.
             with (out/"ui-gpu-events.log").open("a") as events:
                 for event in log_path.read_text(errors="replace").splitlines():
                     if event not in ui_events and any(marker in event for marker in (
-                        "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
+                        "waffle-slider", "waffle-sensor", "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
                         "GENERAL bo_retired", "GENERAL_BO reclaimed", "GENERAL_BO reclaim_refused", "GENERAL request_completed", "GENERAL_SUBMIT", "A SHADER DOES NOT COMPILE",
                         "GENERAL ioctl_refused", "REBOOT REQUIRED", "an OpenGL ES", "redwood: signal")):
                         ui_events.add(event)

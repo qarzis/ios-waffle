@@ -72,13 +72,15 @@ done:
 }
 int main(int argc,char **argv)
 {
+ bool focus_only=argc==2 && strcmp(argv[1],"--focus")==0;
  bool layers_only=argc==2 && strcmp(argv[1],"--layers")==0;
- if (argc!=1 && !layers_only) return 2;
+ if (argc!=1 && !layers_only && !focus_only) return 2;
  int fd = open("/dev/console", O_WRONLY);
  if (fd >= 0) { dup2(fd, 1); dup2(fd, 2); close(fd); }
  setvbuf(stdout, NULL, _IOLBF, 0);
  /* No task/thread suspension, memory writes or changes to scheduling. */
- for (unsigned tick = 0; tick < (layers_only?120u:60u); ++tick) {
+ if(focus_only)sleep(30);
+ for (unsigned tick = 0; tick < (focus_only?3u:layers_only?120u:60u); ++tick) {
   if (layers_only) {
    if (tick==15 || tick==45 || tick==90)
     printf("poster-diag: scene/layer snapshot at %us notification=%u\n",tick*2,
@@ -92,10 +94,10 @@ int main(int argc,char **argv)
   printf("poster-diag: sample %u processes=%d\n", tick, n);
   for (int i = 0; i < n; ++i) {
    char name[128] = {0};
-   if (proc_name(pids[i], name, sizeof(name)) > 0 && strstr(name, "Poster"))
+   if (proc_name(pids[i], name, sizeof(name)) > 0 && (focus_only?strcmp(name,"donotdisturbd")==0:strstr(name,"Poster")!=NULL))
     sample(pids[i], name);
   }
-  sleep(2);
+  sleep(focus_only?15:2);
  }
  return 0;
 }

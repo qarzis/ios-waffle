@@ -5,6 +5,8 @@
 #include <mach/mach_types.h>
 #include <pexpert/pexpert.h>
 #include <sys/macan_input.h>
+#include <sys/macan_i2c.h>
+#include <sys/waffle_slider.h>
 #include <sys/sysctl.h>
 #include <sys/systm.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
@@ -74,6 +76,88 @@ static vm_offset_t arb_core, arb_cnfg, arb_observer, arb_map;
 #define MACAN_ARB_MAX_CHANNELS (MACAN_ARB_MAP_SIZE / 4)
 static bool macan_arb;
 static bool waffle_arb;
+static int slider_position,slider_up,slider_down,slider_ready;
+SYSCTL_DECL(_kern_redwood);
+SYSCTL_INT(_kern_redwood,OID_AUTO,slider_position,CTLFLAG_RD|CTLFLAG_LOCKED,&slider_position,0,"Alert Slider: 0 unknown, 1 top, 2 middle, 3 bottom");
+SYSCTL_INT(_kern_redwood,OID_AUTO,slider_up,CTLFLAG_RD|CTLFLAG_LOCKED,&slider_up,0,"upper Hall sample");
+SYSCTL_INT(_kern_redwood,OID_AUTO,slider_down,CTLFLAG_RD|CTLFLAG_LOCKED,&slider_down,0,"lower Hall sample");
+static unsigned slider_phase;
+extern int waffle_sensor_power(uint32_t,uint32_t);
+static struct macan_i2c slider_bus={.sda=206,.scl=207,.half_us=5,.drive=0};
+static bool slider_read(unsigned address,uint8_t reg,uint8_t *bytes,unsigned count)
+{
+ macan_pins_take(&slider_bus);
+ bool ok=false;
+ slider_phase=1;if(!macan_start(&slider_bus))goto done;
+ slider_phase=2;if(!macan_write_byte(&slider_bus,address<<1))goto done;
+ slider_phase=3;if(!macan_write_byte(&slider_bus,reg))goto done;
+ slider_phase=4;if(!macan_start(&slider_bus))goto done;
+ slider_phase=5;if(!macan_write_byte(&slider_bus,address<<1|1))goto done;
+ slider_phase=6;ok=true;
+ for(unsigned i=0;ok && i<count;i++)ok=macan_read_byte(&slider_bus,bytes+i,i+1==count);
+done:
+ macan_stop(&slider_bus);macan_pins_give_back(&slider_bus);
+ return ok;
+}
+static bool slider_config(unsigned address,uint8_t reg,uint8_t value)
+{
+ if((address!=0x0c && address!=0x0d) ||
+    !((reg==8 && value==0x41) || (reg==1 && (value==0 || value==0x80))))return false;
+ macan_pins_take(&slider_bus);
+ bool ok=macan_start(&slider_bus) && macan_write_byte(&slider_bus,address<<1) &&
+     macan_write_byte(&slider_bus,reg) && macan_write_byte(&slider_bus,value);
+ macan_stop(&slider_bus);macan_pins_give_back(&slider_bus);
+ uint8_t actual=0;
+ ok=ok && slider_read(address,reg,&actual,1) && actual==value;
+ printf("waffle-slider: address=%x register=%x value=%x readback=%x verified=%d volatile=1\n",address,reg,value,actual,ok);
+ return ok;
+}
+static bool slider_start_measurement(unsigned address,uint8_t original)
+{
+ uint8_t sensitivity=0;
+ if(!slider_read(address,1,&sensitivity,1))return false;
+ printf("waffle-slider: address=%x inherited INTSRS=%x native_gain=0\n",address,sensitivity);
+ if((sensitivity&7) && !slider_config(address,1,sensitivity&0x80))return false;
+ return (original&1) || slider_config(address,8,0x41);
+}
+
+static void slider_poll(void)
+{
+ static unsigned initialized,failures,candidate,stable;
+ if(!waffle_arb || failures>=3)return;
+ if(!initialized) {
+  initialized=1;slider_bus.tlmm=ml_io_map(0x0f100000,0x0d0000);
+  uint8_t id[2]={0},opf[2]={0};
+  if(!waffle_sensor_power(0x40700,1800) || !waffle_sensor_power(0x40f00,3000)) {
+   printf("waffle-slider: native Hall power vote failed; stopped\n");failures=3;return;
+  }
+  delay_for_interval(10,NSEC_PER_MSEC);
+  if(slider_bus.tlmm)printf("waffle-slider: pin206 cfg=%x io=%x pin207 cfg=%x io=%x\n",rd(slider_bus.tlmm+206*0x1000),rd(slider_bus.tlmm+206*0x1000+4),rd(slider_bus.tlmm+207*0x1000),rd(slider_bus.tlmm+207*0x1000+4));
+  if(!slider_bus.tlmm || !slider_read(0x0d,9,id,1) || !slider_read(0x0c,9,id+1,1) ||
+      !slider_read(0x0d,8,opf,1) || !slider_read(0x0c,8,opf+1,1) ||
+      id[0]!=0x9c || id[1]!=0x9c || (opf[0]&2) || (opf[1]&2)) {
+   printf("waffle-slider: identification failed ids=%x,%x opf=%x,%x phase=%u; stopped\n",id[0],id[1],opf[0],opf[1],slider_phase);failures=3;return;
+  }
+  if(!slider_start_measurement(0x0d,opf[0]) || !slider_start_measurement(0x0c,opf[1])) {
+   printf("waffle-slider: measurement mode did not verify; stopped\n");failures=3;return;
+  }
+  delay_for_interval(20,NSEC_PER_MSEC);
+  slider_ready=1;
+  printf("waffle-slider: MXM1120 ids=%x,%x opf=%x,%x gpio206/207; volatile native measurement mode\n",id[0],id[1],opf[0],opf[1]);
+ }
+ uint8_t up[3],down[3];
+ if(!slider_read(0x0d,0x10,up,3) || !slider_read(0x0c,0x10,down,3)) {
+  slider_position=0;failures++;printf("waffle-slider: sample failed %u/3\n",failures);return;
+ }
+ if(!(up[0]&1) || !(down[0]&1))return;
+ slider_up=waffle_hall_decode(up[1],up[2]);slider_down=waffle_hall_decode(down[1],down[2]);
+ unsigned position=waffle_slider_classify(slider_up,slider_down);
+ if(position!=candidate){candidate=position;stable=1;}else if(stable<3)stable++;
+ if(stable==3 && position!=(unsigned)slider_position) {
+  slider_position=(int)position;
+  printf("waffle-slider: position=%u up=%d down=%d stable=3\n",position,slider_up,slider_down);
+ }
+}
 static volatile bool buttons_stopping;
 static LCK_GRP_DECLARE(spmi_lck_grp, "redwood-spmi");
 static LCK_SPIN_DECLARE(spmi_lock, &spmi_lck_grp);
@@ -269,6 +353,7 @@ buttons_poll(void)
   }
  }
 }
+
 static bool
 identify(const struct peripheral *p, uint8_t type, uint8_t subtype_from, uint8_t subtype_to)
 {
@@ -453,6 +538,7 @@ buttons_thread(void *parameter, __unused wait_result_t result)
      volume_up.usable ? " volume-up" : "", volume_down.usable ? " volume-down" : "", POLL_MS);
  for (unsigned tick = 1; !buttons_stopping; tick++) {
   buttons_poll();
+  if(tick % (200/POLL_MS)==0)slider_poll();
   if (tick % MINUTE_TICKS == 0 || tick == 10 * 1000 / POLL_MS) {
    say_summary();
   }

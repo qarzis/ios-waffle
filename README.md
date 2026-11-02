@@ -18,6 +18,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | Metal | ❌ | |
 | Touch | ✅ | Taps and swipes |
 | Buttons | ✅ | Power, volume up, volume down |
+| Alert Slider | ✅ | Do Not Disturb / vibrate mode / ring; native iOS banners |
 | Wi-Fi | ❌ | |
 | Vibration | ❌ | |
 | Flashlight | ✅ | On/off from Control Center |
