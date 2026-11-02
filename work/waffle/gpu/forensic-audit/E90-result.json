@@ -1,0 +1,19 @@
+{
+  "run": "work/waffle/runs/20261102T115641Z",
+  "logical_client": "com.apple.springboard.donotdisturb.hid",
+  "Focus_XPC_error_fixed": true,
+  "observed_top_mode": "com.apple.donotdisturb.mode.default",
+  "observed_assertion_owner": "org.waffle.alert-slider",
+  "Focus_readback_error": null,
+  "ordered_top_then_bottom_snapshot": "kernel-279.log",
+  "only_own_assertion_invalidation": true,
+  "native_moon_banner_visible": false,
+  "user_confirms_mode_enabled_but_no_banner": true,
+  "native_banner_separate_API_candidate": "E91",
+  "hardware_success_scope": "Focus service read/take/own invalidation; no full GPU UI success claim",
+  "Android_after_run_independently_confirmed": true,
+  "original_runner_exit": 1,
+  "GPU_completions": 12591,
+  "GPU_lifetime_BO_count": 1999,
+  "GPU_context_close_passed": true
+}

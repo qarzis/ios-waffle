@@ -36,6 +36,28 @@ static id getter(id object,const char *selector)
 {
  return abi(object,selector,"@16@0:8")?((id(*)(id,SEL))objc_msgSend)(object,sel_registerName(selector)):nil;
 }
+static void postFocusBanner(id application,id mode,BOOL enabled)
+{
+ dlopen("/System/Library/PrivateFrameworks/Focus.framework/Focus",RTLD_LAZY|RTLD_LOCAL);
+ dlopen("/System/Library/PrivateFrameworks/FocusUI.framework/FocusUI",RTLD_LAZY|RTLD_LOCAL);
+ id activityManager=getter(NSClassFromString(@"FCActivityManager"),"sharedActivityManager");
+ id activity=getter(activityManager,"defaultActivity");
+ Class activityClass=NSClassFromString(@"_FCActivity");
+ if(!activity && abi([activityClass alloc],"initWithMode:","@24@0:8@16"))
+  activity=((id(*)(id,SEL,id))objc_msgSend)([activityClass alloc],sel_registerName("initWithMode:"),mode);
+ id poster=getter(application,"bannerManager");
+ Class cls=NSClassFromString(@"FCUIFocusEnablementIndicatorBannerManager");
+ if(!activity || !abi(cls,"managerWithBannerPoster:","@24@0:8@16") ||
+    !abi(poster,"postPresentable:withOptions:userInfo:error:","B48@0:8@16Q24@32o^@40")){
+  logState(@"native Focus banner dependencies unavailable");return;
+ }
+ static id manager;
+ if(!manager)manager=((id(*)(id,SEL,id))objc_msgSend)(cls,sel_registerName("managerWithBannerPoster:"),poster);
+ if(!abi(manager,"postActivity:enabled:","v28@0:8@16B24")){logState(@"native Focus banner ABI mismatch");return;}
+ ((void(*)(id,SEL,id,BOOL))objc_msgSend)(manager,sel_registerName("postActivity:enabled:"),activity,enabled);
+ static unsigned sequence;
+ logState([NSString stringWithFormat:@"native_Focus_banner enabled=%d sequence=%u activity=%@",enabled,++sequence,getter(activity,"activityIdentifier")]);
+}
 void waffle_slider_apply(int position)
 {
  if(position<1 || position>3)return;
@@ -71,22 +93,30 @@ void waffle_slider_apply(int position)
   id active=[service activeModeAssertionWithError:&error];
   if(error){logState([NSString stringWithFormat:@"read Focus error=%@",error]);return;}
   id activeDetails=getter(active,"details");BOOL owned=[getter(activeDetails,"identifier") isEqual:owner];
+  BOOL changedFocus=NO;
+  id defaultMode=getter(NSClassFromString(@"DNDMode"),"defaultMode");
   if(position==1) {
-   id mode=getter(NSClassFromString(@"DNDMode"),"defaultMode");
+   id mode=defaultMode;
    id modeID=getter(mode,"modeIdentifier");
    id lifetime=getter(NSClassFromString(@"DNDModeAssertionLifetime"),"lifetimeForUserRequest");
    if(![modeID isKindOfClass:NSString.class] || !lifetime){logState(@"default Focus mode/lifetime absent");return;}
    if(!owned || ![getter(activeDetails,"modeIdentifier") isEqual:modeID]){
     id details=[detailsClass userRequestedAssertionDetailsWithIdentifier:owner modeIdentifier:modeID lifetime:lifetime];
     id assertion=[service takeModeAssertionWithDetails:details error:&error];
+    changedFocus=assertion!=nil && error==nil;
     if(!assertion || error){logState([NSString stringWithFormat:@"take DND error=%@",error]);return;}
    }
   } else if(owned) {
    [service invalidateActiveModeAssertionWithError:&error];
    if(error){logState([NSString stringWithFormat:@"release owned DND error=%@",error]);return;}
+   changedFocus=YES;
   }
   error=nil;id after=[service activeModeAssertionWithError:&error];
   id afterDetails=getter(after,"details");
+  BOOL confirmedOn=[getter(afterDetails,"identifier") isEqual:owner] &&
+      [getter(afterDetails,"modeIdentifier") isEqual:getter(defaultMode,"modeIdentifier")];
+  if(changedFocus && !error && ((position==1 && confirmedOn) || (position!=1 && !after)))
+   postFocusBanner(application,defaultMode,position==1);
   BOOL silentVibrate=NO;Class prefs=NSClassFromString(@"SBSoundPreferences");
   if(abi(prefs,"vibrateWhenSilent","B16@0:8"))silentVibrate=((BOOL(*)(id,SEL))objc_msgSend)(prefs,sel_registerName("vibrateWhenSilent"));
   logState([NSString stringWithFormat:@"position=%d muted=%d vibrate_when_silent=%d active_mode=%@ owner=%@ focus_read_error=%@ haptic_driver_unavailable=1",position,[ringer isRingerMuted],silentVibrate,getter(afterDetails,"modeIdentifier"),getter(afterDetails,"identifier"),error]);

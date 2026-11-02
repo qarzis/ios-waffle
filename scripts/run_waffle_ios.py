@@ -686,6 +686,14 @@ def main():
                     command("oem","screenshot")
                     command("get_staged",out/f"slider-hud-{position}-{change}.raw")
         if args.gpu_ui:
+            for enabled,change in re.findall(r"waffle-slider-control: native_Focus_banner enabled=(\d+) sequence=(\d+)",log_path.read_text(errors="replace")):
+                key=("focus",enabled,change)
+                if key not in slider_huds:
+                    slider_huds.add(key)
+                    time.sleep(.15)
+                    command("oem","screenshot")
+                    command("get_staged",out/f"focus-banner-{enabled}-{change}.raw")
+        if args.gpu_ui:
             # Preserve early evidence before the finite console log fills.
             with (out/"ui-gpu-events.log").open("a") as events:
                 for event in log_path.read_text(errors="replace").splitlines():

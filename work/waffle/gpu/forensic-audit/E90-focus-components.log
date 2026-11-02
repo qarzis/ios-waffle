@@ -1,0 +1,6 @@
+waffle-slider-control: ringer position=2 muted=1
+waffle-slider-control: position=2 muted=1 vibrate_when_silent=1 active_mode=(null) owner=(null) focus_read_error=(null) haptic_driver_unavailable=1
+waffle-slider-control: ringer position=3 muted=0
+waffle-slider-control: position=3 muted=0 vibrate_when_silent=1 active_mode=(null) owner=(null) focus_read_error=(null) haptic_driver_unavailable=1
+waffle-slider-control: ringer position=1 muted=0
+waffle-slider-control: position=1 muted=0 vibrate_when_silent=1 active_mode=com.apple.donotdisturb.mode.default owner=org.waffle.alert-slider focus_read_error=(null) haptic_driver_unavailable=1
