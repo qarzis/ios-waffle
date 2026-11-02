@@ -1,0 +1,21 @@
+waffle-slider: pin206 cfg=801 io=1 pin207 cfg=801 io=1
+waffle-slider: address=d inherited INTSRS=82 native_gain=0
+waffle-slider: address=d register=1 value=80 readback=80 verified=1 volatile=1
+waffle-slider: address=d register=8 value=41 readback=41 verified=1 volatile=1
+waffle-slider: address=c inherited INTSRS=82 native_gain=0
+waffle-slider: address=c register=1 value=80 readback=80 verified=1 volatile=1
+waffle-slider: address=c register=8 value=41 readback=41 verified=1 volatile=1
+waffle-slider: MXM1120 ids=9c,9c opf=0,0 gpio206/207; volatile native measurement mode
+waffle-slider: position=3 up=50 down=115 stable=3
+waffle-slider: position=1 up=121 down=46 stable=3
+waffle-slider-user: Hall position control started: top DND / middle vibrate-mode / bottom ring
+waffle-slider-user: position=1 up=121 down=45
+waffle-slider-control: read Focus error=Error Domain=BSServiceConnectionErrorDomain Code=3 "XPC error received on message reply handler" UserInfo={BSErrorCodeDescription=OperationFailed, NSLocalizedFailureReason=XPC error received on message reply handler}
+waffle-slider-user: position=1 up=82 down=85
+waffle-slider: position=2 up=79 down=82 stable=3
+waffle-slider-user: position=2 up=79 down=82
+waffle-slider-user: position=2 up=84 down=80
+waffle-slider-user: position=2 up=80 down=83
+waffle-slider-user: position=2 up=50 down=116
+waffle-slider: position=3 up=49 down=115 stable=3
+waffle-slider-user: position=3 up=49 down=115

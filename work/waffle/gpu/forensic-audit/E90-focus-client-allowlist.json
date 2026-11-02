@@ -1,0 +1,41 @@
+{
+  "source_binary": "iOS16.5 SpringBoard",
+  "sha256": "7926a1ba0b115cf45102b2c3d8e4eb7bc9c84bcf70b573d2a798690d9148059c",
+  "source": "LC_CODE_SIGNATURE embedded XML entitlement slot5, parsed without changing binary",
+  "required_client_allowlists": {
+    "com.apple.private.donotdisturb.mode.assertion.client-identifiers": [
+      "com.apple.donotdisturb.control-center.module",
+      "com.apple.springboard.donotdisturb.notifications",
+      "com.apple.springboard.donotdisturb.hid",
+      "com.apple.focus.activity-manager"
+    ],
+    "com.apple.private.donotdisturb.mode.assertion.user-requested.client-identifiers": [
+      "com.apple.donotdisturb.control-center.module",
+      "com.apple.springboard.donotdisturb.notifications",
+      "com.apple.springboard.donotdisturb.hid",
+      "com.apple.focus.activity-manager"
+    ],
+    "com.apple.private.donotdisturb.state.request.client-identifiers": [
+      "com.apple.springboard.SBIconController",
+      "com.apple.springboard.SBDashBoardCombinedListViewController",
+      "com.apple.donotdisturb.control-center.module",
+      "com.apple.springboard.donotdisturb.notifications",
+      "com.apple.springboard.donotdisturb.awdmetrics",
+      "com.apple.springboard.dashboard.bedtime",
+      "com.apple.accessibility.visual.alerts",
+      "com.apple.springboard.donotdisturb.hid",
+      "com.apple.springboard.SBDoNotDisturbMetric",
+      "com.apple.focus.activity-manager",
+      "com.apple.springboard.NCModeManager",
+      "com.apple.springboard.dndstatemonitor",
+      "com.apple.springboard.CoverSheetDiscoveryProvider"
+    ]
+  },
+  "selected_logical_client_identifier": "com.apple.springboard.donotdisturb.hid",
+  "previous_client_identifiers_absent_from_required_lists": [
+    "org.waffle.alert-slider",
+    "com.apple.springboard"
+  ],
+  "runtime_failure_for_previous_identifiers": "BSServiceConnectionErrorDomain Code3 XPC reply error",
+  "hardware_fix_not_yet_qualified": true
+}

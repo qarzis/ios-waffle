@@ -30,13 +30,15 @@ __attribute__((constructor)) static void start(void)
   timer=dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER,0,0,dispatch_get_main_queue());
   dispatch_source_set_timer(timer,DISPATCH_TIME_NOW,250*NSEC_PER_MSEC,25*NSEC_PER_MSEC);
   dispatch_source_set_event_handler(timer,^{
-   static int last=-1;int value=0,up=0,down=0;size_t n=sizeof(value);
+   static int last=-1,lastUp,lastDown;int value=0,up=0,down=0;size_t n=sizeof(value);
    if(sysctlbyname("kern.redwood.slider_position",&value,&n,NULL,0))return;
-   if(value==last)return;last=value;n=sizeof(up);sysctlbyname("kern.redwood.slider_up",&up,&n,NULL,0);
+   BOOL changed=value!=last;n=sizeof(up);sysctlbyname("kern.redwood.slider_up",&up,&n,NULL,0);
    n=sizeof(down);sysctlbyname("kern.redwood.slider_down",&down,&n,NULL,0);
+   if(!changed && abs(up-lastUp)<3 && abs(down-lastDown)<3)return;
+   last=value;lastUp=up;lastDown=down;
    report([NSString stringWithFormat:@"position=%d up=%d down=%d",value,up,down]);
 #ifdef WAFFLE_SLIDER_CONTROL
-   waffle_slider_apply(value);
+   if(changed)waffle_slider_apply(value);
 #endif
   });
   dispatch_resume(timer);

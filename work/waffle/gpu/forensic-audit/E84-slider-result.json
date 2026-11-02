@@ -1,0 +1,16 @@
+{
+  "run": "work/waffle/runs/20261102T103429Z",
+  "qualified_physical_positions": {
+    "1": "top up121/down45",
+    "2": "middle up79/down82",
+    "3": "bottom up49/down115"
+  },
+  "all_three_user_confirmed_movements": true,
+  "power_and_gain_and_measurement_readbacks": true,
+  "native_calibration_restored": true,
+  "Focus_backend_error": "BSServiceConnectionErrorDomain Code3, XPC reply handler error",
+  "iOS_mode_changes_qualified": false,
+  "original_runner_exit": 1,
+  "Android_after_run_independently_confirmed": true,
+  "evidence": "work/waffle/gpu/forensic-audit/E84-slider-components.log"
+}

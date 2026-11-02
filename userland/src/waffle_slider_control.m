@@ -20,6 +20,7 @@
 - (id)ringerControl;
 - (BOOL)isRingerMuted;
 - (void)setRingerMuted:(BOOL)muted;
+- (void)activateRingerHUDFromMuteSwitch:(int)muted;
 @end
 static void logState(NSString *text)
 {
@@ -51,8 +52,16 @@ void waffle_slider_apply(int position)
   if(!abi(ringer,"setRingerMuted:","v20@0:8B16") || !abi(ringer,"isRingerMuted","B16@0:8")){
    logState(@"ringer ABI mismatch; no state changes");return;
   }
+  if(position==2){
+   CFPreferencesSetAppValue(CFSTR("silent-vibrate"),kCFBooleanTrue,CFSTR("com.apple.springboard"));
+   CFPreferencesAppSynchronize(CFSTR("com.apple.springboard"));
+  }
+  [ringer setRingerMuted:position==2];
+  if(position!=1 && abi(ringer,"activateRingerHUDFromMuteSwitch:","v20@0:8i16"))
+   [ringer activateRingerHUDFromMuteSwitch:position==2];
+  logState([NSString stringWithFormat:@"ringer position=%d muted=%d",position,[ringer isRingerMuted]]);
   NSString *owner=@"org.waffle.alert-slider";
-  id service=[serviceClass serviceForClientIdentifier:owner];
+  id service=[serviceClass serviceForClientIdentifier:@"com.apple.springboard.donotdisturb.hid"];
   if(!abi(service,"activeModeAssertionWithError:","@24@0:8^@16") ||
      !abi(service,"takeModeAssertionWithDetails:error:","@32@0:8@16^@24") ||
      !abi(service,"invalidateActiveModeAssertionWithError:","@24@0:8^@16")){
@@ -76,11 +85,6 @@ void waffle_slider_apply(int position)
    [service invalidateActiveModeAssertionWithError:&error];
    if(error){logState([NSString stringWithFormat:@"release owned DND error=%@",error]);return;}
   }
-  if(position==2){
-   CFPreferencesSetAppValue(CFSTR("silent-vibrate"),kCFBooleanTrue,CFSTR("com.apple.springboard"));
-   CFPreferencesAppSynchronize(CFSTR("com.apple.springboard"));
-  }
-  [ringer setRingerMuted:position==2];
   error=nil;id after=[service activeModeAssertionWithError:&error];
   id afterDetails=getter(after,"details");
   BOOL silentVibrate=NO;Class prefs=NSClassFromString(@"SBSoundPreferences");

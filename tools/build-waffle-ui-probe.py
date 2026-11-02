@@ -27,7 +27,8 @@ def main():
  parser.add_argument('--service-audit',action='store_true',help='Read-only actual Focus/ringer/Poster service interface discovery')
  parser.add_argument('--poster-inventory',action='store_true',help='Read-only actual wallpaper collection and logical-screen inventory')
  parser.add_argument('--ios16-wallpaper',action='store_true',help='Test scoped availability of bundled iOS16 artwork for375x812@2x')
- parser.add_argument('--slider-control',action='store_true',help='Enable verified native Focus/ringer mode bridge for physical Hall positions')
+ parser.add_argument('--focus-diagnostic',action='store_true',help='Three read-only stack samples of donotdisturbd')
+ parser.add_argument('--slider-control',action='store_true',help='Enable native Focus/vibrate-mode/ring bridge')
  parser.add_argument('--slider-monitor',action='store_true',help='Read-only Hall slider sysctl monitor; no iOS state changes')
  parser.add_argument('--cpu-proof',action='store_true',help='Run the delayed CPU concurrency probe alongside the GPU UI')
  parser.add_argument('--mesa-library',type=Path,help='Use an explicitly bound candidate Mesa library')
@@ -82,6 +83,11 @@ def main():
   pf.add_file(tree,'bin/cpu_test',str(cpu),mode=0o100755)
   cpu_job=dict(Label='org.waffle.cpu-proof',ProgramArguments=['/redwood/bin/cpu_test','35'],RunAtLoad=True,KeepAlive=False,StandardOutPath='/dev/console',StandardErrorPath='/dev/console')
   (jobs/'org.waffle.cpu-proof.plist').write_bytes(plistlib.dumps(cpu_job))
+ if args.focus_diagnostic:
+  focus=out/'focus_diag'
+  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra',str(ROOT/'userland/src/poster_diag.c'),'-o',str(focus)])
+  pf.add_file(tree,'bin/focus_diag',str(focus),mode=0o100755)
+  (jobs/'org.waffle.focus-diag.plist').write_bytes(plistlib.dumps(dict(Label='org.waffle.focus-diag',ProgramArguments=['/redwood/bin/focus_diag','--focus'],RunAtLoad=True,KeepAlive=False,StandardOutPath='/dev/console',StandardErrorPath='/dev/console')))
  if args.service_audit:
   helper=out/'libwaffle-service-audit.dylib'
   run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-fobjc-arc',*(['-DWAFFLE_SLIDER_CONTROL'] if args.slider_control else []),'-dynamiclib','-framework','Foundation',*(['-framework','UIKit'] if args.ios16_wallpaper else []),str(ROOT/'userland/src/waffle_service_audit.m'),*([str(ROOT/'userland/src/waffle_slider_control.m')] if args.slider_control else []),*([str(ROOT/'userland/src/waffle_slider.m')] if args.slider_monitor else []),*([str(ROOT/'userland/src/waffle_poster_inventory.m')] if args.poster_inventory else []),*([str(ROOT/'userland/src/inject_waffle_wallpaper.m')] if args.ios16_wallpaper else []),'-o',str(helper)])
@@ -108,6 +114,7 @@ def main():
  root=out/'root.packfs';pf.pack(tree,str(root),zstd=15,raw=pf.sources_under(tree,'fw'))
  assert root.stat().st_size+16*1024*1024<0x03f00000,'UI payload exceeds RAM loader limit'
  sources=['userland/src/inject.c','userland/src/waffle_ui_init.c','tools/build-waffle-ui-probe.py','userland/mkjobs.py','tools/assemble.py']
+ if args.focus_diagnostic:sources.append('userland/src/poster_diag.c')
  if args.slider_control:sources.append('userland/src/waffle_slider_control.m')
  if args.slider_monitor:sources.append('userland/src/waffle_slider.m')
  if args.cpu_proof:sources.append('userland/src/cpu_test.c')

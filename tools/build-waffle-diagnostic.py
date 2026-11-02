@@ -67,6 +67,7 @@ def main():
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", ROOT / "tools/tests/waffle-slider-host.c", "-o", output / "test-slider"])
     run([output / "test-slider"])
     run([sys.executable, ROOT / "tools/tests/waffle-slider-power-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-slider-config-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gmu-clock-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gmu-native-clock-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-firmware-power-host.py"])
@@ -257,7 +258,7 @@ def main():
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "HEAD"], cwd=ROOT))
     source = output / "source"
-    for relative in ("tools/tests/waffle-slider-host.c", "tools/tests/waffle-slider-power-host.py", "kernel/files/bsd/sys/waffle_slider.h", "kernel/files/bsd/dev/macan_buttons.c", "tools/tests/waffle-192mb-backing-host.py", "kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp", "kernel/files/bsd/dev/macan_torch.c", "kernel/files/bsd/dev/macan_audio.c", "loader/platform.h", "loader/identity.h", "loader/waffle.h", "loader/loader.c", "loader/build.sh", "loader/waffle-power.h", "kernel/files/bsd/sys/waffle_gpu_pll.h", "kernel/files/bsd/sys/waffle_gmu_clock.h", "tools/tests/waffle-gmu-native-clock-host.py", "tools/tests/waffle-pll1-native-host.py",
+    for relative in ("tools/tests/waffle-slider-host.c", "tools/tests/waffle-slider-power-host.py", "tools/tests/waffle-slider-config-host.py", "kernel/files/bsd/sys/waffle_slider.h", "kernel/files/bsd/dev/macan_buttons.c", "tools/tests/waffle-192mb-backing-host.py", "kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp", "kernel/files/bsd/dev/macan_torch.c", "kernel/files/bsd/dev/macan_audio.c", "loader/platform.h", "loader/identity.h", "loader/waffle.h", "loader/loader.c", "loader/build.sh", "loader/waffle-power.h", "kernel/files/bsd/sys/waffle_gpu_pll.h", "kernel/files/bsd/sys/waffle_gmu_clock.h", "tools/tests/waffle-gmu-native-clock-host.py", "tools/tests/waffle-pll1-native-host.py",
                      "tools/tests/waffle-firmware-power-host.py", "work/waffle/gpu/firmware-power-abi-audit.json",
                      "kernel/files/bsd/sys/waffle_gpu_va.h", "kernel/files/bsd/sys/waffle_gen7_config.h", "kernel/files/bsd/sys/waffle_gen7_tables.h",
                      "kernel/files/bsd/sys/waffle_gen7_hwcg.h", "kernel/files/bsd/sys/waffle_gen7_cp.h", "kernel/files/bsd/sys/waffle_gen7_boot.h",

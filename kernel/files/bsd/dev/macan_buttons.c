@@ -99,18 +99,28 @@ done:
  macan_stop(&slider_bus);macan_pins_give_back(&slider_bus);
  return ok;
 }
-static bool slider_start_measurement(unsigned address,uint8_t original)
+static bool slider_config(unsigned address,uint8_t reg,uint8_t value)
 {
- if(original&1)return true;
+ if((address!=0x0c && address!=0x0d) ||
+    !((reg==8 && value==0x41) || (reg==1 && (value==0 || value==0x80))))return false;
  macan_pins_take(&slider_bus);
  bool ok=macan_start(&slider_bus) && macan_write_byte(&slider_bus,address<<1) &&
-     macan_write_byte(&slider_bus,8) && macan_write_byte(&slider_bus,0x41);
+     macan_write_byte(&slider_bus,reg) && macan_write_byte(&slider_bus,value);
  macan_stop(&slider_bus);macan_pins_give_back(&slider_bus);
  uint8_t actual=0;
- ok=ok && slider_read(address,8,&actual,1) && actual==0x41;
- printf("waffle-slider: address=%x native OPF=41 readback=%x enabled=%d volatile=1\n",address,actual,ok);
+ ok=ok && slider_read(address,reg,&actual,1) && actual==value;
+ printf("waffle-slider: address=%x register=%x value=%x readback=%x verified=%d volatile=1\n",address,reg,value,actual,ok);
  return ok;
 }
+static bool slider_start_measurement(unsigned address,uint8_t original)
+{
+ uint8_t sensitivity=0;
+ if(!slider_read(address,1,&sensitivity,1))return false;
+ printf("waffle-slider: address=%x inherited INTSRS=%x native_gain=0\n",address,sensitivity);
+ if((sensitivity&7) && !slider_config(address,1,sensitivity&0x80))return false;
+ return (original&1) || slider_config(address,8,0x41);
+}
+
 static void slider_poll(void)
 {
  static unsigned initialized,failures,candidate,stable;

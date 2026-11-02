@@ -1,3 +1,27 @@
+# STOPPED 2026-11-02T11:12:37.391215+00:00 — explicit user «стопай»
+
+No further builds, hardware boots or GitHub work until explicit resume. No active phone runner at stop. Latest E89 attempt run20261102T110819Z/auto110755Z FAILED during56MiB payload transfer with USB transport endpoint shutdown; NO system transfer/kernel start/Focus stack sample. USB absent after attempt. User says Android loaded/cable connected, but independentADB immediatelystillnotfound; pendingconfirmation. Do NOT claim independently recovered.
+
+LATEST AUTHORIZED MAPPING: user supplied image of DND moon banner then «дальше тогда чини». TOP REAL DoNotDisturb + native Focus banner, MIDDLEvibrate-mode, BOTTOMring. Earlierfullsilenttop/thirdvolumeHUDchoicesREVOKED. E88third-pillprototypeNEVERBOOTED; savedsourcegpu/e88-third-HUD-unbooted-source.m, removedfromactivecontroller.
+
+NEW concreteFocusfinding: exactiOS16SpringBoard LC_CODE_SIGNATURE XMLslot5 has allowlistedLOGICALFocusclients separatefromprocessbundleID. BOTHoldclientsorg.waffle.alert-slider andcom.apple.springboardABSENT frommode.assertion/user-requestedassertion/state.request allowlists. com.apple.springboard.donotdisturb.hid ISinALLthree. Provenanceforensic-audit/E90-focus-client-allowlist.json. NOentitlementbypass/kernelpolicychange. CurrentcontrollerusesauthorizedHIDclientandownassertiondetailsidentifierorg.waffle.alert-slider, preservesindependentmiddle/bottomringandnativeHUD. E90candidateBUILT e90-focus-authorized-client-root(240sGPU/7CPU/torch+3readonlydaemonstacks), NOTBOOTED/noartifactpreparedyet. Nextonresume verifyAndroid/USB, prepareclonequalifiedE84kernel+newsource-boundE90root, run; verifyFocusread/take/activeownmodeandnativebanner, thenall3transitions. Needownassertiononlyrelease, don'tclearotherFocus. Source-boundrootmanifestchecksrequiredbeforeboot. No fakeDNDHUD.
+
+PhysicalHalldriverqualified E84run103429Z withuserallpositions: powernativeRPMhldob1/1800+ldob2/3000, sharedmacan_rpmh_lockwithtouch, IDs9c, INT SRS82 inheritedgain2 normalized80 nativegain0, OPF41 measurement/readback, signed10bitdecode, nativecalup/down126/43,84/82,46/119 tolerance16+3sampledebounce. E87run105257Z qualifiedfullsilentTOPmuted1/vibrate0, MIDDLEmuted1/vibrate1, BOTTOMmuted0 andnativeSilentModeHUDcaptured/userconfirmed; thiswasoldmappinganddoesNOTproveDND. Physicalvibmotor/audiooutputdriversSTILLabsent. E87finishedandindependentlyAndroid1BEFOREfailedE89.
+
+PublicGitlast2f9dd0a (iOS750x1624README); AlertSlider NOT yetpushedpublic. Localarchivecheckpointupdatedatstop; mainindexpreserved. AllRAMonly/noFlash/Erase. No activegoal/agents. GPUartifacts/OOM192Mknownunfixed; noheapbumps. VolumeHUDpositionworkabandonedearlier; don'tresumeit.
+
+# ACTIVE Alert Slider native HUD — user changed top mapping 2026-11-02
+
+Latest user explicitly replaced TOP DND with full silent(no vibration) + native crossed-bell animation. FINAL mapping TOP silent(no vibrate), MIDDLE silent+vibrate mode, BOTTOM ring. Focus troubleshooting no longer in scope; E86 stack-diagnostic root NEVERBOOTED, its newflag/samplerchanges removed.
+
+Physicaldriver qualified E84run103429Z: RPMhldob1/1800+ldob2/3000 using touchhelperunderexistingmacan_rpmh_lock; BOTHIDs9c, nativeINTSRSgain0 (inherited82 normalized80), OPF41 volatile/readback, allthree userconfirmedphysicalpositions1/2/3/correctnativecal(+/-16)/three-sampledebounce192ms/sysctlreadback. Signeddecode+power+sensorconfigactualhosttestsASanUBSanpass; fullXNU/UEFI/sourcebindingspass. Currentqualifiedkernel diagnostic-slider-gain-e84 reused.
+
+E85run104231Z iOSnativeSBRingerControl verifiedmiddlemuted1, silent-vibrate1; returnbottommuted0 orderedproofkernel603. FocusqueryXPCcode3unchangedwithrealSpringBoardclientID; rootcauseunknown, userreplacedmapping. E85autoAndroid+independent1.
+
+E87newroot e87-slider-native-HUD-root building: removesALLFocuscalls, topCFPreferencescom.apple.springboard/silent-vibratefalse+mutedtrue; middletrue+mutedtrue; bottommutedfalse. NativeSBRingerControl.activateRingerHUDFromMuteSwitch:int confirmedexactABI andactualtoggleRingerMutecallpassesSAME0/1mutedvalue (no guessed enum). Need hardwaretopfalse/middletrue/bottomfalse readbacks andnativeHUD/useranimationproof. Runner nowcapturesnativeHUDinsideSOLEfastbootowneruponunique(position,change)marker, customsliderlogspreservedGPUeventjournal. No volumeHUDlayoutedits. HapticdriverSTILLabsent; cannotclaimphysicalvibration/audiooutput.
+
+AlltestsRAMonly/noflash; returnAndroidandindependentADB1. Gitpubliclast2f9dd0a (READMEiOS750x1624), localarchivec6477bc(HallWIP), mainindexmustpreserve. NextpreparecloneE84kernel+newboundE87root240sGPU7torchservice, runauto, askuserpositions+animation. Thencheckpoint/publishscopedsource+honesttable/status.
+
 # STOPPED after scoped work and requested publication — 2026-11-02
 
 No active hardware runner. E79run095955Z/auto095932Z completed, Androidindependently1. User requested wallpaper/7cores thenstop+GitHub; latestcontinue resumed interruptedtest, nowboundedfollowupfinished. SevenCPUsdefaultGPUUI, actualallcounts7+3.7CPUparallelratioE79. TorchControlCenteruserverified. GPU192MiBinteractiveE78FAILEDfullheap+SIGSEGV9787commands; stripesuserconfirmed+capture; doNOTbumpheapagain, E78architecturereviewpendingonresume.
