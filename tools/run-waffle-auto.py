@@ -19,6 +19,10 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifact', type=Path, required=True)
+    parser.add_argument('--audio-preflight', action='store_true', help='Isolated60-second native ADSP firmware validation, without DSP startup')
+    parser.add_argument('--audio-power', action='store_true', help='With --audio-preflight: qualify native RPMh upvotes, retain until Android reset')
+    parser.add_argument('--audio-survey', action='store_true', help='With --audio-preflight: read-only SMEM/SMP2P/GLINK state survey')
+    parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
@@ -55,6 +59,15 @@ def main():
     parser.add_argument('--ui-long-test',action='store_true',help='Four-minute bounded UI with300-second kernel return; requires matching240-second UI root')
     parser.add_argument('--ui-soak-test',action='store_true',help='Ten-minute UI with660-second return; requires matching600-second root and generation handles')
     args = parser.parse_args()
+    if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
+    if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
+    if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
+    if args.audio_preflight and any(getattr(args, name) for name in (
+            'cpu_ui_test','cpus','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
+            'measure_clocks','lpac_cp_init','gl_context','mapped','mesa_transport','msm','user_va','glsl',
+            'data_bo','user_copy','worker','copy_jobs','image_present','image_copy','image','compute',
+            'dynamic_bo','session','ib','writeback','zap','lpac_map','ui_workload','ui_long_test','ui_soak_test')):
+        parser.error('--audio-preflight must run separately from other diagnostics')
     if args.torch_readonly and not (args.cpu_ui_test or args.ui_workload):parser.error('--torch-readonly requires a CPU or GPU UI workload')
     if args.torch_pulse and (args.torch_readonly or not args.gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
     if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.ui_workload):parser.error('--torch-service requires GPU UI and excludes probe modes')
@@ -97,6 +110,22 @@ def main():
     if args.session and not args.ib:
         parser.error('--session requires --ib')
     manifest = json.loads((artifact / 'manifest.json').read_text())
+    if args.audio_preflight:
+        if args.audio_boot:
+            for name in ('A06-result.json','A07-result.json'):
+                proof=json.loads((ROOT/'work/waffle/audio'/name).read_text())
+                if not proof.get('passed') or not proof['auto_runner'].get('android_confirmed'):parser.error('Missing qualified audio prerequisite: '+name)
+        audio_root=artifact/'audio-probe/root.packfs'
+        audio_system=artifact/'audio-probe/system.packfs'
+        audio_manifest=json.loads((artifact/'audio-probe/manifest.json').read_text())
+        for path, key in ((audio_root,'root_sha256'),(audio_system,'system_sha256')):
+            if hashlib.sha256(path.read_bytes()).hexdigest()!=audio_manifest[key]:parser.error('Audio image hash mismatch')
+        for name,digest in audio_manifest['source_sha256'].items():
+            if hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest:parser.error('Audio source binding mismatch: '+name)
+        if hashlib.sha256((artifact/'kernel').read_bytes()).hexdigest()!=manifest['kernel_sha256']:parser.error('Audio kernel hash mismatch')
+        bound_source=artifact/'source/kernel/files/bsd/dev/macan_adsp.c'
+        if not bound_source.is_file() or hashlib.sha256(bound_source.read_bytes()).hexdigest()!=audio_manifest['source_sha256']['kernel/files/bsd/dev/macan_adsp.c']:
+            parser.error('Audio kernel source binding missing or stale')
     if args.cpus is not None and args.cpus>1 and not manifest.get('multicore_loader'):
         parser.error('Artifact lacks the opt-in multicore loader policy')
     if args.torch_readonly and not manifest.get('torch_readonly_loader'):parser.error('Artifact lacks the torch read-only policy')
@@ -188,7 +217,26 @@ def main():
         if p.returncode or 'platform: waffle' not in p.stdout + p.stderr:
             raise RuntimeError('Automatic loader platform mismatch')
         report['automatic_loader_verified'] = True
-        if args.cpu_ui_test:
+        if args.audio_preflight:
+            if args.audio_boot:
+                recovery_log=(output/'recovery.log').open('w')
+                collector=subprocess.Popen([sys.executable,'tools/capture-waffle-crash.py','--collect','--wait-seconds','180'],cwd=ROOT,stdout=recovery_log,stderr=subprocess.STDOUT)
+            items=[sys.executable,'scripts/run_waffle_ios.py','--seconds','60','--audio-preflight',
+                '--kernel',str(artifact/'kernel'),'--root',str(audio_system),'--system',str(audio_root),
+                '--fastboot',args.fastboot]
+            if args.audio_power:items.append('--audio-power')
+            if args.audio_survey:items.append('--audio-survey')
+            if args.audio_boot:items.append('--audio-boot')
+            result=command(items,timeout=240)
+            report['audio_preflight']=True
+            report['audio_power']=args.audio_power
+            report['audio_survey']=args.audio_survey
+            report['audio_boot']=args.audio_boot
+            report['runner_exit']=result.returncode
+            if result.returncode:raise RuntimeError('Audio firmware preflight failed; inspect preserved logs')
+            p=command([args.fastboot,'-s','xnuloader','reboot'])
+            if p.returncode:raise RuntimeError('Loader refused Android reboot after audio preflight')
+        elif args.cpu_ui_test:
             recovery_log=(output/'recovery.log').open('w')
             collector=subprocess.Popen([sys.executable,'tools/capture-waffle-crash.py','--collect','--wait-seconds','60'],cwd=ROOT,stdout=recovery_log,stderr=subprocess.STDOUT)
             requests=output/'capture-requests'

@@ -67,7 +67,7 @@ def command(device, output, qdl=QDL):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--collect', action='store_true', help='Read offered crash segments, then qdl sends reset')
-    parser.add_argument('--wait-seconds', type=int, choices=range(61), default=30,
+    parser.add_argument('--wait-seconds', type=int, choices=range(181), default=30,
                         help='Bounded wait for delayed900e re-enumeration after a crash')
     parser.add_argument('--ramlog-run', type=Path, help='Experimental: read five owned RAM-log pages from latest run')
     parser.add_argument('--ramlog-kernel', type=Path, help='Kernel must match staged payload and artifact manifest')

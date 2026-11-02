@@ -528,9 +528,18 @@ def main():
     parser.add_argument("--gpu-dynamic-bo",action="store_true",help="E20: allocate/map/bind test BO after GPU startup; requires session")
     parser.add_argument("--kernel", type=Path, default=KERNEL_DIR / "kernel")
     parser.add_argument("--root", type=Path, default=IMAGE_DIR / "root.packfs")
+    parser.add_argument("--audio-preflight", action="store_true", help="Firmware-only ADSP validation; no DSP boot or amplifier writes")
+    parser.add_argument("--audio-power", action="store_true", help="With --audio-preflight: bounded native RPMh upvotes retained until Android reset; no DSP boot")
+    parser.add_argument("--audio-survey", action="store_true", help="With --audio-preflight: read-only native SMEM/SMP2P/GLINK state survey")
+    parser.add_argument("--audio-boot", action="store_true", help="With --audio-preflight: bounded native ADSP boot, GPR state query and shutdown; no PCM")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     args = parser.parse_args()
+    if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
+    if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
+    if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
+    if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
+        parser.error('--audio-preflight requires an isolated test of at most60 seconds')
     if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
     if args.torch_pulse and (args.torch_readonly or not args.gpu_gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
     if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.gpu_ui):parser.error('--torch-service requires GPU UI and excludes torch probe modes')
@@ -596,6 +605,8 @@ def main():
     if "kernel-supported: software-userland-test" not in command("getvar", "kernel-supported"):
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
+    if args.audio_preflight:
+        arguments += " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
     if args.torch_readonly:
@@ -963,6 +974,27 @@ def main():
                 raise RuntimeError(f"Native BCL feature not enabled; logs: {out}")
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
+            if args.audio_preflight:
+                if args.audio_boot:
+                    markers=('adsp: PAS 36 authenticated and running', 'adsp: PAS 1 authenticated and running',
+                             'adsp: SMP2P ready seen', 'adsp: SMP2P handover seen',
+                             'adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR',
+                             'GPR SPF=1 mode=6', 'adsp: PAS 1 shutdown=OK', 'adsp: PAS 36 shutdown=OK',
+                             'adsp: WAFFLE DSP_BOOT result=1 stop_clean=1')
+                    if not all(m in final_text for m in markers) or 'adsp: FAIL' in final_text:
+                        raise RuntimeError(f'Native ADSP boot/GPR/shutdown not confirmed; logs: {out}')
+                    print('Native ADSP boot, GPR SPF state and shutdown validated; no PCM playback',flush=True)
+                    return
+                required = ('waffle-audio-probe: PID1 ready',
+                            'adsp: MDT adsp_dtb phdrs=3', 'adsp: MDT adsp phdrs=57',
+                            'adsp: WAFFLE POWER_PLAN OK: rails384 BCMs8 native_VCD_order=1',
+                            *(['adsp: WAFFLE INPUT_CHECK OK', 'adsp: POWER_APPLY BCM result=1 wait_mask=0xf5',
+                               'adsp: POWER_APPLY ARC result=1 indices=7/4/3',
+                               'adsp: WAFFLE POWER_APPLY OK: TCS buffers restored=1; votes retained; DSP and amplifiers off'] if args.audio_power else
+                              ['adsp: WAFFLE DSP_SURVEY OK: SMEM and IPCC read only; no DSP reset, PAS or power writes'] if args.audio_survey else
+                              ['adsp: WAFFLE PREFLIGHT OK: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes']))
+                if not all(s in final_text for s in required) or any(s in final_text for s in ('adsp: FAIL', 'adsp: WAFFLE PREFLIGHT FAIL', 'adsp: WAFFLE POWER_APPLY FAIL', 'adsp: PAS ', 'adsp: RPMh ')):
+                    raise RuntimeError(f'ADSP firmware preflight evidence missing or hardware path reached; logs: {out}')
             if args.torch_readonly and not all(s in final_text for s in (
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
                     'torch: waffle read-only module=', 'no PMIC writes')):
