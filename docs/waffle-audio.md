@@ -93,3 +93,16 @@ uses `AudioReach/audioreach-engine` tree
 
 Native audio DMA uses Apps SMMU streams `0x1001/0x1061`; the redwood `0x1801`
 mapping is inapplicable. Buffer mapping and completion events remain unimplemented.
+
+## DMA context survey — A14, 2026-11-03
+
+A read-only Apps SMMU survey decoded 107 stream groups and 71 context banks.
+No valid stream match was present for audio SIDs `0x1001`, `0x1081` or `0x1061`.
+The survey returned normally and Android boot completion was independently
+verified. It did not start the DSP or write DMA, TLB or SMMU configuration.
+[Survey result](../work/waffle/audio/A14-result.json).
+
+This qualifies register access, not DMA. Absence of audio stream matches does
+not establish that another context bank is free. Native domain allocation and
+ownership must be established before configuring audio mappings; PCM playback
+and amplifier routing remain unfinished.

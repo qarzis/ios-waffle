@@ -9,6 +9,22 @@ FPS benchmark. Native captures show the desktop, icons and Calendar text.
 Indefinite operation, broad app coverage and Metal remain unfinished. The normal
 image still selects softpipe unless the isolated GPU test is enabled.
 
+## Current animation blocker — 2026-11-03
+
+Opening an app from its icon still shows black content during expansion; the app
+appears afterward. Backboardd-created snapshot surfaces had zero RGBA values at
+16 sampled locations when uploaded as source textures. This does not establish
+that every pixel was empty. A diagnostic build passed the full 1,218,000-pixel
+control; manual icon openings still reproduced the issue. No large native
+`glReadPixels` calls were observed through the instrumented EAGL dispatch entry.
+
+E109 completed 6,171 GPU commands and closed 1,979 buffer lifetimes cleanly.
+Its original collector exit remains 1 because dynamic BO publication/use/release
+markers were missing; Android boot completion was independently verified.
+[Diagnostic result](../work/waffle/gpu/forensic-audit/E109-ui-result.json).
+Snapshot writing and IOSurface target classification are under investigation;
+this is not an animation or VSync fix.
+
 | Verified test | Result | Evidence |
 | --- | --- | --- |
 | E21: compute shader | First verified shader execution | [Report](../work/waffle/gpu/forensic-audit/E21-result.json) |

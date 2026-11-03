@@ -1,0 +1,13 @@
+{
+  "run": "20261103T105121Z",
+  "manual_black_reproduced": true,
+  "large_readpixels_records": 0,
+  "conclusion": "No observed large EAGL table glReadPixels during reproduced transition; does not exclude other context or native capture paths",
+  "completed_commands": 6171,
+  "lifetime_buffers": 1979,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "raw_log_sha256": "ca564026f581638d5c9b985b67f3766f4663eb62aa924094ca9798e58819fbb7"
+}
