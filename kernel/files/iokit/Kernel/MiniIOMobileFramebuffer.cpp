@@ -1319,6 +1319,10 @@ IOMobileFramebufferUserClient::vsync(void)
        waffle_vsync_observe(&fHardwarePhase, stamp, observed, gWaffleVSyncPeriod, gWaffleVSyncDivider) : WAFFLE_VSYNC_FAULT;
    if (result == WAFFLE_VSYNC_WAIT) emit = false;
    else if (result == WAFFLE_VSYNC_FAULT) {
+    redwood_tl("waffle-vsync: fault_input valid=%u stamp=%llu now=%llu seen=%llu period=%llu initialized=%u\n",
+        stamp_valid, (unsigned long long)stamp, (unsigned long long)observed,
+        (unsigned long long)fHardwarePhase.seen, (unsigned long long)gWaffleVSyncPeriod,
+        fHardwarePhase.initialized);
     fHardwareVSyncDisabled = true;
     now = observed;
     redwood_tl("waffle-vsync: hardware_fallback=1 reason=timestamp_stall_or_reset emitted=%u\n", fHardwareEvents);
@@ -1439,6 +1443,12 @@ IOMobileFramebufferUserClient::externalMethod(uint32_t selector, IOExternalMetho
    }
   }
   IOLockLock(fLock);
+  /* A disabled notification stream has no continuous phase history. Keep a
+   * genuine hardware fault latched, but do not treat an unsubscribe gap as
+   * a panel timestamp stall when the next subscription starts. */
+  if (gWaffleHardwareVSync == 1 && in[2] == kFBNotifyVSync && in[0] == 0) {
+   bzero(&fHardwarePhase, sizeof(fHardwarePhase));
+  }
   fCallbacks[in[2]] = in[0];
   fRefcons[in[2]] = in[1];
   if (in[2] == kFBNotifyVSync && in[0] != 0 && !fVSyncRunning && !fClosed) {

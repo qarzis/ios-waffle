@@ -1,0 +1,33 @@
+{
+  "blocker": "V06 backboardd GPU heap exhaustion followed by signal11 and CPU restart",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "claim": "OOM retry absent from selected Mesa despite enabled environment",
+      "evidence": "V06root7e026 lacks exact implementation key; corrected749 contains key and source-bound provenance; builder previously only setenv",
+      "test": "same192MiB kernel/hook/CA settings, select corrected749 library, pixel control then240sUI",
+      "expected": "GEM_CLOSE/reclaimed allocations and renewed GPU submissions after firstENOMEM; independentAndroidreturn",
+      "status": "binary mismatch confirmed; hardware effect pending"
+    },
+    {
+      "id": "H2",
+      "claim": "Live texture/descriptor resources exceed budget despite reclamation",
+      "evidence": "V06 journal2285live199573504bytes matches kernel; 1851readonly16KiB objects plus large buffers",
+      "test": "evaluate remaining live allocation pressure only ifH1corrected test still exhausts; attribute resource ownership before edits",
+      "status": "not yet qualified"
+    },
+    {
+      "id": "H3",
+      "claim": "Idle-cache reclaim cannot release available buffers",
+      "evidence": "historicalE76purge did resume GPU at128MiB but eventually exhausted",
+      "test": "inspect ordered retirement/reallocation aftercorrected candidate OOM; no mutex/cache changes until measured",
+      "status": "secondary, distinct from missing implementation"
+    }
+  ],
+  "limits": [
+    "VSync tearing unresolved",
+    "Noheap/VA/slotincrease",
+    "V07phasefix excluded fromM01",
+    "Historicalbad5cdcandidate rejected; historicalcorrected128MiBfailure retained"
+  ]
+}

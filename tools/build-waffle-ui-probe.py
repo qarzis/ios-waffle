@@ -17,6 +17,21 @@ sys.path.insert(0,str(ROOT/'tools'))
 import mkpackfs as pf
 import assemble
 
+def validate_pressure_mesa(mesa):
+ """Bind the opt-in pressure policy to its corrected, source-bound binary."""
+ data=mesa.read_bytes()
+ digest=hashlib.sha256(data).hexdigest()
+ if b'WAFFLE_GPU_RECLAIM_ON_OOM' not in data:
+  raise ValueError('Selected Mesa lacks the requested OOM reclaim implementation')
+ provenance=json.loads((mesa.parent/'provenance.json').read_text())
+ if digest!=provenance.get('candidate_Mesa_sha256') or digest==provenance.get('rejected_candidate_Mesa_sha256'):
+  raise ValueError('Selected Mesa does not match the qualified pressure candidate provenance')
+ source=ROOT/provenance['source']
+ if hashlib.sha256(source.read_bytes()).hexdigest()!=provenance['source_sha256']:
+  raise ValueError('Pressure candidate source has changed since its recorded build')
+ return dict(binary_sha256=digest,source=provenance['source'],source_sha256=provenance['source_sha256'],
+             guard=provenance['guard'],hardware_stability_qualified=False)
+
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--output',type=Path,required=True)
@@ -48,6 +63,10 @@ def main():
  mesa=args.mesa_library.resolve() if args.mesa_library else ROOT/'xnu-deps/build/mesa/out-26.3.0-rc1/libOSMesa.8.dylib'
  hook=args.hook_library.resolve() if args.hook_library else ROOT/'work/waffle/gpu/e45-gl-contexts/libredwood-gl.dylib'
  assert hook.is_file() and mesa.is_file()
+ pressure_policy=None
+ if args.reclaim_on_oom:
+  try:pressure_policy=validate_pressure_mesa(mesa)
+  except (ValueError,KeyError,OSError) as error:parser.error(str(error))
  hook_manifest=None
  if args.hook_library:
   hook_manifest=json.loads((hook.parent/'manifest.json').read_text())
@@ -149,6 +168,7 @@ def main():
  manifest['brightness_audit']=args.brightness_audit
  manifest['cpu_proof']=args.cpu_proof
  manifest['reclaim_on_oom']=args.reclaim_on_oom
+ manifest['mesa_pressure_policy']=pressure_policy
  if hook_manifest:
   manifest['hook_policy']={name:hook_manifest.get(name) for name in ('batch_readback','profile_readback','hook_sha256','source_sha256')}
  (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')

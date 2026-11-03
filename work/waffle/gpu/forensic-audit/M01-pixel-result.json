@@ -1,0 +1,14 @@
+{
+  "run": "20261103T193535Z",
+  "auto_run": "20261103T193511Z",
+  "mesa_sha256": "749e5da7ca49a294dc57b90a50e9c45b2dc0251198462f46bee955b89c699a0f",
+  "checked_pixels": 1218000,
+  "wrong_pixels": 0,
+  "padding_wrong": 0,
+  "GL_error": 0,
+  "gpu_close_passed": true,
+  "gpu_commands": 2,
+  "gpu_buffers": 27,
+  "outer_success": true,
+  "android_confirmed": true
+}

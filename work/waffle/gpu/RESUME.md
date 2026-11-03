@@ -1,3 +1,19 @@
+# ACTIVE — M01 UI solephoneowner auto-pressure-ui-m01.log
+
+PixelqualifiedM01run193535Z/auto193511Z all1218000/0wrong/fullclose2/27/outer0/Androidindependent1. UIstarted sameV06kernel, nativeCA VBLenvironmenttrue,240sGPU/300skernel,7cores/torch, correctedMesa749. Onlylibraryselectionandrootbindingguardchanged. NeedactualpostENOMEMretirement+continuedGPUfences/controlledstop+Android1; ifcrashpreserveit. NoVSync/tearingfixclaim. V07phasefixBUILT/validatedbutNOTBOOTED.
+
+# ACTIVE — M01 pressure-Mesa selection regression test
+
+Solephoneowner auto-pressure-pixel-m01.log: diagnostic-pressure-pixel-m01 fullsizepixel. UIrootm01-pressure-ui building withsamecandidateMesa749e5da7 andnewlybuiltE113sourcehook; mustpixelPASS+Android1beforeUI. UIwilluseV06sealedV04kernel/hardwareflag+CAenvunchanged,240s/7cores/torch. V07phasefixbuilt+validatedbutNOTBOOTED. Newbuildervalidate_pressure_mesa rejectsbaseline7e026(noOOMretrycode),rejectedE735cd(deadlock),missing/hash-mismatchedprovenance/source. CorrectedE75749sourcehashde2b9bound; actualbo_new7casehost+bindinghostPASS. Mainindexuntouched. UserknowsVSyncnotfixed/tearingunqualified.
+
+CriticalM01: V05/V06reclaimenv1butrootMesa7e026lacksimplementationstring! DoNOTrepeatold128MiBpressureclaim: correctedE75waspreviouslytestedandE76ultimatelyfailed128MiB; thisisolatedexperiment192MiBcorrectedlibraryselectiononly. V06firstrefusal5MiB at2285live199573504bytes; journalinventorymatchesexactcounter (V06-live-inventory.json).
+
+# ACTIVE — V06 GPU OOM; V07 candidate built, NOT hardware tested
+
+User says VSync notworking andCPUfallback. V06run192424Z/auto192401Z: 192MiBheapfull,16KiBallocationerror12, signal11at0x1c/backboardd84; GPUclose10520/3020passed, NOcontrolled240sstop. OriginalcollectorresultpendingautomaticAndroidreturn. V05realTEcallbacksONLYafterGPU60sstop, fallbackafter13emissions. V06realTEcallbacksthenfallback, nofullVSync/tearingclaim.
+
+V07minimalcandidate resetsphaseonexplicitunsubscribeunderlock, preservestruefaultlatch; fallbackmetadataadded. Actualnativehandler+callbackhostPASS, oldpublished238986ereproducerPASS. Fullkernelbuild+pairedUEFIcompleted outputdiagnostic-vsync-resubscribe-v07; NOTBOOTED. Needvalidateandcurrentrootpairbeforeanyboot. FocusnextOOMprovenance; noheapincrease. OptionalGEM_INFO2BOlabels currentlyignored couldprovidemeasuredallocationclass; donotguessdescriptorflagsfix. Public238986e verified. Cleanup14GiBfreefrom8.2; finalrawlogsarchivedwithSHA, oldrootsthroughE105removed,2hostrawfixturesrestored.
+
 # PUBLIC PUSH VERIFIED 238986e63f515e5acfea010a22854892195b52da; V05 active run20261103T192015Z auto191951Z
 
 # ACTIVE — resumed after cleanup, V05 native VBL test
