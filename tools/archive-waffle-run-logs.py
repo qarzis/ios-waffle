@@ -29,7 +29,7 @@ def archive(run):
         records[path.name] = dict(sha256=digest, bytes=stat.st_size, mtime_ns=stat.st_mtime_ns)
     process = subprocess.Popen(['zstd', '-3', '-T2', '-q', '-o', str(temporary)], stdin=subprocess.PIPE)
     try:
-        with tarfile.open(fileobj=process.stdin, mode='w|') as output:
+        with tarfile.open(fileobj=process.stdin, mode='w|', dereference=True) as output:
             for path in files:
                 output.add(path, arcname=path.name, recursive=False)
         process.stdin.close()

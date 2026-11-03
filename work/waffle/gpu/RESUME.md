@@ -1,3 +1,43 @@
+# PUBLIC PUSH VERIFIED 238986e63f515e5acfea010a22854892195b52da; V05 active run20261103T192015Z auto191951Z
+
+# ACTIVE — resumed after cleanup, V05 native VBL test
+
+User explicitly resumed. Cleanup completed: free14GiB vs8.2GiB. Old roots throughE105 removed, manifests retained; completed journals/rawcaptures verified-compressed. Next V05 sameV04kernel, optionalCA_FORCE_TIMER1,60sUI/90skernel; actual callback delivery not yet qualified.
+
+# STOPPED — explicit user stop; Git publication only authorized
+
+No phone boots, builds or implementation work until explicitresume. Noactiveownedprocesses; Androidindependentlyboot_completed1. Userrequestedpushcurrentwork; publicationinprogressafterthisrecord.
+
+V04run20261103T123729Z/auto123705Z short30sGPUcontrolled10/45/fullclose/normalreturn/Androidindependent1. Originalcollector1missingDynamicBOproofretained. ZEROregister_port/subscribe/hardware_callbackrecords; DOESNOTproveuniversallynonebecause30sGPUendedbeforedesktop. UserCPUstartupwasexpectedafterplannedstop; NOTcrashthisrun. V04-result.json.
+
+CRITICALNEXT: savedlocalhakios-xnu-kernel/userland/src/inject.c hasca_vbl1->CA_FORCE_TIMER1 startupconfig explainingiPhoneXCADisplayTimer selection. EXACTnativeiOS16.5QuartzCorexref188364614 validatedgetenv(CA_FORCE_TIMER)+atoi; nonzero selectsVBLbranch. EnvironmentsetbeforestartupviaNEWOPTIONALtools/build-waffle-ui-probe.py--ca-vbl; defaultunchanged. V05rootv05-native-vbl-ui BUILT60s/E113pixelqualifiedhook/allpriorfeatures, NEVERBOOTED(userSTOP). NoV05pairedartifactyet. CanreuseV04validatedpairedkernel/image sinceonlyrootenvironmentchanges; featuremanifestmustnative_vbl_requestedtrue (outerhardwaresyncnowrequiresit). Rootsourcehashesmustverify. NextONLYafterresume constructisolatedartifact/validate/--hardware-vsync(no--display-survey)/90skernel/no--ui-long-test for60sUIwindow. Needactualport/subscription/callbacktimestampsbeforeclaim. Ifport0onlyneedtraceproofbeforeportremap. Noappmanualinputinitially, avoidheavyOOM.
+
+V03hardwarecounterqualifiedbutcallback0andOOM/SIGSEGV6170/2128; VSyncdeliveryFAILED. V01/2readonlyDPU/TE120.8Hz/CNTFRQ19.2MHzqualified. V04kernelcandidateincludes500uspoll/divider2/hardwaretimestamp/stallfallback+routeobserver, defaultOFF. Hostphase+actualcallbacktestsPASS/fullkernelcompiled. NoDPUregisterwrites/pageflip; nofulltearingfix. E113Settingsblackanimationuserfixed+nonzerosamples, heavyUI192MiBOOM/SIGSEGVunfinished. MesaNULLmapafterdescriptorallocationfailinferreduniquebinaryPCmatch; noMesaedits. Brightnessdeferredbyuser/audiounchanged.
+
+Privatecheckpointfollows; publicpushpending. Noagents/goals. Preservemainindex; publishworktreeonlyscopedfiles. Historicalactiveentriesbelow superseded.
+
+# ACTIVE V04 subscription/port trace build; V03 FAILED
+
+UserreportedCPUfallback. V03run20261103T122355Z/auto122331Z hardware_ready1/TEperiod158921ticks/divider2BUTZERO hardware_callbacklogs. DoNOTclaimhardwareVSyncdelivered. Heap192MiBreached/ENOMEMthenbackboarddSIGSEGVaddr1c; fullGPUclose6170commands/2128BO, NOTboundedstop; originalcollector1retained; Androidindependently1. V03-result.json/rawfaultcaptured. Noactivephoneboot.
+
+V04fullbuildactive session66411 outputdiagnostic-vsync-ports-v04/stdoutgpu/build-vsync-ports-v04.log. SameV03pacingcandidateplusmetadataONLY register_port(client/type/present),subscribe(client/type/enabled/scalars<=32),callback_unarmed(callback/port0/port5). Needactualroutebeforechangingrouting. NativeexactIOMFBEnableVSyncwrappertype5/IOKitimplselector72CORRECT; wrongtypenumberhypothesisrefuted. Sharedport0versusrequiredport5isUNPROVEN. Afterbuildpairfreshimage/currentkernel/headers/loader+sourceboundUIV01reuse(v01-vsync-survey-ui; toolsUIbuilderunchanged)thenvalidate, launch--hardware-vsync / GPUUI240s/7cores/torch. OneUSBowner. Requestnomoremanualanimationsduringporttraceunlessneeded; avoidheavyOOMreprowithoutnewdata.
+
+V02CNTFRQ19.2MHz+nativeTEtimestamps120.8Hzqualified, V03codeopt-inread-onlyMMIOgates+HiLoHi+divider60+stalledfallback. Actualphase+adapterhostPASS. DisplaystilldirectCPUscanoutwrites; nohardwareflip. Brightnessdeferredbyuser, audiounchanged. VSyncprioritypreserved; stabilityblocksmeasurements.
+
+Mesaofflinefinding: crashPCrelativecache+slide30908000uniquecandidatebase1023cc000 maps publishedMesaPC7bd850 ldrb[x0,#1c] (NULL) calledbybuild_texture_state texdesc fd_bo_new→fd_bo_map withoutNULLguard. Adjacentunstrippedbuildoffsetsdiffer24bytes; exactsymbolprovenanceNOTyetqualified. Largeunretired16KiBreadonlyBOpopulation; tex/sampdescriptorflags0x402don'tmatchRING_FLAGS0x403subheapcondition, but don'tchangeflags/capabilitieswithoutcoverage. NoMesaeditsmade.
+
+Privatecheckpointfollows; publicf02a387. Mainindexuntouched. HistoricalV03activeentriesbelow superseded.
+
+# ACTIVE V03 hardware panel-TE callback candidate
+
+UserpriorityVSync; brightnessdeferred. Solephoneowner session74066 stdoutgpu/auto-hardware-vsync-v03.log, artifactdiagnostic-hardware-vsync-v03. Newfullkernel+pairedUEFI/currentdisplayphaseheaders/loaderpolicyverified; sourceboundUIE113hookunchanged/allpriorfeatures; validatePASS; actualintermediateparserforwardtestdefault/valid/mixedduplicatesPASS. Flags--hardware-vsync (NOTdisplay-survey), GPUUI240s/cpus7/torch/kernel300s; Androidindependent1beforelaunch. Needhardware_ready=1, measuredperiod/divider2,hardware_callbacktimestamps/nohardware_fallback thenregularcontrolledstop/fullclose/Android1. NoDPUregisterwrites/IRQack/modeset/pageflip. OnlyCoreAnimationVSyncnotificationpacingcandidate. FramebuffersstilldirectCPUscanoutwrites; NEVERclaimtearingfullyfixedwithoutuser+atomicpresentationproof.
+
+V02run121529Z/auto121505Z complete: CNTFRQ19200000/panelTEtimestampinterval~158930ticks =>120.8Hz (9edges). TS_CTRL21 nativeTEsource; exactrawtimestampssametimebaseasobservedmach. Nativeautore80000001/INTF1,2SSPPsplit720x3168/addressd5100000/stride5760. Controlled3060/1786/fullclose/originalcollector1missingBOproofretained/Androidindependent1. V02-result.json. V01-result.json earlierreadonlyactivepathqualified; firstV01launchintermediatefailedBEFOREkernel, fixed.
+
+V03qualifierchecksactualV01/2layout+CNTFRQ, reads8TEedges; ratioqualifiesdivider1..4within5%ofrequestedlogicalrefresh60; unknownlayout/stall=>softwaredefault. SharedMMIOmaplifetimeonlyafterreadinessrelease/acquirepublished. HelpertimestampHiLoHi3tries,phasebaseline/nodup/stall/reset/jump/overflowguard. Callback500usdelayedpollnotspin, forwardsDPUstampnotpolltime; fallsbackifstale(reset/noedges3periods), perclientdisablelogged. Actualcallback+phasehostASanUBSanPASS; fullkernelcompilePASS. Exactimplementation/source/testsneedprivatecheckpointafterhardwareevidence.
+
+PriorGPUE113Settingsblackgone(user)+nonzerosamplesBUTheavyUI192MiBheap/SIGSEGVunresolved; noenduranceclaim. AudioA14/A15unchanged; useraskedstatusandwasansweredPCMnotyetDMA/amps. Latestpublicf02a387, private9c5150c. Noactiveagents.
+
 # ACTIVE V01 retry — first launch failed before kernel
 
 Solephoneowner session37743, stdoutgpu/auto-vsync-survey-v01-retry.log; artifactdiagnostic-vsync-survey-v01samevalidatedpairedkernel/UI. Firstauto120411ZfailedBEFOREinnerkernelrunnerbecauseintermediatework/waffle/gpu/run-publish-test.py rejectednewflag. Androidrecoveredindependent1. IntermediateUI-onlyflagforwardaddedandACTUALparser+innercommandASTtesteddefault/valid/standalone/duplicateswithoutUSB. NOhardwareDPUresultyet. Needlogwaffle-vsync/layout/counters/complete +fullclose+Android1. NativeDPUread-only/noIRQacks/config/timingwrites. UserpriorityVSync, brightnessDEFERRED. Allpriorstatebelowappliesexceptoldfirstlaunchsession.

@@ -544,7 +544,10 @@ def main():
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
+    parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
     args = parser.parse_args()
+    if args.hardware_vsync and (args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--hardware-vsync requires isolated GPU UI and excludes diagnostic/audio modes")
     if args.display_survey and (args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-survey requires isolated GPU UI and excludes audio")
     if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
@@ -619,6 +622,8 @@ def main():
     if "kernel-supported: software-userland-test" not in command("getvar", "kernel-supported"):
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
+    if args.hardware_vsync:
+        arguments += " waffle_vsync=1"
     if args.display_survey:
         if args.audio_preflight:parser.error("--display-survey excludes audio tests")
         arguments += " waffle_vsync_audit=1"

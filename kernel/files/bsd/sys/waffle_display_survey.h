@@ -8,7 +8,7 @@ struct waffle_display_io {void *context; bool (*read32)(void *,uint32_t,uint32_t
 static const uint32_t waffle_display_intf_base[4]={0x35000,0x36000,0x37000,0x38000};
 static const uint32_t waffle_display_ctl_base[6]={0x16000,0x17000,0x18000,0x19000,0x1a000,0x1b000};
 static const uint32_t waffle_display_sspp_base[10]={0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000,0x2d000,0x2f000};
-struct waffle_display_intf {uint32_t timing,config,config2,count_en,frame,line,tear_en,tear_out,tear_line,ts_ctrl,ts_lo,ts_hi;};
+struct waffle_display_intf {uint32_t timing,config,config2,count_en,frame,line,tear_en,tear_out,tear_line,ts_ctrl,ts_lo,ts_hi,rd_count,auto_refresh,status,mdp_frame;};
 struct waffle_display_ctl {uint32_t top,status,intf_active,sspp_active;};
 struct waffle_display_sspp {uint32_t size,xy,out_size,out_xy,address,stride,format,op_mode;};
 struct waffle_display_snapshot {uint32_t version;struct waffle_display_intf intf[4];struct waffle_display_ctl ctl[6];struct waffle_display_sspp sspp[10];};
@@ -23,6 +23,7 @@ static inline bool waffle_display_capture(const struct waffle_display_io *io,str
   WD_READ(0x000,timing);WD_READ(0x004,config);WD_READ(0x060,config2);WD_READ(0x0a8,count_en);
   WD_READ(0x0ac,frame);WD_READ(0x0b0,line);WD_READ(0x284,tear_en);WD_READ(0x2ac,tear_out);WD_READ(0x2b0,tear_line);
   WD_READ(0x210,ts_ctrl);WD_READ(0x214,ts_lo);WD_READ(0x218,ts_hi);
+  WD_READ(0x298,rd_count);WD_READ(0x2b4,auto_refresh);WD_READ(0x26c,status);WD_READ(0x0a4,mdp_frame);
 #undef WD_READ
  }
  if(!layout)return true;

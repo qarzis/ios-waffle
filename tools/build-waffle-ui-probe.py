@@ -29,6 +29,7 @@ def main():
  parser.add_argument('--transition-frames',action='store_true',help='Enable existing EAGL per-frame draw/refusal metadata for manual icon transitions')
  parser.add_argument('--poster-inventory',action='store_true',help='Read-only actual wallpaper collection and logical-screen inventory')
  parser.add_argument('--ios16-wallpaper',action='store_true',help='Test scoped availability of bundled iOS16 artwork for375x812@2x')
+ parser.add_argument('--ca-vbl',action='store_true',help='Opt in to native QuartzCore driver VBL notifications using verified CA_FORCE_TIMER switch')
  parser.add_argument('--brightness-audit',action='store_true',help='Read-only backlight-control and framebuffer IORegistry inventory')
  parser.add_argument('--focus-diagnostic',action='store_true',help='Three read-only stack samples of donotdisturbd')
  parser.add_argument('--slider-control',action='store_true',help='Enable native Focus/vibrate-mode/ring bridge')
@@ -82,6 +83,7 @@ def main():
  job['KeepAlive']=False;job['RunAtLoad']=True
  job['StandardOutPath']=job['StandardErrorPath']='/dev/console'
  job.setdefault('EnvironmentVariables',{}).update(WAFFLE_GPU_UI='1',MESA_SHADER_CACHE_DISABLE='true',GALLIUM_THREAD='0',DYLD_SHARED_CACHE_DIR='/System/Cryptexes/OS/System/Library/Caches/com.apple.dyld')
+ if args.ca_vbl:job['EnvironmentVariables']['CA_FORCE_TIMER']='1'
  if args.reclaim_on_oom:job['EnvironmentVariables']['WAFFLE_GPU_RECLAIM_ON_OOM']='1'
  bb.write_bytes(plistlib.dumps(job,fmt=plistlib.FMT_BINARY))
  if args.cpu_proof:
@@ -143,6 +145,7 @@ def main():
  manifest['transition_frames']=args.transition_frames
  manifest['poster_inventory']=args.poster_inventory
  manifest['ios16_wallpaper']=args.ios16_wallpaper
+ manifest['ca_vbl']=args.ca_vbl
  manifest['brightness_audit']=args.brightness_audit
  manifest['cpu_proof']=args.cpu_proof
  manifest['reclaim_on_oom']=args.reclaim_on_oom
