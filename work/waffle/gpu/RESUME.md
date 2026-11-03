@@ -1,3 +1,11 @@
+# ACTIVE — D01 readonly display address survey, solephoneowner auto-display-map-d01.log
+
+FreshD01kernel+pairedautoimage validated, header/sourcebindingschecked. --display-survey ONLY; readsDPUandAppsSMMUdisplaySID1c00/1c02, noSMMU/DPUwrites/flush/start. UI60s/kernel90s/cpus7/torch/Mesa749; plannedCPUafter60s announced. Needwaffle-display-smmu/fullclose/Android1; interpretglobalcontrol/nativeSMR/S2CRbeforesecondbufferassumptions. M02bounded240pass27434/3921/nohardwarefallbackobserved; stillmotionstripes/noatomicflip. Publicccbd029pushedverifyremote.
+
+# ACTIVE — M02 VSync resubscribe candidate, solephoneowner auto-pressure-vsync-m02.log
+
+UserexplicitlyprioritizesVSyncafterM01memoryboundedpass. M01run193820Z/auto193756Z bounded240stop/fullclose55301commands10568BO/noGPUbackboarddSIGSEGV/Androidindependent1; originalcollector1retained, notoverallstrictpass. CorrectedMesa749 remains, sameE113hook/root/240s/7cores/torch. M02usesfreshV07kernel+pairedautoimage, resetsphaseonlyonVSyncunsubscribe, neverclearsrealhardwarefaultlatch, fault_inputrawtimestampsadded. Hostactualhandler+callbackPASS; fullkernelbuildandartifactvalidatePASS; sourcebindingsverified. NoatomicDPUflip/tearingfixyet. Needactualhardware_callback/fallbackfaultinput+fullclose+Android1.
+
 # ACTIVE — M01 UI solephoneowner auto-pressure-ui-m01.log
 
 PixelqualifiedM01run193535Z/auto193511Z all1218000/0wrong/fullclose2/27/outer0/Androidindependent1. UIstarted sameV06kernel, nativeCA VBLenvironmenttrue,240sGPU/300skernel,7cores/torch, correctedMesa749. Onlylibraryselectionandrootbindingguardchanged. NeedactualpostENOMEMretirement+continuedGPUfences/controlledstop+Android1; ifcrashpreserveit. NoVSync/tearingfixclaim. V07phasefixBUILT/validatedbutNOTBOOTED.

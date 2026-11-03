@@ -18,6 +18,7 @@
 #include <vm/memory_types.h>
 #include "../../bsd/sys/waffle_display_survey.h"
 #include "../../bsd/sys/waffle_vsync_phase.h"
+#include "../../bsd/sys/waffle_display_smmu.h"
 extern "C" {
 #include <console/video_console.h>
 extern struct vc_info vinfo;
@@ -33,6 +34,34 @@ static bool waffleDisplayRead(void *context, uint32_t offset, uint32_t *value)
  if (offset > 0x83ffc || (offset & 3)) return false;
  *value = *(volatile uint32_t *)((uint8_t *)context + offset);
  return true;
+}
+static bool waffleDisplaySMMURead(void *context, uint32_t offset, uint32_t *value)
+{
+ if (offset > 0xffffc || (offset & 3)) return false;
+ *value = *(volatile uint32_t *)((uint8_t *)context + offset);
+ return true;
+}
+static void waffleDisplaySMMUSurvey(void)
+{
+ vm_offset_t base = ml_io_map_unmappable(0x15000000, 0x100000, VM_WIMG_IO);
+ if (!base) {redwood_tl("waffle-display-smmu: complete=0 reason=map no_writes=1\n");return;}
+ struct waffle_display_smmu_io io = {(void *)base, waffleDisplaySMMURead};
+ struct waffle_display_smmu_snapshot snapshot = {};
+ bool ok = waffle_display_smmu_capture(&io, &snapshot);
+ redwood_tl("waffle-display-smmu: complete=%u cr0=%x id0=%x id1=%x id2=%x groups=%u banks=%u page_shift=%u cb_base=%x no_writes=1\n",
+     ok, snapshot.cr0, snapshot.id0, snapshot.id1, snapshot.id2, snapshot.groups, snapshot.banks, snapshot.page_shift, snapshot.cb_base);
+ for (unsigned i = 0; i < 2; i++) {
+  const struct waffle_display_smmu_route *r = &snapshot.stream[i];
+  redwood_tl("waffle-display-smmu: sid=%x matches=%u index=%u smr=%x s2cr=%x cb=%u context_read=%u\n",
+      r->sid, r->matches, r->index, r->smr, r->s2cr, r->cb, r->context_read);
+  if (r->context_read) {
+   redwood_tl("waffle-display-smmu: sid=%x cbar=%x sctlr=%x tcr=%x tcr2=%x fsr=%x\n",
+       r->sid, r->cbar, r->sctlr, r->tcr, r->tcr2, r->fsr);
+   redwood_tl("waffle-display-smmu: sid=%x ttbr0=%llx ttbr1=%llx\n", r->sid,
+       (unsigned long long)r->ttbr0, (unsigned long long)r->ttbr1);
+  }
+ }
+ ml_io_unmap(base, 0x100000);
 }
 static void waffleDisplaySurvey(void *, wait_result_t)
 {
@@ -80,6 +109,7 @@ static void waffleDisplaySurvey(void *, wait_result_t)
   }
  }
  ml_io_unmap(base, 0x84000);
+ waffleDisplaySMMUSurvey();
  redwood_tl("waffle-vsync: survey_complete=%u no_register_writes=1 no_irq_ack=1 no_timing_change=1\n", ok);
  thread_terminate(current_thread());
 }
