@@ -1,0 +1,808 @@
+{
+  "run": "20261103T103557Z",
+  "manual_black_reproduced": true,
+  "completed": true,
+  "all_pixels_scanned": false,
+  "zero_sample_sources": [
+    {
+      "sid": 78,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=78 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-219.log: waffle-upload: frame=380 surface=78 texture=109 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 78,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=78 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-219.log: waffle-upload: frame=381 surface=78 texture=137 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 78,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=78 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-219.log: waffle-upload: frame=382 surface=78 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 78,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=78 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-219.log: waffle-upload: frame=383 surface=78 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 78,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=78 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-219.log: waffle-upload: frame=384 surface=78 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-232.log: waffle-upload: frame=406 surface=90 texture=53 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-232.log: waffle-upload: frame=407 surface=90 texture=146 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-232.log: waffle-upload: frame=408 surface=90 texture=147 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-233.log: waffle-upload: frame=409 surface=90 texture=147 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-235.log: waffle-upload: frame=438 surface=90 texture=15 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-236.log: waffle-upload: frame=439 surface=90 texture=24 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-236.log: waffle-upload: frame=440 surface=90 texture=47 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-236.log: waffle-upload: frame=441 surface=90 texture=77 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-236.log: waffle-upload: frame=442 surface=90 texture=21 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-236.log: waffle-upload: frame=443 surface=90 texture=21 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-236.log: waffle-upload: frame=444 surface=90 texture=21 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-239.log: waffle-upload: frame=457 surface=90 texture=151 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-239.log: waffle-upload: frame=458 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-239.log: waffle-upload: frame=459 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-239.log: waffle-upload: frame=460 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-239.log: waffle-upload: frame=461 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-239.log: waffle-upload: frame=462 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-239.log: waffle-upload: frame=463 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-241.log: waffle-upload: frame=482 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-241.log: waffle-upload: frame=483 surface=90 texture=82 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-241.log: waffle-upload: frame=484 surface=90 texture=82 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-241.log: waffle-upload: frame=485 surface=90 texture=82 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-241.log: waffle-upload: frame=486 surface=90 texture=83 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-242.log: waffle-upload: frame=487 surface=90 texture=83 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-242.log: waffle-upload: frame=488 surface=90 texture=83 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-242.log: waffle-upload: frame=489 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-242.log: waffle-upload: frame=490 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=496 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=497 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=498 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=499 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=500 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=501 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=502 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-243.log: waffle-upload: frame=503 surface=90 texture=81 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-248.log: waffle-upload: frame=557 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-248.log: waffle-upload: frame=558 surface=90 texture=127 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-248.log: waffle-upload: frame=559 surface=90 texture=127 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-248.log: waffle-upload: frame=560 surface=90 texture=127 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-248.log: waffle-upload: frame=561 surface=90 texture=47 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-249.log: waffle-upload: frame=562 surface=90 texture=47 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-249.log: waffle-upload: frame=563 surface=90 texture=47 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-249.log: waffle-upload: frame=564 surface=90 texture=47 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-249.log: waffle-upload: frame=568 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-250.log: waffle-upload: frame=569 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-250.log: waffle-upload: frame=570 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-250.log: waffle-upload: frame=571 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-250.log: waffle-upload: frame=572 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-250.log: waffle-upload: frame=573 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-250.log: waffle-upload: frame=574 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-250.log: waffle-upload: frame=575 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-251.log:   -rw-r--r--  waffle-upload: frame=589 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-251.log: waffle-upload: frame=588 surface=90 texture=60 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=589 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=590 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=591 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=592 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=593 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=594 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=595 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-252.log: waffle-upload: frame=596 surface=90 texture=138 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-253.log: waffle-upload: frame=601 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-253.log: waffle-upload: frame=602 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-253.log: waffle-upload: frame=603 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-253.log: waffle-upload: frame=604 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-253.log: waffle-upload: frame=605 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-253.log: waffle-upload: frame=606 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-254.log: waffle-upload: frame=607 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-254.log: waffle-upload: frame=613 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-254.log: waffle-upload: frame=614 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-254.log: waffle-upload: frame=615 surface=90 texture=123 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-254.log: waffle-upload: frame=616 surface=90 texture=126 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=617 surface=90 texture=140 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=618 surface=90 texture=140 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=619 surface=90 texture=140 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=620 surface=90 texture=140 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=621 surface=90 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=622 surface=90 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=623 surface=90 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=624 surface=90 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-255.log: waffle-upload: frame=625 surface=90 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-256.log: waffle-upload: frame=626 surface=90 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    },
+    {
+      "sid": 90,
+      "creator": {
+        "owner": "backboardd",
+        "pid": 84,
+        "line": "waffle-surface: created sid=90 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0"
+      },
+      "line": "kernel-256.log: waffle-upload: frame=627 surface=90 texture=58 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+    }
+  ],
+  "interpretation": "Backboardd-created BGRA surfaces sampled zero on texture upload. Producer identity established; exact missing write/copy path not established.",
+  "completed_commands": 6777,
+  "lifetime_buffers": 2019,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "raw_log_sha256": "073c5f3053ea9ba3ab2c867b15a33ebe823eab88591b8aeed591752beef10b26"
+}

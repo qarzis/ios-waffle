@@ -1003,10 +1003,13 @@ IOSurfaceRootUserClient::methodCreate(IOExternalMethodArguments * args)
      OSIncrementAtomic(&gWaffleLargeSurfaces) < 64) {
   char owner[32] = "?";
   proc_selfname(owner, sizeof(owner));
-  traceLine("waffle-surface: created sid=%u owner=%s pid=%d width=%u height=%u row=%u format=%#x offset=%u bytes=%u wrapped=%u planes=%u\n",
+  char event[256];
+  snprintf(event, sizeof(event), "waffle-surface: created sid=%u owner=%s pid=%d width=%u height=%u row=%u format=%#x offset=%u bytes=%u wrapped=%u planes=%u\n",
       s->sid, owner, proc_selfpid(), s->info.width, s->info.height,
       s->info.bytesPerRow, s->info.pixelFormat, s->info.offset, s->info.allocSize,
       s->client != NULL, s->info.planeCount);
+  loader_log_line(event);
+  IOLog("%s", event);
  }
  {
   char procname[32] = "?";

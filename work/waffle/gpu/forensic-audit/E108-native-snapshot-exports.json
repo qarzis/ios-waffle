@@ -1,0 +1,97 @@
+[
+  {
+    "name": "_CARenderServerCaptureDisplay",
+    "address": "0x188471020",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayClientList",
+    "address": "0x1884710a0",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayClientListWithTransform",
+    "address": "0x1884710d8",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayClientListWithTransformList",
+    "address": "0x188471108",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayLayerWithTransformTimeOffsetAndFlags",
+    "address": "0x188470f60",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayWithTransform",
+    "address": "0x188471060",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureLayer",
+    "address": "0x188470f10",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureLayerWithTransform",
+    "address": "0x188470f8c",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerCaptureLayerWithTransformAndTimeOffset",
+    "address": "0x188470fd8",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderDisplay",
+    "address": "0x188470e40",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderDisplayClientList",
+    "address": "0x188470e80",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderDisplayClientListWithTransform",
+    "address": "0x188470eb8",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderDisplayClientListWithTransformList",
+    "address": "0x188353b90",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderDisplayLayerWithTransformAndTimeOffset",
+    "address": "0x188470ee8",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderDisplayLayerWithTransformTimeOffsetAndFlags",
+    "address": "0x188470d80",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderLayer",
+    "address": "0x188470d30",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderLayerWithTransform",
+    "address": "0x188470dac",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerRenderLayerWithTransformAndTimeOffset",
+    "address": "0x188470df8",
+    "type": 15
+  },
+  {
+    "name": "_CARenderServerSnapshot",
+    "address": "0x18835cc14",
+    "type": 15
+  }
+]

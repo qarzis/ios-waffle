@@ -1,3 +1,15 @@
+# ACTIVE investigation; phone returned to Android — E108 complete
+
+User manually confirmed black icon expansion again. E108run20261103T103557Z/auto103533Z: sourceSID78/90 created bybackboarddPID84, BGRA750x1624,row3072,offset0,nonwrapped; repeatedlyall16RGBA samplelocationszeroontarget0upload. Produceridentityqualified; fullblankbuffer/causeNOTqualified. SameE106hook/root/rendering. Directboundedcreatorjournalworks. GPUcontrolledstop6777commands/2019lifetimeBO/fullclosecontextnull, normalreturn; originalstrictcollector1missingDynamicBOpublication/use/release retained. Android independently boot_completed1; no phone runner remains.
+
+Next investigate native snapshot WRITE/COPY/publication path, not shaders/seed/lease repetition. glReadPixels entry0x770 auto-generated realMesa passthrough, so missing-entry hypothesis refutedoffline. NativeQuartzCore Render/Capture/Snapshot export addresses/disassembly recorded; ABI unqualified, no guessed hooks. Evidence forensic-audit/E108-result.json/native-snapshot-exports/native-render-core. A14audioSMMUsurveyPASS/noaudiostreammatches/noDMAqualified; A13APMOPEN/CLOSEACK0 retained.
+
+Privatecheckpoint follows. No automatic next hardware test queued before architectural inspection. Explicit user stop revoked; both tasks active. Historical entries below superseded.
+
+# ACTIVE E108 bounded creator metadata
+
+E107 completed; original runner1 retained,2473commands/1537BO/fullclose/normalreturn/Androidindependent1. Creator IOLog messages only reached final console after GPU phase aged out; no producer identified. E108 logs bounded metadata directly to loader journal, unchanged E106 rendering/root/hook. Sole runner session33851; stdout gpu/auto-surface-owner-e108.log. Need actual creator records before another manual animation request. A14 audio read-only survey PASS/no matching audio streams/no DMA qualified.
+
 # ACTIVE GPU E107 and audio A14 — 2026-11-03
 
 User resumed and requested both tracks. Sole hardware owner: E107 outer runner, auto20261103T102811Z, stdout gpu/auto-surface-owner-e107.log, artifact diagnostic-surface-owner-e107. New A14 kernel/paired image has bounded large IOSurface creator metadata; E106 hook/root unchanged and source hashes verified. No audio mode during GPU run. Need creator identity for repeatedly zero-sampled source surfaces, then actual manual icon expansion; do not equate LS app switching with icon animation. UI240s/kernel300s, retain original strict collector failures and check Android independently after return.
