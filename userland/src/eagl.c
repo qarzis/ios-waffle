@@ -1014,6 +1014,25 @@ drawing(struct eagl *e)
   }
  }
 
+ /* texImageIOSurface also supplies textures later attached to an ordinary
+  * FBO. Such draws must publish into the IOSurface just like attachImage. */
+ if (e->framebuffer != 0 && e->colour != 0 && (image = image_of(e, e->colour)) != NULL &&
+     !image->target && !image->shared && !image->wrapped && !image->alpha_first &&
+     image->to == GL_TEXTURE_2D && image->format == GL_BGRA && image->type == GL_UNSIGNED_BYTE &&
+     image->plane == 0 && image->width > 0 && image->height > 0 &&
+     IOSurfaceGetPixelFormat(image->surface) == 'BGRA' && IOSurfaceGetPlaneCount(image->surface) == 0 &&
+     IOSurfaceGetBytesPerElement(image->surface) == 4 &&
+     (size_t)image->width == IOSurfaceGetWidth(image->surface) &&
+     (size_t)image->height == IOSurfaceGetHeight(image->surface)) {
+  image->target = true;
+  if (frame_lines) {
+   static unsigned promoted;
+   if (promoted++ < 32) {
+    say("waffle-snapshot: promoted_target frame=%u framebuffer=%u texture=%u surface=%u width=%d height=%d\n",
+        e->frames + 1, e->framebuffer, image->texture, IOSurfaceGetID(image->surface), image->width, image->height);
+   }
+  }
+ }
  if (e->framebuffer != 0 && e->colour != 0 && (image = image_of(e, e->colour)) != NULL && image->target) {
   image->drawn = image->painted = true;
   if (frame_lines && image->width >= 1000 && image->height >= 2000) {

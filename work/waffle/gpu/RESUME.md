@@ -1,3 +1,11 @@
+# ACTIVE E111 minimal snapshot writeback fix — 2026-11-03
+
+E110 user manualblackconfirmed; hardware DIRECT evidence sourceSID79/backboarddPID84/texture114/frame320 attached FBO22 foractualdraw withimage.targetfalse, frame321/322sameSIDreuploadedzero. Existingframe_endcopiesonlytarget&&drawn. Not merelyhypothesisnow: missingordinaryFBOtargetclassificationdemonstrated. FullanimationrootcausecoverageNOTestablished.
+
+E111 drawing() promotesonlyactualdraw-bound fullsingleplane4BPEBGRA/u8/GL_TEXTURE_2D/nonwrapped/nonshared/noalphafirst surface. Existingtarget_to_surface/seedunlock/frame_end reused. Noheap/shader/APIchanges. Hostactualdrawing reproducesE110missingwritebackeligibility thenpassesnewpromotion+15format/geometryguards; existingpixelreadbackhoststillPASS. Hook/UIbuilt, allpriorfeaturesourcefilespreserved, sameE108pairedkernel/loader, validated. ActiveSOLEE111pixelrunner session16563 stdoutgpu/auto-snapshot-target-pixel-e111.log. Need fullsizepixelPASS+independentAndroid1 BEFORE candidateUIartifactdiagnostic-snapshot-target-ui-e111. UI240s/7cores/torch; requestmanualicontapafterready/TG. Needpromoted_targetSID andlaternonzeroinputcorrelation + uservisualanswer. Nofixclaimyet.
+
+E110completed7073/2829/fullclose/normalreturn/Androidindependent1; originalcollector1missingDynamicBOproofretained. Publicdocs aba3bf01160e0c4f6be7e0f332255bd06ffaf307 pushed+lsremoteverified. Privatecheckpointfollows. AudioA14noaudiostreammatches/A15nativeownershipaudit; noaudiohardwarewhileGPUsingleUSBowner.
+
 # ACTIVE E110 source/target classification experiment
 
 E109 UI completed run20261103T105121Z/auto105057Z; user manualiconblackconfirmed; ZERO large glReadPixels metadata, repeatedzero-inputsourcescreatedbackboardd.6171commands/1979BO/fullclose/normalreturn; originalcollector1missingDynamicBOproof retained; independentAndroid1. PixelcontrolE109run104538Z passed1218000pixels/wrong0/fullclose/outer0/Android1. No animationfix.
