@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--audio-preflight', action='store_true', help='Isolated60-second native ADSP firmware validation, without DSP startup')
     parser.add_argument('--audio-power', action='store_true', help='With --audio-preflight: qualify native RPMh upvotes, retain until Android reset')
     parser.add_argument('--audio-survey', action='store_true', help='With --audio-preflight: read-only SMEM/SMP2P/GLINK state survey')
+    parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
     parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
@@ -64,6 +65,7 @@ def main():
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
+    if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and any(getattr(args, name) for name in (
             'cpu_ui_test','cpus','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
             'measure_clocks','lpac_cp_init','gl_context','mapped','mesa_transport','msm','user_va','glsl',
@@ -220,7 +222,7 @@ def main():
             raise RuntimeError('Automatic loader platform mismatch')
         report['automatic_loader_verified'] = True
         if args.audio_preflight:
-            if args.audio_boot:
+            if args.audio_boot or args.audio_iommu:
                 recovery_log=(output/'recovery.log').open('w')
                 collector=subprocess.Popen([sys.executable,'tools/capture-waffle-crash.py','--collect','--wait-seconds','180'],cwd=ROOT,stdout=recovery_log,stderr=subprocess.STDOUT)
             items=[sys.executable,'scripts/run_waffle_ios.py','--seconds','60','--audio-preflight',
@@ -228,12 +230,14 @@ def main():
                 '--fastboot',args.fastboot]
             if args.audio_power:items.append('--audio-power')
             if args.audio_survey:items.append('--audio-survey')
+            if args.audio_iommu:items.append('--audio-iommu')
             if args.audio_boot:items.append('--audio-boot')
             if args.audio_graph:items.append('--audio-graph')
             result=command(items,timeout=240)
             report['audio_preflight']=True
             report['audio_power']=args.audio_power
             report['audio_survey']=args.audio_survey
+            report['audio_iommu']=args.audio_iommu
             report['audio_boot']=args.audio_boot
             report['audio_graph']=args.audio_graph
             report['runner_exit']=result.returncode

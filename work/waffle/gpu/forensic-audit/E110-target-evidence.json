@@ -1,0 +1,20 @@
+{
+  "run": "20261103T110153Z",
+  "manual_black_reproduced": true,
+  "completed": true,
+  "causal_scope": "Actual IOSurface source is drawn into ordinary FBO with target=false and excluded from existing target writeback. Does not establish all black-animation causes.",
+  "evidence": [
+    "kernel-203.log: waffle-surface: created sid=79 owner=backboardd pid=84 width=750 height=1624 row=3072 format=0x42475241 offset=0 bytes=4997120 wrapped=0 planes=0",
+    "kernel-203.log: waffle-upload: frame=320 surface=79 texture=114 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5",
+    "kernel-203.log: waffle-snapshot: source_as_target frame=320 framebuffer=22 texture=114 surface=79 width=750 height=1624 format=80e1 type=1401 wrapped=0 invert=0",
+    "kernel-203.log: waffle-upload: frame=321 surface=79 texture=62 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5",
+    "kernel-203.log: waffle-upload: frame=322 surface=79 texture=143 target=0 wrapped=0 alpha_first=0 invert=0 width=750 height=1624 row=3072 format=80e1 type=1401 samples=16 nonzero=0/0/0/0 hash=dfde6ac5"
+  ],
+  "completed_commands": 7073,
+  "lifetime_buffers": 2829,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "raw_log_sha256": "4e83c2de33b4a5ebd40d8440ce3c53bb2d1c520705144b6e23cbbb5d67a21834"
+}

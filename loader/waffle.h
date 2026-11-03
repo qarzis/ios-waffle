@@ -84,7 +84,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         cpus+=waffle_cpu_token_allowed(line,size);
 #if defined(WAFFLE_USERLAND)
         torch+=waffle_number(line,size,"waffle_torch=",1,3);
-        audio+=waffle_token_equal(line,size,"adsp=3") || waffle_token_equal(line,size,"adsp=4") || waffle_token_equal(line,size,"adsp=5") || waffle_token_equal(line,size,"adsp=6") || waffle_token_equal(line,size,"adsp=7");
+        audio+=waffle_token_equal(line,size,"adsp=3") || waffle_token_equal(line,size,"adsp=4") || waffle_token_equal(line,size,"adsp=5") || waffle_token_equal(line,size,"adsp=6") || waffle_token_equal(line,size,"adsp=7") || waffle_token_equal(line,size,"adsp=8");
         audio_budget+=waffle_number(line,size,"loader_return_after=",1,60);
 #endif
         gl_image+=waffle_token_equal(line,size,"waffle_image=13");
@@ -114,7 +114,7 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_cpu_token_allowed(line,size) &&
 #if defined(WAFFLE_USERLAND)
             !waffle_number(line,size,"waffle_torch=",1,3) &&
-            !waffle_token_equal(line,size,"adsp=3") && !waffle_token_equal(line,size,"adsp=4") && !waffle_token_equal(line,size,"adsp=5") && !waffle_token_equal(line,size,"adsp=6") && !waffle_token_equal(line,size,"adsp=7") &&
+            !waffle_token_equal(line,size,"adsp=3") && !waffle_token_equal(line,size,"adsp=4") && !waffle_token_equal(line,size,"adsp=5") && !waffle_token_equal(line,size,"adsp=6") && !waffle_token_equal(line,size,"adsp=7") && !waffle_token_equal(line,size,"adsp=8") &&
 #endif
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;

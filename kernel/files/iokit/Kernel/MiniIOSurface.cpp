@@ -70,6 +70,8 @@ static uint64_t gSurfaceMaking, gSurfaceFreeing;
 static uint32_t gSurfacesMade, gSurfacesFreed;
 static uint64_t gSurfaceLogged[2];
 static TUNABLE(uint32_t, gSurfaceTrace, "surftrace", 24);
+static TUNABLE(uint32_t, gWaffleSurfaceAudit, "waffle", 0);
+static volatile SInt32 gWaffleLargeSurfaces;
 static uint32_t gSurfaceTraced;
 static char gSurfaceTraceOf[32];
 extern "C" void loader_log_line(const char *line);
@@ -772,7 +774,7 @@ class IOSurfaceRootUserClient : public IOUserClient
  IOReturn trapUnlock(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6);
  IOReturn trapDetach(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6);
  IOReturn trapRelease(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6);
- IOReturn lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut);
+ IOReturn lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut, bool unlocking);
  IOReturn useCountCommon(uint32_t sid, uint32_t category, int delta);
 public:
  virtual bool initWithTask(task_t owningTask, void * securityID, UInt32 type, OSDictionary * properties) APPLE_KEXT_OVERRIDE;
@@ -996,6 +998,18 @@ IOSurfaceRootUserClient::methodCreate(IOExternalMethodArguments * args)
       dictNumber(props, "IOSurfacePixelFormat", 0), dictNumber(props, "IOSurfaceAllocSize", 0));
   props->release();
   return ret;
+ }
+ if (gWaffleSurfaceAudit && s->info.width >= 375 && s->info.height >= 700 &&
+     OSIncrementAtomic(&gWaffleLargeSurfaces) < 64) {
+  char owner[32] = "?";
+  proc_selfname(owner, sizeof(owner));
+  char event[256];
+  snprintf(event, sizeof(event), "waffle-surface: created sid=%u owner=%s pid=%d width=%u height=%u row=%u format=%#x offset=%u bytes=%u wrapped=%u planes=%u\n",
+      s->sid, owner, proc_selfpid(), s->info.width, s->info.height,
+      s->info.bytesPerRow, s->info.pixelFormat, s->info.offset, s->info.allocSize,
+      s->client != NULL, s->info.planeCount);
+  loader_log_line(event);
+  IOLog("%s", event);
  }
  {
   char procname[32] = "?";
@@ -1519,7 +1533,7 @@ IOSurfaceRootUserClient::trapDecrementUseCount(void * p1, void * p2, void * p3, 
  return useCountCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, -1);
 }
 IOReturn
-IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut)
+IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut, bool unlocking)
 {
  struct minisurf_client_ref * ref;
  uint32_t seed = 0;
@@ -1527,7 +1541,9 @@ IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t 
  ref = findRef(sid, false);
  if (ref != NULL) {
   struct minisurf_shared * sh = ref->surface->shared();
-  if (!(options & kSurfaceLockReadOnly)) {
+  /* A writer publishes its new content version at unlock. Publishing at
+   * lock can make a texture cache consume an unfinished update. */
+  if (unlocking && !(options & kSurfaceLockReadOnly)) {
    sh->seed++;
   }
   seed = sh->seed;
@@ -1544,12 +1560,12 @@ IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t 
 IOReturn
 IOSurfaceRootUserClient::trapLock(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6)
 {
- return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3);
+ return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3, false);
 }
 IOReturn
 IOSurfaceRootUserClient::trapUnlock(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6)
 {
- return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3);
+ return lockCommon((uint32_t) (uintptr_t) p1, (uint32_t) (uintptr_t) p2, (user_addr_t) (uintptr_t) p3, true);
 }
 IOReturn
 IOSurfaceRootUserClient::trapDetach(void * p1, void * p2, void * p3, void * p4, void * p5, void * p6)

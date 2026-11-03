@@ -388,6 +388,17 @@ image_of(struct eagl *e, GLuint texture)
  }
  return NULL;
 }
+static void
+note_pending_target(struct eagl *e, struct image *image, const char *reason)
+{
+ if (frame_lines && image->target && image->drawn) {
+  static unsigned observed;
+  if (observed++ < 32) {
+   say("waffle-snapshot: pending_discard reason=%s frame=%u texture=%u surface=%u width=%d height=%d\n",
+       reason, e->frames + 1, image->texture, IOSurfaceGetID(image->surface), image->width, image->height);
+  }
+ }
+}
 static struct image *
 image_new(struct eagl *e, GLuint texture, IOSurfaceRef surface)
 {
@@ -399,6 +410,7 @@ image_new(struct eagl *e, GLuint texture, IOSurfaceRef surface)
   }
   image = &e->images[e->image_count++];
  } else {
+  note_pending_target(e, image, "rebind");
   if (image->mirror != 0) {
    glDeleteTextures(1, &image->mirror);
   }
@@ -414,6 +426,7 @@ image_forget(struct eagl *e, GLuint texture)
 {
  struct image *image = image_of(e, texture);
  if (image != NULL) {
+  note_pending_target(e, image, "delete");
   if (image->mirror != 0) {
    glDeleteTextures(1, &image->mirror);
   }
@@ -542,6 +555,32 @@ surface_to_texture(struct eagl *e, struct image *image)
   base = flipped;
  }
  glGetIntegerv(GL_UNPACK_ROW_LENGTH, &row_length);
+ /* Diagnostic only: sample already-locked, converted upload bytes. This
+  * distinguishes an empty input picture from a later rendering failure. */
+ if (frame_lines && pixel == 4 && image->width >= 375 && image->height >= 700 &&
+     row >= (size_t)image->width * 4 && base != NULL) {
+  static unsigned sampled;
+  if (sampled++ < 96) {
+   unsigned nonzero[4] = {0}, samples = 0;
+   uint32_t fingerprint = 2166136261u;
+   for (unsigned gy = 0; gy < 4; gy++) {
+    size_t y = (size_t)(image->height - 1) * gy / 3;
+    for (unsigned gx = 0; gx < 4; gx++) {
+     size_t x = (size_t)(image->width - 1) * gx / 3;
+     const uint8_t *p = base + y * row + x * 4;
+     for (unsigned c = 0; c < 4; c++) {
+      nonzero[c] += p[c] != 0;
+      fingerprint = (fingerprint ^ p[c]) * 16777619u;
+     }
+     samples++;
+    }
+   }
+   say("waffle-upload: frame=%u surface=%u texture=%u target=%u wrapped=%u alpha_first=%u invert=%u width=%d height=%d row=%zu format=%x type=%x samples=%u nonzero=%u/%u/%u/%u hash=%x\n",
+       e->frames + 1, IOSurfaceGetID(surface), image->texture, image->target, image->wrapped,
+       alpha_first, image->invert, image->width, image->height, row, image->format, image->type,
+       samples, nonzero[0], nonzero[1], nonzero[2], nonzero[3], fingerprint);
+  }
+ }
  glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
  glPixelStorei(GL_UNPACK_ROW_LENGTH, (GLint)(row / pixel));
  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -675,6 +714,13 @@ target_to_surface(struct eagl *e, struct image *image)
    }
   }
   glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+  if (frame_lines && image->width >= 375 && image->height >= 700) {
+   static unsigned copied_targets;
+   if (copied_targets++ < 32) {
+    say("waffle-snapshot: copied_target frame=%u texture=%u surface=%u width=%d height=%d row=%zu\n",
+        e->frames + 1, image->texture, IOSurfaceGetID(surface), image->width, image->height, row);
+   }
+  }
   IOSurfaceUnlock(surface, 0, NULL);
  }
  glBindFramebuffer(GL_FRAMEBUFFER, e->framebuffer);
@@ -977,6 +1023,36 @@ drawing(struct eagl *e)
 {
  struct image *image;
  frame_begin(e);
+ if (frame_lines && e->framebuffer != 0 && e->colour != 0 &&
+     (image = image_of(e, e->colour)) != NULL && !image->target &&
+     image->width >= 375 && image->height >= 700) {
+  static unsigned observed_source_draws;
+  if (observed_source_draws++ < 32) {
+   say("waffle-snapshot: source_as_target frame=%u framebuffer=%u texture=%u surface=%u width=%d height=%d format=%x type=%x wrapped=%u invert=%u\n",
+       e->frames + 1, e->framebuffer, image->texture, IOSurfaceGetID(image->surface),
+       image->width, image->height, image->format, image->type, image->wrapped, image->invert);
+  }
+ }
+
+ /* texImageIOSurface also supplies textures later attached to an ordinary
+  * FBO. Such draws must publish into the IOSurface just like attachImage. */
+ if (e->framebuffer != 0 && e->colour != 0 && (image = image_of(e, e->colour)) != NULL &&
+     !image->target && !image->shared && !image->wrapped && !image->alpha_first &&
+     image->to == GL_TEXTURE_2D && image->format == GL_BGRA && image->type == GL_UNSIGNED_BYTE &&
+     image->plane == 0 && image->width > 0 && image->height > 0 &&
+     IOSurfaceGetPixelFormat(image->surface) == 'BGRA' && IOSurfaceGetPlaneCount(image->surface) == 0 &&
+     IOSurfaceGetBytesPerElement(image->surface) == 4 &&
+     (size_t)image->width == IOSurfaceGetWidth(image->surface) &&
+     (size_t)image->height == IOSurfaceGetHeight(image->surface)) {
+  image->target = true;
+  if (frame_lines) {
+   static unsigned promoted;
+   if (promoted++ < 32) {
+    say("waffle-snapshot: promoted_target frame=%u framebuffer=%u texture=%u surface=%u width=%d height=%d\n",
+        e->frames + 1, e->framebuffer, image->texture, IOSurfaceGetID(image->surface), image->width, image->height);
+   }
+  }
+ }
  if (e->framebuffer != 0 && e->colour != 0 && (image = image_of(e, e->colour)) != NULL && image->target) {
   image->drawn = image->painted = true;
   if (frame_lines && image->width >= 1000 && image->height >= 2000) {
@@ -2758,6 +2834,33 @@ my_glTexSubImage2D(void *context, GLenum target, GLint level, GLint x, GLint y, 
  }
  glTexSubImage2D(target, level, x, y, width, height, format, type, pixels);
  EAGL_LEAVE(e, 0x9a0);
+}
+extern const void *_dyld_get_shared_cache_range(size_t *length);
+static void
+my_glReadPixels(void *context, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *pixels)
+{
+ struct eagl *e = context;
+ EAGL_ENTER(e, 0x770);
+ if (eagl_tracing) {
+  eagl_trace("glReadPixels(%d, %d, %d, %d, %#x, %#x, %p)\n", x, y, width, height, format, type, pixels);
+ }
+ /* The generated passthrough did exactly this call. Observe metadata only:
+  * pixels can be a PBO offset, so never dereference it for diagnostics. */
+ glReadPixels(x, y, width, height, format, type, pixels);
+ if (frame_lines && width >= 375 && height >= 700) {
+  static unsigned observed;
+  if (observed++ < 32) {
+   size_t length = 0;
+   uintptr_t caller = (uintptr_t)__builtin_return_address(0);
+   uintptr_t cache = (uintptr_t)_dyld_get_shared_cache_range(&length);
+   uintptr_t native = cache != 0 && caller >= cache && caller - cache < length ?
+       0x180000000UL + (caller - cache) : 0;
+   say("waffle-snapshot: readpixels frame=%u framebuffer=%u colour=%u x=%d y=%d width=%d height=%d format=%x type=%x destination=%p native_caller=%llx returned=1\n",
+       e->frames + 1, e->framebuffer, e->colour, x, y, width, height, format, type, pixels,
+       (unsigned long long)native);
+  }
+ }
+ EAGL_LEAVE(e, 0x770);
 }
 static void
 my_glCopyTexSubImage2D(void *context, GLenum target, GLint level, GLint x0, GLint y0, GLint x, GLint y, GLsizei width,

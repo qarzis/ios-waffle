@@ -538,6 +538,7 @@ def main():
     parser.add_argument("--audio-preflight", action="store_true", help="Firmware-only ADSP validation; no DSP boot or amplifier writes")
     parser.add_argument("--audio-power", action="store_true", help="With --audio-preflight: bounded native RPMh upvotes retained until Android reset; no DSP boot")
     parser.add_argument("--audio-survey", action="store_true", help="With --audio-preflight: read-only native SMEM/SMP2P/GLINK state survey")
+    parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
     parser.add_argument("--audio-boot", action="store_true", help="With --audio-preflight: bounded native ADSP boot, GPR state query and shutdown; no PCM")
     parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
@@ -547,6 +548,7 @@ def main():
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
+    if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
     if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
@@ -615,7 +617,7 @@ def main():
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.audio_preflight:
-        arguments += " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
+        arguments += " adsp=8" if args.audio_iommu else " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
     if args.torch_readonly:
@@ -736,7 +738,7 @@ def main():
             with (out/"ui-gpu-events.log").open("a") as events:
                 for event in log_path.read_text(errors="replace").splitlines():
                     if event not in ui_events and any(marker in event for marker in (
-                        "waffle-slider", "waffle-sensor", "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
+                        "waffle-surface:", "waffle-upload:", "waffle-snapshot:", "redwood-gl: f ", "redwood-gl: from gl.args:", "redwood-gl: glDraw", "waffle-slider", "waffle-sensor", "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
                         "GENERAL bo_retired", "GENERAL_BO reclaimed", "GENERAL_BO reclaim_refused", "GENERAL request_completed", "GENERAL_SUBMIT", "A SHADER DOES NOT COMPILE",
                         "GENERAL ioctl_refused", "REBOOT REQUIRED", "an OpenGL ES", "redwood: signal")):
                         ui_events.add(event)
@@ -1002,6 +1004,14 @@ def main():
             if not line.startswith("result: returned "):
                 raise RuntimeError(f"Unexpected kernel result: {line}")
             if args.audio_preflight:
+                if args.audio_iommu:
+                    required=('waffle-audio-probe: PID1 ready', 'adsp: AUDIO_SMMU ids=',
+                              'adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes')
+                    forbidden=('adsp: PAS ', 'adsp: RPMh ', 'adsp: POWER_APPLY ', 'adsp: FAIL', 'AUDIO_IOMMU FAIL')
+                    if not all(x in final_text for x in required) or any(x in final_text for x in forbidden):
+                        raise RuntimeError(f'Audio IOMMU read-only survey failed; logs: {out}')
+                    print('Read-only Apps SMMU snapshot captured; DMA ownership unqualified',flush=True)
+                    return
                 if args.audio_boot:
                     markers=('adsp: PAS 36 authenticated and running', 'adsp: PAS 1 authenticated and running',
                              'adsp: SMP2P ready seen', 'adsp: SMP2P handover seen',

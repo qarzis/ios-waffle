@@ -9,6 +9,27 @@ FPS benchmark. Native captures show the desktop, icons and Calendar text.
 Indefinite operation, broad app coverage and Metal remain unfinished. The normal
 image still selects softpipe unless the isolated GPU test is enabled.
 
+## Snapshot writeback investigation — E110–E112
+
+E110 observed an IOSurface source texture used as a draw attachment while its
+`target` flag was false. The existing writeback loop skipped it. An experimental
+BGRA-only target promotion now covers this case; host tests reproduce the old
+omission and verify the guarded promotion. E111 passed the 1,218,000-pixel control,
+but manual icon openings **still showed black animation**. Target promotion ran
+on hardware; this is not a confirmed animation fix.
+
+E111 closed 8,678 GPU commands and 2,829 buffer lifetimes cleanly, returned normally
+and recovered Android. Its original collector exit remains 1 for missing dynamic
+BO proof. [UI result](../work/waffle/gpu/forensic-audit/E111-ui-result.json),
+[pixel control](../work/waffle/gpu/forensic-audit/E111-pixel-result.json),
+[E110 attachment evidence](../work/waffle/gpu/forensic-audit/E110-target-evidence.json).
+
+The latest source adds bounded diagnostics for discarding a pending target on
+texture deletion/rebinding and for completed writeback. These diagnostics are
+built and host-checked, but have not been tested in a UI hardware run. No pending
+writeback flush has been added. The separate IOSurface seed contract correction
+is retained; it did not fix the animation either. Normal image selection is unchanged.
+
 ## Current animation blocker — 2026-11-03
 
 Opening an app from its icon still shows black content during expansion; the app

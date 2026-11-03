@@ -46,8 +46,8 @@ def main():
                 pf.add_file(tree,'fw/'+filename,str(args.firmware/filename))
     pf.pack(tree,str(out/'root.packfs'),block=4096,page=16384)
     pf.pack(pf.Node(b'',0o40755,0),str(out/'system.packfs'),block=4096,page=16384)
-    sources=['userland/src/waffle_audio_probe.c','userland/libmini/mini.c','userland/libmini/mini.h',
-        'userland/libmini/start.S','kernel/files/bsd/dev/macan_adsp.c','kernel/files/bsd/dev/macan_input.c','kernel/files/bsd/sys/waffle_adsp_power.h','kernel/files/bsd/sys/waffle_adsp_rpmh.h','kernel/files/bsd/sys/waffle_apm.h','loader/waffle.h',
+    sources=['kernel/files/bsd/sys/waffle_audio_smmu_survey.h','userland/src/waffle_audio_probe.c','userland/libmini/mini.c','userland/libmini/mini.h',
+        'userland/libmini/start.S','kernel/files/bsd/dev/macan_adsp.c','kernel/files/bsd/dev/macan_input.c','kernel/files/bsd/sys/waffle_adsp_power.h','kernel/files/bsd/sys/waffle_adsp_rpmh.h','kernel/files/bsd/sys/waffle_apm.h','kernel/files/bsd/sys/waffle_glink_intent.h','loader/waffle.h',
         'tools/build-waffle-audio-probe.py','tools/check-waffle-audio.py','tools/run-waffle-auto.py','scripts/run_waffle_ios.py']
     manifest={'mode':'adsp=3 firmware-only','hardware_DSP_startup':False,
         'root_sha256':hashlib.sha256((out/'root.packfs').read_bytes()).hexdigest(),

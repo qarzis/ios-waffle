@@ -55,11 +55,16 @@ def main():
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
          ROOT / "tools/tests/waffle-adsp-rpmh-host.c", "-o", output / "test-adsp-rpmh"], cwd=ROOT)
     run([output / "test-adsp-rpmh"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-audio-smmu-survey-host.c",
+         "-o", output / "test-audio-smmu-survey"])
+    run([output / "test-audio-smmu-survey"])
     run([sys.executable, ROOT / "tools/tests/waffle-adsp-scm-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gpr-reply-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-glink-intent-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-framebuffer-clipping-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-display-usecount-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-iosurface-seed-host.py"])
     for variant,flags in (("user",["-DWAFFLE_USERLAND=1"]),("soak",["-DWAFFLE_USERLAND=1","-DWAFFLE_UI_SOAK_TEST=1"])):
         run(["cc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",*flags,
              ROOT / "tools/tests/waffle-policy.c","-o",output / f"test-policy-{variant}"])
@@ -215,6 +220,8 @@ def main():
         raise ValueError("Prepared XNU lacks waffle GPU user build entry")
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
+                    xnu / "bsd/sys/waffle_audio_smmu_survey.h")
     for relative in ("iokit/Kernel/MiniIOSurface.cpp", "iokit/Kernel/MiniIOSurface.h"):
         shutil.copyfile(ROOT / "kernel/files" / relative, xnu / relative)
     for relative in ("iokit/Kernel/MiniIOMobileFramebuffer.cpp", "bsd/dev/macan_torch.c", "bsd/dev/macan_audio.c", "bsd/dev/macan_buttons.c", "bsd/sys/waffle_slider.h", "iokit/Kernel/WaffleGPUMemory.cpp", "bsd/sys/waffle_gpu_submit.h", "bsd/sys/waffle_gpu_memory.h", "bsd/sys/waffle_gpu_registry.h", "bsd/sys/waffle_gpu_handles.h", "bsd/sys/waffle_gpu_reclaim.h", "iokit/Kernel/WaffleGPUMap.cpp", "bsd/sys/waffle_gpu_map.h", "bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_gpu_service.c", "bsd/dev/waffle_gpu_drm.c", "bsd/dev/waffle_gpu_msm.c", "bsd/sys/waffle_gpu_msm.h", "bsd/dev/waffle_gpu_user.c", "bsd/sys/waffle_gpu_user.h", "bsd/sys/waffle_gpu_service.h", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
@@ -269,10 +276,16 @@ def main():
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "HEAD"], cwd=ROOT))
     source = output / "source"
+    for relative in ("kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
+                     "tools/tests/waffle-audio-smmu-survey-host.c"):
+        target = source / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
     for relative in ("kernel/files/iokit/Kernel/MiniIOSurface.cpp",
                      "kernel/files/iokit/Kernel/MiniIOSurface.h",
                      "tools/tests/waffle-framebuffer-clipping-host.py",
                      "tools/tests/waffle-display-usecount-host.py",
+                     "tools/tests/waffle-iosurface-seed-host.py",
                      "tools/tests/waffle-10mb-object-host.py"):
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
