@@ -1,3 +1,15 @@
+# ACTIVE E113 pending snapshot publication fix
+
+E112run20261103T112506Z/auto112443Z usermanualblackconfirmed; DIRECTpending_discardreasondeleteSID76/texture111/frame461andSID80/texture165/frame659etc immediatelyafterpromoted_target. Pendingdrawnimage disappearsbeforeframe_end. copied_target32capexhaustedstartupsoabsenceforlatersurfacesNOproof; positivependingdiscardisproof. E112complete9391/2036/fullclose/normalreturn/originalcollector1missingDynamicBOproof/Androidindependent1.
+
+E113publish_pending_target calledbeforeimage_newrebindreset/CFReleaseandimage_forgetdelete. Onlytarget&&drawn/nonshared/mirror0; existingtarget_to_surface reused. Saves/restoresindependentREAD/DRAWFBO,PACK_ROW_LENGTH/ALIGNMENT/SKIP_ROWS/SKIP_PIXELS/PBO; unbindPBO+zeroSKIPforCPUreadback. NoGLerrorconsumption/newheap/shader. retire_readbackmarker meansattemptnotpixelproof. Actualimage-lifetimehostproveswritebeforeCFRelease/reset,opaquePBO&skips/FBOrestoration, guards; readback/drawinghostPASS. E113hook/UIbuiltandvalidatedsameE108pairedkernel/loader/allpriorfeatures.
+
+SOLEactiveE113pixelrunner session58036, stdoutgpu/auto-retire-target-pixel-e113.log. MustfullsizePASS+independentAndroid1BEFOREcandidateUIartifactdiagnostic-retire-target-ui-e113 (UI240s/cpus7/torch). Sourcebindingsverifiedatbuild; noeditssince. NeedmanualiconcheckafterUIready/TG; observerretire_readback andlaternonzero-source. Publicf02a387includesonlyE112diagnostic,nothisnewfix; mainindexmustremainunchanged; privatecheckpointfollows. AudioA14/A15unchanged; noaudioUSBduringGPU.
+
+# ACTIVE E112 pending-target lifecycle UI test
+
+User explicitly resumed. E112 pixelcontrolrun20261103T112217Z/auto112153Z PASSED1218000pixels/wrong0/padding0/GLerror0/fullclose/outer0/Androidindependent1. Source hashes matched pixel/UIroot+hook; nochangesaftersealedbuild. E112UI nowsolephoneowner session30511, stdoutgpu/auto-pending-target-ui-e112.log, artifactdiagnostic-pending-target-ui-e112, UI240s/kernel300s/cpus7/torch. Needactual pending_discard(reasonrebind/delete) vs copied_targetSIDandmanualblack. Noimplicitflushimplemented. Sourcecode/publicf02a387alreadyincludesE112diagnosticsasUNTESTEDUI; don'tclaimfix. NotifyTelegramonlyafterUIready, thenaskmanualSettingsicon2-3opens. KeeporiginalstrictresultandverifyAndroidafter.
+
 # CURRENT — E111 negative; E112 pending target lifecycle diagnostic prepared
 
 Latest user asked GitHub update and audio status. Public PUSH VERIFIED f02a3874156b5144eac68fca45f512ea3a56ee00, branchwaffle/gpu-bringup, cleanpublishworktree. IncludescurrentGPU/seed/audioSMMUcode/tests/negativeE111evidence/docs; no firmware/images/tokens. Animation remainsblack, audio notplayback.

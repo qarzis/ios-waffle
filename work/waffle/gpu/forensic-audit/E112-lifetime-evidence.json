@@ -1,0 +1,31 @@
+{
+  "run": "20261103T112506Z",
+  "manual_black_reproduced": true,
+  "completed": true,
+  "evidence": [
+    "kernel-246.log: waffle-snapshot: promoted_target frame=461 framebuffer=22 texture=111 surface=76 width=750 height=1624",
+    "kernel-246.log: waffle-snapshot: pending_discard reason=delete frame=461 texture=111 surface=76 width=750 height=1624",
+    "kernel-276.log: waffle-snapshot: promoted_target frame=659 framebuffer=31 texture=165 surface=80 width=750 height=1624",
+    "kernel-276.log: waffle-snapshot: pending_discard reason=delete frame=659 texture=165 surface=80 width=750 height=1624",
+    "kernel-280.log: waffle-snapshot: promoted_target frame=689 framebuffer=11 texture=9 surface=80 width=750 height=1624",
+    "kernel-280.log: waffle-snapshot: pending_discard reason=delete frame=689 texture=9 surface=80 width=750 height=1624",
+    "kernel-288.log: waffle-snapshot: promoted_target frame=711 framebuffer=15 texture=138 surface=80 width=750 height=1624",
+    "kernel-288.log: waffle-snapshot: pending_discard reason=delete frame=711 texture=138 surface=80 width=750 height=1624",
+    "kernel-291.log: waffle-snapshot: promoted_target frame=747 framebuffer=8 texture=27 surface=80 width=750 height=1624",
+    "kernel-291.log: waffle-snapshot: pending_discard reason=delete frame=747 texture=27 surface=80 width=750 height=1624",
+    "kernel-293.log: waffle-snapshot: promoted_target frame=760 framebuffer=8 texture=53 surface=80 width=750 height=1624",
+    "kernel-293.log: waffle-snapshot: pending_discard reason=delete frame=760 texture=53 surface=80 width=750 height=1624",
+    "kernel-294.log: waffle-snapshot: promoted_target frame=768 framebuffer=8 texture=53 surface=80 width=750 height=1624",
+    "kernel-294.log: waffle-snapshot: pending_discard reason=delete frame=768 texture=53 surface=80 width=750 height=1624",
+    "kernel-295.log: waffle-snapshot: promoted_target frame=774 framebuffer=16 texture=80 surface=80 width=750 height=1624",
+    "kernel-295.log: waffle-snapshot: pending_discard reason=delete frame=774 texture=80 surface=80 width=750 height=1624"
+  ],
+  "limitation": "copied_target log cap exhausted at startup; absence later cannot prove no copies. Positive pending_discard records establish unpublished target at deletion.",
+  "completed_commands": 9391,
+  "lifetime_buffers": 2036,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "raw_log_sha256": "4e755960f582167adf28dd3abece1d55fe74bea80dd33a4dba6c33a666e165e1"
+}
