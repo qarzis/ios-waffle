@@ -1,3 +1,11 @@
+# ACTIVE E110 source/target classification experiment
+
+E109 UI completed run20261103T105121Z/auto105057Z; user manualiconblackconfirmed; ZERO large glReadPixels metadata, repeatedzero-inputsourcescreatedbackboardd.6171commands/1979BO/fullclose/normalreturn; originalcollector1missingDynamicBOproof retained; independentAndroid1. PixelcontrolE109run104538Z passed1218000pixels/wrong0/fullclose/outer0/Android1. No animationfix.
+
+Concretecodegap candidate: image.target setonlyattachImage; ordinarytexImageIOSurface+glFramebufferTexture2D neverpromotes, drawing/frame_endignoretargetfalseforwriteback. E110metadataONLYlogs32largeimage!targetattachedfordrawcases; doNOTpromotebeforehardwareevidence. Newhookbuilt, actualreadback+typedwrapperhostPASS; completeUIrootpreservesoldfeatures; pixel/UIartifactsvalidated. ActiveSOLErunnerE110pixel session33285, stdoutgpu/auto-source-target-pixel-e110.log. Must finish pixelPASS+independentAndroid1 before E110UI. NewUIartifactdiagnostic-source-target-ui-e110, sameE108pairedkernel/loader; requestmanualicontaponlyafterUIreadyandTelegram. RecordSIDsource_as_target vszero-source. No concurrentUSB.
+
+AudioA15nativecontextownershipauditA15-domain-attach-audit.md; nextreadonlyinventoryallvalidroutes/CBusedstate beforecontextwrites. NoaudiohardwareduringGPU. Historicalstatesbelow superseded.
+
 # ACTIVE investigation; phone returned to Android — E108 complete
 
 User manually confirmed black icon expansion again. E108run20261103T103557Z/auto103533Z: sourceSID78/90 created bybackboarddPID84, BGRA750x1624,row3072,offset0,nonwrapped; repeatedlyall16RGBA samplelocationszeroontarget0upload. Produceridentityqualified; fullblankbuffer/causeNOTqualified. SameE106hook/root/rendering. Directboundedcreatorjournalworks. GPUcontrolledstop6777commands/2019lifetimeBO/fullclosecontextnull, normalreturn; originalstrictcollector1missingDynamicBOpublication/use/release retained. Android independently boot_completed1; no phone runner remains.

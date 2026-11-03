@@ -1,0 +1,322 @@
+[
+  {
+    "offset": "0x0",
+    "pointer": "0x1884f7730"
+  },
+  {
+    "offset": "0x8",
+    "pointer": "0x1883c5914"
+  },
+  {
+    "offset": "0x10",
+    "pointer": "0x1884f797c"
+  },
+  {
+    "offset": "0x18",
+    "pointer": "0x1884f79d8"
+  },
+  {
+    "offset": "0x20",
+    "pointer": "0x1884f7a1c"
+  },
+  {
+    "offset": "0x28",
+    "pointer": "0x1884f7a60"
+  },
+  {
+    "offset": "0x30",
+    "pointer": "0x1884f7ad8"
+  },
+  {
+    "offset": "0x38",
+    "pointer": "0x1884f7bfc"
+  },
+  {
+    "offset": "0x40",
+    "pointer": "0x1884f7cf0"
+  },
+  {
+    "offset": "0x48",
+    "pointer": "0x1884f7d00"
+  },
+  {
+    "offset": "0x50",
+    "pointer": "0x1883c5970"
+  },
+  {
+    "offset": "0x58",
+    "pointer": "0x1884f7d38"
+  },
+  {
+    "offset": "0x60",
+    "pointer": "0x1884f7d60"
+  },
+  {
+    "offset": "0x68",
+    "pointer": "0x1883d1190"
+  },
+  {
+    "offset": "0x70",
+    "pointer": "0x1883d11d0"
+  },
+  {
+    "offset": "0x78",
+    "pointer": "0x1884f7d9c"
+  },
+  {
+    "offset": "0x80",
+    "pointer": "0x18830a494"
+  },
+  {
+    "offset": "0x88",
+    "pointer": "0x18839ba4c"
+  },
+  {
+    "offset": "0x90",
+    "pointer": "0x18838df00"
+  },
+  {
+    "offset": "0x98",
+    "pointer": "0x1883c59c8"
+  },
+  {
+    "offset": "0xa0",
+    "pointer": "0x18839a130"
+  },
+  {
+    "offset": "0xa8",
+    "pointer": "0x1884f7e80"
+  },
+  {
+    "offset": "0xb0",
+    "pointer": "0x1884f8040"
+  },
+  {
+    "offset": "0xb8",
+    "pointer": "0x1882f0724"
+  },
+  {
+    "offset": "0xc0",
+    "pointer": "0x1883c5a5c"
+  },
+  {
+    "offset": "0xc8",
+    "pointer": "0x1883d121c"
+  },
+  {
+    "offset": "0xd0",
+    "pointer": "0x1884f8194"
+  },
+  {
+    "offset": "0xd8",
+    "pointer": "0x1883d122c"
+  },
+  {
+    "offset": "0xe0",
+    "pointer": "0x1884f81c4"
+  },
+  {
+    "offset": "0xe8",
+    "pointer": "0x1883d123c"
+  },
+  {
+    "offset": "0xf0",
+    "pointer": "0x1884f81f4"
+  },
+  {
+    "offset": "0xf8",
+    "pointer": "0x1883d124c"
+  },
+  {
+    "offset": "0x100",
+    "pointer": "0x1884f8238"
+  },
+  {
+    "offset": "0x108",
+    "pointer": "0x1883c5a98"
+  },
+  {
+    "offset": "0x110",
+    "pointer": "0x18833eda4"
+  },
+  {
+    "offset": "0x118",
+    "pointer": "0x1883d125c"
+  },
+  {
+    "offset": "0x120",
+    "pointer": "0x1883d12a8"
+  },
+  {
+    "offset": "0x128",
+    "pointer": "0x1883d12b0"
+  },
+  {
+    "offset": "0x130",
+    "pointer": "0x1883d12bc"
+  },
+  {
+    "offset": "0x138",
+    "pointer": "0x1883d12c4"
+  },
+  {
+    "offset": "0x140",
+    "pointer": "0x1883d12cc"
+  },
+  {
+    "offset": "0x148",
+    "pointer": "0x1883c5e0c"
+  },
+  {
+    "offset": "0x150",
+    "pointer": "0x1883c5e10"
+  },
+  {
+    "offset": "0x158",
+    "pointer": "0x1882b68f8"
+  },
+  {
+    "offset": "0x160",
+    "pointer": "0x1884f827c"
+  },
+  {
+    "offset": "0x168",
+    "pointer": "0x188397cb4"
+  },
+  {
+    "offset": "0x170",
+    "pointer": "0x1884f82c8"
+  },
+  {
+    "offset": "0x178",
+    "pointer": "0x18835770c"
+  },
+  {
+    "offset": "0x180",
+    "pointer": "0x18835cc54"
+  },
+  {
+    "offset": "0x188",
+    "pointer": "0x1883c5f98"
+  },
+  {
+    "offset": "0x190",
+    "pointer": "0x188397ab8"
+  },
+  {
+    "offset": "0x198",
+    "pointer": "0x1883d13a4"
+  },
+  {
+    "offset": "0x1a0",
+    "pointer": "0x1882e2548"
+  },
+  {
+    "offset": "0x1a8",
+    "pointer": "0x188344678"
+  },
+  {
+    "offset": "0x1b0",
+    "pointer": "0x1882b966c"
+  },
+  {
+    "offset": "0x1b8",
+    "pointer": "0x1882b229c"
+  },
+  {
+    "offset": "0x1c0",
+    "pointer": "0x1884f855c"
+  },
+  {
+    "offset": "0x1c8",
+    "pointer": "0x1883d13c4"
+  },
+  {
+    "offset": "0x1d0",
+    "pointer": "0x1883d13e0"
+  },
+  {
+    "offset": "0x1d8",
+    "pointer": "0x1883d13f8"
+  },
+  {
+    "offset": "0x1e0",
+    "pointer": "0x1883d1410"
+  },
+  {
+    "offset": "0x1e8",
+    "pointer": "0x1883d1430"
+  },
+  {
+    "offset": "0x1f0",
+    "pointer": "0xffffffcf0"
+  },
+  {
+    "offset": "0x1f8",
+    "pointer": "0x0"
+  },
+  {
+    "offset": "0x200",
+    "pointer": "0x1883d144c"
+  },
+  {
+    "offset": "0x208",
+    "pointer": "0x1883d1468"
+  },
+  {
+    "offset": "0x210",
+    "pointer": "0x1883d1480"
+  },
+  {
+    "offset": "0x218",
+    "pointer": "0x1883d1498"
+  },
+  {
+    "offset": "0x220",
+    "pointer": "0x1883d14b8"
+  },
+  {
+    "offset": "0x228",
+    "pointer": "0x1d5b59698"
+  },
+  {
+    "offset": "0x230",
+    "pointer": "0x1d5b5ce58"
+  },
+  {
+    "offset": "0x238",
+    "pointer": "0x1d5b5ce78"
+  },
+  {
+    "offset": "0x240",
+    "pointer": "0x1d5b5ce98"
+  },
+  {
+    "offset": "0x248",
+    "pointer": "0x0"
+  },
+  {
+    "offset": "0x250",
+    "pointer": "0x40000000"
+  },
+  {
+    "offset": "0x258",
+    "pointer": "0x28"
+  },
+  {
+    "offset": "0x260",
+    "pointer": "0x18859786b"
+  },
+  {
+    "offset": "0x268",
+    "pointer": "0x0"
+  },
+  {
+    "offset": "0x270",
+    "pointer": "0x40000000"
+  },
+  {
+    "offset": "0x278",
+    "pointer": "0x28"
+  }
+]

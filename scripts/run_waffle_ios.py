@@ -738,7 +738,7 @@ def main():
             with (out/"ui-gpu-events.log").open("a") as events:
                 for event in log_path.read_text(errors="replace").splitlines():
                     if event not in ui_events and any(marker in event for marker in (
-                        "waffle-surface:", "waffle-upload:", "redwood-gl: f ", "redwood-gl: from gl.args:", "redwood-gl: glDraw", "waffle-slider", "waffle-sensor", "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
+                        "waffle-surface:", "waffle-upload:", "waffle-snapshot:", "redwood-gl: f ", "redwood-gl: from gl.args:", "redwood-gl: glDraw", "waffle-slider", "waffle-sensor", "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
                         "GENERAL bo_retired", "GENERAL_BO reclaimed", "GENERAL_BO reclaim_refused", "GENERAL request_completed", "GENERAL_SUBMIT", "A SHADER DOES NOT COMPILE",
                         "GENERAL ioctl_refused", "REBOOT REQUIRED", "an OpenGL ES", "redwood: signal")):
                         ui_events.add(event)

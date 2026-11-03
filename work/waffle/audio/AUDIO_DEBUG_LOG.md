@@ -184,3 +184,5 @@ Mode8isolated60sloaderpolicy/nodspreset/noPAS/noRPMh/noGPR/nofirmwareload/noTLB/
 ## A14 hardware survey PASS; audio DMA context remains absent
 
 Run20261103T102416Z/auto102352Z: ID0/1/2=4c017e6b/60000047/5111,107streamgroups/71banks/4KiBpages/CBbase80000. All three audio SIDs1001/1081/1061 have ZERO valid matching streams. Read-only mode completed, no DSP/PAS/RPMh/DMA/register/TLB writes; normal return, outer0, independent Android boot_completed1. Snapshot pass does not qualify DMA; no inherited audio context can be assumed. Next inspect native domain attachment and qualified free-bank ownership before any context programming. Evidence A14-result.json/A14-components.log.
+
+A15 offline native domain audit recorded in A15-domain-attach-audit.md: absent audioSMRs doesNOTmeanfreeCB0; nativeallocator tracks pinnedstreams+bitmap andStage1startsNUMS2CB. GenericS2CRwrites haveimplementationoverride; globalreset/selftest unsuitableforliveUEFIDPU. Nextreadonlyroute/bankinventorybeforefirstDMAwrites; nohardwareexperimentduringGPU E109.

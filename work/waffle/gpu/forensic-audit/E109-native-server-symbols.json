@@ -1,0 +1,306 @@
+[
+  {
+    "name": "_CARenderContextGetServerPort",
+    "address": "0x188406280"
+  },
+  {
+    "name": "_CARenderOGLSetDisplay",
+    "address": "0x1884382c0"
+  },
+  {
+    "name": "_CARenderServerCaptureDisplay",
+    "address": "0x188471020"
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayClientList",
+    "address": "0x1884710a0"
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayClientListWithTransform",
+    "address": "0x1884710d8"
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayClientListWithTransformList",
+    "address": "0x188471108"
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayLayerWithTransformTimeOffsetAndFlags",
+    "address": "0x188470f60"
+  },
+  {
+    "name": "_CARenderServerCaptureDisplayWithTransform",
+    "address": "0x188471060"
+  },
+  {
+    "name": "_CARenderServerCaptureLayer",
+    "address": "0x188470f10"
+  },
+  {
+    "name": "_CARenderServerCaptureLayerWithTransform",
+    "address": "0x188470f8c"
+  },
+  {
+    "name": "_CARenderServerCaptureLayerWithTransformAndTimeOffset",
+    "address": "0x188470fd8"
+  },
+  {
+    "name": "_CARenderServerClearColorDebugOptions",
+    "address": "0x18846ddd4"
+  },
+  {
+    "name": "_CARenderServerClearDebugOptions",
+    "address": "0x18846dc00"
+  },
+  {
+    "name": "_CARenderServerContextRecorderAddContext",
+    "address": "0x188471f38"
+  },
+  {
+    "name": "_CARenderServerContextRecorderConnectRemote",
+    "address": "0x188471d48"
+  },
+  {
+    "name": "_CARenderServerContextRecorderRemoveContext",
+    "address": "0x1884720a4"
+  },
+  {
+    "name": "_CARenderServerCopyODStatistics",
+    "address": "0x18846f90c"
+  },
+  {
+    "name": "_CARenderServerCopyUpdateHistograms",
+    "address": "0x18846f668"
+  },
+  {
+    "name": "_CARenderServerCreateSnapshots",
+    "address": "0x18834d300"
+  },
+  {
+    "name": "_CARenderServerDebugBrightness",
+    "address": "0x18846e7b8"
+  },
+  {
+    "name": "_CARenderServerDebugFrameInfo",
+    "address": "0x18846e890"
+  },
+  {
+    "name": "_CARenderServerDebugPreset",
+    "address": "0x18846e82c"
+  },
+  {
+    "name": "_CARenderServerGetClientPort",
+    "address": "0x18846fd8c"
+  },
+  {
+    "name": "_CARenderServerGetClientProcessId",
+    "address": "0x18846ffa0"
+  },
+  {
+    "name": "_CARenderServerGetDebugFlags",
+    "address": "0x18846dfa8"
+  },
+  {
+    "name": "_CARenderServerGetDebugOption",
+    "address": "0x18846d810"
+  },
+  {
+    "name": "_CARenderServerGetDebugValue",
+    "address": "0x18846e598"
+  },
+  {
+    "name": "_CARenderServerGetDebugValueFloat",
+    "address": "0x18846e384"
+  },
+  {
+    "name": "_CARenderServerGetDirtyFrameCount",
+    "address": "0x188323d4c"
+  },
+  {
+    "name": "_CARenderServerGetDirtyFrameCountByIndex",
+    "address": "0x18830a0f8"
+  },
+  {
+    "name": "_CARenderServerGetDisplayLogicalBounds",
+    "address": "0x18847176c"
+  },
+  {
+    "name": "_CARenderServerGetFrameCounter",
+    "address": "0x1883489d4"
+  },
+  {
+    "name": "_CARenderServerGetFrameCounterByIndex",
+    "address": "0x18835368c"
+  },
+  {
+    "name": "_CARenderServerGetInfo",
+    "address": "0x18846f3dc"
+  },
+  {
+    "name": "_CARenderServerGetMaxRenderableIOSurfaceSize",
+    "address": "0x18836906c"
+  },
+  {
+    "name": "_CARenderServerGetNeededAlignment",
+    "address": "0x18836e07c"
+  },
+  {
+    "name": "_CARenderServerGetPerformanceInfo",
+    "address": "0x1884714e0"
+  },
+  {
+    "name": "_CARenderServerGetPort",
+    "address": "0x18846d80c"
+  },
+  {
+    "name": "_CARenderServerGetServerPort",
+    "address": "0x188305aac"
+  },
+  {
+    "name": "_CARenderServerGetStatistics",
+    "address": "0x18846fb98"
+  },
+  {
+    "name": "_CARenderServerIsRunning",
+    "address": "0x18839f060"
+  },
+  {
+    "name": "_CARenderServerPostPowerLog",
+    "address": "0x188471138"
+  },
+  {
+    "name": "_CARenderServerPurgeServer",
+    "address": "0x18847130c"
+  },
+  {
+    "name": "_CARenderServerRegister",
+    "address": "0x188471a50"
+  },
+  {
+    "name": "_CARenderServerRenderDisplay",
+    "address": "0x188470e40"
+  },
+  {
+    "name": "_CARenderServerRenderDisplayClientList",
+    "address": "0x188470e80"
+  },
+  {
+    "name": "_CARenderServerRenderDisplayClientListWithTransform",
+    "address": "0x188470eb8"
+  },
+  {
+    "name": "_CARenderServerRenderDisplayClientListWithTransformList",
+    "address": "0x188353b90"
+  },
+  {
+    "name": "_CARenderServerRenderDisplayLayerWithTransformAndTimeOffset",
+    "address": "0x188470ee8"
+  },
+  {
+    "name": "_CARenderServerRenderDisplayLayerWithTransformTimeOffsetAndFlags",
+    "address": "0x188470d80"
+  },
+  {
+    "name": "_CARenderServerRenderLayer",
+    "address": "0x188470d30"
+  },
+  {
+    "name": "_CARenderServerRenderLayerWithTransform",
+    "address": "0x188470dac"
+  },
+  {
+    "name": "_CARenderServerRenderLayerWithTransformAndTimeOffset",
+    "address": "0x188470df8"
+  },
+  {
+    "name": "_CARenderServerSetAXMatrix",
+    "address": "0x18846f008"
+  },
+  {
+    "name": "_CARenderServerSetCacheAsynchronousSurfaces",
+    "address": "0x18834671c"
+  },
+  {
+    "name": "_CARenderServerSetDebugFlags",
+    "address": "0x18846e194"
+  },
+  {
+    "name": "_CARenderServerSetDebugMessage",
+    "address": "0x18846eb34"
+  },
+  {
+    "name": "_CARenderServerSetDebugOption",
+    "address": "0x18846da10"
+  },
+  {
+    "name": "_CARenderServerSetDebugValue",
+    "address": "0x18846e7b0"
+  },
+  {
+    "name": "_CARenderServerSetDebugValueFloat",
+    "address": "0x18846e5b0"
+  },
+  {
+    "name": "_CARenderServerSetFlipBookEnabled",
+    "address": "0x188472210"
+  },
+  {
+    "name": "_CARenderServerSetFlipBookSuppressed",
+    "address": "0x188472388"
+  },
+  {
+    "name": "_CARenderServerSetMessageFile",
+    "address": "0x18846e8e8"
+  },
+  {
+    "name": "_CARenderServerSetOverdriveLUTFile",
+    "address": "0x18846edbc"
+  },
+  {
+    "name": "_CARenderServerSetRootQueue",
+    "address": "0x1884719b8"
+  },
+  {
+    "name": "_CARenderServerSetScreenTelemetryParameters",
+    "address": "0x18846f1cc"
+  },
+  {
+    "name": "_CARenderServerShutdown",
+    "address": "0x188471a54"
+  },
+  {
+    "name": "_CARenderServerSnapshot",
+    "address": "0x18835cc14"
+  },
+  {
+    "name": "_CARenderServerStart",
+    "address": "0x1884719b4"
+  },
+  {
+    "name": "_CARenderUpdateSetDisplayAttributes",
+    "address": "0x188430a60"
+  },
+  {
+    "name": "_CARenderUpdateSetDisplayType",
+    "address": "0x1884309f0"
+  },
+  {
+    "name": "_CARenderUpdateSetDisplays",
+    "address": "0x1884309ec"
+  },
+  {
+    "name": "_kCASnapshotDisplayName",
+    "address": "0x1d5b56868"
+  },
+  {
+    "name": "_kCASnapshotModeDisplay",
+    "address": "0x1d5b46a28"
+  },
+  {
+    "name": "_kCAWindowServerClone_CaptureDisplay",
+    "address": "0x1d5b565d8"
+  },
+  {
+    "name": "_kCAWindowServerManagedRenderServer",
+    "address": "0x1d5b56738"
+  }
+]

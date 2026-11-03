@@ -1003,6 +1003,17 @@ drawing(struct eagl *e)
 {
  struct image *image;
  frame_begin(e);
+ if (frame_lines && e->framebuffer != 0 && e->colour != 0 &&
+     (image = image_of(e, e->colour)) != NULL && !image->target &&
+     image->width >= 375 && image->height >= 700) {
+  static unsigned observed_source_draws;
+  if (observed_source_draws++ < 32) {
+   say("waffle-snapshot: source_as_target frame=%u framebuffer=%u texture=%u surface=%u width=%d height=%d format=%x type=%x wrapped=%u invert=%u\n",
+       e->frames + 1, e->framebuffer, image->texture, IOSurfaceGetID(image->surface),
+       image->width, image->height, image->format, image->type, image->wrapped, image->invert);
+  }
+ }
+
  if (e->framebuffer != 0 && e->colour != 0 && (image = image_of(e, e->colour)) != NULL && image->target) {
   image->drawn = image->painted = true;
   if (frame_lines && image->width >= 1000 && image->height >= 2000) {
@@ -2784,6 +2795,33 @@ my_glTexSubImage2D(void *context, GLenum target, GLint level, GLint x, GLint y, 
  }
  glTexSubImage2D(target, level, x, y, width, height, format, type, pixels);
  EAGL_LEAVE(e, 0x9a0);
+}
+extern const void *_dyld_get_shared_cache_range(size_t *length);
+static void
+my_glReadPixels(void *context, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *pixels)
+{
+ struct eagl *e = context;
+ EAGL_ENTER(e, 0x770);
+ if (eagl_tracing) {
+  eagl_trace("glReadPixels(%d, %d, %d, %d, %#x, %#x, %p)\n", x, y, width, height, format, type, pixels);
+ }
+ /* The generated passthrough did exactly this call. Observe metadata only:
+  * pixels can be a PBO offset, so never dereference it for diagnostics. */
+ glReadPixels(x, y, width, height, format, type, pixels);
+ if (frame_lines && width >= 375 && height >= 700) {
+  static unsigned observed;
+  if (observed++ < 32) {
+   size_t length = 0;
+   uintptr_t caller = (uintptr_t)__builtin_return_address(0);
+   uintptr_t cache = (uintptr_t)_dyld_get_shared_cache_range(&length);
+   uintptr_t native = cache != 0 && caller >= cache && caller - cache < length ?
+       0x180000000UL + (caller - cache) : 0;
+   say("waffle-snapshot: readpixels frame=%u framebuffer=%u colour=%u x=%d y=%d width=%d height=%d format=%x type=%x destination=%p native_caller=%llx returned=1\n",
+       e->frames + 1, e->framebuffer, e->colour, x, y, width, height, format, type, pixels,
+       (unsigned long long)native);
+  }
+ }
+ EAGL_LEAVE(e, 0x770);
 }
 static void
 my_glCopyTexSubImage2D(void *context, GLenum target, GLint level, GLint x0, GLint y0, GLint x, GLint y, GLsizei width,
