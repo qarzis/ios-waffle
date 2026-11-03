@@ -1,0 +1,55 @@
+{
+  "experiment": "V05",
+  "run": "work/waffle/runs/20261103T192015Z",
+  "hardware_callbacks_logged": 8,
+  "callbacks_during_gpu_phase": 0,
+  "callbacks_after_bounded_gpu_stop": 8,
+  "hardware_fallback_count": 1,
+  "gpu_bounded_stop": true,
+  "gpu_close": [
+    "waffle-gpu: GENERAL close passed=1 completed=1401 buffers=1154 context_null=1"
+  ],
+  "crash_sigsegv": false,
+  "android_boot_completed_independent": true,
+  "hardware_vsync_iOS_path_confirmed": true,
+  "gpu_plus_hardware_vsync_qualified": false,
+  "tearing_fixed": false,
+  "original_collector_exit": 1,
+  "events": [
+    {
+      "line": 12224,
+      "text": "waffle-vsync: hardware_callback=1 timestamp=3092394220 observed=3092395954 lag_ns=90312 divider=2"
+    },
+    {
+      "line": 12256,
+      "text": "waffle-vsync: hardware_callback=2 timestamp=3092711906 observed=3092720088 lag_ns=426145 divider=2"
+    },
+    {
+      "line": 12314,
+      "text": "waffle-vsync: hardware_callback=3 timestamp=3093029597 observed=3093039873 lag_ns=535208 divider=2"
+    },
+    {
+      "line": 12315,
+      "text": "waffle-vsync: hardware_callback=4 timestamp=3093347241 observed=3093349392 lag_ns=112031 divider=2"
+    },
+    {
+      "line": 12316,
+      "text": "waffle-vsync: hardware_callback=5 timestamp=3093664919 observed=3093670827 lag_ns=307708 divider=2"
+    },
+    {
+      "line": 12317,
+      "text": "waffle-vsync: hardware_callback=6 timestamp=3093982595 observed=3093992332 lag_ns=507135 divider=2"
+    },
+    {
+      "line": 12324,
+      "text": "waffle-vsync: hardware_callback=7 timestamp=3094300272 observed=3094303354 lag_ns=160520 divider=2"
+    },
+    {
+      "line": 12337,
+      "text": "waffle-vsync: hardware_callback=8 timestamp=3094617941 observed=3094625323 lag_ns=384479 divider=2"
+    }
+  ],
+  "hardware_notifications_before_fallback": 13,
+  "hardware_delivery_stable": false,
+  "fallback_reason": "timestamp_stall_or_reset; exact cause not yet qualified"
+}

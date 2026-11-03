@@ -1,0 +1,20 @@
+{
+  "run": "20261103T194610Z",
+  "auto_run": "20261103T194546Z",
+  "gpu_window_seconds": 240,
+  "bounded_stop": true,
+  "gpu_close_passed": true,
+  "gpu_commands": 27434,
+  "gpu_buffers": 3921,
+  "hardware_callbacks_logged_at_least": 8,
+  "hardware_fallback_in_collected_journal": false,
+  "backboardd_signal11_in_collected_journal": false,
+  "android_confirmed": true,
+  "outer_exit": 1,
+  "outer_success": false,
+  "strict_collector_failure_preserved": true,
+  "tearing_fixed": false,
+  "user_motion_stripes_disappear_when_stopped": true,
+  "scope": "Only bounded run; no continuous callback count beyond8 log cap",
+  "android_boot_completed_independent": true
+}

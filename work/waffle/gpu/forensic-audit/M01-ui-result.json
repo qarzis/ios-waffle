@@ -1,0 +1,22 @@
+{
+  "experiment": "M01",
+  "run": "work/waffle/runs/20261103T193820Z",
+  "mesa_sha256": "749e5da7ca49a294dc57b90a50e9c45b2dc0251198462f46bee955b89c699a0f",
+  "gpu_window_seconds": 240,
+  "bounded_gpu_window_passed": true,
+  "completed_gpu_commands": 55301,
+  "gpu_buffers": 10568,
+  "full_gpu_close_passed": true,
+  "allocation_refusals_recorded": 9,
+  "gpu_progress_after_first_allocation_refusal": true,
+  "backboardd_signal11": false,
+  "vsync_tearing_fixed": false,
+  "hardware_fallback_detected": true,
+  "android_confirmed": true,
+  "outer_collector_result_pending": false,
+  "scope": "Only bounded240s window; no indefinite endurance or tearing claim",
+  "android_boot_completed_independent": true,
+  "original_collector_exit": 1,
+  "outer_success": false,
+  "original_collector_failure_preserved": true
+}

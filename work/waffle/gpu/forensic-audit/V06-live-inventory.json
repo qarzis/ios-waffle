@@ -1,0 +1,125 @@
+{
+  "created_seen": 2963,
+  "retired_seen": 678,
+  "live_seen": 2285,
+  "live_allocated_seen": 199573504,
+  "fault": "kernel-242.log: waffle-gpu: GENERAL allocation_refused bytes=5242880 flags=20000 count=2285 limit=8192 reason=registry live_count=2285 live_bytes=199573504 retired_count=0 retired_bytes=0 heap_limit=20132659waffle-gpu: GENERAL ioctl_refused op=42 error=12 pid=84",
+  "groups": [
+    {
+      "group": "size=5242880 flags=20000",
+      "count": 13,
+      "bytes": 68157440
+    },
+    {
+      "group": "size=16384 flags=20002",
+      "count": 1851,
+      "bytes": 30326784
+    },
+    {
+      "group": "size=7340032 flags=20000",
+      "count": 4,
+      "bytes": 29360128
+    },
+    {
+      "group": "size=4194304 flags=20000",
+      "count": 4,
+      "bytes": 16777216
+    },
+    {
+      "group": "size=2621440 flags=20000",
+      "count": 5,
+      "bytes": 13107200
+    },
+    {
+      "group": "size=10485760 flags=20000",
+      "count": 1,
+      "bytes": 10485760
+    },
+    {
+      "group": "size=4194304 flags=20002",
+      "count": 2,
+      "bytes": 8388608
+    },
+    {
+      "group": "size=16384 flags=20000",
+      "count": 264,
+      "bytes": 4325376
+    },
+    {
+      "group": "size=163840 flags=20000",
+      "count": 26,
+      "bytes": 4259840
+    },
+    {
+      "group": "size=1310720 flags=20000",
+      "count": 2,
+      "bytes": 2621440
+    },
+    {
+      "group": "size=2097152 flags=20000",
+      "count": 1,
+      "bytes": 2097152
+    },
+    {
+      "group": "size=32768 flags=20000",
+      "count": 63,
+      "bytes": 2064384
+    },
+    {
+      "group": "size=1572864 flags=20000",
+      "count": 1,
+      "bytes": 1572864
+    },
+    {
+      "group": "size=49152 flags=20000",
+      "count": 28,
+      "bytes": 1376256
+    },
+    {
+      "group": "size=655360 flags=20000",
+      "count": 2,
+      "bytes": 1310720
+    },
+    {
+      "group": "size=458752 flags=20000",
+      "count": 2,
+      "bytes": 917504
+    },
+    {
+      "group": "size=786432 flags=20000",
+      "count": 1,
+      "bytes": 786432
+    },
+    {
+      "group": "size=81920 flags=20000",
+      "count": 5,
+      "bytes": 409600
+    },
+    {
+      "group": "size=393216 flags=20000",
+      "count": 1,
+      "bytes": 393216
+    },
+    {
+      "group": "size=131072 flags=20000",
+      "count": 2,
+      "bytes": 262144
+    },
+    {
+      "group": "size=65536 flags=20000",
+      "count": 4,
+      "bytes": 262144
+    },
+    {
+      "group": "size=98304 flags=20000",
+      "count": 2,
+      "bytes": 196608
+    },
+    {
+      "group": "size=114688 flags=20000",
+      "count": 1,
+      "bytes": 114688
+    }
+  ],
+  "coverage": "sampled journal until first allocation refusal; not assumed complete"
+}

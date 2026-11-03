@@ -1,0 +1,35 @@
+{
+  "dtb_sha256": "c0a4036689044dd47e4a46076285d1fca13361f4c280690c5e2e80ed7382a92a",
+  "nodes": {
+    "/reserved-memory/splash_region": {
+      "phandle": "0000081a",
+      "reg": "00000000d51000000000000002b00000"
+    },
+    "/soc/qcom,smmu_sde_unsec_cb": {
+      "phandle": "000007ec",
+      "qcom,iommu-earlymap": "",
+      "qcom,iommu-dma-addr-pool": "00060000d50a0000d7c00000283f0000",
+      "iommus": "0000005200001c0000000002",
+      "compatible": "71636f6d2c736d6d755f7364655f756e73656300"
+    },
+    "/soc/qcom,smmu_sde_sec_cb": {
+      "phandle": "00000813",
+      "qcom,iommu-dma-addr-pool": "00020000fffe0000",
+      "iommus": "0000005200001c0100000000",
+      "compatible": "71636f6d2c736d6d755f7364655f73656300"
+    },
+    "/soc/apps-smmu@15000000": {
+      "compatible": "71636f6d2c71736d6d752d7635303000",
+      "reg": "1500000000100000151fe00000000040",
+      "phandle": "00000052"
+    }
+  },
+  "uefi_region_base": "0xd5100000",
+  "uefi_reserved_bytes": 45088768,
+  "frame_bytes": 18247680,
+  "second_candidate_base": "0xd6270000",
+  "second_candidate_end": "0xd73d7000",
+  "fits_reserved_region": true,
+  "second_buffer_device_mapping_qualified": false,
+  "register_writes_performed": false
+}

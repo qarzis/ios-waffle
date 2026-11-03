@@ -1,3 +1,13 @@
+## Bounded GPU memory recovery and VSync subscription — 2026-11-03
+
+A root-builder regression selected the baseline Mesa while advertising OOM reclamation through an environment flag. The selected binary did not contain that implementation. The builder now binds the corrected pressure candidate to its binary hash and source provenance, and refuses the baseline and previously rejected deadlocking candidate when reclamation is requested.
+
+M01 fullsize control passed all 1,218,000 pixels with zero errors. With the same 192 MiB limit, the corrected Mesa then ran the GPU UI for its planned 240 seconds, continued after allocation refusals and cache retirement, and closed after 55,301 commands / 10,568 BOs. This qualifies that bounded recovery window, not indefinite stability. Android returned independently; the original strict collector failure remains recorded.
+
+M02 resets timestamp phase on an explicit VSync unsubscribe while retaining the latch for a genuine hardware fault. The actual subscription handler and callback host regression, complete kernel build and paired-image validation passed. The 240-second phone run logged hardware TE callbacks and no fallback in the collected journal, then closed cleanly after 27,434 commands / 3,921 BOs. The first-eight-callback log cap does not establish a complete continuous callback count. Android returned; the strict collector failure is preserved.
+
+**Visible tearing is unresolved.** The user confirms scrolling stripes disappear when scrolling stops. CPU composition still writes to the active scanout buffer; no atomic display flip is implemented. A read-only display DMA routing audit is being prepared before attempting a second-buffer mapping or native DPU commit. No such register changes have been tested.
+
 # OnePlus 12 GPU progress
 
 Adreno 750 runs actual CoreAnimation/backboardd composition through Darwin Mesa.
