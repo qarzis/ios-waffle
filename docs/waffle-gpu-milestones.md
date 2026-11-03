@@ -1,3 +1,13 @@
+## Second display buffer validated — 2026-11-03
+
+D01 read the inherited display DMA route without register writes: both nonsecure display streams select context bank4 with stage1 translation disabled and stage2 bypass. The43MiB splash reservation matches the live DT and Waffle UEFI map.
+
+D02 consumed one native CTL flush for unchanged source state, with no address, START, TE, IRQ or mode changes. D03 then prepared a four-color pattern in the reserved second framebuffer, switched both split display pipes for five seconds, and restored the original addresses. Hardware completion and domain checks passed; the user confirmed that the square appeared and the interface returned. The GPU window ended at its planned60-second limit and Android returned. The original strict collector failure remains recorded.
+
+**Ordinary UI frames still use the existing presentation path; visible tearing is unresolved.** D03 qualifies only the bounded second-buffer switch and restoration. The D04 state-machine draft passes1000 modeled full/partial working-frame updates and fault/rollback checks, but has no kernel presenter binding, runtime flag, full kernel build or phone test. It is saved as a draft for the next session.
+
+Work is paused at the user's request. No new phone tests are queued.
+
 ## Bounded GPU memory recovery and VSync subscription — 2026-11-03
 
 A root-builder regression selected the baseline Mesa while advertising OOM reclamation through an environment flag. The selected binary did not contain that implementation. The builder now binds the corrected pressure candidate to its binary hash and source provenance, and refuses the baseline and previously rejected deadlocking candidate when reclamation is requested.

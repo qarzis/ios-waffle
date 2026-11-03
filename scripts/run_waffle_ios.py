@@ -543,9 +543,15 @@ def main():
     parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
+    parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
+    parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
     args = parser.parse_args()
+    if args.display_flip_probe and (args.display_flush_probe or args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--display-flip-probe requires isolated GPU UI and excludes other display/audio modes")
+    if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--display-flush-probe requires isolated GPU UI and excludes other display/audio modes")
     if args.hardware_vsync and (args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--hardware-vsync requires isolated GPU UI and excludes diagnostic/audio modes")
     if args.display_survey and (args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -624,6 +630,10 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.hardware_vsync:
         arguments += " waffle_vsync=1"
+    if args.display_flip_probe:
+        arguments += " waffle_display_flip=1"
+    if args.display_flush_probe:
+        arguments += " waffle_display_flush=1"
     if args.display_survey:
         if args.audio_preflight:parser.error("--display-survey excludes audio tests")
         arguments += " waffle_vsync_audit=1"

@@ -56,6 +56,15 @@ def main():
          "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-survey-host.c", "-o", output / "test-display-survey"])
     run([output / "test-display-survey"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-smmu-host.c", "-o", output / "test-display-smmu"])
+    run([output / "test-display-smmu"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-flush-host.c", "-o", output / "test-display-flush"])
+    run([output / "test-display-flush"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-flip-host.c", "-o", output / "test-display-flip"])
+    run([output / "test-display-flip"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
          ROOT / "tools/tests/waffle-policy.c", "-o", output / "test-policy"], cwd=ROOT)
     run([output / "test-policy"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
@@ -226,6 +235,9 @@ def main():
         raise ValueError("Prepared XNU lacks waffle GPU user build entry")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_vsync_phase.h", xnu / "bsd/sys/waffle_vsync_phase.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_survey.h", xnu / "bsd/sys/waffle_display_survey.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_smmu.h", xnu / "bsd/sys/waffle_display_smmu.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_flush.h", xnu / "bsd/sys/waffle_display_flush.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_flip.h", xnu / "bsd/sys/waffle_display_flip.h")
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
@@ -284,7 +296,7 @@ def main():
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "HEAD"], cwd=ROOT))
     source = output / "source"
-    for relative in ("kernel/files/bsd/sys/waffle_vsync_phase.h", "tools/tests/waffle-vsync-phase-host.c", "kernel/files/bsd/sys/waffle_display_survey.h", "tools/tests/waffle-display-survey-host.c", "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
+    for relative in ("kernel/files/bsd/sys/waffle_display_flip.h", "tools/tests/waffle-display-flip-host.c", "kernel/files/bsd/sys/waffle_display_flush.h", "tools/tests/waffle-display-flush-host.c", "kernel/files/bsd/sys/waffle_display_smmu.h", "tools/tests/waffle-display-smmu-host.c", "kernel/files/bsd/sys/waffle_vsync_phase.h", "tools/tests/waffle-vsync-phase-host.c", "kernel/files/bsd/sys/waffle_display_survey.h", "tools/tests/waffle-display-survey-host.c", "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
                      "tools/tests/waffle-audio-smmu-survey-host.c"):
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)

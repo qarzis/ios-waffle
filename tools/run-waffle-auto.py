@@ -26,6 +26,8 @@ def main():
     parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--hardware-vsync',action='store_true',help='Opt-in hardware panel TE timestamps for iOS callbacks')
+    parser.add_argument('--display-flip-probe',action='store_true',help='Bounded reserved-framebuffer pattern flip and restoration')
+    parser.add_argument('--display-flush-probe',action='store_true',help='Bounded unchanged-frame native CTL flush control probe')
     parser.add_argument('--display-survey',action='store_true',help='Read-only inherited DPU/TE survey during GPU UI')
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
@@ -132,6 +134,10 @@ def main():
         bound_source=artifact/'source/kernel/files/bsd/dev/macan_adsp.c'
         if not bound_source.is_file() or hashlib.sha256(bound_source.read_bytes()).hexdigest()!=audio_manifest['source_sha256']['kernel/files/bsd/dev/macan_adsp.c']:
             parser.error('Audio kernel source binding missing or stale')
+    if args.display_flip_probe and (args.display_flush_probe or args.hardware_vsync or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('display_flip_probe')):
+        parser.error('--display-flip-probe requires a bound dedicated GPU UI artifact and excludes other display/audio modes')
+    if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('display_flush_probe')):
+        parser.error('--display-flush-probe requires a bound dedicated GPU UI artifact and excludes other display/audio modes')
     if args.hardware_vsync and (args.display_survey or not args.ui_workload or not args.gl_context or args.audio_preflight or not manifest.get('hardware_vsync_candidate') or not manifest.get('native_vbl_requested')):
         parser.error('--hardware-vsync requires a qualified GPU UI artifact and excludes diagnostics/audio')
     if args.display_survey and (not args.ui_workload or not args.gl_context or args.audio_preflight or not manifest.get('display_survey_readonly')):
@@ -276,6 +282,8 @@ def main():
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
             if args.hardware_vsync:items.append('--hardware-vsync')
+            if args.display_flip_probe:items.append('--display-flip-probe')
+            if args.display_flush_probe:items.append('--display-flush-probe')
             if args.display_survey:items.append('--display-survey')
             if args.torch_service:items.append('--torch-service')
             if args.cpus is not None:items.append(f'--cpus={args.cpus}')

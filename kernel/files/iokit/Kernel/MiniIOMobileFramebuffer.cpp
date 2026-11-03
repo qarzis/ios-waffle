@@ -18,6 +18,9 @@
 #include <vm/memory_types.h>
 #include "../../bsd/sys/waffle_display_survey.h"
 #include "../../bsd/sys/waffle_vsync_phase.h"
+#include "../../bsd/sys/waffle_display_smmu.h"
+#include "../../bsd/sys/waffle_display_flush.h"
+#include "../../bsd/sys/waffle_display_flip.h"
 extern "C" {
 #include <console/video_console.h>
 extern struct vc_info vinfo;
@@ -28,11 +31,123 @@ extern "C" void redwood_tl(const char * format, ...) __printflike(1, 2);
 extern "C" vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
 extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
 static TUNABLE(uint32_t, gWaffleDisplaySurvey, "waffle_vsync_audit", 0);
+static TUNABLE(uint32_t, gWaffleDisplayFlush, "waffle_display_flush", 0);
+static TUNABLE(uint32_t, gWaffleDisplayFlip, "waffle_display_flip", 0);
 static bool waffleDisplayRead(void *context, uint32_t offset, uint32_t *value)
 {
  if (offset > 0x83ffc || (offset & 3)) return false;
  *value = *(volatile uint32_t *)((uint8_t *)context + offset);
  return true;
+}
+static bool waffleDisplayFlushWrite(void *context, uint32_t offset, uint32_t value)
+{
+ if (gWaffleDisplayFlush != 1 || offset != 0x16018 || value != 3) return false;
+ *(volatile uint32_t *)((uint8_t *)context + offset) = value;
+ __asm__ volatile("dsb sy" ::: "memory");
+ return true;
+}
+static void waffleDisplayFlushDelay(void *, unsigned ms) {IOSleep(ms);}
+static void waffleDisplayFlushProbe(void *, wait_result_t)
+{
+ IOSleep(1500);
+ vm_offset_t base = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
+ if (!base) {redwood_tl("waffle-display-flush: passed=0 reason=map writes=0\n");thread_terminate(current_thread());return;}
+ struct waffle_display_flush_io io = {{(void *)base, waffleDisplayRead}, waffleDisplayFlushWrite, waffleDisplayFlushDelay};
+ struct waffle_display_flush_result r = {};
+ bool ok = waffle_display_flush_unchanged(&io, &r);
+ redwood_tl("waffle-display-flush: passed=%u stage=%u writes=%u mask=%x pending=%x pre_polls=%u polls=%u\n",
+     ok, r.stage, r.writes, r.mask, r.pending, r.pre_polls, r.polls);
+ redwood_tl("waffle-display-flush: frame_before=%u frame_after=%u address_writes=0 start_writes=0 irq_ack=0 mode_change=0\n",
+     r.before_frame, r.after_frame);
+ ml_io_unmap(base, 0x84000);
+ thread_terminate(current_thread());
+}
+static bool waffleDisplaySMMURead(void *context, uint32_t offset, uint32_t *value)
+{
+ if (offset > 0xffffc || (offset & 3)) return false;
+ *value = *(volatile uint32_t *)((uint8_t *)context + offset);
+ return true;
+}
+static void waffleDisplaySMMUSurvey(void)
+{
+ vm_offset_t base = ml_io_map_unmappable(0x15000000, 0x100000, VM_WIMG_IO);
+ if (!base) {redwood_tl("waffle-display-smmu: complete=0 reason=map no_writes=1\n");return;}
+ struct waffle_display_smmu_io io = {(void *)base, waffleDisplaySMMURead};
+ struct waffle_display_smmu_snapshot snapshot = {};
+ bool ok = waffle_display_smmu_capture(&io, &snapshot);
+ redwood_tl("waffle-display-smmu: complete=%u cr0=%x id0=%x id1=%x id2=%x groups=%u banks=%u page_shift=%u cb_base=%x no_writes=1\n",
+     ok, snapshot.cr0, snapshot.id0, snapshot.id1, snapshot.id2, snapshot.groups, snapshot.banks, snapshot.page_shift, snapshot.cb_base);
+ for (unsigned i = 0; i < 2; i++) {
+  const struct waffle_display_smmu_route *r = &snapshot.stream[i];
+  redwood_tl("waffle-display-smmu: sid=%x matches=%u index=%u smr=%x s2cr=%x cb=%u context_read=%u\n",
+      r->sid, r->matches, r->index, r->smr, r->s2cr, r->cb, r->context_read);
+  if (r->context_read) {
+   redwood_tl("waffle-display-smmu: sid=%x cbar=%x sctlr=%x tcr=%x tcr2=%x fsr=%x\n",
+       r->sid, r->cbar, r->sctlr, r->tcr, r->tcr2, r->fsr);
+   redwood_tl("waffle-display-smmu: sid=%x ttbr0=%llx ttbr1=%llx\n", r->sid,
+       (unsigned long long)r->ttbr0, (unsigned long long)r->ttbr1);
+  }
+ }
+ ml_io_unmap(base, 0x100000);
+}
+struct WaffleDisplayFlipContext {vm_offset_t dpu, smmu, target;unsigned writes;};
+static bool waffleDisplayFlipRead(void *p, uint32_t offset, uint32_t *value)
+{return waffleDisplayRead((void *)((WaffleDisplayFlipContext *)p)->dpu, offset, value);}
+static bool waffleDisplayFlipWrite(void *p, uint32_t offset, uint32_t value)
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ if (gWaffleDisplayFlip != 1 || !((offset == 0x16018 && value == 3) ||
+     ((offset == 0x5014 || offset == 0x7014) && (value == WAFFLE_DISPLAY_FRONT || value == WAFFLE_DISPLAY_TEST)))) return false;
+ *(volatile uint32_t *)(c->dpu + offset) = value;
+ __asm__ volatile("dsb sy" ::: "memory");c->writes++;
+ return true;
+}
+static bool waffleDisplayFlipDomain(void *p)
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ struct waffle_display_smmu_io io = {(void *)c->smmu, waffleDisplaySMMURead};
+ struct waffle_display_smmu_snapshot snapshot = {};
+ return waffle_display_smmu_capture(&io, &snapshot) && waffle_display_flip_domain_valid(&snapshot);
+}
+static bool waffleDisplayFlipPrepare(void *p, uint32_t address, uint32_t bytes)
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ if (address != WAFFLE_DISPLAY_TEST || bytes != WAFFLE_DISPLAY_FRAME || c->target) return false;
+ c->target = ml_io_map_unmappable(address, bytes, VM_WIMG_IO);
+ if (!c->target) return false;
+ redwood_tl("waffle-display-flip: preparing_reserved=%x bytes=%u original_untouched=1\n", address, bytes);
+ volatile uint32_t *pixels = (volatile uint32_t *)c->target;
+ for (uint32_t y = 0; y < 3168; y++) {
+  for (uint32_t x = 0; x < 1440; x++) {
+   uint32_t color = 0xff202020;
+   if (x >= 400 && x < 1040 && y >= 1264 && y < 1904) {
+    color = y < 1584 ? (x < 720 ? 0xff00ffff : 0xffff00ff) : (x < 720 ? 0xffffff00 : 0xff44aa44);
+   }
+   pixels[y * 1440 + x] = color;
+  }
+ }
+ __asm__ volatile("dsb sy" ::: "memory");
+ return true;
+}
+static void waffleDisplayFlipProbe(void *, wait_result_t)
+{
+ IOSleep(25000);
+ WaffleDisplayFlipContext c = {};
+ c.dpu = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
+ c.smmu = ml_io_map_unmappable(0x15000000, 0x100000, VM_WIMG_IO);
+ if (c.dpu && c.smmu) {
+  struct waffle_display_flip_io io = {{{&c, waffleDisplayFlipRead}, waffleDisplayFlipWrite, waffleDisplayFlushDelay}, waffleDisplayFlipDomain, waffleDisplayFlipPrepare};
+  struct waffle_display_flip_result r = {};
+  bool ok = waffle_display_flip_test(&io, &r);
+  redwood_tl("waffle-display-flip: passed=%u stage=%u prepared=%u flipped=%u restored=%u writes=%u hold_ms=5000\n",
+      ok, r.stage, r.prepared, r.flipped, r.restored, c.writes);
+  redwood_tl("waffle-display-flip: domain_flip=%u domain_restore=%u restore_attempted=%u flip_frame=%u restore_frame=%u\n",
+      r.domain_after_flip, r.domain_after_restore, r.restore_attempted, r.flip_frame, r.restore_frame);
+  if (c.target) ml_io_unmap(c.target, WAFFLE_DISPLAY_FRAME);
+ } else redwood_tl("waffle-display-flip: passed=0 reason=map writes=0\n");
+ if (c.smmu) ml_io_unmap(c.smmu, 0x100000);
+ if (c.dpu) ml_io_unmap(c.dpu, 0x84000);
+ thread_terminate(current_thread());
 }
 static void waffleDisplaySurvey(void *, wait_result_t)
 {
@@ -80,6 +195,7 @@ static void waffleDisplaySurvey(void *, wait_result_t)
   }
  }
  ml_io_unmap(base, 0x84000);
+ waffleDisplaySMMUSurvey();
  redwood_tl("waffle-vsync: survey_complete=%u no_register_writes=1 no_irq_ack=1 no_timing_change=1\n", ok);
  thread_terminate(current_thread());
 }
@@ -528,6 +644,18 @@ IOMobileFramebuffer::start(IOService * provider)
   kern_return_t result = kernel_thread_start(waffleVSyncQualify, NULL, &qualify);
   redwood_tl("waffle-vsync: hardware_qualification_start=%x\n", result);
   if (result == KERN_SUCCESS) thread_deallocate(qualify);
+ }
+ if (gWaffle != 0 && gWaffleDisplayFlip == 1) {
+  thread_t probe;
+  kern_return_t result = kernel_thread_start(waffleDisplayFlipProbe, NULL, &probe);
+  if (result == KERN_SUCCESS) thread_deallocate(probe);
+  redwood_tl("waffle-display-flip: worker_start=%x hold_ms=5000 restore_required=1\n", result);
+ }
+ if (gWaffle != 0 && gWaffleDisplayFlush == 1) {
+  thread_t probe;
+  kern_return_t result = kernel_thread_start(waffleDisplayFlushProbe, NULL, &probe);
+  if (result == KERN_SUCCESS) thread_deallocate(probe);
+  redwood_tl("waffle-display-flush: worker_start=%x unchanged_frame_only=1\n", result);
  }
  if (gWaffle != 0 && gWaffleDisplaySurvey == 1) {
   thread_t survey;
