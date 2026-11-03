@@ -1,3 +1,15 @@
+# CURRENT — E111 negative; E112 pending target lifecycle diagnostic prepared
+
+Latest user asked GitHub update and audio status. Public PUSH VERIFIED f02a3874156b5144eac68fca45f512ea3a56ee00, branchwaffle/gpu-bringup, cleanpublishworktree. IncludescurrentGPU/seed/audioSMMUcode/tests/negativeE111evidence/docs; no firmware/images/tokens. Animation remainsblack, audio notplayback.
+
+Phone is Android, independentADBboot_completed1 afterE111; NO hardware runner active. E111UIrun20261103T111201Z/auto111138Z: promoted_targetactuallyexercisedSID78/90 butuserblackremains,8678commands/2829BO/fullclose/normalreturn. Originalcollector1missingDynamicBOproofretained. GenericfullsizecontrolE111run110914Zpassed1218000pixels/0wrong/outer0/Android1; onlyexistingattachImagepathcontrol, NOTordinaryFBO-specificpixelproof.
+
+CurrentE112code adds metadataONLY pending_discard inimage_new(rebind)andimage_forget(delete) whenimage.target&&drawn, pluscopied_targetafterexistingreadback. E111promotionunchanged. Newpossibleloss: pendingimage reset/deletedbeforeframe_end; NOTyetmeasured, doNOTaddimplicitflushuntilcorrelatedSIDproof. E112hook/UIroots BUILT, hostdrawing/readwrapper/readbackPASS; readbackhostmockupdatedfornewdiagnosticfields. Bothdiagnostic-pending-target-pixel-e112 anddiagnostic-pending-target-ui-e112 validated. NoE112hardwareyet. NextpixelcontrolthenAndroid1thenmanualUI, sameE108pairedkernel/loader,UI240s/7cores/torch/allpriorwallpaper/sliderfeatures. Sourcebindingsmustverifybeforelaunch; don'toverwriteoldartifacts. NotifyTelegramONLYafterUIready. OneUSBowner.
+
+AudioA14read-onlysurveyPASS/noaudioSIDmatches/noDMAqualified. A15-domain-attach-audit.md recordsnativeallocationbitmap/pinnedroute/Stage1requirements. Nextreadonlyallvalidroute+bankinventorybeforefirstcontextwrites. A13graphOPEN/CLOSEACK0qualified, PCM/periods/amps/iOSsinkunfinished. NoaudiohardwareparallelwithGPU.
+
+Historicalentriesbelow superseded. Explicituserstoprevoked; continuingtaskauthorized.
+
 # ACTIVE E111 minimal snapshot writeback fix — 2026-11-03
 
 E110 user manualblackconfirmed; hardware DIRECT evidence sourceSID79/backboarddPID84/texture114/frame320 attached FBO22 foractualdraw withimage.targetfalse, frame321/322sameSIDreuploadedzero. Existingframe_endcopiesonlytarget&&drawn. Not merelyhypothesisnow: missingordinaryFBOtargetclassificationdemonstrated. FullanimationrootcausecoverageNOTestablished.

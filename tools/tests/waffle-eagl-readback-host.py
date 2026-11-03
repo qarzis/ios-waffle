@@ -26,12 +26,14 @@ typedef unsigned GLuint,GLenum;typedef int GLint,GLsizei;
 #define GL_BGRA 12
 #define GL_UNSIGNED_BYTE 13
 struct surface {uint8_t *base;size_t row;bool locked;};typedef struct surface *IOSurfaceRef;
-struct eagl {GLuint reader,writer,framebuffer;uint8_t *readback;size_t readback_bytes;};
+struct eagl {unsigned frames;GLuint reader,writer,framebuffer;uint8_t *readback;size_t readback_bytes;};
 struct image {GLuint mirror,texture;bool invert,drawn,shared;GLsizei width,height;IOSurfaceRef surface;};
 static unsigned reads,allocations;static GLint pack_row,bound;static bool fail_alloc,fail_lock;
 static uint64_t now_us(void){return 100;}
 static int getpid(void){return 1;}
+static unsigned frame_lines;
 static void say(const char *fmt,...){(void)fmt;}
+static unsigned IOSurfaceGetID(IOSurfaceRef s){assert(s);return 79;}
 static void *scratch_realloc(void *p,size_t bytes){allocations++;return fail_alloc?NULL:realloc(p,bytes);}
 #define realloc scratch_realloc
 static size_t IOSurfaceGetBytesPerRow(IOSurfaceRef s){return s->row;}

@@ -388,6 +388,17 @@ image_of(struct eagl *e, GLuint texture)
  }
  return NULL;
 }
+static void
+note_pending_target(struct eagl *e, struct image *image, const char *reason)
+{
+ if (frame_lines && image->target && image->drawn) {
+  static unsigned observed;
+  if (observed++ < 32) {
+   say("waffle-snapshot: pending_discard reason=%s frame=%u texture=%u surface=%u width=%d height=%d\n",
+       reason, e->frames + 1, image->texture, IOSurfaceGetID(image->surface), image->width, image->height);
+  }
+ }
+}
 static struct image *
 image_new(struct eagl *e, GLuint texture, IOSurfaceRef surface)
 {
@@ -399,6 +410,7 @@ image_new(struct eagl *e, GLuint texture, IOSurfaceRef surface)
   }
   image = &e->images[e->image_count++];
  } else {
+  note_pending_target(e, image, "rebind");
   if (image->mirror != 0) {
    glDeleteTextures(1, &image->mirror);
   }
@@ -414,6 +426,7 @@ image_forget(struct eagl *e, GLuint texture)
 {
  struct image *image = image_of(e, texture);
  if (image != NULL) {
+  note_pending_target(e, image, "delete");
   if (image->mirror != 0) {
    glDeleteTextures(1, &image->mirror);
   }
@@ -701,6 +714,13 @@ target_to_surface(struct eagl *e, struct image *image)
    }
   }
   glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+  if (frame_lines && image->width >= 375 && image->height >= 700) {
+   static unsigned copied_targets;
+   if (copied_targets++ < 32) {
+    say("waffle-snapshot: copied_target frame=%u texture=%u surface=%u width=%d height=%d row=%zu\n",
+        e->frames + 1, image->texture, IOSurfaceGetID(surface), image->width, image->height, row);
+   }
+  }
   IOSurfaceUnlock(surface, 0, NULL);
  }
  glBindFramebuffer(GL_FRAMEBUFFER, e->framebuffer);

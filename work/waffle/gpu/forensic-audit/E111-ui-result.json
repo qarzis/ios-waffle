@@ -1,0 +1,14 @@
+{
+  "run": "20261103T111201Z",
+  "manual_black_reproduced": true,
+  "animation_fixed": false,
+  "promoted_target_records": 32,
+  "completed_commands": 8678,
+  "lifetime_buffers": 2829,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "scope": "Target promotion executed but did not resolve black animation. Pending target discard/writeback diagnostic prepared, not hardware-qualified.",
+  "raw_log_sha256": "10345322d9e133a21d726eba6dc64ceb0c7a509ea45c4b513f557a6d42d53ae1"
+}
