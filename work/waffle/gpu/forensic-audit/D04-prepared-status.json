@@ -1,0 +1,16 @@
+{
+  "status": "standalone_state_machine_draft_only",
+  "files": [
+    "kernel/files/bsd/sys/waffle_display_present.h",
+    "tools/tests/waffle-display-present-host.c"
+  ],
+  "host_model_cases": "1000 full/partial working-frame updates, only inactive destination copied; commit/retire ordering, domain/copy/partial-write/stall failure latching, rollback and shutdown restore",
+  "host_asan_ubsan_passed": true,
+  "kernel_binding_implemented": false,
+  "driver_optin_implemented": false,
+  "kernel_build_performed": false,
+  "hardware_tested": false,
+  "ordinary_ui_double_buffer_enabled": false,
+  "tearing_fixed": false,
+  "reason_stopped": "Explicit user stop; publication only authorized"
+}

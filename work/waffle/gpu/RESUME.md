@@ -1,3 +1,55 @@
+# STOPPED — public push verified 72d5e58179bd11fae00af3c9c0c75ce64d5f22a3
+
+PhoneAndroidindependent1; noactivephone/buildtasks. Userstopremainsactiveafterpublication. GitHubbranchwaffle/gpu-bringupcleanandremoteverified. D03physicalpatternflip+restorequalified; D04standalonestatemachinedraftonly, NOTwiredtoregularframes, NOTkernelbuilt/hardwaretested. DoNOTresumeuntiluserexplicitlyasks.
+
+# STOPPED — user stop; publication only authorized
+
+Userrequestedstopafterlasttest, thenGitHubpush. ALLhardware/buildprocessesfinished; Androidindependentlyboot_completed1 at20:35UTC. Noadditionalboots/builds/tests/implementationuntilexplicitresume. Publicationinprogress.
+
+D03lastphoneexperimentPASSED: run202023Z/auto201959Z, physical4colorpatternonsecondbufferd6270000for5s, USERCONFIRMEDsquareappearedANDinterfaceRETURNED. Kernelstage4/prepared1/flipped1/restored1/writes7/domainflip1/domainrestore1/MDP13652→14258. Originalfrontmemoryuntouched.60sboundedGPUstop/close1476commands1207BO/Android1; originalstrictcollector1preserved. NoTE/IRQ/START/mode/SMMUwrites. Secondbufferflipqualified, NOTcontinuousrenderingorvisibletearingfixed.
+
+D04PARTIALDRAFTONLY: kernel/files/bsd/sys/waffle_display_present.h + tools/tests/waffle-display-present-host.c exist, standaloneASanUBSan1000partial/fullframeupdatesPASS(copyinactive, commitbeforeoldreuse, failurelatch/rollback/restore). D03hostfixturecap4096+explicitreturn0 changedforreuse. NO D04kernelbinding/loaderflag/presenterhook/quiescehook exists, NO D04fullbuild/hardwaretest. ActualMiniFBremainsD03testedsource. DoNOTclaimregularframesusebackbuffer.
+
+D04designwhenresumed: allocateonecached18MBIOBufferMemoryDescriptorworkingframe(knownnativeAPIfromMiniIOSurface), retainoriginalfBasepointerplusmappedreservedsecondbuffer, pointCPUcompositortoworkingimage, afteralllayers/helpersdone copyfullworkingframeONLYinactiveA/B, cleanoriginaltargetAtoPoC(existingdc cvac64path)+dsb, writebothSRC0ADDR+CTLFLUSH3, wait2MDPframesbeforeoldreuse. RemoveoldsoftwarebeatONLYwhennewpresenterarmed. NewEXPLICITdedicatedoptinmode(defaultOFF) maycombinehardware-vsync(read-onlytimestamps), butexcludeD01/2/3diagnostics/audio. MustrestoreoriginalFRONTbeforekernelhandback: loader_return.cstopsotherCPUsFIRSTthenquiescesdrivers; anydisplayquiescehookafterPSCI MUSTusepreallocatedmaps/rawboundedbusywait(noIOLock/IOSleep), latchsubmissionsandrestoreoriginaladdress. HookNOTIMPLEMENTED. Avoidracingpresenter/freeingmappedbufferswhilehardwareowns. Failedcopy/domain/commit→latchfailure/retainresources, rollbackwhenaddressprogrammingstarted, neverclaimrestoreifnotconfirmed. Standalonepureheaderhelperonlyfirstdraft, reviewbeforebinding.
+
+Publicccbd029previouslyverified; requestednewpushincludesD01/D02/D03sources/tests/resultsandexplicitD04draft, noimages/fw/privatescreenshots/tokens. Preserve mainindex via temporaryindex checkpoints, publicworktreeonlyexplicitfiles. Noagents/goals.
+
+# ACTIVE — D03 second-buffer display pattern phone test
+
+Soleowner nextauto-display-pattern-d03.log, artifactdiagnostic-display-pattern-d03. FINAL85641buildPASS, source/header/loader/rootsha bindingsmatch. Worker25safterFBinit,5spatternthenrestore. Explicit--display-flip-probe ONLY, nootherdisplayflags; dedicatedmanifesttrue. Mesa749/E113root60s/GPU60/kernel90/cpus7/torch. Needkernelpassed/stage/prepared/flipped/restored/domainlogs+manualphysicalvisual; GOPscreenshotreadsoldfront! NoD03resultyet. NoSTart/IRQ/TE/mode/SMMUwrites, normal7MMIOwrites gateddomain/nonsecure/layout/controlprobes. PreflightrefusalmeansNOADDRESS/RAMwrites. IfrestoringfailsflagFAILandautomaticAndroidreset; doNOTguessfaultclear. Uservisualquestionwillbependingwhileautomaticworkcontinues.
+
+# ACTIVE — D03 bounded second-buffer pattern flip building
+
+Fullbuildsession85641 logbuild-display-flip-d03-final.log/outputdiagnostic-display-flip-d03. Earlier1512buildPASSbutsourceguardaddedafter, useFINALbuildonly. PhoneAndroid1, NOphoneowner. D02hardwarePASSunchangedframeflush (D02-result.json):write1/mask0/pending0/pre4/post15/MDP10786→10788; bounded60close4324/2437/Android1/originalcollector1.
+
+D03newEXPLICIT--display-flip-probe/waffle_display_flip1/dedicatedmanifest required; incompatibleaudio/hardware-vsync/survey/flush. DefaultOFF. Headerwaffle_display_flip.h firstvalidatesexactD01SMMUbypasssnapshot/SMRindex4+CB4/e0/zeroTTBR/FSR400, nonsecureSSPP5070/7070mustZERO, D02noopflushgates, thenpreparesreservedRAMd6270000..d73d7000(18,247,680B) withinDT+UEFI43MiB. Leavesoriginald5100000 untouched. Kernelvolatile32bitpatternfill darkbg+640square4colorsspanningbothhalves,dsbsy. ProgrambothSRC0ADDRs→d6270000+CTLFLUSH3, requireclear+2MDPframes/domainunchanged, hold5s, restorebotholdaddrs+flush+2frames/domaincheckevenifpartial/fault/stall.7MMIOwritesnormally; noSTART/TE/IRQ/mode/SMMUwrites. RestoringfailureisFAIL, nothidden. Kernelworkerstarts25safterFBinit; targetmapunmappedonlyafterhelper, physicalreservationneverfreed. GPIO/GOPscreenshotsstillreadoriginalbuffer, CANNOTproveactualpatternvisibility; needuserphysicalvisualfeedback.
+
+Actualpurehelper/domain/layout/partialwrite/stall/fault/restoretestsASanUBSanPASS; actualCLI/innercommandAST/defaultcallbackPASS; fullbuildermandatoryflip/flush/smmutests+3loaderprofilespendingFINALbuild. Needfinalbuild, pairedAUTO/source+rootbindings, dedicatedmanifestdisplay_flip_probetrue, validatebeforeANYboot. Reusesd01-display-smmu-ui60s/Mesa749/E113hook; launch--display-flip-probe ONLY, CPU7/torch/GPU60/kernel90; plannedCPU60sexplain. Askoptionaluserwatch5scoloredsquareONLYafterready; lackvisualreplymustremainunqualified, do notclaimtearfree. NoD03hardwarelaunchedyet.
+
+Publicccbd029verifiedincludesM01/M02notD01/D02/D03code. PrivatecheckpointneedsnewD02/D03files+logs/resume. Preserve mainindex/tempindex. UserwantsworkcontinueVSync; stabilitybounded4minpassedM01/M02, visiblemotiontearingremains.
+
+# ACTIVE — D02 unchanged-frame flush phone test, soleowner auto-display-commit-d02.log
+
+FullbuildPASS,D02pairedAUTO/source/rootbindings+validatePASS. Dedicatedmanifestdisplay_flush_probetrue; --display-flush-probe ONLY, nohardware-vsync/display-survey/audio. SamequalifiedMesa749/E113root60s/7cores/torch,90skernel. GatedonewriteCTL0FLUSH=3forUNCHANGEDstateonly; noaddresses/data/START/IRQ/TE/modewrites. Needpassed/stage/writes/mask/pending/frameprogress logs; anygatedrefusal=NOWRITE, timeoutFAILwithnoadditionalwrites. PlannedCPUrespring60s, thenautomaticAndroid.
+
+# ACTIVE — D02 unchanged-frame CTL flush control probe building
+
+Solebuildsession86334 logbuild-display-flush-d02.log/outputdiagnostic-display-flush-d02. PhoneAndroidindependent1/noactiveUSBowner. D01completebypassCB4confirmednativearm-smmu.c1078/1094, fullclose8726/4454/bounded60/Android1/originalcollector1. D01result.jsonsaved, notpubliccodeyet.
+
+D02newEXPLICIT--display-flush-probe/waffle_display_flush1, defaultOFF, onlydedicatedmanifest+fullGPUUIchain; mixedaudio/survey/hardwarevsync/duplicatesrejected. Purehelperexactversion/layout/SSPPformat237ff/op80000000/addressesd5100000/stride5760/gates, CTL0flushidle+mask0 andMDPcounterprogressBEFOREwrite, thenONEwriteae16018=3. Noaddress/data/START/TE/IRQ/modewrites. Post50x1mspoll requiresflushclear+2MDPframes/unchangedaddrs+autoconfig; logs stage/mask/pending/pre/postpolls. Unknownstate=>NOWRITE, posttimeout=>FAILnotguessfollowupwrites. Helper+actualCLI/forwardAST+3loaderprofilesPASS, fullbuildPENDING. Needfullbuild/pairedAUTO/sourcebindings/currentrootd01-display-smmu-ui60s/Mesa749/CAenv+artifactvalidatebeforeboot. Manifestdisplay_flush_probetrueONLYnewD02artifact. Launch--display-flush-probe ONLY (notdisplay-survey/hardware-vsync), UI60/kernel90/cpus7/torch. NotifyplannedCPU60s iflaunch.
+
+Nativeprimary5newfilespin38d503downloadedverifiedGitblobSHA/provenance: encoder_phys_cmd.c,encoder.c,crtc.c,kms.c,hw_mdss.h. Onebadfetchsde_smmu.c404; actualmsm/msm_smmu.cnotfetched. Nativeauto_mode trigger_startexplicitlyNOCTL_START; prepare_commitcomplexdisableautorefreshsequenceexcluded. D02ONLYno-opshadowflushcontrolqualification beforefutureaddressflip.
+
+Publicccbd029remoteverified includesM01pressureselectionguard/M02phasefix+boundedreports; noD01/D02codepublishedyet. M01bounded24055301/10568, M02bounded24027434/3921/nohardwarefallbackincollectedjournal; tearingunresolved, userstripesdisappearstatic. UserpinkReachabilityseparate, screenshotprivate requested-now.png. SourcecurrentMiniFBcontainsbothD01read-onlyandD02optin. Preservemainindex/tempindexcheckpoints; noagents/goals.
+
+# ACTIVE — D01 complete; next D02 unchanged-frame flush control qualification
+
+D01result.json records complete readonlyAppsSMMUdisplayuniqueindex4/CB4/CBAR1f000/SCTLRe0/TTBR0/1zero, nativeM0bypassverifiedpinnedarm-smmu.c1078/1094. Splashreservationd5100000+2b00000 inliveDTandUEFI, candidate2ndalignedframed6270000..d73d7000 fits, NOT scannedtested. D01bounded60stop/close8726commands4454BO/Androidindependent1; originalcollector1preserved. Noactivephoneprocessesafterwrapperfinished.
+
+NextD02PLANONLY: nativeCTL0flushmaskforSSPP0/1 whilekeepingaddresses/pixels/modesunchanged; needsnewEXPLICIToptinwriteflag, knownsnapshot/flushidle/mask/TEgates, boundedcompletionpoll, hostactualpurehelperwithnoaddress/start/IRQ/autorefreshwrites, fullbuild+pairedimagebeforephone. NativeautorefreshcommandmodeMUSTNOTblindlyCTL_START: sde_encoder_phys_cmd_trigger_start explicitlyomitsCTL_STARTwhenautorefreshon, prepare_commit normallydisablesauto throughcomplexnativeTEsequence. DoNOTblindlycopythatsequence. Fetchnewprimaryfilespin38d503verifiedGitblobSHA, provenanceupdatedfor5files; nonexistent sde_smmu.c404, actualpathmsm/msm_smmu.c notyetneeded. Publicccbd029verifiedcontainsM01fix/M02candidate+results, notD01codeyet.
+
+UserfocusVSync; motionstripestopwhenstatic, screenshotprivate; pinkReachabilityseparateobservation. CorrectedMesa749mandatorywithreclaim1; M01bounded240pass55301/10568, M02phasefixbounded24027434/3921/nofallbacklogged, NOTtearfree/indefinitestable. Sourceboundrootsandmainindexpreserve.
+
 # ACTIVE — D01 readonly display address survey, solephoneowner auto-display-map-d01.log
 
 FreshD01kernel+pairedautoimage validated, header/sourcebindingschecked. --display-survey ONLY; readsDPUandAppsSMMUdisplaySID1c00/1c02, noSMMU/DPUwrites/flush/start. UI60s/kernel90s/cpus7/torch/Mesa749; plannedCPUafter60s announced. Needwaffle-display-smmu/fullclose/Android1; interpretglobalcontrol/nativeSMR/S2CRbeforesecondbufferassumptions. M02bounded240pass27434/3921/nohardwarefallbackobserved; stillmotionstripes/noatomicflip. Publicccbd029pushedverifyremote.
