@@ -15,6 +15,8 @@
 #include <pexpert/pexpert.h>
 #include <sys/systm.h>
 #include <sys/proc.h>
+#include <vm/memory_types.h>
+#include "../../bsd/sys/waffle_display_survey.h"
 extern "C" {
 #include <console/video_console.h>
 extern struct vc_info vinfo;
@@ -22,6 +24,53 @@ extern struct vc_info vinfo;
 #include <IOKit/IOBufferMemoryDescriptor.h>
 #include "MiniIOSurface.h"
 extern "C" void redwood_tl(const char * format, ...) __printflike(1, 2);
+extern "C" vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
+extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
+static TUNABLE(uint32_t, gWaffleDisplaySurvey, "waffle_vsync_audit", 0);
+static bool waffleDisplayRead(void *context, uint32_t offset, uint32_t *value)
+{
+ if (offset > 0x83ffc || (offset & 3)) return false;
+ *value = *(volatile uint32_t *)((uint8_t *)context + offset);
+ return true;
+}
+static void waffleDisplaySurvey(void *, wait_result_t)
+{
+ IOSleep(1000);
+ vm_offset_t base = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
+ if (!base) {redwood_tl("waffle-vsync: survey map_failed=1 no_writes=1\n");thread_terminate(current_thread());return;}
+ struct waffle_display_io io = {(void *)base, waffleDisplayRead};
+ struct waffle_display_snapshot snapshot = {};
+ bool ok = waffle_display_capture(&io, &snapshot, true);
+ redwood_tl("waffle-vsync: layout version=%x complete=%u no_writes=1\n", snapshot.version, ok);
+ if (ok) {
+  for (unsigned i = 0; i < 6; i++) {
+   const struct waffle_display_ctl *p = &snapshot.ctl[i];
+   redwood_tl("waffle-vsync: ctl=%u base=%x top=%x status=%x intf_active=%x fetch_active=%x\n",
+       i, waffle_display_ctl_base[i], p->top, p->status, p->intf_active, p->sspp_active);
+  }
+  for (unsigned i = 0; i < 10; i++) {
+   const struct waffle_display_sspp *p = &snapshot.sspp[i];
+   redwood_tl("waffle-vsync: sspp=%u base=%x size=%x xy=%x out=%x out_xy=%x address=%x stride=%x format=%x op=%x\n",
+       i, waffle_display_sspp_base[i], p->size, p->xy, p->out_size, p->out_xy, p->address, p->stride, p->format, p->op_mode);
+  }
+  for (unsigned sample = 0; sample < 32 && ok; sample++) {
+   uint64_t before = mach_absolute_time();
+   if (sample) ok = waffle_display_capture(&io, &snapshot, false);
+   uint64_t after = mach_absolute_time();
+   if (!ok) break;
+   for (unsigned i = 0; i < 4; i++) {
+    const struct waffle_display_intf *p = &snapshot.intf[i];
+    redwood_tl("waffle-vsync: sample=%u intf=%u before=%llu after=%llu timing=%x config=%x config2=%x count_en=%x frame=%u line=%u tear_en=%x tear_out=%u tear_line=%u ts_ctrl=%x ts=%x:%x\n",
+        sample, i, (unsigned long long)before, (unsigned long long)after, p->timing, p->config, p->config2,
+        p->count_en, p->frame, p->line, p->tear_en, p->tear_out, p->tear_line, p->ts_ctrl, p->ts_hi, p->ts_lo);
+   }
+   IOSleep(2);
+  }
+ }
+ ml_io_unmap(base, 0x84000);
+ redwood_tl("waffle-vsync: survey_complete=%u no_register_writes=1 no_irq_ack=1 no_timing_change=1\n", ok);
+ thread_terminate(current_thread());
+}
 enum {
  kFBMethodGetLayerDefaultSurface = 3,
  kFBMethodSwapBegin = 4,
@@ -406,6 +455,13 @@ IOMobileFramebuffer::start(IOService * provider)
   macanPeripheralNodes();
  }
  if (gWaffle != 0) wafflePeripheralNodes();
+ if (gWaffle != 0 && gWaffleDisplaySurvey == 1) {
+  thread_t survey;
+  kern_return_t result = kernel_thread_start(waffleDisplaySurvey, NULL, &survey);
+  redwood_tl("waffle-vsync: survey_start=%x framebuffer=%p panel=%ux%u stride=%u\n", result, fBase, fPanelWidth, fPanelHeight, fRowBytes);
+  if (result == KERN_SUCCESS) thread_deallocate(survey);
+ }
+
  if (gMacan != 0 && gMacan14 != 0 && gFBWidth == kFBDefaultWidth && gFBHeight == kFBDefaultHeight &&
      (gFBScale == 0 || gFBScale == kFBDefaultScale)) {
   uint32_t subtype = kFBMacanSubtype;

@@ -1,0 +1,17 @@
+{
+  "run": "20261103T115310Z",
+  "read_only_complete": true,
+  "backlight_control_services": 0,
+  "framebuffer_services": 1,
+  "framebuffer_backlight_control_present": false,
+  "brightness_implemented": false,
+  "brightness_deferred_by_user": true,
+  "controlled_stop": true,
+  "completed_commands": 2381,
+  "lifetime_buffers": 1464,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "raw_log_sha256": "b9adcabda17a437ba4920ed2c3f2f2bb0226b555bea53c9091d081131702a834"
+}

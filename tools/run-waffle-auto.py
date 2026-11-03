@@ -25,6 +25,7 @@ def main():
     parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
     parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
+    parser.add_argument('--display-survey',action='store_true',help='Read-only inherited DPU/TE survey during GPU UI')
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
@@ -130,6 +131,8 @@ def main():
         bound_source=artifact/'source/kernel/files/bsd/dev/macan_adsp.c'
         if not bound_source.is_file() or hashlib.sha256(bound_source.read_bytes()).hexdigest()!=audio_manifest['source_sha256']['kernel/files/bsd/dev/macan_adsp.c']:
             parser.error('Audio kernel source binding missing or stale')
+    if args.display_survey and (not args.ui_workload or not args.gl_context or args.audio_preflight or not manifest.get('display_survey_readonly')):
+        parser.error('--display-survey requires a qualified GPU UI artifact and excludes audio')
     if args.cpus is not None and args.cpus>1 and not manifest.get('multicore_loader'):
         parser.error('Artifact lacks the opt-in multicore loader policy')
     if args.torch_readonly and not manifest.get('torch_readonly_loader'):parser.error('Artifact lacks the torch read-only policy')
@@ -269,6 +272,7 @@ def main():
             items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '94' if args.lpac_cp_init else '93', str(artifact)]
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
+            if args.display_survey:items.append('--display-survey')
             if args.torch_service:items.append('--torch-service')
             if args.cpus is not None:items.append(f'--cpus={args.cpus}')
             if args.access_matrix:

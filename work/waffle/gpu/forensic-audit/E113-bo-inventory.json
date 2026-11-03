@@ -1,0 +1,39 @@
+{
+  "run": "20261103T113550Z",
+  "created_handles": 6018,
+  "retired_handles": 3085,
+  "unretired_seen": 2936,
+  "unretired_seen_bytes": 201310208,
+  "conflicting_handles": [],
+  "unretired_sizes": {
+    "16384": 2764,
+    "4194304": 5,
+    "5242880": 13,
+    "131072": 1,
+    "49152": 23,
+    "163840": 34,
+    "32768": 44,
+    "7340032": 2,
+    "2097152": 1,
+    "1572864": 1,
+    "786432": 1,
+    "10485760": 1,
+    "655360": 2,
+    "1310720": 1,
+    "262144": 2,
+    "65536": 15,
+    "81920": 8,
+    "393216": 1,
+    "196608": 4,
+    "114688": 2,
+    "327680": 1,
+    "2621440": 8,
+    "458752": 1,
+    "1048576": 1
+  },
+  "unretired_bytes_by_flags": {
+    "20000": 157188096,
+    "20002": 44122112
+  },
+  "limitations": "Snapshot union, not a complete ordered ownership proof; process teardown fullclose is outside individual retire markers. Missing startup events and timing must be checked before leak claims."
+}

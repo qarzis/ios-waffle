@@ -1,0 +1,19 @@
+kernel-134.log: waffle-brightness: begin read_only=1 no_userclient=1 no_property_writes=1
+kernel-134.log: waffle-brightness: match=backlight-control=true status=0
+kernel-134.log: waffle-brightness: done match=backlight-control=true count=0 limit=16 read_only=1
+kernel-134.log: waffle-brightness: match=IOMobileFramebuffer status=0
+kernel-134.log: waffle-brightness: service match=IOMobileFramebuffer index=0 id=4294967590 name=disp0 class=IOMobileFramebuffer
+kernel-134.log: waffle-brightness: property id=4294967590 key=backlight-control absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=IOClass absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=IOProviderClass absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=IOMFBDisplayType absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=IOMFBDisplaySize absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=IOMFBDisplayRefresh type=18 value=<value exceeds log bound>
+kernel-134.log: waffle-brightness: property id=4294967590 key=built-in absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=brightness absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=backlight absent=1
+kernel-134.log: waffle-brightness: property id=4294967590 key=IOUserClientClass type=7 value=<CFString 0x105004230 [0x2191a4180]>{contents = "IOMobileFramebufferUserClient"}
+kernel-134.log: waffle-brightness: done match=IOMobileFramebuffer count=1 limit=16 read_only=1
+kernel-134.log: waffle-brightness: match=AppleCLCD status=0
+kernel-134.log: waffle-brightness: done match=AppleCLCD count=0 limit=16 read_only=1
+kernel-134.log: waffle-brightness: complete read_only=1

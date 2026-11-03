@@ -1,0 +1,8 @@
+{
+  "auto_run": "20261103T120411Z",
+  "kernel_started": false,
+  "reason": "Intermediate run-publish-test.py rejected newly added display-survey argument before starting inner kernel runner",
+  "android_independent": 1,
+  "source_changed": "Intermediate parser/forwarding only; paired kernel and UI artifact unchanged",
+  "retest": "Actual parser prefix and actual inner command AST tested valid/default/standalone/duplicate paths without USB"
+}

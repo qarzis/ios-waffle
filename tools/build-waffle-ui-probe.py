@@ -29,6 +29,7 @@ def main():
  parser.add_argument('--transition-frames',action='store_true',help='Enable existing EAGL per-frame draw/refusal metadata for manual icon transitions')
  parser.add_argument('--poster-inventory',action='store_true',help='Read-only actual wallpaper collection and logical-screen inventory')
  parser.add_argument('--ios16-wallpaper',action='store_true',help='Test scoped availability of bundled iOS16 artwork for375x812@2x')
+ parser.add_argument('--brightness-audit',action='store_true',help='Read-only backlight-control and framebuffer IORegistry inventory')
  parser.add_argument('--focus-diagnostic',action='store_true',help='Three read-only stack samples of donotdisturbd')
  parser.add_argument('--slider-control',action='store_true',help='Enable native Focus/vibrate-mode/ring bridge')
  parser.add_argument('--slider-monitor',action='store_true',help='Read-only Hall slider sysctl monitor; no iOS state changes')
@@ -89,6 +90,11 @@ def main():
   pf.add_file(tree,'bin/cpu_test',str(cpu),mode=0o100755)
   cpu_job=dict(Label='org.waffle.cpu-proof',ProgramArguments=['/redwood/bin/cpu_test','35'],RunAtLoad=True,KeepAlive=False,StandardOutPath='/dev/console',StandardErrorPath='/dev/console')
   (jobs/'org.waffle.cpu-proof.plist').write_bytes(plistlib.dumps(cpu_job))
+ if args.brightness_audit:
+  helper=out/'brightness_audit'
+  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra',str(ROOT/'userland/src/waffle_brightness_audit.c'),'-framework','CoreFoundation','-framework','IOKit','-o',str(helper)])
+  pf.add_file(tree,'bin/brightness_audit',str(helper),mode=0o100755)
+  (jobs/'org.waffle.brightness-audit.plist').write_bytes(plistlib.dumps(dict(Label='org.waffle.brightness-audit',ProgramArguments=['/redwood/bin/brightness_audit'],RunAtLoad=True,KeepAlive=False,StandardOutPath='/dev/console',StandardErrorPath='/dev/console')))
  if args.focus_diagnostic:
   focus=out/'focus_diag'
   run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra',str(ROOT/'userland/src/poster_diag.c'),'-o',str(focus)])
@@ -120,6 +126,7 @@ def main():
  root=out/'root.packfs';pf.pack(tree,str(root),zstd=15,raw=pf.sources_under(tree,'fw'))
  assert root.stat().st_size+16*1024*1024<0x03f00000,'UI payload exceeds RAM loader limit'
  sources=['userland/src/inject.c','userland/src/waffle_ui_init.c','tools/build-waffle-ui-probe.py','userland/mkjobs.py','tools/assemble.py']
+ if args.brightness_audit:sources.append('userland/src/waffle_brightness_audit.c')
  if args.focus_diagnostic:sources.append('userland/src/poster_diag.c')
  if args.slider_control:sources.append('userland/src/waffle_slider_control.m')
  if args.slider_monitor:sources.append('userland/src/waffle_slider.m')
@@ -136,6 +143,7 @@ def main():
  manifest['transition_frames']=args.transition_frames
  manifest['poster_inventory']=args.poster_inventory
  manifest['ios16_wallpaper']=args.ios16_wallpaper
+ manifest['brightness_audit']=args.brightness_audit
  manifest['cpu_proof']=args.cpu_proof
  manifest['reclaim_on_oom']=args.reclaim_on_oom
  if hook_manifest:
