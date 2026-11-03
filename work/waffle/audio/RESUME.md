@@ -1,3 +1,9 @@
+# ACTIVE A14 survey complete — 2026-11-03
+
+Run20261103T102416Z/auto102352Z read-only Apps SMMU survey completed, outer0/normal return/independent Android1. IDs4c017e6b/60000047/5111,107 groups/71 banks/4KiB pages/CBbase80000. Audio SIDs1001/1081/1061 have zero valid stream matches. This does NOT qualify DMA or PCM. Next: native domain attach, free context ownership, mapping and period completion; no arbitrary inherited bank or raw PA handoff. A13 graph lifecycle remains qualified, amps/iOS sink absent. Evidence A14-result.json/components.log.
+
+User asks audio and GPU together; phone experiments serialized. E107 GPU currently owns USB (auto102811Z); no concurrent hardware access. Historical stop instructions below superseded by explicit user resume.
+
 # ACTIVE audio A13 PASS — 2026-11-02
 
 User continues audio plusGPUartifact/performancework. A13run20261102T203337Z/auto203313Z passesDSPboot/SPF1/OPEN344token2ACK0/CLOSE64token3ACK0/PAS1+36shutdown/normalXNUreturn/outer0/Androidindependent1. OnechangedAPMwordlegacycap1→modernGC0b001001, primaryfactoryproofvalidatedonactualfirmware. A12boundedGLINKintentcachealsohardwarefixed. NoPCM/DMA/hardwareendpoint/amplifierstartup. Nextblocker nativeAppsSMMU/audioDMA ownership+map/periodcompletion. NativeaudioIon appendslow4bitSID<<32toIOVA; DT1001(mask80),1061(mask0), IOVApool10000000..20000000. DoNOTsendrawphysicaladdresses/borrowredwood1801.

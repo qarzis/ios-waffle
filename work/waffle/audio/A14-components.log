@@ -1,0 +1,20 @@
+adsp: AUDIO_SMMU ids=0x4c017e6b/0x60000047/0x5111 groups=107 banks=71 page_shift=12 cb_base=0x80000 exids=0 complete=1
+adsp: AUDIO_SMMU sid=0x1001 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+adsp: AUDIO_SMMU sid=0x1081 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+adsp: AUDIO_SMMU sid=0x1061 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes
+[   18.304494]: adsp: AUDIO_SMMU ids=0x4c017e6b/0x60000047/0x5111 groups=107 banks=71 page_shift=12 cb_base=0x80000 exids=0 complete=1
+[   18.304499]: adsp: AUDIO_SMMU sid=0x1001 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+[   18.304503]: adsp: AUDIO_SMMU sid=0x1081 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+[   18.304508]: adsp: AUDIO_SMMU sid=0x1061 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+[   18.304517]: adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes
+adsp: AUDIO_SMMU ids=0x4c017e6b/0x60000047/0x5111 groups=107 banks=71 page_shift=12 cb_base=0x80000 exids=0 complete=1
+adsp: AUDIO_SMMU sid=0x1001 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+adsp: AUDIO_SMMU sid=0x1081 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+adsp: AUDIO_SMMU sid=0x1061 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes
+[   18.304494]: adsp: AUDIO_SMMU ids=0x4c017e6b/0x60000047/0x5111 groups=107 banks=71 page_shift=12 cb_base=0x80000 exids=0 complete=1
+[   18.304499]: adsp: AUDIO_SMMU sid=0x1001 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+[   18.304503]: adsp: AUDIO_SMMU sid=0x1081 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+[   18.304508]: adsp: AUDIO_SMMU sid=0x1061 matches=0 index=0 SMR=0 S2CR=0 cb=0 translated=0 context_read=0 CBAR=0 SCTLR=0 TCR=0 TCR2=0 TTBR0=0 TTBR1=0 FSR=0 FAR=0
+[   18.304517]: adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes

@@ -1,0 +1,23 @@
+{
+  "experiment": "A14 read-only Apps SMMU survey",
+  "run": "20261103T102416Z",
+  "read_only_snapshot_pass": true,
+  "groups": 107,
+  "banks": 71,
+  "page_shift": 12,
+  "cb_base": "0x80000",
+  "audio_sids": [
+    "0x1001",
+    "0x1081",
+    "0x1061"
+  ],
+  "matching_streams": [
+    0,
+    0,
+    0
+  ],
+  "dma_context_qualified": false,
+  "pcm_tested": false,
+  "android_independent": 1,
+  "raw_log_sha256": "66c11f95c2b37f09603df9a920d0372e295643ac3010fdba16ff9f0b180ac8c1"
+}

@@ -20,6 +20,7 @@
 #include <sys/waffle_adsp_rpmh.h>
 #include <sys/waffle_apm.h>
 #include <sys/waffle_glink_intent.h>
+#include <sys/waffle_audio_smmu_survey.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
 extern void ml_io_unmap(vm_offset_t addr, vm_size_t sz);
@@ -2356,6 +2357,35 @@ step_ready(void)
  return false;
 }
 static uint32_t mode;
+static bool
+waffle_audio_smmu_read32(void *context, uint32_t offset, uint32_t *value)
+{
+ if (stopping || offset > 0xffffc || (offset & 3)) { return false; }
+ *value = rd((vm_offset_t)context + offset);
+ return true;
+}
+static bool
+waffle_audio_iommu_survey(void)
+{
+ /* Native DT has no clocks, regulator-names or interconnects on this TCU.
+  * Read inherited state only; no reset, TLB operation or fault clearing. */
+ vm_offset_t base = ml_io_map_unmappable(0x15000000, 0x100000, VM_WIMG_IO);
+ if (!base) { return false; }
+ const struct waffle_audio_smmu_io io = {(void *)base, waffle_audio_smmu_read32};
+ struct waffle_audio_smmu_snapshot snapshot;
+ bool valid = waffle_audio_smmu_survey(&io, &snapshot);
+ printf("adsp: AUDIO_SMMU ids=%#x/%#x/%#x groups=%u banks=%u page_shift=%u cb_base=%#x exids=%u complete=%u\n",
+     snapshot.id0, snapshot.id1, snapshot.id2, snapshot.groups, snapshot.banks,
+     snapshot.page_shift, snapshot.cb_base, snapshot.exids, snapshot.complete);
+ for (unsigned i = 0; i < 3; i++) {
+  const struct waffle_audio_smmu_match *m = &snapshot.stream[i];
+  printf("adsp: AUDIO_SMMU sid=%#x matches=%u index=%u SMR=%#x S2CR=%#x cb=%u translated=%u context_read=%u CBAR=%#x SCTLR=%#x TCR=%#x TCR2=%#x TTBR0=%#llx TTBR1=%#llx FSR=%#x FAR=%#llx\n",
+      m->sid, m->matches, m->index, m->smr, m->s2cr, m->cb, m->translated,
+      m->context_read, m->cbar, m->sctlr, m->tcr, m->tcr2, m->ttbr0, m->ttbr1, m->fsr, m->far);
+ }
+ ml_io_unmap(base, 0x100000);
+ return valid;
+}
 static void
 adsp_thread(__unused void *parameter, __unused wait_result_t result)
 {
@@ -2363,6 +2393,11 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  for (unsigned n = 0; n < 300 && rootvnode == NULLVP && !stopping; n++) { sleep_ms(200); }
  lck_mtx_lock(&dsp_lock);
  if (stopping) { goto out; }
+ if (mode == 8) {
+  success = waffle_board && waffle_audio_iommu_survey();
+  printf("adsp: WAFFLE AUDIO_IOMMU %s: read-only Apps SMMU; no DSP, DMA, TLB or register writes\n", success ? "OK" : "FAIL");
+  goto out;
+ }
  if (mode == 3 || mode == 4 || mode == 5) {
   bool valid = firmware_check(&images[0]) && firmware_check(&images[1]) && waffle_power_preflight();
   if (mode == 3) {
@@ -2486,7 +2521,7 @@ macan_adsp_stop(void)
  stopping = true;
  if (!mode) { return; }
  for (unsigned n = 0; n < 2000 && boot_runs; n++) { sleep_ms(1); }
- if (mode == 3 || mode == 4 || mode == 5) { return; }
+ if (mode == 3 || mode == 4 || mode == 5 || mode == 8) { return; }
  lck_mtx_lock(&dsp_lock);
  dsp_shutdown("loader return");
  lck_mtx_unlock(&dsp_lock);
@@ -2496,7 +2531,7 @@ macan_adsp_quiesce(void)
 {
  if (!mode) { return; }
  leaving = stopping = true;
- if (mode == 3 || mode == 4 || mode == 5) { return; }
+ if (mode == 3 || mode == 4 || mode == 5 || mode == 8) { return; }
  link_wanted = false;
  dsp_shutdown("panic/loader quiesce");
 }
@@ -2510,8 +2545,8 @@ macan_adsp_init(void)
  if (!mode) { return; }
  PE_parse_boot_argn("waffle", &waffle, sizeof(waffle));
  if (waffle) {
-  if (mode < 3 || mode > 7) {
-   printf("adsp: Waffle permits only adsp=3 preflight,4 power probe,5 survey,6 bounded DSP boot\n");
+  if (mode < 3 || mode > 8) {
+   printf("adsp: Waffle permits adsp=3 preflight,4 power,5 survey,6 DSP boot,7 graph,8 IOMMU survey\n");
    mode = 0; return;
   }
   images[0].base = 0x9de80000u;
@@ -2531,7 +2566,7 @@ macan_adsp_init(void)
  if (kernel_thread_start(adsp_thread, NULL, &thread) != KERN_SUCCESS) {
   boot_runs = false;
   printf("adsp: FAIL stage=0 no worker thread\n");
-  if (mode != 3 && mode != 4 && mode != 5) { show_crash_reason(); }
+  if (mode != 3 && mode != 4 && mode != 5 && mode != 8) { show_crash_reason(); }
   return;
  }
  thread_deallocate(thread);

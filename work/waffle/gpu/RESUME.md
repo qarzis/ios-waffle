@@ -1,3 +1,23 @@
+# ACTIVE GPU E107 and audio A14 — 2026-11-03
+
+User resumed and requested both tracks. Sole hardware owner: E107 outer runner, auto20261103T102811Z, stdout gpu/auto-surface-owner-e107.log, artifact diagnostic-surface-owner-e107. New A14 kernel/paired image has bounded large IOSurface creator metadata; E106 hook/root unchanged and source hashes verified. No audio mode during GPU run. Need creator identity for repeatedly zero-sampled source surfaces, then actual manual icon expansion; do not equate LS app switching with icon animation. UI240s/kernel300s, retain original strict collector failures and check Android independently after return.
+
+E106 run20261103T101450Z: user confirmed black icon expansion; source samples zero at16 locations, not proof every pixel blank. Controlled12113 commands/3095 lifetime BO/full close; original collector1 retained; Android independently1. E105 seed fix and E103 display lease did not fix animation; lease OFF. Audio A14 run102416Z completed read-only SMMU snapshot PASS: 107 stream groups,71 banks, no matches for1001/1081/1061; no inherited DMA context qualified, no audible PCM. A13 graph OPEN/CLOSE ACK0 retained.
+
+Historical entries below are superseded by this current state.
+
+# PAUSED DEVELOPMENT — user requested iOS personal use five minutes
+
+No furtherdriverimplementation/testsafterordinaryUIboot. E106pixelcontrolPASSEDouter0/fullpixels/fullclose/Androidindependent1, candidateobserverUI NOTtested. E105seedcontractfixhost/nativeABIvalidbutuserblackanimationstillpresent. User-session600rootbuilding(currentallfixes/qualifiedE106hook/noanimationautolaunch/noGLframes); prepareisolatedartifactreuseE105pairedkernel/image andrun600sUI/660sreturntoallowfiveactualminutesusewithoutprematurecutoff. NotifyTelegramready, thenleavephonealone. FutureGPUworkrequiresuserresume. Currentpublic5733373/privatea962+later. TokenoutsideGit; helper~/.local/bin/waffle-notify.
+
+# ACTIVE E104 frame-metadata diagnostic — auto20261102T211547Z (check exactauto log)
+
+Run20261102T211610Z, artifactdiagnostic-transition-frames-e104, stdoutauto-transition-frames-e104.log, soleouterrunnerownsUSB. E100kernel/loader/Mesa/EAGLbyteunchanged(leaseOFF); newsourceboundroot e104-transition-frames-root gl.args=glframes1/noautolaunch, nounsafevertexcensus. Phonecurrentlyresident-systemtransfer. Telegramtestnotifylaunchsentmessage4; sendREADYonlyafterGPUUIreadythenaskactualicontap. UserexplicitnegativeE103leaseactualiconanimationblack; hypothesisinsufficient,noidenticalrepeat. ActiveaudiographA13alreadyPASS/public5733373.
+
+# E103 REPEAT active — user was away and explicitly requested same test again
+
+Run20261102T210813Z/auto210750Z, stdoutauto-display-lease-e103-repeat.log, artifactdiagnostic-display-lease-e103 byteunchanged, noautolaunch240sGPU/300skernel. SoleexistingrunnerownsUSB. Needuserrealicontapexpansionanswer, thenfullreturn/Android1/preserveoriginalstrictfailure. PriorE103visualUNOBSERVED, notfailedhypothesis; repeatauthorizedexplicitly.
+
 # E103 completed; Android independently1; manual visual result pending
 
 Noactivephoneboot. E103fullclose2469/1494/normalreturn; originalrunner1preservedmissingDynamicBOproof. UserpendingquestionasksBLACKONLYduringactualicontapexpansion; LSprobeNOTequivalent. DoNOTclaimanimation/VSyncfixed. Latestpublic5733373hasleaseOFF; currentprivatecandidateleaseON/provenhostbutvisualunqualified. Next useuserresponse toselecttransitiontraceorleasequalification; noidenticaltestwithoutnewdata.

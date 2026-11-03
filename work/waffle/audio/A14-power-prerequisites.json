@@ -1,0 +1,15 @@
+{
+  "dt_sha256": "c0a4036689044dd47e4a46076285d1fca13361f4c280690c5e2e80ed7382a92a",
+  "node": "/soc/apps-smmu@15000000",
+  "optional_native_resources": {
+    "clock-names": null,
+    "clocks": null,
+    "qcom,regulator-names": null,
+    "interconnects": null,
+    "qcom,ignore-numpagendxb": null,
+    "qcom,num-smr-override": null,
+    "qcom,num-context-banks-override": null
+  },
+  "native_source_revision": "e39bf7032e38c547d588372a11a5dd55eb714860",
+  "policy": "TCU has no listed clock/regulator/interconnect resources; native no-resource power path; read inherited registers only. No TBU wake/reset/TLB writes."
+}

@@ -1,0 +1,18 @@
+{
+  "experiment": "E106 bounded texture input observation",
+  "passed": false,
+  "manual_black_reproduced": true,
+  "input_sample_records": 102,
+  "all_pixels_scanned": false,
+  "full_close_records": [
+    [
+      "1",
+      "12113",
+      "3095",
+      "1"
+    ]
+  ],
+  "original_collector_failure_retained": true,
+  "android_independent": 1,
+  "raw_log_sha256": "d3dbbb787d5a5df8fd2f05dec661fd44aa83df114b06c5cd3ab66c0bcb8c8b0f"
+}

@@ -172,3 +172,15 @@ A13 changes exactlyONE32-bit OPENword1→0b001001; size344, SG/modules/ports/sta
 ## A13 hardware PASS — native APM graph lifecycle
 
 Run20261102T203337Z/auto203313Z: identical344-byteOPEN exceptGCtypeword returnedcorrelatedtoken2/status0; CLOSE64token3/status0; lifecycle1/moduleWR/RD/oneconnection/noDMA/noPCM/ampsOFF. PAS1/36shutdownOK, DSP_BOOTresult1/stop_clean1, normalreturn, outerrunner0/autosuccess andindependentAndroid1. EvidenceA13-result.json/A13-components.log. Confirmsmoderncontainer-typeABI correction for thisfirmware; doNOTreverttolegacyPPcap1. Nextblocker DSPPCMmemorymapping+periodcompletion, thenhardwareendpoint/TFAroute/iOSsink; graphPASSisNOTaudibleplayback.
+
+## A14 next blocker — native audio DMA context survey
+
+UserexplicitlyrequestsGPUandaudioinparallel; phoneexperimentsserialized. NativeAppsSMMUDT15000000/1MiB audio1001(mask80also1081),1061(mask0); low4SIDbitsappendedatbit32toIOVA10000000..20000000. Primarynativearm-smmu-qcom-pm.cblob b2218da124538e10488b73117e3de2a5db7056c1 verified: TCU DT hasNOclock-names/qcom,regulator-names/interconnects; nativeoptionalresourcepathrequiresnoresourcewrites. TBUwakecallbacksseparateandNOTinvoked. NoignoredNUMPAGENDXB/SMR/CBoverridepropertiespresent. EvidenceA14-power-prerequisites.json.
+
+A14read-onlymode8 snapshotsID0/1/2, decodedglobal/CBgeometry, validSMR/S2CRmatchingonlyaudiostreams, matchedCBAR/SCTLR/TCR/TTBR/faultstatewithoutclearingfaults. EXIDSvalidityusesS2CRbit10; legacyusesSMRbit31. ReadcallbackhasNOWRITEAPI,1MiBbounds; translatedCBindexchecked; duplicateoverlapmarkcontextunqualified; postreadSMR/S2CRstabilitychecked. HostASanUBSanpassesnativelegacy/EXID/mask1001-1081/sharedbank1061,allreadfailures/geometry/reroute/bypass/ambiguityguards/64bitfields. SnapshotdoesNOTgrantownershiporsignifyDMAworks.
+
+Mode8isolated60sloaderpolicy/nodspreset/noPAS/noRPMh/noGPR/nofirmwareload/noTLB/noregisterwrites. DedicatedCLI--audio-preflight --audio-iommu excludespower/survey/boot/graph/GPU; normaladsp0unchanged. Kernelstop/quiescereturnwithoutdonorcleanupformode8. FirsthardwareexperimentmustcaptureactualmappingthenAndroid1; doNOTreplaceanyinheritedCB.
+
+## A14 hardware survey PASS; audio DMA context remains absent
+
+Run20261103T102416Z/auto102352Z: ID0/1/2=4c017e6b/60000047/5111,107streamgroups/71banks/4KiBpages/CBbase80000. All three audio SIDs1001/1081/1061 have ZERO valid matching streams. Read-only mode completed, no DSP/PAS/RPMh/DMA/register/TLB writes; normal return, outer0, independent Android boot_completed1. Snapshot pass does not qualify DMA; no inherited audio context can be assumed. Next inspect native domain attachment and qualified free-bank ownership before any context programming. Evidence A14-result.json/A14-components.log.

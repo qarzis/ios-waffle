@@ -70,6 +70,8 @@ static uint64_t gSurfaceMaking, gSurfaceFreeing;
 static uint32_t gSurfacesMade, gSurfacesFreed;
 static uint64_t gSurfaceLogged[2];
 static TUNABLE(uint32_t, gSurfaceTrace, "surftrace", 24);
+static TUNABLE(uint32_t, gWaffleSurfaceAudit, "waffle", 0);
+static volatile SInt32 gWaffleLargeSurfaces;
 static uint32_t gSurfaceTraced;
 static char gSurfaceTraceOf[32];
 extern "C" void loader_log_line(const char *line);
@@ -996,6 +998,15 @@ IOSurfaceRootUserClient::methodCreate(IOExternalMethodArguments * args)
       dictNumber(props, "IOSurfacePixelFormat", 0), dictNumber(props, "IOSurfaceAllocSize", 0));
   props->release();
   return ret;
+ }
+ if (gWaffleSurfaceAudit && s->info.width >= 375 && s->info.height >= 700 &&
+     OSIncrementAtomic(&gWaffleLargeSurfaces) < 64) {
+  char owner[32] = "?";
+  proc_selfname(owner, sizeof(owner));
+  traceLine("waffle-surface: created sid=%u owner=%s pid=%d width=%u height=%u row=%u format=%#x offset=%u bytes=%u wrapped=%u planes=%u\n",
+      s->sid, owner, proc_selfpid(), s->info.width, s->info.height,
+      s->info.bytesPerRow, s->info.pixelFormat, s->info.offset, s->info.allocSize,
+      s->client != NULL, s->info.planeCount);
  }
  {
   char procname[32] = "?";
