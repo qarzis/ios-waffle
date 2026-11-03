@@ -37,6 +37,10 @@ typedef GLDEBUGPROC GLDEBUGPROCKHR;
 #define GL_UNPACK_ALIGNMENT 0x0cf5
 #define GL_PACK_ROW_LENGTH 0x0d02
 #define GL_PACK_ALIGNMENT 0x0d05
+#define GL_PACK_SKIP_ROWS 0x0d03
+#define GL_PACK_SKIP_PIXELS 0x0d04
+#define GL_PIXEL_PACK_BUFFER 0x88eb
+#define GL_PIXEL_PACK_BUFFER_BINDING 0x88ed
 #define GL_TEXTURE_2D 0x0de1
 #define GL_UNSIGNED_BYTE 0x1401
 #define GL_RGBA 0x1908
@@ -399,6 +403,44 @@ note_pending_target(struct eagl *e, struct image *image, const char *reason)
   }
  }
 }
+static void target_to_surface(struct eagl *e, struct image *image);
+static void
+publish_pending_target(struct eagl *e, struct image *image, const char *reason)
+{
+ if (!image->target || !image->drawn || image->shared || image->mirror != 0) {
+  return;
+ }
+ /* An IOSurface-backed texture can be discarded before the next frame flush.
+  * Retire its pending CPU readback while the texture and surface are alive.
+  * This runs mid-frame, so preserve the caller's independent read/draw and
+  * pixel-pack state, including a possible PBO offset interpretation. */
+ GLint read = 0, draw = 0, row = 0, alignment = 0, skip_rows = 0, skip_pixels = 0, pack_buffer = 0;
+ glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read);
+ glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &draw);
+ glGetIntegerv(GL_PACK_ROW_LENGTH, &row);
+ glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+ glGetIntegerv(GL_PACK_SKIP_ROWS, &skip_rows);
+ glGetIntegerv(GL_PACK_SKIP_PIXELS, &skip_pixels);
+ glGetIntegerv(GL_PIXEL_PACK_BUFFER_BINDING, &pack_buffer);
+ glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+ glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+ glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+ target_to_surface(e, image);
+ glBindFramebuffer(GL_READ_FRAMEBUFFER, (GLuint)read);
+ glBindFramebuffer(GL_DRAW_FRAMEBUFFER, (GLuint)draw);
+ glPixelStorei(GL_PACK_ROW_LENGTH, row);
+ glPixelStorei(GL_PACK_ALIGNMENT, alignment);
+ glPixelStorei(GL_PACK_SKIP_ROWS, skip_rows);
+ glPixelStorei(GL_PACK_SKIP_PIXELS, skip_pixels);
+ glBindBuffer(GL_PIXEL_PACK_BUFFER, (GLuint)pack_buffer);
+ if (frame_lines) {
+  static unsigned retired;
+  if (retired++ < 32) {
+   say("waffle-snapshot: retire_readback reason=%s frame=%u texture=%u surface=%u attempted=1\n",
+       reason, e->frames + 1, image->texture, IOSurfaceGetID(image->surface));
+  }
+ }
+}
 static struct image *
 image_new(struct eagl *e, GLuint texture, IOSurfaceRef surface)
 {
@@ -411,6 +453,7 @@ image_new(struct eagl *e, GLuint texture, IOSurfaceRef surface)
   image = &e->images[e->image_count++];
  } else {
   note_pending_target(e, image, "rebind");
+  publish_pending_target(e, image, "rebind");
   if (image->mirror != 0) {
    glDeleteTextures(1, &image->mirror);
   }
@@ -427,6 +470,7 @@ image_forget(struct eagl *e, GLuint texture)
  struct image *image = image_of(e, texture);
  if (image != NULL) {
   note_pending_target(e, image, "delete");
+  publish_pending_target(e, image, "delete");
   if (image->mirror != 0) {
    glDeleteTextures(1, &image->mirror);
   }

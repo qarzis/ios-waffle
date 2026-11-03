@@ -543,7 +543,13 @@ def main():
     parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
+    parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
+    parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
     args = parser.parse_args()
+    if args.hardware_vsync and (args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--hardware-vsync requires isolated GPU UI and excludes diagnostic/audio modes")
+    if args.display_survey and (args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--display-survey requires isolated GPU UI and excludes audio")
     if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
@@ -616,6 +622,11 @@ def main():
     if "kernel-supported: software-userland-test" not in command("getvar", "kernel-supported"):
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
+    if args.hardware_vsync:
+        arguments += " waffle_vsync=1"
+    if args.display_survey:
+        if args.audio_preflight:parser.error("--display-survey excludes audio tests")
+        arguments += " waffle_vsync_audit=1"
     if args.audio_preflight:
         arguments += " adsp=8" if args.audio_iommu else " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
     if args.cpus is not None:
@@ -738,7 +749,7 @@ def main():
             with (out/"ui-gpu-events.log").open("a") as events:
                 for event in log_path.read_text(errors="replace").splitlines():
                     if event not in ui_events and any(marker in event for marker in (
-                        "waffle-surface:", "waffle-upload:", "waffle-snapshot:", "redwood-gl: f ", "redwood-gl: from gl.args:", "redwood-gl: glDraw", "waffle-slider", "waffle-sensor", "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL allocation_refused",
+                        "waffle-surface:", "waffle-upload:", "waffle-snapshot:", "waffle-brightness:", "waffle-vsync:", "redwood-gl: f ", "redwood-gl: from gl.args:", "redwood-gl: glDraw", "waffle-slider", "waffle-sensor", "waffle-ui-", "GENERAL open", "GENERAL close", "GENERAL gem_new", "GENERAL bo_retired", "GENERAL allocation_refused",
                         "GENERAL bo_retired", "GENERAL_BO reclaimed", "GENERAL_BO reclaim_refused", "GENERAL request_completed", "GENERAL_SUBMIT", "A SHADER DOES NOT COMPILE",
                         "GENERAL ioctl_refused", "REBOOT REQUIRED", "an OpenGL ES", "redwood: signal")):
                         ui_events.add(event)

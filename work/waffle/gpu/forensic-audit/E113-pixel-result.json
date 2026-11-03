@@ -1,0 +1,14 @@
+{
+  "run": "20261103T113226Z",
+  "fullsize_pixels": 1218000,
+  "wrong_pixels": 0,
+  "padding_wrong": 0,
+  "gl_error": 0,
+  "completed_commands": 2,
+  "buffers": 27,
+  "full_close": true,
+  "outer_exit": 0,
+  "android_independent": 1,
+  "scope": "Existing attachImage fullsize regression control; ordinary snapshot deletion path qualified separately in UI test.",
+  "raw_log_sha256": "a90721b4f147fb83f230fbb7ffb6b4e206373d8eca589559746b6df6d15e2858"
+}

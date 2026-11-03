@@ -1,0 +1,17 @@
+{
+  "status": "prepared_not_hardware_tested",
+  "native_environment": {
+    "CA_FORCE_TIMER": "1"
+  },
+  "scope": "Only backboardd in optional source-bound UI root; default unchanged",
+  "native_cache_version": "iOS16.5 20F66 iPhone10,3",
+  "native_gate": "0x188364614: getenv(CA_FORCE_TIMER), atoi(value), stores true when nonzero",
+  "helper_symbols": {
+    "0x18dc4810c": "atoi",
+    "0x18dc34428": "getenv"
+  },
+  "kernel_reused": "V04 candidate; no new kernel behavior",
+  "ui_gpu_window_seconds": 60,
+  "hardware_vsync_delivery_qualified": false,
+  "reason_not_run": "User explicitly stopped work"
+}

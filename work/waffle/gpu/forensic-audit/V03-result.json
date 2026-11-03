@@ -1,0 +1,22 @@
+{
+  "run": "20261103T122355Z",
+  "hardware_source_qualified": true,
+  "period_ticks": 158921,
+  "divider": 2,
+  "requested_hz": 60,
+  "hardware_callback_records": 0,
+  "hardware_callback_delivery_qualified": false,
+  "hardware_vsync_fix_qualified": false,
+  "user_observed_cpu_fallback": true,
+  "backboardd_exit": "SIGSEGV",
+  "heap_limit_reached_bytes": 201326592,
+  "fault_address": "0x1c",
+  "completed_commands": 6170,
+  "lifetime_buffers": 2128,
+  "full_close": true,
+  "controlled_stop": false,
+  "original_runner_exit": 1,
+  "android_independent": 1,
+  "raw_log_sha256": "1b9e0702865b93f82e92fed5048c42d39a5166949d88bcca668858a4dd4a801e",
+  "next": "Trace exact notification subscription and port routing; no unproven port remap. Heap refusal and unhandled NULL in Mesa independently interrupt UI."
+}

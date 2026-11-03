@@ -1,0 +1,16 @@
+{
+  "run": "20261103T113550Z",
+  "manual_settings_icon_animation_black": false,
+  "snapshot_input_samples_nonzero": true,
+  "all_pixels_scanned": false,
+  "completed_commands": 31069,
+  "lifetime_buffers": 6022,
+  "full_close": true,
+  "controlled_stop": false,
+  "backboardd_exit": "SIGSEGV",
+  "heap_limit_reached_bytes": 201326592,
+  "stability_qualified": false,
+  "outer_interrupted_by_user_stop": true,
+  "android_independent": 1,
+  "raw_log_sha256": "487cb8e66bf602993c401859186005446ac2b924d8ba437a200ee79e107076b2"
+}

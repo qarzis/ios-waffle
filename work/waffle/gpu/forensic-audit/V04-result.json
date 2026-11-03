@@ -1,0 +1,18 @@
+{
+  "run": "20261103T123729Z",
+  "hardware_source_qualified": true,
+  "hardware_callback_records": 0,
+  "port_registration_records": 0,
+  "subscription_records": 0,
+  "delivery_qualified": false,
+  "controlled_gpu_window_seconds": 30,
+  "controlled_stop": true,
+  "completed_commands": 10,
+  "lifetime_buffers": 45,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "raw_log_sha256": "6c31f6a2385e76f0ece076d593c32f11b9f904e759e75a62f2c589b2630583f1",
+  "limitation": "GPU stopped before normal desktop use; does not establish that no subscription could ever occur. Native QuartzCore CA_FORCE_TIMER branch verified separately; next UI request prepared but not tested."
+}

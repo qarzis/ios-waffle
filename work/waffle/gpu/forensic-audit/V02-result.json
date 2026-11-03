@@ -1,0 +1,288 @@
+{
+  "cntfrq": 19200000,
+  "rows": [
+    {
+      "sample": 0,
+      "frame": 10677,
+      "mdp": 10678,
+      "line": 1999,
+      "stamp": 1826074075,
+      "ts": 1825988389
+    },
+    {
+      "sample": 1,
+      "frame": 10677,
+      "mdp": 10678,
+      "line": 3038,
+      "stamp": 1826118266,
+      "ts": 1825988389
+    },
+    {
+      "sample": 2,
+      "frame": 10678,
+      "mdp": 10679,
+      "line": 340,
+      "stamp": 1826162469,
+      "ts": 1826147313
+    },
+    {
+      "sample": 3,
+      "frame": 10678,
+      "mdp": 10679,
+      "line": 1380,
+      "stamp": 1826206703,
+      "ts": 1826147313
+    },
+    {
+      "sample": 4,
+      "frame": 10678,
+      "mdp": 10679,
+      "line": 2420,
+      "stamp": 1826250918,
+      "ts": 1826147313
+    },
+    {
+      "sample": 5,
+      "frame": 10679,
+      "mdp": 10679,
+      "line": 1,
+      "stamp": 1826295099,
+      "ts": 1826147313
+    },
+    {
+      "sample": 6,
+      "frame": 10679,
+      "mdp": 10680,
+      "line": 762,
+      "stamp": 1826339322,
+      "ts": 1826306229
+    },
+    {
+      "sample": 7,
+      "frame": 10679,
+      "mdp": 10680,
+      "line": 1801,
+      "stamp": 1826383546,
+      "ts": 1826306229
+    },
+    {
+      "sample": 8,
+      "frame": 10679,
+      "mdp": 10680,
+      "line": 2841,
+      "stamp": 1826427763,
+      "ts": 1826306229
+    },
+    {
+      "sample": 9,
+      "frame": 10680,
+      "mdp": 10681,
+      "line": 145,
+      "stamp": 1826471941,
+      "ts": 1826465147
+    },
+    {
+      "sample": 10,
+      "frame": 10680,
+      "mdp": 10681,
+      "line": 1183,
+      "stamp": 1826516123,
+      "ts": 1826465147
+    },
+    {
+      "sample": 11,
+      "frame": 10680,
+      "mdp": 10681,
+      "line": 2222,
+      "stamp": 1826560336,
+      "ts": 1826465147
+    },
+    {
+      "sample": 12,
+      "frame": 10681,
+      "mdp": 10681,
+      "line": 1,
+      "stamp": 1826604560,
+      "ts": 1826465147
+    },
+    {
+      "sample": 13,
+      "frame": 10681,
+      "mdp": 10682,
+      "line": 566,
+      "stamp": 1826648851,
+      "ts": 1826624076
+    },
+    {
+      "sample": 14,
+      "frame": 10681,
+      "mdp": 10682,
+      "line": 1615,
+      "stamp": 1826693445,
+      "ts": 1826624076
+    },
+    {
+      "sample": 15,
+      "frame": 10681,
+      "mdp": 10682,
+      "line": 2659,
+      "stamp": 1826737820,
+      "ts": 1826624076
+    },
+    {
+      "sample": 16,
+      "frame": 10682,
+      "mdp": 10682,
+      "line": 1,
+      "stamp": 1826782512,
+      "ts": 1826624076
+    },
+    {
+      "sample": 17,
+      "frame": 10682,
+      "mdp": 10683,
+      "line": 1014,
+      "stamp": 1826826832,
+      "ts": 1826783009
+    },
+    {
+      "sample": 18,
+      "frame": 10682,
+      "mdp": 10683,
+      "line": 2058,
+      "stamp": 1826871228,
+      "ts": 1826783009
+    },
+    {
+      "sample": 19,
+      "frame": 10682,
+      "mdp": 10683,
+      "line": 3099,
+      "stamp": 1826915483,
+      "ts": 1826783009
+    },
+    {
+      "sample": 20,
+      "frame": 10683,
+      "mdp": 10684,
+      "line": 402,
+      "stamp": 1826959738,
+      "ts": 1826941951
+    },
+    {
+      "sample": 21,
+      "frame": 10683,
+      "mdp": 10684,
+      "line": 1443,
+      "stamp": 1827004005,
+      "ts": 1826941951
+    },
+    {
+      "sample": 22,
+      "frame": 10683,
+      "mdp": 10684,
+      "line": 2484,
+      "stamp": 1827048271,
+      "ts": 1826941951
+    },
+    {
+      "sample": 23,
+      "frame": 10684,
+      "mdp": 10684,
+      "line": 1,
+      "stamp": 1827092506,
+      "ts": 1826941951
+    },
+    {
+      "sample": 24,
+      "frame": 10684,
+      "mdp": 10685,
+      "line": 828,
+      "stamp": 1827136752,
+      "ts": 1827100897
+    },
+    {
+      "sample": 25,
+      "frame": 10684,
+      "mdp": 10685,
+      "line": 1867,
+      "stamp": 1827181019,
+      "ts": 1827100897
+    },
+    {
+      "sample": 26,
+      "frame": 10684,
+      "mdp": 10685,
+      "line": 2908,
+      "stamp": 1827225287,
+      "ts": 1827100897
+    },
+    {
+      "sample": 27,
+      "frame": 10685,
+      "mdp": 10686,
+      "line": 213,
+      "stamp": 1827269551,
+      "ts": 1827259831
+    },
+    {
+      "sample": 28,
+      "frame": 10685,
+      "mdp": 10686,
+      "line": 1253,
+      "stamp": 1827313829,
+      "ts": 1827259831
+    },
+    {
+      "sample": 29,
+      "frame": 10685,
+      "mdp": 10686,
+      "line": 2293,
+      "stamp": 1827358077,
+      "ts": 1827259831
+    },
+    {
+      "sample": 30,
+      "frame": 10686,
+      "mdp": 10686,
+      "line": 1,
+      "stamp": 1827402330,
+      "ts": 1827259831
+    },
+    {
+      "sample": 31,
+      "frame": 10686,
+      "mdp": 10687,
+      "line": 639,
+      "stamp": 1827446596,
+      "ts": 1827418756
+    }
+  ],
+  "timestamp_interval_ticks": [
+    158924,
+    158916,
+    158918,
+    158929,
+    158933,
+    158942,
+    158946,
+    158934,
+    158925
+  ],
+  "median_hz": 120.8086629878751,
+  "complete": true,
+  "read_only": true,
+  "survey_complete": true,
+  "auto_refresh": "0x80000001",
+  "timestamp_control": "0x21",
+  "native_timestamp_source": "panel TE: native sde_hw_intf_enable_te() BIT0|BIT5",
+  "hardware_callbacks_enabled": false,
+  "controlled_stop": true,
+  "completed_commands": 3060,
+  "lifetime_buffers": 1786,
+  "full_close": true,
+  "original_runner_exit": 1,
+  "original_failure": "Dynamic BO publication/use/release not confirmed",
+  "android_independent": 1,
+  "raw_log_sha256": "b20390e118788c71f523380ff02d65f40615bdc1029241ffd146a9d0d77ea353"
+}

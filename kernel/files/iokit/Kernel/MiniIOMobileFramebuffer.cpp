@@ -15,6 +15,9 @@
 #include <pexpert/pexpert.h>
 #include <sys/systm.h>
 #include <sys/proc.h>
+#include <vm/memory_types.h>
+#include "../../bsd/sys/waffle_display_survey.h"
+#include "../../bsd/sys/waffle_vsync_phase.h"
 extern "C" {
 #include <console/video_console.h>
 extern struct vc_info vinfo;
@@ -22,6 +25,120 @@ extern struct vc_info vinfo;
 #include <IOKit/IOBufferMemoryDescriptor.h>
 #include "MiniIOSurface.h"
 extern "C" void redwood_tl(const char * format, ...) __printflike(1, 2);
+extern "C" vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
+extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
+static TUNABLE(uint32_t, gWaffleDisplaySurvey, "waffle_vsync_audit", 0);
+static bool waffleDisplayRead(void *context, uint32_t offset, uint32_t *value)
+{
+ if (offset > 0x83ffc || (offset & 3)) return false;
+ *value = *(volatile uint32_t *)((uint8_t *)context + offset);
+ return true;
+}
+static void waffleDisplaySurvey(void *, wait_result_t)
+{
+ IOSleep(1000);
+ vm_offset_t base = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
+ if (!base) {redwood_tl("waffle-vsync: survey map_failed=1 no_writes=1\n");thread_terminate(current_thread());return;}
+ struct waffle_display_io io = {(void *)base, waffleDisplayRead};
+ struct waffle_display_snapshot snapshot = {};
+ bool ok = waffle_display_capture(&io, &snapshot, true);
+ redwood_tl("waffle-vsync: layout version=%x complete=%u no_writes=1\n", snapshot.version, ok);
+ if (ok) {
+  for (unsigned i = 0; i < 6; i++) {
+   const struct waffle_display_ctl *p = &snapshot.ctl[i];
+   redwood_tl("waffle-vsync: ctl=%u base=%x top=%x status=%x intf_active=%x fetch_active=%x\n",
+       i, waffle_display_ctl_base[i], p->top, p->status, p->intf_active, p->sspp_active);
+  }
+  for (unsigned i = 0; i < 10; i++) {
+   const struct waffle_display_sspp *p = &snapshot.sspp[i];
+   redwood_tl("waffle-vsync: sspp=%u base=%x size=%x xy=%x out=%x out_xy=%x address=%x stride=%x format=%x op=%x\n",
+       i, waffle_display_sspp_base[i], p->size, p->xy, p->out_size, p->out_xy, p->address, p->stride, p->format, p->op_mode);
+  }
+  const uint64_t first = mach_absolute_time();
+  redwood_tl("waffle-vsync: clock cntfrq=%llu first_ticks=%llu samples=32 requested_gap_ms=2\n",
+      (unsigned long long)__builtin_arm_rsr64("CNTFRQ_EL0"), (unsigned long long)first);
+  for (unsigned i = 0; i < 4; i++) {
+   const struct waffle_display_intf *p = &snapshot.intf[i];
+   redwood_tl("waffle-vsync: intf_config=%u timing=%x config=%x config2=%x status=%x count_en=%x tear_en=%x auto=%x ts_ctrl=%x\n",
+       i, p->timing, p->config, p->config2, p->status, p->count_en, p->tear_en, p->auto_refresh, p->ts_ctrl);
+  }
+  for (unsigned sample = 0; sample < 32 && ok; sample++) {
+   uint64_t before = mach_absolute_time();
+   ok = waffle_display_capture(&io, &snapshot, false);
+   uint64_t after = mach_absolute_time(), elapsed_ns = 0, read_ns = 0;
+   if (!ok) break;
+   absolutetime_to_nanoseconds(after - first, &elapsed_ns);
+   absolutetime_to_nanoseconds(after - before, &read_ns);
+   redwood_tl("waffle-vsync: stamp=%u ticks=%llu elapsed_ns=%llu read_ns=%llu\n",
+       sample, (unsigned long long)after, (unsigned long long)elapsed_ns, (unsigned long long)read_ns);
+   for (unsigned i = 0; i < 4; i++) {
+    const struct waffle_display_intf *p = &snapshot.intf[i];
+    redwood_tl("waffle-vsync: sample=%u intf=%u frame=%u mdp_frame=%u line=%u rd_count=%x tear_out=%u tear_line=%u ts_lo=%x ts_hi=%x\n",
+        sample, i, p->frame, p->mdp_frame, p->line, p->rd_count, p->tear_out, p->tear_line, p->ts_lo, p->ts_hi);
+   }
+   IOSleep(2);
+  }
+ }
+ ml_io_unmap(base, 0x84000);
+ redwood_tl("waffle-vsync: survey_complete=%u no_register_writes=1 no_irq_ack=1 no_timing_change=1\n", ok);
+ thread_terminate(current_thread());
+}
+static TUNABLE(uint32_t, gWaffleHardwareVSync, "waffle_vsync", 0);
+static inline uint32_t refreshHz(void);
+static vm_offset_t gWaffleVSyncMap;
+static uint64_t gWaffleVSyncPeriod;
+static uint32_t gWaffleVSyncDivider;
+static bool gWaffleVSyncReady;
+static bool waffleVSyncReady(void) {return __atomic_load_n(&gWaffleVSyncReady, __ATOMIC_ACQUIRE);}
+static void waffleVSyncQualify(void *, wait_result_t)
+{
+ vm_offset_t base = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
+ if (!base) {redwood_tl("waffle-vsync: hardware_ready=0 reason=map\n");thread_terminate(current_thread());return;}
+ struct waffle_display_io io = {(void *)base, waffleDisplayRead};
+ struct waffle_display_snapshot snapshot = {};
+ const uint64_t frequency = __builtin_arm_rsr64("CNTFRQ_EL0");
+ bool valid = waffle_display_capture(&io, &snapshot, true) && frequency == 19200000 &&
+     snapshot.version == 0xa0000000 && snapshot.ctl[0].intf_active == 2 &&
+     snapshot.intf[1].tear_en == 9 && snapshot.intf[1].ts_ctrl == 0x21 &&
+     snapshot.intf[1].auto_refresh == 0x80000001 &&
+     snapshot.sspp[0].size == 0x0c6002d0 && snapshot.sspp[1].size == 0x0c6002d0 &&
+     snapshot.sspp[0].stride == 5760 && snapshot.sspp[1].stride == 5760 &&
+     snapshot.sspp[0].address != 0 && snapshot.sspp[0].address == snapshot.sspp[1].address;
+ struct waffle_vsync_clock clock = {(void *)base, waffleDisplayRead};
+ uint64_t first = 0, last = 0, period = 0;
+ unsigned edges = 0;
+ for (unsigned attempt = 0; valid && attempt < 250 && edges < 8; attempt++) {
+  uint64_t stamp = 0;
+  valid = waffle_vsync_timestamp(&clock, &stamp);
+  uint64_t now = mach_absolute_time();
+  valid = valid && stamp && stamp <= now && now - stamp < frequency / 20;
+  if (!valid) break;
+  if (!first) first = last = stamp;
+  else if (stamp > last) {
+   uint64_t delta = stamp - last;
+   if (delta < frequency / 240 || delta > frequency / 30) {valid = false;break;}
+   last = stamp;edges++;
+  } else if (stamp < last) {valid = false;break;}
+  IOSleep(1);
+ }
+ uint32_t divider = 0;
+ if (valid && edges == 8) {
+  period = (last - first) / edges;
+  divider = waffle_vsync_divider(frequency, period, refreshHz());
+ }
+ if (valid && divider) {
+  gWaffleVSyncMap = base;
+  gWaffleVSyncPeriod = period;
+  gWaffleVSyncDivider = divider;
+  __atomic_store_n(&gWaffleVSyncReady, true, __ATOMIC_RELEASE);
+  redwood_tl("waffle-vsync: hardware_ready=1 intf=1 source=panel_TE frequency=%llu period_ticks=%llu divider=%u requested_hz=%u edges=%u no_register_writes=1\n",
+      (unsigned long long)frequency, (unsigned long long)period, divider, refreshHz(), edges);
+ } else {
+  ml_io_unmap(base, 0x84000);
+  redwood_tl("waffle-vsync: hardware_ready=0 reason=qualification edges=%u valid=%u divider=%u software_fallback=1\n", edges, valid, divider);
+ }
+ thread_terminate(current_thread());
+}
 enum {
  kFBMethodGetLayerDefaultSurface = 3,
  kFBMethodSwapBegin = 4,
@@ -104,8 +221,7 @@ micros(uint64_t absolute)
 }
 static TUNABLE(uint32_t, gMacan, "macan", 0);
 static TUNABLE(uint32_t, gWaffle, "waffle", 0);
-/* Keep the independently testable display-usage candidate off while the
- * compositor allocation experiment is qualified. */
+/* Waffle display consumer lease: held until CPU presentation completes. */
 static TUNABLE(uint32_t, gWaffleDisplayUse, "waffle_display_use", 0);
 static TUNABLE(uint32_t, gWaffleTorch, "waffle_torch", 0);
 static TUNABLE(uint32_t, gMacan14, "macan_14pm", 0);
@@ -407,6 +523,19 @@ IOMobileFramebuffer::start(IOService * provider)
   macanPeripheralNodes();
  }
  if (gWaffle != 0) wafflePeripheralNodes();
+ if (gWaffle != 0 && gWaffleHardwareVSync == 1) {
+  thread_t qualify;
+  kern_return_t result = kernel_thread_start(waffleVSyncQualify, NULL, &qualify);
+  redwood_tl("waffle-vsync: hardware_qualification_start=%x\n", result);
+  if (result == KERN_SUCCESS) thread_deallocate(qualify);
+ }
+ if (gWaffle != 0 && gWaffleDisplaySurvey == 1) {
+  thread_t survey;
+  kern_return_t result = kernel_thread_start(waffleDisplaySurvey, NULL, &survey);
+  redwood_tl("waffle-vsync: survey_start=%x framebuffer=%p panel=%ux%u stride=%u\n", result, fBase, fPanelWidth, fPanelHeight, fRowBytes);
+  if (result == KERN_SUCCESS) thread_deallocate(survey);
+ }
+
  if (gMacan != 0 && gMacan14 != 0 && gFBWidth == kFBDefaultWidth && gFBHeight == kFBDefaultHeight &&
      (gFBScale == 0 || gFBScale == kFBDefaultScale)) {
   uint32_t subtype = kFBMacanSubtype;
@@ -1044,6 +1173,9 @@ class IOMobileFramebufferUserClient : public IOUserClient
  uint64_t fVSyncCount;
  uint64_t fVSyncTime;
  bool fVSyncRunning;
+ bool fHardwareVSyncDisabled;
+ struct waffle_vsync_phase fHardwarePhase;
+ uint32_t fHardwareEvents;
  bool fClosed;
  static void vsyncFired(thread_call_param_t self, thread_call_param_t unused);
  void vsync(void);
@@ -1076,6 +1208,9 @@ IOMobileFramebufferUserClient::start(IOService * provider)
  }
  fLock = IOLockAlloc();
  fVSyncCall = thread_call_allocate(&IOMobileFramebufferUserClient::vsyncFired, this);
+ bzero(&fHardwarePhase, sizeof(fHardwarePhase));
+ fHardwareVSyncDisabled = false;
+ fHardwareEvents = 0;
  return fLock != NULL && fVSyncCall != NULL;
 }
 IOReturn
@@ -1126,6 +1261,10 @@ IOMobileFramebufferUserClient::registerNotificationPort(mach_port_t port, UInt32
  old = fPorts[type];
  fPorts[type] = port;
  IOLockUnlock(fLock);
+ if (gWaffleHardwareVSync == 1) {
+  redwood_tl("waffle-vsync: register_port client=%p type=%u present=%u\n", this, type, port != NULL);
+ }
+
  if (old != NULL) {
   releaseNotificationPort(old);
  }
@@ -1140,6 +1279,13 @@ void
 IOMobileFramebufferUserClient::armVSync(void)
 {
  uint64_t period, now = mach_absolute_time();
+ if (gWaffleHardwareVSync == 1 && waffleVSyncReady() && !fHardwareVSyncDisabled) {
+  nanoseconds_to_absolutetime(500 * NSEC_PER_USEC, &period);
+  fVSyncTime = now + period;
+  thread_call_enter_delayed(fVSyncCall, fVSyncTime);
+  return;
+ }
+
  nanoseconds_to_absolutetime(NSEC_PER_SEC / refreshHz(), &period);
  fVSyncTime += period;
  if (fVSyncTime <= now || fVSyncTime > now + 2 * period) {
@@ -1158,7 +1304,35 @@ IOMobileFramebufferUserClient::vsync(void)
  now = fVSyncTime;
  if (fClosed || fCallbacks[kFBNotifyVSync] == 0 || fPorts[kFBNotifyVSync] == NULL) {
   fVSyncRunning = false;
+  if (gWaffleHardwareVSync == 1 && !fClosed) {
+   redwood_tl("waffle-vsync: callback_unarmed client=%p callback=%u port0=%u port5=%u\n",
+       this, fCallbacks[kFBNotifyVSync] != 0, fPorts[0] != NULL, fPorts[kFBNotifyVSync] != NULL);
+  }
  } else {
+  bool emit = true;
+  if (gWaffleHardwareVSync == 1 && waffleVSyncReady() && !fHardwareVSyncDisabled) {
+   struct waffle_vsync_clock clock = {(void *)gWaffleVSyncMap, waffleDisplayRead};
+   uint64_t stamp = 0;
+   bool stamp_valid = waffle_vsync_timestamp(&clock, &stamp);
+   uint64_t observed = mach_absolute_time();
+   enum waffle_vsync_result result = stamp_valid ?
+       waffle_vsync_observe(&fHardwarePhase, stamp, observed, gWaffleVSyncPeriod, gWaffleVSyncDivider) : WAFFLE_VSYNC_FAULT;
+   if (result == WAFFLE_VSYNC_WAIT) emit = false;
+   else if (result == WAFFLE_VSYNC_FAULT) {
+    fHardwareVSyncDisabled = true;
+    now = observed;
+    redwood_tl("waffle-vsync: hardware_fallback=1 reason=timestamp_stall_or_reset emitted=%u\n", fHardwareEvents);
+   } else {
+    now = stamp;
+    if (fHardwareEvents++ < 8) {
+     uint64_t lag_ns = 0;
+     absolutetime_to_nanoseconds(observed - stamp, &lag_ns);
+     redwood_tl("waffle-vsync: hardware_callback=%u timestamp=%llu observed=%llu lag_ns=%llu divider=%u\n",
+         fHardwareEvents, (unsigned long long)stamp, (unsigned long long)observed, (unsigned long long)lag_ns, gWaffleVSyncDivider);
+    }
+   }
+  }
+  if (emit) {
   fVSyncCount++;
   setAsyncReference64(ref, fPorts[kFBNotifyVSync], fCallbacks[kFBNotifyVSync], fRefcons[kFBNotifyVSync], fTask);
   args[0] = (uint32_t) now;
@@ -1168,6 +1342,7 @@ IOMobileFramebufferUserClient::vsync(void)
   args[4] = (uint32_t) fVSyncCount;
   args[5] = fVSyncCount >> 32;
   send = true;
+  }
   armVSync();
  }
  IOLockUnlock(fLock);
@@ -1255,6 +1430,13 @@ IOMobileFramebufferUserClient::externalMethod(uint32_t selector, IOExternalMetho
  case kFBMethodNotifications:
   if (args->scalarInputCount < 3 || in[2] >= kFBNotifyTypes) {
    return kIOReturnBadArgument;
+  }
+  if (gWaffleHardwareVSync == 1) {
+   static unsigned subscriptions;
+   if (subscriptions++ < 32) {
+    redwood_tl("waffle-vsync: subscribe client=%p type=%llu enabled=%u scalar_count=%u\n",
+        this, (unsigned long long)in[2], in[0] != 0, args->scalarInputCount);
+   }
   }
   IOLockLock(fLock);
   fCallbacks[in[2]] = in[0];

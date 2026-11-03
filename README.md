@@ -14,7 +14,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | --- | :---: | --- |
 | CPU, interrupts, timers | ✅ | 7 cores tested; one core reserved for the USB loader |
 | Display | ✅ | iOS renders at 750 × 1624 |
-| GPU | ⚠️ | GPU composition works; visual artifacts and crashes remain |
+| GPU | ⚠️ | GPU composition; app-opening snapshot fixed, tearing and crashes remain |
 | Metal | ❌ | |
 | Touch | ✅ | Taps and swipes |
 | Buttons | ✅ | Power, volume up, volume down |

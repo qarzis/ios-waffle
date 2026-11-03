@@ -49,6 +49,12 @@ def main():
     shutil.copyfile(args.live_dtb, output / "android-live.dtb")
     run([sys.executable, ROOT / "tools/check-waffle-gpu.py", *args.dtb, args.live_dtb,
          "--output", output / "gpu-provenance.json"], cwd=ROOT)
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-vsync-phase-host.c", "-o", output / "test-vsync-phase"])
+    run([output / "test-vsync-phase"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-survey-host.c", "-o", output / "test-display-survey"])
+    run([output / "test-display-survey"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
          ROOT / "tools/tests/waffle-policy.c", "-o", output / "test-policy"], cwd=ROOT)
     run([output / "test-policy"])
@@ -218,6 +224,8 @@ def main():
         raise ValueError("Prepared XNU lacks waffle GPU service build entry; apply current kernel/kernel.patch")
     if "bsd/dev/waffle_gpu_user.c" not in (xnu / "bsd/conf/files").read_text():
         raise ValueError("Prepared XNU lacks waffle GPU user build entry")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_vsync_phase.h", xnu / "bsd/sys/waffle_vsync_phase.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_survey.h", xnu / "bsd/sys/waffle_display_survey.h")
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
@@ -276,7 +284,7 @@ def main():
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "HEAD"], cwd=ROOT))
     source = output / "source"
-    for relative in ("kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
+    for relative in ("kernel/files/bsd/sys/waffle_vsync_phase.h", "tools/tests/waffle-vsync-phase-host.c", "kernel/files/bsd/sys/waffle_display_survey.h", "tools/tests/waffle-display-survey-host.c", "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
                      "tools/tests/waffle-audio-smmu-survey-host.c"):
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)

@@ -427,6 +427,23 @@ int main(void)
     assert(platform_mpidr(&platform_waffle, 8) == UINT64_MAX);
     assert(platform_core_index(&platform_waffle, 0x10000) == -1);
     /* Exercise parsing across arbitrary bytes, including token separators. */
+#if defined(WAFFLE_USERLAND)
+    assert(waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync_audit=1"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync_audit=1 waffle_vsync_audit=1"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 adsp=8 waffle_vsync_audit=1"));
+#else
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync_audit=1"));
+#endif
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync_audit=2"));
+#if defined(WAFFLE_USERLAND)
+    assert(waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync=1"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync=1 waffle_vsync=1"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync=1 waffle_vsync_audit=1"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 adsp=8 waffle_vsync=1"));
+#else
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync=1"));
+#endif
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=60 waffle_vsync=2"));
     uint32_t random = 17;
     for (unsigned n = 0; n < 10000; n++) {
         char line[64];

@@ -5,6 +5,26 @@ fb='/home/qarzis/platform-tools/fastboot';adb='/home/qarzis/platform-tools/adb'
 probe=int(sys.argv[1]);assert probe in (33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94)
 artifact=Path(sys.argv[2] if len(sys.argv)>2 else 'work/waffle/diagnostic-gpu-raw-publish36')
 options=set(sys.argv[3:]);assert len(options)==len(sys.argv[3:])
+cpu_options=options & {f'--cpus={n}' for n in range(1,8)}
+assert len(cpu_options)<=1
+cpus=int(next(iter(cpu_options)).split('=')[1]) if cpu_options else None
+options-=cpu_options
+torch_readonly='--torch-readonly' in options
+options.discard('--torch-readonly')
+torch_pulse='--torch-pulse' in options
+options.discard('--torch-pulse')
+hardware_vsync='--hardware-vsync' in options
+options.discard('--hardware-vsync')
+if hardware_vsync:assert probe==94 and {'--ui-workload','--gl-context'}<=options and '--display-survey' not in options
+display_survey='--display-survey' in options
+options.discard('--display-survey')
+if display_survey:assert probe==94 and {'--ui-workload','--gl-context'}<=options
+torch_service='--torch-service' in options
+options.discard('--torch-service')
+if torch_service:assert '--ui-workload' in options and not (torch_pulse or torch_readonly)
+assert not (torch_pulse and torch_readonly)
+if torch_readonly or cpus is not None:assert '--ui-workload' in options
+if torch_pulse:assert '--gl-context' in options
 assert options<={'--ui-soak-test','--ui-long-test','--ui-workload','--gl-context','--mapped','--mesa-transport','--msm','--user-va','--glsl','--data-bo','--user-copy','--worker','--copy-jobs','--image-present','--image-copy','--image','--compute-prepare','--compute-dispatch','--dynamic-bo','--access-matrix','--measure-clocks','--lpac-map','--zap','--writeback','--ib','--session'}
 if '--ui-long-test' in options:assert {'--ui-workload','--gl-context'}<=options
 if '--ui-soak-test' in options:assert {'--ui-workload','--gl-context'}<=options
@@ -46,7 +66,7 @@ if '--ui-workload' in options:assert '--gl-context' in options
 if '--gl-context' in options:report['variant']='E36-actual-Darwin-OSMesa-GL'
 try:
  with (artifact/f'hardware-host-{probe}.log').open('w') as log:
-  result=subprocess.run(['python3','scripts/run_waffle_ios.py','--kernel',str(artifact/'kernel'),'--root',str(artifact/'gl-probe/root.packfs') if image==13 else str(artifact/('mapped-probe/user-probe.packfs' if image==12 else 'msm-probe/user-probe.packfs' if image==11 else 'user-probe/user-probe.packfs')) if (6<=image<=8 or image in (10,11,12)) else 'work/waffle/gpu/probe-firmware-system.packfs','--system','work/waffle/images/system.packfs' if image==13 else str(artifact/('mapped-probe/user-probe.packfs' if image==12 else 'msm-probe/user-probe.packfs' if image==11 else 'user-probe/user-probe.packfs')) if (6<=image<=8 or image in (10,11,12)) else 'work/waffle/gpu/probe-firmware-system.packfs','--seconds','660' if '--ui-soak-test' in options else '300' if '--ui-long-test' in options else '90' if probe>=77 else '30','--gpu-probe',str(probe),*(['--gpu-access-matrix'] if access_matrix else []),*(['--gpu-measure-clocks'] if measure_clocks else []),*(['--gpu-lpac-map'] if lpac_map else []),*(['--gpu-zap'] if zap else []),*(['--gpu-writeback'] if writeback else []),*(['--gpu-ib'] if ib else []),*(['--gpu-session'] if session else []),*(['--gpu-dynamic-bo'] if dynamic_bo else []),*(['--gpu-compute',str(compute)] if compute else []),*(['--gpu-ui'] if '--ui-workload' in options else []),*(['--gpu-mapped'] if '--mapped' in options else []),*(['--gpu-mesa-transport'] if '--mesa-transport' in options else []),*(['--gpu-gl-context' if image==13 else '--gpu-msm' if image in (11,12) else '--gpu-user-va' if image==10 else '--gpu-glsl' if image>=8 else '--gpu-data-bo' if image==7 else '--gpu-user-copy' if image==6 else '--gpu-worker' if image==5 else '--gpu-copy-jobs' if image==4 else '--gpu-image-present' if image==3 else '--gpu-image-copy' if image==2 else '--gpu-image'] if image else [])],stdout=log,stderr=subprocess.STDOUT,timeout=1060 if '--ui-soak-test' in options else 700 if '--ui-long-test' in options else 360 if image==13 else 180)
+  result=subprocess.run(['python3','scripts/run_waffle_ios.py','--kernel',str(artifact/'kernel'),'--root',str(artifact/'gl-probe/root.packfs') if image==13 else str(artifact/('mapped-probe/user-probe.packfs' if image==12 else 'msm-probe/user-probe.packfs' if image==11 else 'user-probe/user-probe.packfs')) if (6<=image<=8 or image in (10,11,12)) else 'work/waffle/gpu/probe-firmware-system.packfs','--system','work/waffle/images/system.packfs' if image==13 else str(artifact/('mapped-probe/user-probe.packfs' if image==12 else 'msm-probe/user-probe.packfs' if image==11 else 'user-probe/user-probe.packfs')) if (6<=image<=8 or image in (10,11,12)) else 'work/waffle/gpu/probe-firmware-system.packfs','--seconds','660' if '--ui-soak-test' in options else '300' if '--ui-long-test' in options else '90' if probe>=77 else '30','--gpu-probe',str(probe),*(['--cpus',str(cpus)] if cpus is not None else []),*(['--torch-readonly'] if torch_readonly else []),*(['--torch-pulse'] if torch_pulse else []),*(['--torch-service'] if torch_service else []),*(['--display-survey'] if display_survey else []),*(['--hardware-vsync'] if hardware_vsync else []),*(['--gpu-access-matrix'] if access_matrix else []),*(['--gpu-measure-clocks'] if measure_clocks else []),*(['--gpu-lpac-map'] if lpac_map else []),*(['--gpu-zap'] if zap else []),*(['--gpu-writeback'] if writeback else []),*(['--gpu-ib'] if ib else []),*(['--gpu-session'] if session else []),*(['--gpu-dynamic-bo'] if dynamic_bo else []),*(['--gpu-compute',str(compute)] if compute else []),*(['--gpu-ui'] if '--ui-workload' in options else []),*(['--gpu-mapped'] if '--mapped' in options else []),*(['--gpu-mesa-transport'] if '--mesa-transport' in options else []),*(['--gpu-gl-context' if image==13 else '--gpu-msm' if image in (11,12) else '--gpu-user-va' if image==10 else '--gpu-glsl' if image>=8 else '--gpu-data-bo' if image==7 else '--gpu-user-copy' if image==6 else '--gpu-worker' if image==5 else '--gpu-copy-jobs' if image==4 else '--gpu-image-present' if image==3 else '--gpu-image-copy' if image==2 else '--gpu-image'] if image else [])],stdout=log,stderr=subprocess.STDOUT,timeout=1060 if '--ui-soak-test' in options else 700 if '--ui-long-test' in options else 360 if image==13 else 180)
  report['runner_exit']=result.returncode
 except Exception as e:report['exception']=str(e)
 finally:

@@ -9,6 +9,46 @@ FPS benchmark. Native captures show the desktop, icons and Calendar text.
 Indefinite operation, broad app coverage and Metal remain unfinished. The normal
 image still selects softpipe unless the isolated GPU test is enabled.
 
+## Current fixes and VSync status — 2026-11-03
+
+The black content during Settings icon expansion disappeared in the E113 manual
+test. The compositor drew a snapshot into an IOSurface-backed texture and deleted
+the texture before the normal frame-end readback. The fix recognizes ordinary
+BGRA framebuffer attachments and publishes pending pixels before deletion or
+rebinding, preserving framebuffer and pixel-pack state. Subsequent snapshot
+samples became nonzero. The 1,218,000-pixel control passed without errors.
+[UI result](../work/waffle/gpu/forensic-audit/E113-ui-result.json),
+[pixel control](../work/waffle/gpu/forensic-audit/E113-pixel-result.json).
+
+This does not establish stable GPU operation: E113 and V03 later exhausted the
+192 MiB GPU allocation budget and backboardd exited with SIGSEGV. Full GPU cleanup
+was logged; these were not successful controlled UI stops. The original failed
+runner results are preserved. The allocation budget has not been increased.
+
+Read-only V01/V02 tests identified active INTF1, the split scanout source and panel
+TE timestamps in the 19.2 MHz ARM-counter timebase. Nine intervals measured about
+120.8 Hz. No DPU register, interrupt acknowledgment or display-mode writes were
+performed. [V01](../work/waffle/gpu/forensic-audit/V01-result.json),
+[V02](../work/waffle/gpu/forensic-audit/V02-result.json).
+
+An **off-by-default experimental** kernel path qualifies this layout and can use
+panel TE timestamps for logical 60 Hz notifications, with duplicate/stall/reset
+guards and software fallback. Host phase and actual callback-adapter tests pass.
+**Delivery to iOS is not verified:** V03/V04 recorded hardware readiness but no
+hardware callbacks. V04's short 30-second GPU window ended cleanly before normal
+desktop use. [V03](../work/waffle/gpu/forensic-audit/V03-result.json),
+[V04](../work/waffle/gpu/forensic-audit/V04-result.json).
+
+The optional UI builder switch `--ca-vbl` requests QuartzCore's driver-notification
+path through the native `CA_FORCE_TIMER=1` setting in backboardd only. The exact
+16.5 binary contains the getenv/atoi branch. A 60-second test root was built but
+**not booted**, because work was stopped. No tearing, atomic page flip, 120 FPS or
+VSync fix is claimed. [Prepared status](../work/waffle/gpu/forensic-audit/V05-prepared-status.json).
+
+Brightness work was deferred at the user's request. Its read-only registry audit
+found no `backlight-control` service; hardware brightness remains unimplemented.
+Audio status is unchanged: DSP/APM graph verified, PCM/DMA/amplifier playback pending.
+
 ## Snapshot writeback investigation — E110–E112
 
 E110 observed an IOSurface source texture used as a draw attachment while its
