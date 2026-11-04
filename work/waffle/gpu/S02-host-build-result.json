@@ -1,0 +1,23 @@
+{
+  "experiment": "S02 retained native IOSurface backing, internal and unexposed to GPU imports",
+  "hardware_tested": false,
+  "full_kernel_and_UEFI_build_passed": true,
+  "compiled_current_source_identity_passed": true,
+  "host_checks": [
+    "1000 balanced lifetimes",
+    "per-page physical bounds/noncontiguity",
+    "header exclusion",
+    "explicit64byte stride and4row overfetch footprint",
+    "retention on early published release",
+    "malformed/client/planes/overflow/range rejection"
+  ],
+  "GPU_page_tables_changed": false,
+  "cache_alias_created": false,
+  "userspace_GPU_import_enabled": false,
+  "FPS_improvement_claimed": false,
+  "artifact": "work/waffle/diagnostic-surface-backing-s02-final",
+  "source_sha256": {
+    "kernel/files/iokit/Kernel/MiniIOSurface.cpp": "91c734688236e849b626dca2978c3f1667fe0f98bdd3758f16dfc77ff89f6806",
+    "kernel/files/bsd/sys/waffle_gpu_surface.h": "7f82de4509038550cd0c339936a33a2378aba65cbcec640ea00d46d3f7fda054"
+  }
+}

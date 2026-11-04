@@ -20,11 +20,11 @@ The existing Darwin Mesa code already defines an IOSurface import route. No new 
 1. `gl_osmesa.c::redwood_gl_surface_texture` passes the IOSurface ID to the locally patched `glEGLImageTargetTexture2DOES`.
 2. `src/gallium/frontends/osmesa/osmesa.c::osmesa_st_get_egl_image` calls `osmesa_surface_resource` in the Darwin winsys. It requests surface metadata through `redwood_drm_surface`, then calls `resource_from_handle`.
 3. `drm_shim.c::redwood_drm_surface` and `drmPrimeFDToHandle` use existing selector0x7e and the40-byte `redwood_drm_surface` ABI.
-4. The Waffle cdev transport's `waffle_msm_request` does **not** encode0x7e, and `waffle_gpu_drm.c::drm_ioctl` has no IOSurface case. Thus the current Waffle route fails before an import can be admitted. The donor `MacanGPU.cpp::surfaceBuffer` implements its own IOKit path; it is not called by the Waffle cdev.
+4. At D16 the Waffle cdev transport did not encode0x7e and its ioctl handler had no surface case. S01 now provides the opt-in metadata-only case, qualified against iOS values and a fullsize pixel control; importing remains explicitly unsupported. The donor `MacanGPU.cpp::surfaceBuffer` implements its own IOKit path; it is not called by the Waffle cdev.
 5. Current `WaffleGPUMemory.cpp` owns newly allocated write-combined IOBufferMemoryDescriptors. Its destroy, page lookup and user mapping assume that ownership and cache mode. The imported IOSurface path would need a retained surface/backing descriptor, correct offset after its shared header, matching CPU cache policy, validated GPU pages and detach-before-release. Treating an existing cached IOSurface as a new WC BO would be incorrect.
 6. GPU completion/source stability must remain explicit. `MiniIOSurface::drawn` currently integrates the donor fence path; imported Waffle surfaces need their own qualified completion/coherency boundary. Source D09 retirement fixed observed tearing and must not be bypassed.
 
-D14 observed two750×1624 stride classes (3008 and3072 bytes), each using one GL read, with medians5.66/5.80ms. It found no multi-row fallback. Freedreno imported-resource layout additionally checks the exact supplied pitch. Pitch eligibility is unverified for these actual surface types; do not assume both are importable.
+D14 observed two750×1624 stride classes (3008 and3072 bytes), each using one GL read, with medians5.66/5.80ms. It found no multi-row fallback. Freedreno imported-resource layout additionally checks the exact supplied pitch. The later explicit-layout audit confirms64-byte pitch alignment for linear four-byte BGRA imports: both3008 and3072 meet that pitch rule. This does not yet qualify GPU mapping or cache coherency.
 
 ## Native display completion audit
 

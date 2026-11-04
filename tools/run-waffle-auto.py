@@ -16,6 +16,23 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_workload=False):
+    """Read-only admission check, called before USB or reboot operations."""
+    if not gl_manifest.get('surface_describe'):
+        return
+    if ui_workload or not gl_manifest.get('fullsize_probe') or not manifest.get('surface_metadata_describe'):
+        raise ValueError('Surface metadata requires an isolated, bound fullsize artifact')
+    bindings=manifest.get('surface_description_source_sha256',{})
+    required=('kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/iokit/Kernel/MiniIOSurface.cpp')
+    if any(name not in bindings for name in required):raise ValueError('Surface metadata source binding missing')
+    for name,sha in bindings.items():
+        if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface metadata source changed: '+name)
+        if name.startswith('kernel/') and hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=sha:
+            raise ValueError('Surface metadata compiled snapshot mismatch: '+name)
+    for name,sha in gl_manifest['source_sha256'].items():
+        if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface probe source changed: '+name)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifact', type=Path, required=True)
@@ -184,6 +201,12 @@ def main():
         with system.open('rb') as stream:
             for block in iter(lambda:stream.read(16*1024*1024),b''):digest.update(block)
         if digest.hexdigest()!=manifest.get('gl_system_sha256'):parser.error('GL system image hash mismatch')
+        gl_manifest=json.loads((artifact/'gl-probe/manifest.json').read_text())
+        try:
+            check_surface_metadata_binding(ROOT,artifact,manifest,gl_manifest,args.ui_workload)
+        except (ValueError,OSError) as error:
+            parser.error(str(error))
+
     if args.mapped and not manifest.get('mapped_bo'):parser.error('Artifact lacks mapped BO probe')
     if args.mesa_transport and not manifest.get('mesa_drm_shim'):parser.error('Artifact is not the Mesa transport probe')
     if not manifest.get('automatic_usb_loader'):

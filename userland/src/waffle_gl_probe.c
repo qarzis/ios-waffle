@@ -154,6 +154,11 @@ static bool check_full_surface(void)
   pixels[y*16+x]=(p&0xff00ff00u)|((p&0xffu)<<16)|((p>>16)&0xffu);
  }
  kern_return_t unlock=IOSurfaceUnlock(hook_surface,0,NULL);GLenum error=glGetError();
+#ifdef WAFFLE_GL_SURFACE_DESCRIBE
+ printf("waffle-gl-surface: sid=%u bytes=%zu stride=%zu width=%zu height=%zu format=%x metadata_expected=1\n",
+     IOSurfaceGetID(hook_surface),IOSurfaceGetAllocSize(hook_surface),IOSurfaceGetBytesPerRow(hook_surface),
+     IOSurfaceGetWidth(hook_surface),IOSurfaceGetHeight(hook_surface),(unsigned)IOSurfaceGetPixelFormat(hook_surface));
+#endif
  printf("waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=%u filled=%u padding_wrong=%u GL_error=%x hook_owned=1\n",wrong,filled,padding,error);
  return !wrong && !padding && !error && !unlock && filled==609000;
 }
@@ -303,6 +308,10 @@ static GLuint compile(GLenum type,const char *text)
 }
 int main(void)
 {
+#ifdef WAFFLE_GL_SURFACE_DESCRIBE
+ setenv("WAFFLE_GPU_SURFACE_AUDIT","1",1);
+ printf("waffle-gl-surface: audit=1 metadata_only=1 import_unsupported=1\n");
+#endif
  diagnostic_console=(int)raw_call(5,(long)"/dev/console",2,0);
 #ifdef WAFFLE_GL_HOOK
  if(diagnostic_console>=0)dup2(diagnostic_console,2);

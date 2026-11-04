@@ -211,6 +211,10 @@ redwood_drm_surface(int fd, struct redwood_drm_surface *surface)
  int error;
  (void)fd;
  surface->handle = REDWOOD_GPU_DESCRIBE;
+ if (waffle_general) {
+  const char *audit = getenv("WAFFLE_GPU_SURFACE_AUDIT");
+  if (!audit || strcmp(audit, "1") != 0) { errno = ENOTSUP; return -1; }
+ }
  error = call(REDWOOD_GPU_SURFACE, surface, sizeof(*surface));
  if (error != 0) {
   errno = error;

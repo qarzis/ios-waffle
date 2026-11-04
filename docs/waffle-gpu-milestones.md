@@ -1,3 +1,9 @@
+## Native surface metadata and retained backing — 2026-11-04
+
+S01 connected the existing Darwin Mesa surface-describe ABI to the Waffle endpoint. On the phone, native and iOS values agreed for750×1624 BGRA/stride3008/4898816bytes. All1,218,000 fallback-rendered pixels and padding passed, with clean GPU close and Android return. This enables metadata inspection, not GPU import or a measured FPS gain. [S01 result](../work/waffle/gpu/S01-result.json).
+
+Internal retained-backing helpers now pass ownership/physical-page/failure tests and a full kernel build, but are not exposed as GPU imports or phone-qualified yet. Registry publication, cached-memory coherency and completion ownership remain before direct surface rendering can be enabled. Both observed strides satisfy the explicit linear64-byte alignment rule; no global stride change was made. [Implementation plan](waffle-iosurface-import-plan.md), [S02 host/build status](../work/waffle/gpu/S02-host-build-result.json).
+
 ## GPU hardware rendering works — latest bounded test
 
 The next target is80–100 visible frames/s. Current callback and conservative buffer-reuse limits are near60fps; see the [architecture gap analysis](waffle-high-fps-gap-analysis.md) before changing cadence or memory ownership.

@@ -30,6 +30,7 @@ static struct drm_bo drm_bos[WAFFLE_GPU_BO_LIMIT];
 static struct waffle_gpu_context *drm_context;
 static unsigned drm_count,drm_issued,drm_fence;
 static int drm_pid;
+static unsigned drm_surface_described;
 static uint32_t drm_queues;
 static uint32_t drm_queue_generations[32];
 static bool drm_queue_valid(uint32_t id)
@@ -157,7 +158,13 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
 {
  (void)dev;(void)flags;lck_mtx_lock(&drm_lock);int error=0;
  if(!drm_context || proc_pid(p)!=drm_pid){error=EPERM;goto done;}
- if(command==WAFFLE_MSM_PARAM){error=drm_param((void *)data);
+ if(command==WAFFLE_MSM_SURFACE){
+  struct waffle_msm_surface *r=(void *)data;
+  /* Description creates no GEM handle and cannot enter the BO registry. */
+  error=r->handle==WAFFLE_MSM_SURFACE_DESCRIBE?waffle_gpu_surface_describe(r):ENOTSUP;
+  if(!error && drm_surface_described++<16)redwood_tl("waffle-gpu: SURFACE_DESCRIBE sid=%u bytes=%llu offset=%u stride=%u width=%u height=%u format=%x planes=%u metadata_only=1 GPU_import=0\n",
+      r->surface,(unsigned long long)r->size,r->offset,r->row_bytes,r->width,r->height,r->pixel_format,r->planes);
+ }else if(command==WAFFLE_MSM_PARAM){error=drm_param((void *)data);
  }else if(command==WAFFLE_MSM_NEW){
   struct waffle_msm_gem_new *r=(void *)data;
   if(r->handle || !waffle_gpu_registry_flags(r->size,r->flags)){

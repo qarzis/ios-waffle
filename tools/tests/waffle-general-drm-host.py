@@ -22,6 +22,8 @@ static void cdevsw_remove(int major,const struct cdevsw *sw){assert(major==42 &&
 static void *devfs_make_node(dev_t d,int t,unsigned u,unsigned g,unsigned perm,const char *n){assert(d==42*256 && t==1 && !u && !g && perm==0600 && !strcmp(n,"waffle-gpu-drm"));return (void *)1;}
 static void redwood_tl(const char *fmt,...){(void)fmt;}
 static void loader_return(void){assert(0);}
+struct waffle_msm_surface;
+int waffle_gpu_surface_describe(struct waffle_msm_surface *r){(void)r;assert(held);return ENOENT;}
 static int copyin(uint64_t a,void *out,unsigned bytes){if(a<4096)return 14;memcpy(out,(void *)(uintptr_t)a,bytes);return 0;}
 static int copyout(const void *in,uint64_t a,unsigned bytes){if(a<4096)return 14;memcpy((void *)(uintptr_t)a,in,bytes);return 0;}
 struct waffle_gpu_context *waffle_gpu_context_begin(void){assert(held);context.fence=0;return &context;}

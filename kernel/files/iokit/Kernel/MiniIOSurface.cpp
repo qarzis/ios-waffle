@@ -17,6 +17,10 @@
 #include <sys/systm.h>
 #include <sys/proc.h>
 #include "MiniIOSurface.h"
+#include <sys/errno.h>
+#include "../../bsd/sys/waffle_gpu_msm.h"
+#include "../../bsd/sys/waffle_gpu_surface.h"
+#include "../../bsd/sys/waffle_gpu_memory.h"
 static_assert(sizeof(struct minisurf_plane) == 0x80, "plane layout");
 static_assert(sizeof(struct minisurf_result) == 0x68, "result layout");
 static_assert(offsetof(struct minisurf_shared, attachments) == 0x30, "shared layout");
@@ -606,6 +610,84 @@ MiniIOSurfaceCopy(uint32_t sid)
  }
  IOLockUnlock(gSurfaceLock);
  return s;
+}
+/* Metadata only: a balanced surface hold prevents backing replacement while
+ * taking this snapshot. No new GPU mapping, memory allocation or cache alias. */
+extern "C" int
+waffle_gpu_surface_describe(struct waffle_msm_surface *request)
+{
+ if (!request || !request->surface || request->handle != WAFFLE_MSM_SURFACE_DESCRIBE) return EINVAL;
+ MiniIOSurface *surface = MiniIOSurfaceCopy(request->surface);
+ if (!surface) return ENOENT;
+ int error = ENOTSUP;
+ if (!surface->client && surface->memory && surface->kbase &&
+     surface->kpixels == surface->kbase + PAGE_SIZE && surface->info.allocSize) {
+  uint64_t size = round_page_64((uint64_t)surface->info.allocSize);
+  if (size && size <= surface->memory->getCapacity() &&
+      PAGE_SIZE <= surface->memory->getCapacity() - size) {
+   struct waffle_msm_surface result = {
+    .surface = request->surface, .handle = 0, .size = size,
+    .offset = surface->info.offset, .row_bytes = surface->info.bytesPerRow,
+    .width = surface->info.width, .height = surface->info.height,
+    .pixel_format = surface->info.pixelFormat, .planes = surface->info.planeCount,
+   };
+   *request = result;
+   error = 0;
+  } else error = EINVAL;
+ }
+ MiniIOSurfaceDrop(surface);
+ return error;
+}
+/* Prepare a retained native surface for a future, separately qualified GPU
+ * import. This does not publish a PTE, create a GEM handle or change caching. */
+extern "C" uint64_t
+waffle_gpu_surface_page(const struct waffle_gpu_surface_backing *backing,uint32_t offset)
+{
+ if (!backing || !backing->object || (offset & 4095) || offset >= backing->bytes) return 0;
+ auto *surface = reinterpret_cast<MiniIOSurface *>(backing->object);
+ IOByteCount length = 0;
+ uint64_t pa = surface->memory->getPhysicalSegment(PAGE_SIZE + offset,&length,kIOMemoryMapperNone);
+ return pa && !(pa & 4095) && pa < (1ULL << 36) && length >= 4096 ? pa : 0;
+}
+extern "C" bool
+waffle_gpu_surface_hold(uint32_t sid,struct waffle_gpu_surface_backing *backing)
+{
+ if (!backing || backing->object || backing->published || !sid) return false;
+ MiniIOSurface *surface = MiniIOSurfaceCopy(sid);
+ if (!surface) return false;
+ const struct minisurf_result *info = &surface->info;
+ uint64_t bytes = round_page_64((uint64_t)info->allocSize);
+ /* Explicit linear BGRA import has64-byte pitch/offset alignment. The FDL
+  * last level may overfetch up to four rows, so require that footprint too. */
+ uint64_t rows = ((uint64_t)info->height + 3) & ~3ULL;
+ uint64_t used = (uint64_t)info->bytesPerRow * rows;
+ bool valid = !surface->client && surface->memory && surface->kbase &&
+     surface->kpixels == surface->kbase + PAGE_SIZE &&
+     !((uintptr_t)surface->kpixels & (PAGE_SIZE - 1)) &&
+     info->pixelFormat == 0x42475241 && !info->planeCount && info->bytesPerElement == 4 &&
+     info->width && info->height && !(info->bytesPerRow & 63) && !(info->offset & 63) &&
+     (uint64_t)info->width * 4 <= info->bytesPerRow && bytes && bytes <= WAFFLE_GPU_BO_MAX_BYTES &&
+     bytes <= surface->memory->getCapacity() && PAGE_SIZE <= surface->memory->getCapacity() - bytes &&
+     info->offset <= bytes && used <= bytes - info->offset;
+ if (!valid) { MiniIOSurfaceDrop(surface); return false; }
+ struct waffle_gpu_surface_backing candidate = {
+  .object = reinterpret_cast<uintptr_t>(surface), .pixels = reinterpret_cast<uintptr_t>(surface->kpixels),
+  .surface = sid, .bytes = (uint32_t)bytes, .offset = info->offset, .stride = info->bytesPerRow,
+  .width = info->width, .height = info->height, .published = false,
+ };
+ for (uint32_t offset = 0; offset < candidate.bytes; offset += 4096) {
+  if (!waffle_gpu_surface_page(&candidate,offset)) { MiniIOSurfaceDrop(surface); return false; }
+ }
+ *backing = candidate;
+ return true;
+}
+extern "C" bool
+waffle_gpu_surface_release(struct waffle_gpu_surface_backing *backing,bool gpu_detached)
+{
+ if (!backing || (backing->published && !gpu_detached)) return false;
+ if (backing->object) MiniIOSurfaceDrop(reinterpret_cast<MiniIOSurface *>(backing->object));
+ *backing = {};
+ return true;
 }
 extern "C" void
 MiniIOSurfaceUsage(uint32_t * count, uint64_t * bytes)
