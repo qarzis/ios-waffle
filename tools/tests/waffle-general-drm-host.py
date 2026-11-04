@@ -8,6 +8,7 @@ h='#define _DEFAULT_SOURCE\n'+parts['h'][:parts['h'].index('static int proc_pid'
 h+=r'''
 #include "waffle_gpu_registry.h"
 #include "waffle_gpu_surface_write.h"
+#include "waffle_gpu_surface_read.h"
 #include "waffle_gpu_handles.h"
 #include "waffle_gpu_va.h"
 #define Z_WAITOK 1

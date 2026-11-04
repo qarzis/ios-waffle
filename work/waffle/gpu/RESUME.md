@@ -1,3 +1,7 @@
+# ACTIVE — S05 read-direction candidate building
+
+S04 hardware qualified; S05 distinct CPU-to-GPU test now implemented behind private PID1 W/0x57, no normalimport. Header waffle_gpu_surface_read.h builds4Mesa-derived CP_MEM_TO_MEM32 copies+WAIT into separateWC commandBO+256. CPUexpectedsource/poisoneddestination, actualfence, invalidate/read/restore; uncertaincompletionretains. Samecache/mapping/revokeasS04. Newpure+cdev+22negative log tests pass; S04write/map regressionpass. Requiredfullbuild active, artifact diagnostic-surface-read-s05; root gpu/s05-surface-read-pixel alreadybuilt. Awaitbuildthen pairedvalidation/sourceidentity/manifestbinding; onlythen phoneRAMrun. Do noteditkernelinputswhilebuildrunning. No activephoneowner; AndroidreturnedafterS04. Noagents/goals.
+
 # ACTIVE — S04 native GPU write to IOSurface PASSED
 
 Run20261104T194715Z/auto194651Z originalrunner0/success1/Android1. Actual GPU fence3 CP_MEM_WRITE wrote57414646/4c454750/13579bdf/2468ace0 directly into nativecached IOSurface; wrong0/restored1/retired1. Native1196pages/4898816bytes, privatecommandBO29+surface28reclaimed,27MesaGEMs/3commands/cleanOOBclose. Full1218000pixels0wrong/padding0/GLerror0; actualstrictvalidatorpassed256independentsamples. S04-result.json+evidence saved. No FPS gain claim. Normal0x7eimport stillENOTSUP. Phone returnedAndroid; noactiveowner.

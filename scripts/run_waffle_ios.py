@@ -221,6 +221,12 @@ def validate_gl_generation_handles(text,capacity,buffers,retired):
 
 def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     """Track unique publications/revocations across console replay duplicates."""
+    if any(x in text for x in ('SURFACE_READ_', 'waffle-gl-surface-read:')):
+        if any(x in text for x in ('SURFACE_WRITE_', 'waffle-gl-surface-write:','private_surface_write=1')):
+            raise RuntimeError('Mixed surface read/write audits are not qualified')
+        # Identical ownership/fence/pattern/restore evidence; preserve distinct
+        # native/user operation names and reject mixed experiments above.
+        text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     surface_publication=r"SURFACE_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) cached=1 pages=(\d+)"
     reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"

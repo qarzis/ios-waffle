@@ -140,25 +140,33 @@ static bool check_full_surface(void)
  int fd=existing_gpu_fd();
  if(fd<0){printf("waffle-gl-surface-map: passed=0 stage=fd\n");return false;}
  struct waffle_msm_surface request={.surface=IOSurfaceGetID(hook_surface)};
-#ifdef WAFFLE_GL_SURFACE_WRITE_TEST
+#if defined(WAFFLE_GL_SURFACE_WRITE_TEST) || defined(WAFFLE_GL_SURFACE_READ_TEST)
  if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS){close(fd);return false;}
+#ifdef WAFFLE_GL_SURFACE_READ_TEST
+ int mapped=ioctl(fd,WAFFLE_MSM_SURFACE_READ_TEST,&request);close(fd);
+#else
  int mapped=ioctl(fd,WAFFLE_MSM_SURFACE_WRITE_TEST,&request);close(fd);
+#endif
 #else
  int mapped=ioctl(fd,WAFFLE_MSM_SURFACE_MAP_TEST,&request);close(fd);
 #endif
  if(mapped || request.handle || request.surface!=IOSurfaceGetID(hook_surface) || request.size!=IOSurfaceGetAllocSize(hook_surface)){
-#ifdef WAFFLE_GL_SURFACE_WRITE_TEST
+#if defined(WAFFLE_GL_SURFACE_WRITE_TEST) || defined(WAFFLE_GL_SURFACE_READ_TEST)
   IOSurfaceUnlock(hook_surface,0,NULL);
 #endif
   printf("waffle-gl-surface-map: passed=0 stage=map_revoke error=%d\n",mapped);return false;
  }
-#ifdef WAFFLE_GL_SURFACE_WRITE_TEST
+#if defined(WAFFLE_GL_SURFACE_WRITE_TEST) || defined(WAFFLE_GL_SURFACE_READ_TEST)
+#ifdef WAFFLE_GL_SURFACE_READ_TEST
+ printf("waffle-gl-surface-read: passed=1 GPU_memory_access=1 restored=1\n");
+#else
  printf("waffle-gl-surface-write: passed=1 GPU_memory_access=1 restored=1\n");
+#endif
 #else
  printf("waffle-gl-surface-map: passed=1 native_registry=1 mapped_then_revoked=1 GPU_memory_access=0\n");
 #endif
 #endif
-#ifndef WAFFLE_GL_SURFACE_WRITE_TEST
+#if !defined(WAFFLE_GL_SURFACE_WRITE_TEST) && !defined(WAFFLE_GL_SURFACE_READ_TEST)
  if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS)return false;
 #endif
  const uint8_t *base=IOSurfaceGetBaseAddress(hook_surface);size_t stride=IOSurfaceGetBytesPerRow(hook_surface);

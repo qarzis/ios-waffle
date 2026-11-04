@@ -53,5 +53,16 @@ with tempfile.TemporaryDirectory() as t:
     for n in extra:
         x=copy.deepcopy(v);del x['surface_description_source_sha256'][n];reject(x,w)
     x=copy.deepcopy(w);x['surface_map_test']=False;reject(v,x)
+    read=copy.deepcopy(w);read['surface_write_test']=False;read['surface_read_test']=True
+    reject(v,read)
+    v['surface_gpu_read_audit']=True
+    n='kernel/files/bsd/sys/waffle_gpu_surface_read.h'
+    for base in [r,a/'source']:
+        p=base/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
+    v['surface_description_source_sha256'][n]=hashlib.sha256((r/n).read_bytes()).hexdigest()
+    check(r,a,v,read)
+    x=copy.deepcopy(read);x['surface_describe']=False;reject(v,x)
+    x=copy.deepcopy(read);x['surface_write_test']=True;reject(v,x)
+    x=copy.deepcopy(v);del x['surface_description_source_sha256'][n];reject(x,read)
     check(r,a,{}, {}) # Existing unrelated probe has no metadata opt-in.
 print(f'PASS actual surface admission:{count} metadata/UI/missing/current/compiled/Mesa-source mismatch refusals before USB; bound and unrelated artifacts preserved')

@@ -15,6 +15,7 @@
 #include <sys/waffle_gpu_handles.h>
 #include <sys/waffle_gpu_va.h>
 #include <sys/waffle_gpu_surface_write.h>
+#include <sys/waffle_gpu_surface_read.h>
 extern void redwood_tl(const char *,...) __printflike(1,2);
 extern void loader_return(void);
 _Static_assert(WAFFLE_GPU_SUBMIT_BUFFERS<=WAFFLE_GPU_BO_LIMIT,"Submit references fit the context registry");
@@ -155,7 +156,7 @@ done:
  kfree_data(snapshot,(size_t)bytes);
  return error;
 }
-struct surface_write_context {struct waffle_gpu_memory *surface,*command;uint32_t offset;};
+struct surface_write_context {struct waffle_gpu_memory *surface,*command;uint32_t offset;bool read_test;};
 static bool surface_write_to_gpu(void *p)
 {
  struct surface_write_context *c=p;
@@ -170,38 +171,51 @@ static bool surface_write_execute(void *p,uint32_t *fence)
 {
  struct surface_write_context *c=p;
  if(drm_fence==UINT32_MAX)return false;
- struct waffle_gpu_command root={.buffer=c->command,.offset=0,.bytes=32};
+ struct waffle_gpu_command root={.buffer=c->command,.offset=0,.bytes=c->read_test?100:32};
  struct waffle_gpu_submit_job job={.commands=&root,.count=1};
  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1)return false;
  drm_fence=job.fence;*fence=job.fence;
- redwood_tl("waffle-gpu: GENERAL submitted fence=%u private_surface_write=1\n",drm_fence);
+ redwood_tl("waffle-gpu: GENERAL submitted fence=%u private_surface_%s=1\n",drm_fence,c->read_test?"read":"write");
  return true;
 }
-static int drm_surface_write_probe(struct waffle_gpu_memory *bo,uint32_t offset,struct waffle_surface_write_result *r)
+static int drm_surface_access_probe(struct waffle_gpu_memory *bo,uint32_t offset,struct waffle_surface_write_result *r,bool read_test)
 {
  *r=(struct waffle_surface_write_result){0};
  if(offset>bo->bytes || bo->bytes-offset<16)return EINVAL;
  struct waffle_gpu_memory *command=waffle_gpu_context_memory_new(drm_context,4096,WAFFLE_GPU_BO_WC);
  if(!command)return ENOMEM;
- redwood_tl("waffle-gpu: SURFACE_WRITE_COMMAND_BO index=%u VA=%llx bytes=%u allocated=%u\n",
-     command->serial,(unsigned long long)command->gpu_va,command->bytes,command->allocation_bytes);
- uint32_t packet[9];bool ok=false;
- if(waffle_writeback_packet(packet,9,1,bo->gpu_va+offset)==9){
-  /* Only strip the HFI envelope; this is the previously qualified PM4 payload. */
-  memcpy((void *)command->memory,packet+1,32);
-  struct surface_write_context context={bo,command,offset};
-  const struct waffle_surface_write_ops ops={&context,surface_write_to_gpu,surface_write_execute,surface_write_to_cpu};
-  ok=waffle_surface_write_check(&ops,(volatile uint32_t *)(bo->memory+offset),r);
+ redwood_tl("waffle-gpu: SURFACE_%s_COMMAND_BO index=%u VA=%llx bytes=%u allocated=%u\n",
+     read_test?"READ":"WRITE",command->serial,(unsigned long long)command->gpu_va,command->bytes,command->allocation_bytes);
+ bool ok=false;
+ if(read_test){
+  uint32_t packet[25];
+  if(waffle_surface_read_packet(packet,25,bo->gpu_va+offset,command->gpu_va+256)==25){
+   memcpy((void *)command->memory,packet,sizeof(packet));
+   struct surface_write_context context={bo,command,offset,true};
+   const struct waffle_surface_write_ops ops={&context,surface_write_to_gpu,surface_write_execute,surface_write_to_cpu};
+   ok=waffle_surface_read_check(&ops,(volatile uint32_t *)(bo->memory+offset),
+       (volatile uint32_t *)(command->memory+256),r);
+  }
+ }else{
+  uint32_t packet[9];
+  if(waffle_writeback_packet(packet,9,1,bo->gpu_va+offset)==9){
+   memcpy((void *)command->memory,packet+1,32);
+   struct surface_write_context context={bo,command,offset,false};
+   const struct waffle_surface_write_ops ops={&context,surface_write_to_gpu,surface_write_execute,surface_write_to_cpu};
+   ok=waffle_surface_write_check(&ops,(volatile uint32_t *)(bo->memory+offset),r);
+  }
  }
  if(r->uncertain){
-  redwood_tl("waffle-gpu: SURFACE_WRITE_TEST uncertain=1 retain_backing=1\n");loader_return();for(;;);
+  redwood_tl("waffle-gpu: SURFACE_%s_TEST uncertain=1 retain_backing=1\n",read_test?"READ":"WRITE");loader_return();for(;;);
  }
  if(!waffle_gpu_context_memory_reclaim(drm_context,command,true)){
-  redwood_tl("waffle-gpu: SURFACE_WRITE_TEST command_revoke_failed=1\n");loader_return();for(;;);
+  redwood_tl("waffle-gpu: SURFACE_%s_TEST command_revoke_failed=1\n",read_test?"READ":"WRITE");loader_return();for(;;);
  }
  return ok?0:EIO;
 }
-static int drm_surface_map_test(struct waffle_msm_surface *r,bool write_test)
+static int drm_surface_write_probe(struct waffle_gpu_memory *bo,uint32_t offset,struct waffle_surface_write_result *r)
+{return drm_surface_access_probe(bo,offset,r,false);}
+static int drm_surface_map_test(struct waffle_msm_surface *r,bool write_test,bool read_test)
 {
  if(!r->surface || r->handle || r->size || r->offset || r->row_bytes || r->width || r->height || r->pixel_format || r->planes)return EINVAL;
  struct waffle_msm_surface description={.surface=r->surface,.handle=WAFFLE_MSM_SURFACE_DESCRIBE};
@@ -218,19 +232,20 @@ static int drm_surface_map_test(struct waffle_msm_surface *r,bool write_test)
  }
  uint64_t address=bo->gpu_va;uint32_t bytes=bo->allocation_bytes;
  struct waffle_surface_write_result written={0};
- if(write_test)error=drm_surface_write_probe(bo,description.offset,&written);
+ if(read_test)error=drm_surface_access_probe(bo,description.offset,&written,true);
+ else if(write_test)error=drm_surface_write_probe(bo,description.offset,&written);
 
- /* No GPU command references these pages. There is no CPU GEM mapping.
+ /* Any submitted access has completed before this point. No CPU GEM mapping.
   * Existing ownership checks revoke both ASIDs before releasing the hold. */
  if(!waffle_gpu_context_memory_reclaim(drm_context,bo,true)){
   redwood_tl("waffle-gpu: SURFACE_MAP_TEST revoke_failed=1 backing_retained=1\n");loader_return();for(;;);
  }
  if(!error)*r=description;
- if(write_test){
-  redwood_tl("waffle-gpu: SURFACE_WRITE_TEST passed=%u sid=%u VA=%llx bytes=%u fence=%u checked=4 wrong=%u restored=%u retired=1\n",
-      !error,description.surface,(unsigned long long)address,bytes,written.fence,written.wrong,written.restored);
-  redwood_tl("waffle-gpu: SURFACE_WRITE_DATA values=%08x/%08x/%08x/%08x cached=1 GPU_memory_access=1\n",
-      written.actual[0],written.actual[1],written.actual[2],written.actual[3]);
+ if(write_test || read_test){
+  redwood_tl("waffle-gpu: SURFACE_%s_TEST passed=%u sid=%u VA=%llx bytes=%u fence=%u checked=4 wrong=%u restored=%u retired=1\n",
+      read_test?"READ":"WRITE",!error,description.surface,(unsigned long long)address,bytes,written.fence,written.wrong,written.restored);
+  redwood_tl("waffle-gpu: SURFACE_%s_DATA values=%08x/%08x/%08x/%08x cached=1 GPU_memory_access=1\n",
+      read_test?"READ":"WRITE",written.actual[0],written.actual[1],written.actual[2],written.actual[3]);
  }else redwood_tl("waffle-gpu: SURFACE_MAP_TEST passed=1 sid=%u VA=%llx bytes=%u header_excluded=1 cached=1 retired=1 GPU_memory_access=0\n",
      r->surface,(unsigned long long)address,bytes);
  return error;
@@ -239,8 +254,8 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
 {
  (void)dev;(void)flags;lck_mtx_lock(&drm_lock);int error=0;
  if(!drm_context || proc_pid(p)!=drm_pid){error=EPERM;goto done;}
- if(command==WAFFLE_MSM_SURFACE_MAP_TEST || command==WAFFLE_MSM_SURFACE_WRITE_TEST){
-  error=proc_pid(p)==1?drm_surface_map_test((void *)data,command==WAFFLE_MSM_SURFACE_WRITE_TEST):EPERM;
+ if(command==WAFFLE_MSM_SURFACE_MAP_TEST || command==WAFFLE_MSM_SURFACE_WRITE_TEST || command==WAFFLE_MSM_SURFACE_READ_TEST){
+  error=proc_pid(p)==1?drm_surface_map_test((void *)data,command==WAFFLE_MSM_SURFACE_WRITE_TEST,command==WAFFLE_MSM_SURFACE_READ_TEST):EPERM;
  }else if(command==WAFFLE_MSM_SURFACE){
   struct waffle_msm_surface *r=(void *)data;
   /* Description creates no GEM handle and cannot enter the BO registry. */
