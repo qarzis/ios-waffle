@@ -92,6 +92,9 @@ static int existing_gpu_fd(void)
 #ifdef WAFFLE_GL_HOOK
 #include "waffle_eagl_dispatch.h"
 static IOSurfaceRef hook_surface;
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+static id surface_eagl_context;
+#endif
 #ifdef WAFFLE_GL_CONTEXTS
 static bool check_context_switch(void)
 {
@@ -217,13 +220,24 @@ static bool check_surface_resource(void)
  glGenTextures(2,textures);
  for(unsigned i=0;i<2;i++){
   glBindTexture(GL_TEXTURE_2D,textures[i]);
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+  SEL selector=sel_registerName("texImageIOSurface:target:internalFormat:width:height:format:type:plane:invert:");
+  if(!surface_eagl_context || !class_getInstanceMethod(objc_getClass("EAGLContext"),selector))goto done;
+  BOOL bound=((BOOL (*)(id,SEL,IOSurfaceRef,unsigned long,unsigned long,GLsizei,GLsizei,unsigned long,unsigned long,uint32_t,BOOL))objc_msgSend)
+      (surface_eagl_context,selector,hook_surface,GL_TEXTURE_2D,GL_RGBA,750,1624,GL_BGRA,GL_UNSIGNED_BYTE,0,NO);
+  if(!bound)goto done;
+#else
   image_target(GL_TEXTURE_2D,(void *)(uintptr_t)IOSurfaceGetID(hook_surface));
+#endif
   GLint width=0,height=0;
   glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&width);
   glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
   if(glGetError()!=GL_NO_ERROR || width!=750 || height!=1624)goto done;
   checked++;
  }
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+ printf("waffle-gl-eagl-native-input: bound=2 sid=%u selector_present=1 input_only=1\n",IOSurfaceGetID(hook_surface));
+#endif
 #ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
  struct waffle_surface_sample_result result;
  ok=waffle_gl_sample_texture(textures[0],IOSurfaceGetBaseAddress(hook_surface),IOSurfaceGetBytesPerRow(hook_surface),750,1624,&result);
@@ -496,6 +510,9 @@ int main(void)
  if(!ctx){printf("waffle-gl-hook: initializer failed\n");goto finish;}
  waffle_hook_table=((void **(*)(id,SEL))objc_msgSend)(ctx,table);
  if(!waffle_hook_table || !waffle_hook_table[0]){printf("waffle-gl-hook: private table missing\n");goto finish;}
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+ surface_eagl_context=ctx;
+#endif
  printf("waffle-gl-hook: actual_EAGLContext=1 table_nonnull=1 context_nonnull=1\n");
 #else
  struct redwood_gl *ctx=NULL;

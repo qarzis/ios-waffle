@@ -227,7 +227,9 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    eagl_audit='waffle-gl-eagl-native-input:' in text
     reuse_audit='waffle-gl-surface-reuse:' in text
+    if eagl_audit and not reuse_audit:raise RuntimeError('EAGL native input lacks native update/reuse proof')
     sample_audit='SURFACE_SAMPLE' in text or 'waffle-gl-surface-sample:' in text
     resource_audit='waffle-gl-surface-resource:' in text
     if reuse_audit and not sample_audit:raise RuntimeError('Native texture reuse lacks shader sampling proof')
@@ -314,6 +316,11 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             draw=re.search(r'GENERAL_SUBMIT begin fence=(\d+)',text[sync.end():])
             if draw and int(draw[1])>=3:draw_fences.add(int(draw[1]))
         if len(draw_fences)<4:raise RuntimeError('Native texture reuse lacks four cache-cleaned GPU draws')
+    if eagl_audit:
+        if f'waffle-gl-eagl-native-input: bound=2 sid={sid} selector_present=1 input_only=1' not in text:
+            raise RuntimeError('Existing EAGL surface input selector proof missing')
+        if "2 IOSurfaces were the textures' memory" not in text:
+            raise RuntimeError('EAGL reports no pair of native surface inputs')
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     surface_publication=r"SURFACE_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) cached=1 pages=(\d+)"
     reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"
