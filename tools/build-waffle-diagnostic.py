@@ -86,6 +86,7 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-framebuffer-clipping-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-display-usecount-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-display-retire-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-log-batch-host.py"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
          "-I", ROOT / "kernel/files/bsd", ROOT / "tools/tests/waffle-battery-readonly-host.c",
          "-o", output / "test-battery-readonly"])
@@ -328,7 +329,7 @@ def main():
                      "tools/tests/waffle-battery-report-host.py",
                      "kernel/files/iokit/Kernel/MiniIOSurface.h",
                      "tools/tests/waffle-framebuffer-clipping-host.py",
-                     "tools/tests/waffle-display-usecount-host.py", "tools/tests/waffle-display-retire-host.py",
+                     "tools/tests/waffle-display-usecount-host.py", "tools/tests/waffle-display-retire-host.py", "tools/tests/waffle-log-batch-host.py",
                      "tools/tests/waffle-iosurface-seed-host.py",
                      "tools/tests/waffle-10mb-object-host.py"):
         target = source / relative

@@ -1,0 +1,9 @@
+{
+  "run": "20261104T110146Z",
+  "scope": "Unique captured records in four submit message categories, GPU phase before planned stop. Lower bound; excludes ACK, allocation, other messages and duplicates.",
+  "unique_records": 27663,
+  "input_bytes": 2497600,
+  "old_lock_pairs_lower_bound": 2497600,
+  "batched_lock_pairs_same_records": 55192,
+  "hardware_time_saved_measured": false
+}

@@ -46,43 +46,47 @@ static bool loader_log_wrapped;
 static bool loader_log_linear;
 static char loader_log_scratch[LOADER_LOG_RING];
 static uint32_t loader_log_lock;
-void
-loader_log_putc(char c)
+static void
+loader_log_write(const char *bytes, size_t length)
 {
- uint64_t daif;
+ /* Callers cap each interrupt-disabled section at64 input bytes. */
+ uint64_t daif = __builtin_arm_rsr64("DAIF");
  bool locked = false;
- if (c == '\r') {
-  return;
- }
- daif = __builtin_arm_rsr64("DAIF");
  __builtin_arm_wsr("DAIFSet", DAIFSC_IRQF | DAIFSC_FIQF);
  for (uint32_t tries = 0; !locked && tries < 10000000; tries++) {
   locked = os_atomic_cmpxchg(&loader_log_lock, 0, 1, acquire);
  }
- char *at = NULL;
- if (loader_log_linear || loader_log_len < LOADER_LOG_HEAD) {
-  if (loader_log_len < LOADER_LOG_SIZE) {
-   at = &loader_log[loader_log_len];
-   loader_log[loader_log_len++] = c;
+ for (size_t i = 0; i < length; i++) {
+  char c = bytes[i];
+  if (c == '\r') continue;
+  char *at = NULL;
+  if (loader_log_linear || loader_log_len < LOADER_LOG_HEAD) {
+   if (loader_log_len < LOADER_LOG_SIZE) {
+    at = &loader_log[loader_log_len];
+    loader_log[loader_log_len++] = c;
+   }
+  } else {
+   at = &loader_log[LOADER_LOG_HEAD + loader_log_ring_at];
+   loader_log[LOADER_LOG_HEAD + loader_log_ring_at] = c;
+   if (++loader_log_ring_at == LOADER_LOG_RING) {
+    loader_log_ring_at = 0;
+    loader_log_wrapped = true;
+   }
+   if (!loader_log_wrapped) {
+    loader_log_len = LOADER_LOG_HEAD + loader_log_ring_at;
+   }
   }
- } else {
-  at = &loader_log[LOADER_LOG_HEAD + loader_log_ring_at];
-  loader_log[LOADER_LOG_HEAD + loader_log_ring_at] = c;
-  if (++loader_log_ring_at == LOADER_LOG_RING) {
-   loader_log_ring_at = 0;
-   loader_log_wrapped = true;
-  }
-  if (!loader_log_wrapped) {
-   loader_log_len = LOADER_LOG_HEAD + loader_log_ring_at;
+  if (at != NULL && (c == '\n' || ((uintptr_t)at & 63) == 63)) {
+   __asm__ volatile ("dc cvac, %0" : : "r" (at) : "memory");
   }
  }
- if (at != NULL && (c == '\n' || ((uintptr_t)at & 63) == 63)) {
-  __asm__ volatile ("dc cvac, %0" : : "r" (at) : "memory");
- }
- if (locked) {
-  os_atomic_store(&loader_log_lock, 0, release);
- }
+ if (locked) os_atomic_store(&loader_log_lock, 0, release);
  __builtin_arm_wsr64("DAIF", daif);
+}
+void
+loader_log_putc(char c)
+{
+ if (c != '\r') loader_log_write(&c, 1);
 }
 static void
 loader_log_linearize(void)
@@ -214,18 +218,17 @@ void loader_log_line(const char *line);
 void
 loader_log_line(const char *line)
 {
- for (; *line != 0; line++) {
-  if (*line != '\r') {
-   loader_log_putc(*line);
-  }
+ while (*line) {
+  size_t length = 0;
+  while (length < 64 && line[length]) length++;
+  loader_log_write(line, length);
+  line += length;
  }
 }
 static void
 loader_log_puts(const char *s)
 {
- for (; *s; s++) {
-  loader_log_putc(*s);
- }
+ loader_log_line(s);
 }
 static void
 loader_log_append_msgbuf(void)

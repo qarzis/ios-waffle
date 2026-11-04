@@ -31,6 +31,7 @@ extern vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
 extern void ml_io_unmap(vm_offset_t, vm_size_t);
 extern vm_offset_t kvtophys(vm_offset_t);
 extern void loader_log_putc(char);
+extern void loader_log_line(const char *);
 extern void loader_return(void);
 extern uint64_t loader_return_remaining_us(void);
 static bool gpu_gen7_configuration_probe(vm_offset_t,vm_offset_t,struct waffle_gmu_plan *,unsigned);
@@ -80,7 +81,7 @@ static void say(const char *fmt, ...)
 {
     char text[256]; va_list ap;
     va_start(ap, fmt); vsnprintf(text, sizeof(text), fmt, ap); va_end(ap);
-    for (char *p = text; *p; ++p) loader_log_putc(*p);
+    loader_log_line(text);
     printf("%s", text);
 }
 static struct waffle_gmu_region *region_at(struct waffle_gmu_plan *plan, uint32_t addr, uint32_t size)

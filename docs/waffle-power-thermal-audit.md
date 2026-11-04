@@ -1,3 +1,11 @@
+## Update after D09–D12
+
+D09 again had no visible tears; FPS improvement was uncertain. D11 reproduced the user's lag with controlled manual scrolling: logged active intervals25–36fps, median GL frame20.5ms and p9034.3ms. Context summaries placed readback around7.5–8.7ms; display driver cost remained20–23ms. These overlapping stages must not be added as a single latency. Logs after the planned GPU stop belong to softpipe and are excluded from GPU timing.
+
+D12 qualified the existing readback profiler on all1,218,000 pixels with zero errors and returned Android. D13 is an untested logger batching candidate: preserve all bytes and cache-clean policy while amortizing interrupt masking/atomic locks across at most64 input bytes. Host scalar-equivalence tests pass underASan/UBSan; a speed or thermal benefit still requires hardware measurement. No frequency or idle changes are included.
+
+BAT01 and BAT02 also passed native transport and three updates through IOPMPowerSource/PID1. The ordinary UI service remains pending. Historical audit below records the earlier state.
+
 # Waffle thermal and latency audit — 2026-11-04
 
 This is a source audit and a post-return Android snapshot, not an iOS thermal qualification.
