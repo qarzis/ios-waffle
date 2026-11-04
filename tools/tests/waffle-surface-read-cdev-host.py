@@ -7,11 +7,17 @@ ns={'__file__':str(root/'tools/tests/waffle-general-drm-host.py')}
 s=(root/'tools/tests/waffle-general-drm-host.py').read_text();exec(s[:s.index('\nwith tempfile.TemporaryDirectory()')],ns)
 # Independent packet fields against checked-in Mesa register descriptions.
 import xml.etree.ElementTree as ET
-xml=ET.parse(root/'xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/registers/adreno/adreno_pm4.xml')
-elements=list(xml.iter())
-assert any(e.attrib.get('name')=='CP_MEM_TO_MEM' and e.attrib.get('value')=='0x73' for e in elements)
-domain=next(e for e in elements if e.tag.endswith('domain') and e.attrib.get('name')=='CP_MEM_TO_MEM')
-assert {e.attrib.get('name'):e.attrib.get('offset') for e in domain if e.tag.endswith('reg64')}=={'DST':'1','SRC_A':'3','SRC_B':'5','SRC_C':'7'}
+import json,hashlib
+layout=json.loads((root/'tools/tests/fixtures/waffle-mem-to-mem-layout.json').read_text())
+assert layout['opcode']==0x73 and layout['payload_words']==5
+assert layout['reg64_offsets']=={'DST':'1','SRC_A':'3','SRC_B':'5','SRC_C':'7'}
+xml_path=root/'xnu-deps/build/mesa/mesa-26.3.0-rc1/src/freedreno/registers/adreno/adreno_pm4.xml'
+if xml_path.exists():
+ assert hashlib.sha256(xml_path.read_bytes()).hexdigest()==layout['source_sha256']
+ elements=list(ET.parse(xml_path).iter())
+ assert any(e.attrib.get('name')=='CP_MEM_TO_MEM' and e.attrib.get('value')=='0x73' for e in elements)
+ domain=next(e for e in elements if e.tag.endswith('domain') and e.attrib.get('name')=='CP_MEM_TO_MEM')
+ assert {e.attrib.get('name'):e.attrib.get('offset') for e in domain if e.tag.endswith('reg64')}==layout['reg64_offsets']
 odd=lambda v:1^(v.bit_count()&1)
 assert 0x70000000|5|(odd(5)<<15)|(0x73<<16)|(odd(0x73)<<23)==0x70738005
 h=ns['h']

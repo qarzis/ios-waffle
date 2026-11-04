@@ -75,5 +75,11 @@ with tempfile.TemporaryDirectory() as t:
     check(r,a,v,imp)
     x=copy.deepcopy(imp);x['surface_read_test']=True;reject(v,x)
     x=copy.deepcopy(imp);x['surface_describe']=False;reject(v,x)
+    res=copy.deepcopy(g);res['surface_map_test']=True;res['surface_resource_test']=True
+    reject(v,res)
+    v['surface_resource_audit']=True
+    check(r,a,v,res)
+    x=copy.deepcopy(res);x['surface_import_test']=True;reject(v,x)
+    x=copy.deepcopy(res);x['surface_describe']=False;reject(v,x)
     check(r,a,{}, {}) # Existing unrelated probe has no metadata opt-in.
 print(f'PASS actual surface admission:{count} metadata/UI/missing/current/compiled/Mesa-source mismatch refusals before USB; bound and unrelated artifacts preserved')
