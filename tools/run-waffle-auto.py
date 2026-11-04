@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_workload=False):
     """Read-only admission check, called before USB or reboot operations."""
     if not gl_manifest.get('surface_describe'):
-        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test')):
+        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test','surface_sample_test')):
             raise ValueError('Surface access audit requires metadata binding')
         return
     if ui_workload or not gl_manifest.get('fullsize_probe') or not manifest.get('surface_metadata_describe'):
@@ -34,6 +34,10 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Surface import requires a matching isolated lifetime artifact')
     if gl_manifest.get('surface_resource_test') and (any(gl_manifest.get(k) for k in ('surface_import_test','surface_write_test','surface_read_test')) or not gl_manifest.get('surface_map_test') or not manifest.get('surface_resource_audit')):
         raise ValueError('Mesa surface resource audit requires a matching isolated artifact')
+    if gl_manifest.get('surface_sample_test') and (not gl_manifest.get('surface_resource_test') or not manifest.get('surface_sample_audit')):
+        raise ValueError('Native shader sampler requires a matching isolated readonly artifact')
+    if gl_manifest.get('surface_sample_test') and any(n not in gl_manifest.get('source_sha256',{}) for n in ('userland/src/waffle_surface_sample.c','userland/src/waffle_surface_sample.h')):
+        raise ValueError('Native sampler shader source binding missing')
     bindings=manifest.get('surface_description_source_sha256',{})
     required=('kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/iokit/Kernel/MiniIOSurface.cpp')
     if gl_manifest.get('surface_map_test'):

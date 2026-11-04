@@ -163,14 +163,25 @@ static bool check_surface_import(void)
  if(!ok)printf("waffle-gl-surface-import: passed=0\n");close(fd);return ok;
 }
 #endif
+#ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
+#include "waffle_surface_sample.h"
+#endif
 #ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
 static bool check_surface_resource(void)
 {
  void (*image_target)(GLenum,void *)=(void (*)(GLenum,void *))OSMesaGetProcAddress("glEGLImageTargetTexture2DOES");
  if(!image_target)return false;
- GLuint textures[2]={0};GLint previous=0;unsigned checked=0;bool ok=false;
+ GLuint textures[2]={0};GLint previous=0;unsigned checked=0,gpu_access=0;bool ok=false;
+#ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
+ gpu_access=1;
+#endif
  glGetIntegerv(GL_TEXTURE_BINDING_2D,&previous);
- if(glGetError()!=GL_NO_ERROR || setenv("WAFFLE_GPU_SURFACE_IMPORT_AUDIT","1",1))return false;
+#ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
+ const char *audit_env="WAFFLE_GPU_SURFACE_SAMPLE_AUDIT";
+#else
+ const char *audit_env="WAFFLE_GPU_SURFACE_IMPORT_AUDIT";
+#endif
+ if(glGetError()!=GL_NO_ERROR || setenv(audit_env,"1",1))return false;
  glGenTextures(2,textures);
  for(unsigned i=0;i<2;i++){
   glBindTexture(GL_TEXTURE_2D,textures[i]);
@@ -181,12 +192,19 @@ static bool check_surface_resource(void)
   if(glGetError()!=GL_NO_ERROR || width!=750 || height!=1624)goto done;
   checked++;
  }
+#ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
+ struct waffle_surface_sample_result result;
+ ok=waffle_gl_sample_texture(textures[0],IOSurfaceGetBaseAddress(hook_surface),IOSurfaceGetBytesPerRow(hook_surface),750,1624,&result);
+ printf("waffle-gl-surface-sample: passed=%u sid=%u checked=256 wrong=%u GL_error=%x stage=%u GPU_readonly=1\n",ok,IOSurfaceGetID(hook_surface),result.wrong,result.error,result.stage);
+ for(unsigned i=0;i<256;i+=8)printf("waffle-gl-surface-sample: pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,result.pixels[i],result.pixels[i+1],result.pixels[i+2],result.pixels[i+3],result.pixels[i+4],result.pixels[i+5],result.pixels[i+6],result.pixels[i+7]);
+#else
  ok=true;
+#endif
  done:
- unsetenv("WAFFLE_GPU_SURFACE_IMPORT_AUDIT");
+ unsetenv(audit_env);
  glBindTexture(GL_TEXTURE_2D,(GLuint)previous);glDeleteTextures(2,textures);
  if(glGetError()!=GL_NO_ERROR)ok=false;
- printf("waffle-gl-surface-resource: passed=%u sid=%u textures=%u width=750 height=1624 deleted=2 GPU_memory_access=0\n",ok,IOSurfaceGetID(hook_surface),checked);
+ printf("waffle-gl-surface-resource: passed=%u sid=%u textures=%u width=750 height=1624 deleted=2 GPU_memory_access=%u\n",ok,IOSurfaceGetID(hook_surface),checked,gpu_access);
  return ok;
 }
 #endif

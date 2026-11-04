@@ -12,12 +12,12 @@ code=r'''
 #include "waffle_gpu_reclaim.h"
 static struct waffle_gpu_memory entries[WAFFLE_GPU_BO_LIMIT],prepared;
 static struct waffle_gpu_registry registry;
-static unsigned mode,mapped,unmapped,holds,drops,cleans,tlbs,idles,phase;
+static unsigned mode,mapped,unmapped,holds,drops,cleans,tlbs,idles,phase,read_only;
 static uint64_t leaf[16];
 static bool idle(void *p){assert(p==&registry);idles++;return mode!=1 && !(mode==10 && phase && idles>1);}
 static bool vacant(void *p,uint64_t a){assert(p==&registry && !(a&4095));return mode!=2;}
 static bool map(void *p,uint64_t a,uint64_t pa,bool ro){
- assert(p==&registry && !ro && holds==1 && !drops && !prepared.object);
+ assert(p==&registry && ro==(read_only!=0) && holds==1 && !drops && !prepared.object);
  struct waffle_gpu_memory *bo=&entries[0];assert(bo->object && bo->published && bo->storage==WAFFLE_GPU_STORAGE_SURFACE);
  assert(registry.count==1 && registry.used==32768 && registry.issued==1);
  unsigned slot=(a-WAFFLE_GPU_BO_VA_BASE)/4096;assert(slot<8 && pa==0x1000000+slot*8192 && !leaf[slot]);
@@ -35,10 +35,10 @@ bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *bo,bool detached){
  assert(!bo->published || detached);holds--;drops++;memset(bo,0,sizeof(*bo));return true;
 }
 static bool owns(void *p,uint64_t a,uint64_t pa,bool ro){
- assert(p==&registry && !ro);unsigned slot=(a-WAFFLE_GPU_BO_VA_BASE)/4096;return slot<8 && leaf[slot]==pa && mode!=6;
+ assert(p==&registry && ro==(read_only!=0));unsigned slot=(a-WAFFLE_GPU_BO_VA_BASE)/4096;return slot<8 && leaf[slot]==pa && mode!=6;
 }
 static bool unmap(void *p,uint64_t a,uint64_t pa,bool ro){
- assert(p==&registry && !ro && registry.poisoned && holds==1 && !drops);
+ assert(p==&registry && ro==(read_only!=0) && registry.poisoned && holds==1 && !drops);
  unsigned slot=(a-WAFFLE_GPU_BO_VA_BASE)/4096;assert(slot<8 && leaf[slot]==pa);unmapped++;
  if(mode==8 && unmapped==2)return false;leaf[slot]=0;return true;
 }
@@ -46,10 +46,11 @@ static const struct waffle_gpu_registry_ops ops={idle,vacant,map,clean,tlb,&regi
 static const struct waffle_gpu_reclaim_ops reclaim={&ops,owns,unmap};
 static void reset(void){
  memset(entries,0,sizeof(entries));memset(leaf,0,sizeof(leaf));registry=(struct waffle_gpu_registry){.buffers=entries};
- prepared=(struct waffle_gpu_memory){.object=79,.memory=0x2000000,.bytes=32768,.allocation_bytes=32768,.flags=WAFFLE_GPU_BO_CACHED,.storage=WAFFLE_GPU_STORAGE_SURFACE};
+ prepared=(struct waffle_gpu_memory){.object=79,.memory=0x2000000,.bytes=32768,.allocation_bytes=32768,.flags=WAFFLE_GPU_BO_CACHED|(read_only?WAFFLE_GPU_BO_READONLY:0),.storage=WAFFLE_GPU_STORAGE_SURFACE};
  mode=mapped=unmapped=drops=cleans=tlbs=idles=phase=0;holds=1;
 }
 int main(void){
+ for(read_only=0;read_only<2;read_only++){
  for(unsigned n=0;n<=5;n++){
   reset();mode=n;struct waffle_gpu_memory before=prepared;
   struct waffle_gpu_memory *bo=waffle_gpu_registry_adopt(&registry,&ops,&prepared);
@@ -82,6 +83,7 @@ int main(void){
   else if(n){assert(!waffle_gpu_registry_reclaim(&registry,&reclaim,bo,true) && holds==1 && !drops && registry.poisoned);}
   else{assert(waffle_gpu_registry_reclaim(&registry,&reclaim,bo,true) && unmapped==8 && !holds && drops==1 && !registry.used);}
   if(holds)assert(waffle_gpu_registry_destroy(&registry,true) && drops==1 && !holds);
+ }
  }
 }
 '''

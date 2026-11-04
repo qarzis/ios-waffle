@@ -227,7 +227,9 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    sample_audit='SURFACE_SAMPLE' in text or 'waffle-gl-surface-sample:' in text
     resource_audit='waffle-gl-surface-resource:' in text
+    if sample_audit and not resource_audit:raise RuntimeError('Shader sampling lacks Mesa resource proof')
     import_audit='SURFACE_IMPORT' in text or 'waffle-gl-surface-import:' in text or resource_audit
     imported={};import_summary=None
     if import_audit:
@@ -235,7 +237,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             raise RuntimeError('Mixed native import and memory-access audits')
         if resource_audit:
             if 'waffle-gl-surface-import:' in text:raise RuntimeError('Mixed native lifetime and Mesa resource audits')
-            summaries=set(re.findall(r'waffle-gl-surface-resource: passed=1 sid=(\d+) textures=2 width=750 height=1624 deleted=2 GPU_memory_access=0',text))
+            summaries=set(re.findall(r'waffle-gl-surface-resource: passed=1 sid=(\d+) textures=2 width=750 height=1624 deleted=2 GPU_memory_access='+('1' if sample_audit else '0'),text))
             created=set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+)',text))
             if len(summaries)!=1 or len(created)!=1:raise RuntimeError('Missing Mesa resource/native import proof')
             sid=int(next(iter(summaries)));native_sid,first=map(int,next(iter(created)))
@@ -251,12 +253,43 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             raise RuntimeError('Native import or Mesa resource audit failed')
         if set(re.findall(r'SURFACE_IMPORT reused=1 sid=(\d+) handle=(\d+)',text))!={(str(sid),str(first))}:
             raise RuntimeError('Missing duplicate native import reuse')
-        for row in set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+) index=(\d+) VA=([0-9a-f]+) bytes=(\d+) lifetime_only=1',text)):
+        for row in set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+) index=(\d+) VA=([0-9a-f]+) bytes=(\d+) lifetime_only=([01])',text)):
             surface,handle,index,va,size=int(row[0]),int(row[1]),int(row[2]),int(row[3],16),int(row[4])
-            if index in imported or surface!=sid:raise RuntimeError('Conflicting native import publication')
+            if index in imported or surface!=sid or int(row[5])!=(0 if sample_audit else 1):raise RuntimeError('Conflicting native import publication')
             imported[index]=(handle,va,size)
         if len(imported)!=(1 if resource_audit else 2) or {v[0] for v in imported.values()}!={first,second}:
             raise RuntimeError('Missing native import handle publications')
+    if sample_audit:
+        if 'waffle-gl-surface-sample: passed=0' in text:raise RuntimeError('Native shader sampling failed')
+        sid,handle,_=import_summary
+        if f'waffle-gl-surface-sample: passed=1 sid={sid} checked=256 wrong=0 GL_error=0 stage=7 GPU_readonly=1' not in text:
+            raise RuntimeError('Missing complete native shader sampling proof')
+        index=next(iter(imported));size=imported[index][2]
+        if set(re.findall(r'SURFACE_SAMPLE imported=1 sid=(\d+) handle=(\d+) index=(\d+) GPU_readonly=1',text))!={(str(sid),str(handle),str(index))}:
+            raise RuntimeError('Native sample mapping lacks readonly identity')
+        sync=f'SURFACE_SAMPLE sync=1 handle={handle} bytes={size} GPU_readonly=1'
+        if sync not in text:raise RuntimeError('Native sample source lacks CPU cache clean proof')
+        cursor=text.index(sync)+len(sync)
+        start=re.search(r'GENERAL_SUBMIT begin fence=(\d+) seq=(\d+)',text[cursor:])
+        if not start or int(start[1])<3:raise RuntimeError('Native shader read lacks a later GPU command')
+        completion=f'GENERAL_SUBMIT done fence={start[1]} seq={start[2]}'
+        end=text.find(completion,cursor+start.end())
+        if end<0 or end>text.index('waffle-gl-surface-sample: passed=1'):
+            raise RuntimeError('Native shader result precedes GPU completion')
+        samples={}
+        for offset,values in re.findall(r'waffle-gl-surface-sample: pixels offset=(\d+) values=([0-9a-f/]+)',text):
+            offset=int(offset);row=tuple(int(v,16) for v in values.split('/'))
+            if len(row)!=8 or offset not in range(0,256,8) or (offset in samples and samples[offset]!=row):
+                raise RuntimeError('Malformed/conflicting shader sample pixels')
+            samples[offset]=row
+        if len(samples)!=32:raise RuntimeError('Missing shader sample pixel rows')
+        for y in range(16):
+            for x in range(16):
+                sx=(2*x+1)*750//32;sy=(2*y+1)*1624//32;gy=1623-sy
+                inside=(2*sx+1)*3248>750*(2*gy+1) and (2*sx+1)*3248<4872000-750*(2*gy+1)
+                expected=0xff0040ff if inside else 0xff000000
+                at=y*16+x
+                if samples[(at//8)*8][at%8]!=expected:raise RuntimeError('Incorrect native texture shader pixel')
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     surface_publication=r"SURFACE_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) cached=1 pages=(\d+)"
     reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"
@@ -303,13 +336,13 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
                 if ((not write_audit and not import_audit and 'waffle-gl-surface-map: passed=1 native_registry=1 mapped_then_revoked=1 GPU_memory_access=0' not in text) or
                     'waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1' not in text):
                     raise RuntimeError('Surface mapping lacks isolated audit and fullsize pixel proof')
-                values=(values[0],values[1],values[2],values[2],'80000',values[3])
+                values=(values[0],values[1],values[2],values[2],'80002' if sample_audit else '80000',values[3])
                 surface_indices.add(index)
             va,logical,allocated,flags,pages=int(values[1],16),int(values[2]),int(values[3]),int(values[4],16),int(values[5])
             if index!=len(buffers)+1 or index>0xffffffff or (index>capacity and not generations):raise RuntimeError("Missing GL BO publication")
             if len(active)>=capacity:raise RuntimeError("Live GL BO descriptor capacity exceeded")
             if (not 0<logical<=object_max or allocated!=((logical+16383)&~16383) or
-                flags not in ((0x80000,) if kind=='surface' else (0x20000,0x20002)) or pages!=allocated//4096 or va&16383 or
+                flags not in (((0x80002,) if sample_audit else (0x80000,)) if kind=='surface' else (0x20000,0x20002)) or pages!=allocated//4096 or va&16383 or
                 va<0x100000000 or va+allocated>0x100000000+va_budget):
                 raise RuntimeError("Invalid GL BO range/permission publication")
             if not retired and va!=append_end:raise RuntimeError("Unexpected GL VA reuse without revocation")
@@ -399,6 +432,7 @@ def validate_gl_log(text):
         raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
     validate_gl_queue_recycle_log(text,count)
+    if 'waffle-gl-surface-sample:' in text and count<3:raise RuntimeError('Shader sampling lacks an additional GPU submission')
     capacity=re.search(r"GENERAL registered root_only=1 gated=1 BO_limit=(32|64|128|4096|8192)\b",text)
     if not capacity:raise RuntimeError("Missing bounded GL BO capacity")
     capacity=int(capacity[1])

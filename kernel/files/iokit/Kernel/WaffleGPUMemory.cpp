@@ -66,7 +66,7 @@ static void waffle_surface_cache_line(uintptr_t address,bool invalidate)
 bool waffle_gpu_memory_surface_sync(const struct waffle_gpu_memory *bo,uint32_t offset,uint32_t bytes,unsigned direction)
 {
  if(!bo || !bo->object || !bo->published || bo->storage!=WAFFLE_GPU_STORAGE_SURFACE ||
-    bo->flags!=WAFFLE_GPU_BO_CACHED || !bo->memory || (bo->memory&16383) ||
+    (bo->flags!=WAFFLE_GPU_BO_CACHED && bo->flags!=(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY)) || !bo->memory || (bo->memory&16383) ||
     !bytes || offset>bo->bytes || bytes>bo->bytes-offset || bo->bytes>bo->allocation_bytes ||
     (bo->allocation_bytes&16383) || direction>WAFFLE_GPU_SURFACE_TO_CPU ||
     bo->memory>UINTPTR_MAX-bo->allocation_bytes)return false;

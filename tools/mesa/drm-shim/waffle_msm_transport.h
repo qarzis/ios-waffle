@@ -27,8 +27,11 @@ static inline unsigned long waffle_msm_request(unsigned number,size_t size)
 /* Private diagnostic import is opt-in and never redirects metadata requests. */
 static inline unsigned long waffle_msm_surface_request(unsigned number,size_t size,uint32_t handle,int import_audit)
 {
- if(number==0x7e && size==sizeof(struct waffle_msm_surface) && !handle && import_audit)
-  return WAFFLE_MSM_SURFACE_IMPORT_TEST;
+ if(number==0x7e && size==sizeof(struct waffle_msm_surface) && !handle){
+  if(import_audit==2)return WAFFLE_MSM_SURFACE_SAMPLE_IMPORT;
+  if(import_audit==1)return WAFFLE_MSM_SURFACE_IMPORT_TEST;
+  if(import_audit)return 0;
+ }
  return waffle_msm_request(number,size);
 }
 #endif

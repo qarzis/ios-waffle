@@ -30,7 +30,10 @@ int main(void){
 '''
 parts=ns['parts']
 with tempfile.TemporaryDirectory() as t:
- p=Path(t);(p/'test.c').write_text(h+parts['mapping']+parts['types']+parts['dynamic']+test)
- subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
- subprocess.run([str(p/'test')],check=True)
+ p=Path(t)
+ for readonly in (False,True):
+  candidate=test.replace('.flags=WAFFLE_GPU_BO_CACHED,','.flags=WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY,').replace('(e&0xc3)==0x43','(e&0xc3)==0xc3') if readonly else test
+  (p/'test.c').write_text(h+parts['mapping']+parts['types']+parts['dynamic']+candidate)
+  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-I',str(root/'kernel/files/bsd/sys'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+  subprocess.run([str(p/'test')],check=True)
 print('PASS actual retained-surface SMMU adapter: noncontiguous physical pages/AP, unchanged ordinary allocator, GPU+LPAC publication and revocation TLB syncs, all PTEs cleared before native-surface release; hardware I/O modeled')
