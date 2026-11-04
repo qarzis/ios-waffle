@@ -227,7 +227,9 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    dispatch_audit='waffle-gl-eagl-native-draw:' in text
     eagl_audit='waffle-gl-eagl-native-input:' in text
+    if dispatch_audit and not eagl_audit:raise RuntimeError('EAGL draw dispatch lacks native input proof')
     reuse_audit='waffle-gl-surface-reuse:' in text
     if eagl_audit and not reuse_audit:raise RuntimeError('EAGL native input lacks native update/reuse proof')
     sample_audit='SURFACE_SAMPLE' in text or 'waffle-gl-surface-sample:' in text
@@ -321,6 +323,8 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             raise RuntimeError('Existing EAGL surface input selector proof missing')
         if "2 IOSurfaces were the textures' memory" not in text:
             raise RuntimeError('EAGL reports no pair of native surface inputs')
+    if dispatch_audit and ('waffle-gl-eagl-native-draw: dispatched=1 shader_draw_readback=1' not in text or 'waffle-gl-eagl-native-draw: dispatched=0' in text):
+        raise RuntimeError('Native texture sampler bypassed EAGL dispatch')
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     surface_publication=r"SURFACE_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) cached=1 pages=(\d+)"
     reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"

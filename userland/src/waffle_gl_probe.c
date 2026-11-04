@@ -240,7 +240,14 @@ static bool check_surface_resource(void)
 #endif
 #ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
  struct waffle_surface_sample_result result;
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ waffle_gl_sample_set_dispatch(waffle_hook_table);
+#endif
  ok=waffle_gl_sample_texture(textures[0],IOSurfaceGetBaseAddress(hook_surface),IOSurfaceGetBytesPerRow(hook_surface),750,1624,&result);
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ if(!result.dispatch)ok=false;
+ printf("waffle-gl-eagl-native-draw: dispatched=%u shader_draw_readback=1\n",result.dispatch);
+#endif
  printf("waffle-gl-surface-sample: passed=%u sid=%u checked=256 wrong=%u GL_error=%x stage=%u GPU_readonly=1\n",ok,IOSurfaceGetID(hook_surface),result.wrong,result.error,result.stage);
  for(unsigned i=0;i<256;i+=8)printf("waffle-gl-surface-sample: pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,result.pixels[i],result.pixels[i+1],result.pixels[i+2],result.pixels[i+3],result.pixels[i+4],result.pixels[i+5],result.pixels[i+6],result.pixels[i+7]);
 #ifdef WAFFLE_GL_SURFACE_REUSE_TEST

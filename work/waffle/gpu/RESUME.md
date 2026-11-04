@@ -1,3 +1,7 @@
+# ACTIVE — S11 full EAGL sampler dispatch candidate ready
+
+Rootgpu/s11-surface-dispatch-pixel/artifactdiagnostic-surface-dispatch-s11ready/pairedvalidator/preUSBbindingPASS. Kernel/MesaexactS08B andgoldEAGLsource6797...unchanged. SamplerCconditionalWAFFLE_GL_SAMPLE_EAGL includesgeneratedtypedtable+setter(rootpassesactualcontexttable), allGLshader/draw/readbackrouted; compileassert+S11-dispatch-symbol-audit.json provesno rawGLimportsindispatchobject. Shaderlegacyunversionedgl_FragColorneededbyexistinghook; rawCmodepreserved. Generatornew--extra-source includeshelpernames; newrootflags--surface-dispatch-test impliesallS10gates. Strictmarkerdispatch1 +nativeinput+4draws/1024pixels/fullsource/GEM+Androidrequired. NextsavecheckpointthenphoneRAMS11. Noactiveowner;Androidavailable. Publicforkffbcd14throughS08B; S09/S10localcheckpointsqualified. NoordinaryUI/concurrentwriter/writabletarget/FPSclaim. Noagents/goals.
+
 # ACTIVE — S10 existing EAGL native input PASSED
 
 Run20261104T215258Z/auto215234Z originalrunner0/success1/Android1. ExistingEAGLtexImageIOSurface...selectorbound2inputviews, actualhookcounter2IOSurfacesmemory, sameGEM27. RawMesashaderoriginal+3CPUupdates1024pixels0wrong/full1218000sourceunchanged,10commands/36GEMs/cleanGEMretirement. GoldEAGLsource6797...unchanged. S10-result/evidence saved; noactiveownerphoneAndroid. Publicffbcd14throughS08B; S09/S10source+resultslocalonly.
