@@ -1,0 +1,10 @@
+waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23592960
+waffle-gpu: SURFACE_MAP_TEST passed=1 sid=1 VA=101680000 bytes=4898816 header_excluded=1 cached=1 retired=1 GPU_memory_access=0
+waffle-gl-surface-map: passed=1 native_registry=1 mapped_then_revoked=1 GPU_memory_access=0
+waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1
+waffle-gmu: SESSION closed OOB_released=1 outstanding=0
+waffle-gpu: GENERAL close passed=1 completed=2 buffers=27 context_null=1
+[  114.660823]: waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+[  114.660958]: waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23592960
+[  119.670747]: waffle-gmu: SESSION closed OOB_released=1 outstanding=0

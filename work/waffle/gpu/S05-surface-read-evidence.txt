@@ -1,0 +1,19 @@
+waffle-iommu: GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+waffle-gpu: SURFACE_READ_COMMAND_BO index=29 VA=101b2c000 bytes=4096 allocated=16384
+waffle-iommu: GENERAL_BO reclaimed index=29 VA=101b2c000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=28491776
+waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23592960
+waffle-gpu: SURFACE_READ_TEST passed=1 sid=1 VA=101680000 bytes=4898816 fence=3 checked=4 wrong=0 restored=1 retired=1
+waffle-gpu: SURFACE_READ_DATA values=57414646/4c454750/13579bdf/2468ace0 cached=1 GPU_memory_access=1
+waffle-gl-surface-read: passed=1 GPU_memory_access=1 restored=1
+waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1
+waffle-iommu: GENERAL_BO reclaimed index=11 VA=101114000 bytes=5242880 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=18350080
+waffle-iommu: GENERAL_BO released after GPU stop and context detach count=25 reclaimed_earlier=4 total=29
+waffle-gpu: GENERAL close passed=1 completed=3 buffers=27 context_null=1
+[  112.1005205]: waffle-iommu: GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0
+[  113.017501]: waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+[  113.017886]: waffle-iommu: GENERAL_BO reclaimed index=29 VA=101b2c000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=28491776
+[  113.018013]: waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23592960
+[  118.026370]: waffle-iommu: GENERAL_BO reclaimed index=11 VA=101114000 bytes=5242880 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=18350080
+[  118.058046]: waffle-iommu: GENERAL_BO released after GPU stop and context detach count=25 reclaimed_earlier=4 total=29

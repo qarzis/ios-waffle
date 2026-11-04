@@ -1,0 +1,33 @@
+{
+  "experiment": "S05 native cached IOSurface CPU-to-GPU read into separate WC buffer",
+  "passed": true,
+  "run": "20261104T195742Z",
+  "auto_run": "20261104T195718Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "surface_bytes": 4898816,
+  "surface_pages_4k": 1196,
+  "gpu_fence": 3,
+  "gpu_read_words": [
+    "57414646",
+    "4c454750",
+    "13579bdf",
+    "2468ace0"
+  ],
+  "wrong_words": 0,
+  "original_pixels_restored": true,
+  "surface_and_command_retired": true,
+  "fullsize_checked_pixels": 1218000,
+  "fullsize_wrong_pixels": 0,
+  "padding_wrong": 0,
+  "GL_error": 0,
+  "completed_commands": 3,
+  "Mesa_GEM_buffers": 27,
+  "kernel_log_sha256": "56fef8798f40459f2653aa6b87f94a135a831d22da409e9ad0f488f857ca5151",
+  "kernel_sha256": "4bf4875be76656851a40e576db4668bc03149df608caf047516db44131b128d6",
+  "limits": [
+    "Isolated PID1 command-processor read; normal Mesa import disabled",
+    "Shader sampling and render-target writes unverified",
+    "No FPS or long UI stability claim"
+  ]
+}

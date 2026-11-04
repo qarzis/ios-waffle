@@ -1,0 +1,32 @@
+{
+  "experiment": "S07 actual Mesa native IOSurface texture resource import and destruction",
+  "passed": true,
+  "run": "20261104T211254Z",
+  "auto_run": "20261104T211230Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "texture_count": 2,
+  "width": 750,
+  "height": 1624,
+  "underlying_imported_GEMs": 1,
+  "shared_handle": 27,
+  "duplicate_import_reused": true,
+  "textures_deleted": 2,
+  "GEM_retired_after_last_texture_reference": true,
+  "dual_ASID_revocation": true,
+  "fullsize_checked_pixels": 1218000,
+  "fullsize_wrong_pixels": 0,
+  "padding_wrong": 0,
+  "GL_error": 0,
+  "completed_commands": 2,
+  "GEM_buffers": 28,
+  "GPU_memory_access_by_resource_test": false,
+  "kernel_reused_from": "qualified S06",
+  "kernel_log_sha256": "6c1c9ed72fe8b0938449c996d5d72fd69785e796f37f9ad37f76eea4bd8c72d8",
+  "Mesa_sha256": "75c67d747937d334c1a024b869acfb660e4063d4bc5f3837b5861c4fced577ab",
+  "limits": [
+    "Actual GL/Mesa resource creation/destruction only; no imported shader sampling or rendering",
+    "Native cached imported SUBMIT/CPU_MAP/PREP/FINI remain refused",
+    "Normal UI import disabled; FPS not measured"
+  ]
+}

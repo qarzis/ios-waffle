@@ -1,0 +1,16 @@
+waffle-iommu: GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0
+waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+waffle-gpu: SURFACE_IMPORT created=1 sid=1 handle=27 index=28 VA=101680000 bytes=4898816 lifetime_only=1
+waffle-gpu: SURFACE_IMPORT reused=1 sid=1 handle=27
+waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23592960
+waffle-gpu: GENERAL bo_retired handle=27 bytes=4898816 backing_retained=0
+waffle-gl-surface-resource: passed=1 sid=1 textures=2 width=750 height=1624 deleted=2 GPU_memory_access=0
+waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1
+waffle-iommu: GENERAL_BO reclaimed index=11 VA=101114000 bytes=5242880 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=18350080
+waffle-iommu: GENERAL_BO released after GPU stop and context detach count=25 reclaimed_earlier=3 total=28
+waffle-gpu: GENERAL close passed=1 completed=2 buffers=28 context_null=1
+[  114.596992]: waffle-iommu: GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0
+[  114.619606]: waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+[  114.619769]: waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23592960
+[  119.626838]: waffle-iommu: GENERAL_BO reclaimed index=11 VA=101114000 bytes=5242880 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=18350080
+[  119.658388]: waffle-iommu: GENERAL_BO released after GPU stop and context detach count=25 reclaimed_earlier=3 total=28
