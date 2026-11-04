@@ -154,11 +154,39 @@ done:
  kfree_data(snapshot,(size_t)bytes);
  return error;
 }
+static int drm_surface_map_test(struct waffle_msm_surface *r)
+{
+ if(!r->surface || r->handle || r->size || r->offset || r->row_bytes || r->width || r->height || r->pixel_format || r->planes)return EINVAL;
+ struct waffle_msm_surface description={.surface=r->surface,.handle=WAFFLE_MSM_SURFACE_DESCRIBE};
+ int error=waffle_gpu_surface_describe(&description);
+ if(error)return error;
+ struct waffle_gpu_memory prepared={0};
+ if(!waffle_gpu_memory_surface(r->surface,&prepared))return ENOTSUP;
+ struct waffle_gpu_memory *bo=waffle_gpu_context_memory_adopt(drm_context,&prepared);
+ if(!bo){
+  if(prepared.object && !waffle_gpu_memory_destroy(&prepared,false)){
+   redwood_tl("waffle-gpu: SURFACE_MAP_TEST cleanup_refused=1\n");loader_return();for(;;);
+  }
+  return EIO;
+ }
+ uint64_t address=bo->gpu_va;uint32_t bytes=bo->allocation_bytes;
+ /* No GPU command references these pages. There is no CPU GEM mapping.
+  * Existing ownership checks revoke both ASIDs before releasing the hold. */
+ if(!waffle_gpu_context_memory_reclaim(drm_context,bo,true)){
+  redwood_tl("waffle-gpu: SURFACE_MAP_TEST revoke_failed=1 backing_retained=1\n");loader_return();for(;;);
+ }
+ *r=description;
+ redwood_tl("waffle-gpu: SURFACE_MAP_TEST passed=1 sid=%u VA=%llx bytes=%u header_excluded=1 cached=1 retired=1 GPU_memory_access=0\n",
+     r->surface,(unsigned long long)address,bytes);
+ return 0;
+}
 static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc *p)
 {
  (void)dev;(void)flags;lck_mtx_lock(&drm_lock);int error=0;
  if(!drm_context || proc_pid(p)!=drm_pid){error=EPERM;goto done;}
- if(command==WAFFLE_MSM_SURFACE){
+ if(command==WAFFLE_MSM_SURFACE_MAP_TEST){
+  error=proc_pid(p)==1?drm_surface_map_test((void *)data):EPERM;
+ }else if(command==WAFFLE_MSM_SURFACE){
   struct waffle_msm_surface *r=(void *)data;
   /* Description creates no GEM handle and cannot enter the BO registry. */
   error=r->handle==WAFFLE_MSM_SURFACE_DESCRIBE?waffle_gpu_surface_describe(r):ENOTSUP;

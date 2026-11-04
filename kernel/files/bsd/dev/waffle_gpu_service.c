@@ -74,6 +74,13 @@ struct waffle_gpu_memory *waffle_gpu_context_memory_new(struct waffle_gpu_contex
         waffle_gpu_parent_memory_new(context->parent,bytes,flags):NULL;
     lck_mtx_unlock(&service_lock);return bo;
 }
+struct waffle_gpu_memory *waffle_gpu_context_memory_adopt(struct waffle_gpu_context *context,struct waffle_gpu_memory *prepared)
+{
+    if(!context || !prepared || !lck_mtx_try_lock(&service_lock))return NULL;
+    struct waffle_gpu_memory *bo=active_context==context && context->parent?
+        waffle_gpu_parent_memory_adopt(context->parent,prepared):NULL;
+    lck_mtx_unlock(&service_lock);return bo;
+}
 bool waffle_gpu_context_memory_reclaim(struct waffle_gpu_context *context,struct waffle_gpu_memory *bo,bool cpu_unmapped)
 {
     if(!context || !bo || !cpu_unmapped || !lck_mtx_try_lock(&service_lock))return false;

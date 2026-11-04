@@ -73,6 +73,42 @@ static inline struct waffle_gpu_memory *waffle_gpu_registry_new(struct waffle_gp
  if(!ops->tlb(ops->context)){r->poisoned=true;return 0;}
  return bo;
 }
+/* Transfer one prepared retained surface into the existing publication
+ * protocol. Before the move, every failure leaves ownership with the caller.
+ * After it, even uncertain PTE/TLB failure retains storage in this registry. */
+static inline struct waffle_gpu_memory *waffle_gpu_registry_adopt(struct waffle_gpu_registry *r,
+ const struct waffle_gpu_registry_ops *ops,struct waffle_gpu_memory *prepared)
+{
+ if(!r || !r->buffers || !ops || !ops->idle || !ops->vacant || !ops->map_page || !ops->clean || !ops->tlb ||
+    !prepared || !prepared->object || !prepared->memory || prepared->published || prepared->gpu_va || prepared->serial ||
+    prepared->storage!=WAFFLE_GPU_STORAGE_SURFACE || prepared->flags!=WAFFLE_GPU_BO_CACHED ||
+    !prepared->bytes || prepared->bytes>WAFFLE_GPU_BO_MAX_BYTES || prepared->allocation_bytes!=prepared->bytes ||
+    (prepared->allocation_bytes&16383) || r->poisoned || r->count>WAFFLE_GPU_BO_LIMIT || r->issued==UINT32_MAX)return 0;
+ /* A registry entry cannot be moved into itself or another live slot. */
+ uintptr_t input=(uintptr_t)prepared,base=(uintptr_t)r->buffers;
+ if(input>=base && input-base<(uintptr_t)WAFFLE_GPU_BO_LIMIT*sizeof(*prepared))return 0;
+ uint32_t slot=0;
+ while(slot<r->count && r->buffers[slot].object)slot++;
+ if(slot>=WAFFLE_GPU_BO_LIMIT)return 0;
+ uint32_t allocated=prepared->allocation_bytes;
+ if(r->used>WAFFLE_GPU_BO_HEAP_BYTES || allocated>WAFFLE_GPU_BO_HEAP_BYTES-r->used || !ops->idle(ops->context))return 0;
+ uint64_t address=waffle_gpu_registry_find_hole(r,ops,allocated);
+ if(!address)return 0;
+ struct waffle_gpu_memory *bo=&r->buffers[slot];
+ *bo=*prepared;*prepared=(struct waffle_gpu_memory){0};
+ bo->gpu_va=address;bo->serial=++r->issued;r->used+=allocated;
+ if(slot==r->count)r->count++;
+ bo->published=true;
+ for(uint32_t off=0;off<allocated;off+=4096){
+  uint64_t pa=waffle_gpu_memory_page(bo,off);
+  if(!pa || !ops->map_page(ops->context,address+off,pa,false)){
+   r->poisoned=true;return 0;
+  }
+ }
+ ops->clean(ops->context);
+ if(!ops->tlb(ops->context)){r->poisoned=true;return 0;}
+ return bo;
+}
 static inline bool waffle_gpu_registry_destroy(struct waffle_gpu_registry *r,bool gpu_detached)
 {
  if(!r || !gpu_detached)return false;

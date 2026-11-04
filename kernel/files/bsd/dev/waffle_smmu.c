@@ -848,6 +848,18 @@ static struct waffle_gpu_memory *smmu_registry_new(struct smmu_owner *s,uint64_t
         bo->serial,bo->gpu_va,bo->bytes,bo->allocation_bytes,bo->flags,bo->allocation_bytes/4096);
     return bo;
 }
+static struct waffle_gpu_memory *smmu_registry_adopt(struct smmu_owner *s,struct waffle_gpu_memory *prepared)
+{
+    if(!s || s->compute_image!=13 || !prepared || !prepared->object)return NULL;
+    if(!s->registry.buffers && (!smmu_registry_idle(s) || !smmu_registry_prepare(s)))return NULL;
+    const struct waffle_gpu_registry_ops ops={smmu_registry_idle,smmu_registry_vacant,
+        smmu_registry_page,smmu_registry_clean,smmu_registry_tlb,s};
+    struct waffle_gpu_memory *bo=waffle_gpu_registry_adopt(&s->registry,&ops,prepared);
+    if(s->registry.poisoned)smmu_owner_stop("surface publication incomplete; retain surface backing and tables");
+    if(bo)log_line("waffle-iommu: SURFACE_BO published index=%u VA=%llx bytes=%u cached=1 pages=%u\n",
+        bo->serial,bo->gpu_va,bo->allocation_bytes,bo->allocation_bytes/4096);
+    return bo;
+}
 static bool smmu_bo_allocate_map(struct smmu_owner *s,struct waffle_gmu_region *bo,uint32_t address)
 {
     const uint32_t bytes=16384;
@@ -978,6 +990,15 @@ struct waffle_gpu_memory *waffle_smmu_owner_memory_new(struct waffle_smmu_owner 
         owner->state.gmu_ok=owner->state.dynamic_bo && smmu_dynamic_bo_bind(&owner->state);
     }
     return owner->state.gmu_ok?smmu_registry_new(&owner->state,bytes,flags):NULL;
+}
+struct waffle_gpu_memory *waffle_smmu_owner_memory_adopt(struct waffle_smmu_owner *owner,struct waffle_gpu_memory *prepared)
+{
+    if(!owner || !owner->state.child || owner->state.compute_image!=13 || !prepared)return NULL;
+    if(!owner->exercised){
+        owner->exercised=true;
+        owner->state.gmu_ok=owner->state.dynamic_bo && smmu_dynamic_bo_bind(&owner->state);
+    }
+    return owner->state.gmu_ok?smmu_registry_adopt(&owner->state,prepared):NULL;
 }
 bool waffle_smmu_owner_memory_reclaim(struct waffle_smmu_owner *owner,struct waffle_gpu_memory *bo,bool cpu_unmapped)
 {

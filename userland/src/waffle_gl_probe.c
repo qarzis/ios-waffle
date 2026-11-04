@@ -69,9 +69,15 @@ static void crash_log(int sig,siginfo_t *info,void *context)
  raw_call(55,8,0,0);for(;;){}
 }
 #define printf direct_log
-#ifdef WAFFLE_GL_RECYCLE_BO
+#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 #include <sys/stat.h>
+#include <sys/ioctl.h>
+#include "waffle_gpu_msm.h"
+#endif
+#ifdef WAFFLE_GL_RECYCLE_BO
 #include "waffle_gl_recycle_probe.h"
+#endif
+#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 static int existing_gpu_fd(void)
 {
  struct stat device;
@@ -130,6 +136,16 @@ static bool benchmark_blue;
 static bool check_full_surface(void)
 {
  if(!hook_surface || IOSurfaceGetWidth(hook_surface)!=750 || IOSurfaceGetHeight(hook_surface)!=1624 || IOSurfaceGetBytesPerRow(hook_surface)<3000)return false;
+#ifdef WAFFLE_GL_SURFACE_MAP_TEST
+ int fd=existing_gpu_fd();
+ if(fd<0){printf("waffle-gl-surface-map: passed=0 stage=fd\n");return false;}
+ struct waffle_msm_surface request={.surface=IOSurfaceGetID(hook_surface)};
+ int mapped=ioctl(fd,WAFFLE_MSM_SURFACE_MAP_TEST,&request);close(fd);
+ if(mapped || request.handle || request.surface!=IOSurfaceGetID(hook_surface) || request.size!=IOSurfaceGetAllocSize(hook_surface)){
+  printf("waffle-gl-surface-map: passed=0 stage=map_revoke error=%d\n",mapped);return false;
+ }
+ printf("waffle-gl-surface-map: passed=1 native_registry=1 mapped_then_revoked=1 GPU_memory_access=0\n");
+#endif
  if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS)return false;
  const uint8_t *base=IOSurfaceGetBaseAddress(hook_surface);size_t stride=IOSurfaceGetBytesPerRow(hook_surface);
  if(!base || stride>16384 || IOSurfaceGetAllocSize(hook_surface)<stride*1624){IOSurfaceUnlock(hook_surface,0,NULL);return false;}

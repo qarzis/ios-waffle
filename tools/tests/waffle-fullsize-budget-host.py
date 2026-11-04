@@ -20,7 +20,7 @@ with tempfile.TemporaryDirectory() as directory:
   else:
    t=mem['t'].replace('16384u,4194304u','16384u,4194304u,5242880u,8388608u').replace('4194305','WAFFLE_GPU_BO_MAX_BYTES+1')
   (p/'memory.cpp').write_text('#include <initializer_list>\n'+mem['h']+mem['s']+t)
-  subprocess.run(['c++','-std=c++17','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(p),str(p/'memory.cpp'),'-o',str(p/'memory')],check=True)
+  subprocess.run(['c++','-std=c++17','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(p),'-I',str(root/'kernel/files/bsd/sys'),str(p/'memory.cpp'),'-o',str(p/'memory')],check=True)
   subprocess.run([str(p/'memory')],check=True)
   t='int main(void){struct smmu_owner owner={.compute_image=13,.child=&child,.permission_context={.cb=1,.lpac_cb=2}};active=&owner;for(unsigned i=0;i<25;i++)assert(new_table(&owner.pool));owner.permission_context.tables=&owner.pool;live=true;\n'
   rejected=False

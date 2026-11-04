@@ -67,6 +67,7 @@ static bool waffle_gmu_owner_bind_bo(struct waffle_gmu_owner *g,struct waffle_gm
 '''
 tests = r'''
 int main(void){
+ assert(!smmu_registry_adopt(NULL,NULL));
  assert(!smmu_registry_reclaim(NULL,NULL,false));
  assert(!smmu_registry_new(NULL,4096,WAFFLE_GPU_BO_WC));
  for(mode=0;mode<12;mode++){
