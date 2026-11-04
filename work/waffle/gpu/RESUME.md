@@ -1,3 +1,7 @@
+# ACTIVE — S07 actual Mesa resource import candidate ready
+
+S06qualified, currentkernelunchanged. NewMesa opt-in WAFFLE_GPU_SURFACE_IMPORT_AUDIT onlyduringdirectprobe2textureimports; 0x7ehandle0routesprivateW0x58, MAXmetadata/defaultdonorunchanged. Bothtextures750x1624mustquerycorrectly, deleteandGEMretirebeforecontextclose, noimportedSUBMIT/MAP. Rootgpu/s07-surface-resource-pixel,Mesagpu/s07-mesa-resource-audit. Artifactdiagnostic-surface-resource-s07copiesexactS06kernel/EFI, sourceidentitiespairedvalidatorPASS, newnonkernelinputsnapshots. NativecachedimportsremainSUBMIT/CPUblocked. Hosttransport+18negativeparserfixturepassed. NextsavecheckpointthenphoneRAMcontrol; verifysinglenativeGEM+dupehandle/lifetimeclose/fullpixels/Android. Noagents/goals.
+
 # ACTIVE — S06 real native IOSurface GEM lifetime PASSED
 
 Run20261104T210531Z/auto210507Z originalrunner0/success1/Android1. Privateimporthandle27, duplicate27/noextrahold, CLOSErevoke, reimport8219(+8192generation), staleINFOrefused, CPUmaprefused, bothnativeimportsclosed. Full1218000pixels0wrong/padding0/GLerror0; actualstrictparser256samplespassed; S06-result.json/evidence saved. NoactiveUSBowner. S04write/S05read/S06lifetimequalifiedisolated; ordinary0x7eimportstillENOTSUP, SUBMIT/MAP/CPU_PREP/FINIrejectimportedBOs. NoFPSclaim.

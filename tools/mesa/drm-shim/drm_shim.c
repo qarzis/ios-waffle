@@ -88,6 +88,11 @@ call(unsigned number, void *data, size_t size)
 {
  if (waffle_general) {
   unsigned long request = waffle_msm_request(number, size);
+  if(number==REDWOOD_GPU_SURFACE && size==sizeof(struct waffle_msm_surface)){
+   const char *audit=getenv("WAFFLE_GPU_SURFACE_IMPORT_AUDIT");
+   request=waffle_msm_surface_request(number,size,((struct waffle_msm_surface *)data)->handle,
+       audit && strcmp(audit,"1")==0);
+  }
   if (!request) return EINVAL;
   return ioctl(connection_fd, request, data) < 0 ? errno : 0;
  }

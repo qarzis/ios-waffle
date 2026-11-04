@@ -227,24 +227,35 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
-    import_audit='SURFACE_IMPORT' in text or 'waffle-gl-surface-import:' in text
+    resource_audit='waffle-gl-surface-resource:' in text
+    import_audit='SURFACE_IMPORT' in text or 'waffle-gl-surface-import:' in text or resource_audit
     imported={};import_summary=None
     if import_audit:
         if any(x in text for x in ('SURFACE_WRITE_', 'SURFACE_MAP_TEST', 'waffle-gl-surface-map:')):
             raise RuntimeError('Mixed native import and memory-access audits')
-        summaries=set(re.findall(r'waffle-gl-surface-import: passed=1 sid=(\d+) first=(\d+) second=(\d+) duplicate_same=1 stale_refused=1 CPU_map_refused=1 closed=2 GPU_memory_access=0',text))
-        if len(summaries)!=1 or 'waffle-gl-surface-import: passed=0' in text or 'SURFACE_IMPORT cleanup_refused=1' in text:
-            raise RuntimeError('Incomplete native import lifetime proof')
-        import_summary=tuple(map(int,next(iter(summaries))))
-        sid,first,second=import_summary
-        if not sid or not first or second!=first+capacity:raise RuntimeError('Invalid imported handle generation')
+        if resource_audit:
+            if 'waffle-gl-surface-import:' in text:raise RuntimeError('Mixed native lifetime and Mesa resource audits')
+            summaries=set(re.findall(r'waffle-gl-surface-resource: passed=1 sid=(\d+) textures=2 width=750 height=1624 deleted=2 GPU_memory_access=0',text))
+            created=set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+)',text))
+            if len(summaries)!=1 or len(created)!=1:raise RuntimeError('Missing Mesa resource/native import proof')
+            sid=int(next(iter(summaries)));native_sid,first=map(int,next(iter(created)))
+            if sid!=native_sid:raise RuntimeError('Mesa resource imported a different surface')
+            second=first;import_summary=(sid,first,second)
+        else:
+            summaries=set(re.findall(r'waffle-gl-surface-import: passed=1 sid=(\d+) first=(\d+) second=(\d+) duplicate_same=1 stale_refused=1 CPU_map_refused=1 closed=2 GPU_memory_access=0',text))
+            if len(summaries)!=1:raise RuntimeError('Incomplete native import lifetime proof')
+            import_summary=tuple(map(int,next(iter(summaries))))
+            sid,first,second=import_summary
+            if not sid or not first or second!=first+capacity:raise RuntimeError('Invalid imported handle generation')
+        if any(x in text for x in ('waffle-gl-surface-import: passed=0','waffle-gl-surface-resource: passed=0','SURFACE_IMPORT cleanup_refused=1')):
+            raise RuntimeError('Native import or Mesa resource audit failed')
         if set(re.findall(r'SURFACE_IMPORT reused=1 sid=(\d+) handle=(\d+)',text))!={(str(sid),str(first))}:
             raise RuntimeError('Missing duplicate native import reuse')
         for row in set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+) index=(\d+) VA=([0-9a-f]+) bytes=(\d+) lifetime_only=1',text)):
             surface,handle,index,va,size=int(row[0]),int(row[1]),int(row[2]),int(row[3],16),int(row[4])
             if index in imported or surface!=sid:raise RuntimeError('Conflicting native import publication')
             imported[index]=(handle,va,size)
-        if len(imported)!=2 or {v[0] for v in imported.values()}!={first,second}:
+        if len(imported)!=(1 if resource_audit else 2) or {v[0] for v in imported.values()}!={first,second}:
             raise RuntimeError('Missing native import handle publications')
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     surface_publication=r"SURFACE_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) cached=1 pages=(\d+)"

@@ -163,13 +163,43 @@ static bool check_surface_import(void)
  if(!ok)printf("waffle-gl-surface-import: passed=0\n");close(fd);return ok;
 }
 #endif
+#ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
+static bool check_surface_resource(void)
+{
+ void (*image_target)(GLenum,void *)=(void (*)(GLenum,void *))OSMesaGetProcAddress("glEGLImageTargetTexture2DOES");
+ if(!image_target)return false;
+ GLuint textures[2]={0};GLint previous=0;unsigned checked=0;bool ok=false;
+ glGetIntegerv(GL_TEXTURE_BINDING_2D,&previous);
+ if(glGetError()!=GL_NO_ERROR || setenv("WAFFLE_GPU_SURFACE_IMPORT_AUDIT","1",1))return false;
+ glGenTextures(2,textures);
+ for(unsigned i=0;i<2;i++){
+  glBindTexture(GL_TEXTURE_2D,textures[i]);
+  image_target(GL_TEXTURE_2D,(void *)(uintptr_t)IOSurfaceGetID(hook_surface));
+  GLint width=0,height=0;
+  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&width);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
+  if(glGetError()!=GL_NO_ERROR || width!=750 || height!=1624)goto done;
+  checked++;
+ }
+ ok=true;
+ done:
+ unsetenv("WAFFLE_GPU_SURFACE_IMPORT_AUDIT");
+ glBindTexture(GL_TEXTURE_2D,(GLuint)previous);glDeleteTextures(2,textures);
+ if(glGetError()!=GL_NO_ERROR)ok=false;
+ printf("waffle-gl-surface-resource: passed=%u sid=%u textures=%u width=750 height=1624 deleted=2 GPU_memory_access=0\n",ok,IOSurfaceGetID(hook_surface),checked);
+ return ok;
+}
+#endif
 static bool check_full_surface(void)
 {
  if(!hook_surface || IOSurfaceGetWidth(hook_surface)!=750 || IOSurfaceGetHeight(hook_surface)!=1624 || IOSurfaceGetBytesPerRow(hook_surface)<3000)return false;
+#ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
+ if(!check_surface_resource())return false;
+#endif
 #ifdef WAFFLE_GL_SURFACE_IMPORT_TEST
  if(!check_surface_import())return false;
 #endif
-#if defined(WAFFLE_GL_SURFACE_MAP_TEST) && !defined(WAFFLE_GL_SURFACE_IMPORT_TEST)
+#if defined(WAFFLE_GL_SURFACE_MAP_TEST) && !defined(WAFFLE_GL_SURFACE_IMPORT_TEST) && !defined(WAFFLE_GL_SURFACE_RESOURCE_TEST)
  int fd=existing_gpu_fd();
  if(fd<0){printf("waffle-gl-surface-map: passed=0 stage=fd\n");return false;}
  struct waffle_msm_surface request={.surface=IOSurfaceGetID(hook_surface)};
