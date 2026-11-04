@@ -18,6 +18,7 @@ bool waffle_smmu_owner_exercise(struct waffle_smmu_owner *owner);
 bool waffle_smmu_owner_copy(struct waffle_smmu_owner *,struct waffle_gpu_copy_job *);
 bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *,struct waffle_gpu_buffer [2]);
 struct waffle_gpu_memory *waffle_smmu_owner_memory_new(struct waffle_smmu_owner *,uint64_t,uint32_t);
+struct waffle_gpu_memory *waffle_smmu_owner_memory_adopt(struct waffle_smmu_owner *,struct waffle_gpu_memory *);
 bool waffle_smmu_owner_memory_reclaim(struct waffle_smmu_owner *,struct waffle_gpu_memory *,bool cpu_unmapped);
 bool waffle_smmu_owner_submit(struct waffle_smmu_owner *,struct waffle_gpu_submit_job *);
 bool waffle_smmu_owner_end(struct waffle_smmu_owner *owner);

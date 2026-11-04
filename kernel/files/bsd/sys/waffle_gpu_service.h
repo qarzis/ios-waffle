@@ -11,6 +11,7 @@ struct waffle_gpu_context;
 struct waffle_gpu_context *waffle_gpu_context_begin(void);
 bool waffle_gpu_context_copy(struct waffle_gpu_context *,struct waffle_gpu_copy_job *);
 struct waffle_gpu_memory *waffle_gpu_context_memory_new(struct waffle_gpu_context *,uint64_t,uint32_t);
+struct waffle_gpu_memory *waffle_gpu_context_memory_adopt(struct waffle_gpu_context *,struct waffle_gpu_memory *);
 /* Only after the cdev has revoked this BO's CPU mapping. */
 bool waffle_gpu_context_memory_reclaim(struct waffle_gpu_context *,struct waffle_gpu_memory *,bool cpu_unmapped);
 bool waffle_gpu_context_submit(struct waffle_gpu_context *,struct waffle_gpu_submit_job *);
@@ -24,6 +25,7 @@ bool waffle_gpu_context_buffers(struct waffle_gpu_context *,struct waffle_gpu_bu
 /* Internal parent transport, called only with the service lock held. */
 struct waffle_gpu_parent;
 struct waffle_gpu_memory *waffle_gpu_parent_memory_new(struct waffle_gpu_parent *,uint64_t,uint32_t);
+struct waffle_gpu_memory *waffle_gpu_parent_memory_adopt(struct waffle_gpu_parent *,struct waffle_gpu_memory *);
 bool waffle_gpu_parent_memory_reclaim(struct waffle_gpu_parent *,struct waffle_gpu_memory *,bool cpu_unmapped);
 bool waffle_gpu_parent_submit(struct waffle_gpu_parent *,struct waffle_gpu_submit_job *);
 bool waffle_gpu_parent_buffers(struct waffle_gpu_parent *,struct waffle_gpu_buffer [2]);

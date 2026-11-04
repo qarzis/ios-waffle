@@ -69,9 +69,15 @@ static void crash_log(int sig,siginfo_t *info,void *context)
  raw_call(55,8,0,0);for(;;){}
 }
 #define printf direct_log
-#ifdef WAFFLE_GL_RECYCLE_BO
+#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 #include <sys/stat.h>
+#include <sys/ioctl.h>
+#include "waffle_gpu_msm.h"
+#endif
+#ifdef WAFFLE_GL_RECYCLE_BO
 #include "waffle_gl_recycle_probe.h"
+#endif
+#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 static int existing_gpu_fd(void)
 {
  struct stat device;
@@ -127,10 +133,105 @@ static uint32_t pixels[256];
 static bool benchmark_blue;
 #endif
 #ifdef WAFFLE_GL_FULLSIZE
+#ifdef WAFFLE_GL_SURFACE_IMPORT_TEST
+static bool check_surface_import(void)
+{
+ int fd=existing_gpu_fd();if(fd<0)return false;
+ uint32_t sid=IOSurfaceGetID(hook_surface),first=0,second=0;bool ok=false;
+ struct waffle_msm_surface r={.surface=sid};
+ if(ioctl(fd,WAFFLE_MSM_SURFACE_IMPORT_TEST,&r) || !r.handle || r.size!=IOSurfaceGetAllocSize(hook_surface))goto done;
+ first=r.handle;
+ r=(struct waffle_msm_surface){.surface=sid};
+ if(ioctl(fd,WAFFLE_MSM_SURFACE_IMPORT_TEST,&r) || r.handle!=first)goto done;
+ struct waffle_msm_gem_info info={.handle=first,.info=1};
+ if(ioctl(fd,WAFFLE_MSM_INFO,&info) || !info.value)goto done;
+ struct waffle_msm_map map={.handle=first,.bytes=r.size};
+ if(ioctl(fd,WAFFLE_MSM_MAP,&map)!=-1 || errno!=ENOTSUP)goto done;
+ struct waffle_msm_close retired={.handle=first};
+ if(ioctl(fd,WAFFLE_MSM_CLOSE,&retired))goto done;
+ first=0;
+ if(ioctl(fd,WAFFLE_MSM_INFO,&info)!=-1 || errno!=EINVAL)goto done;
+ r=(struct waffle_msm_surface){.surface=sid};
+ if(ioctl(fd,WAFFLE_MSM_SURFACE_IMPORT_TEST,&r) || !r.handle || r.handle==info.handle)goto done;
+ second=r.handle;
+ if(ioctl(fd,WAFFLE_MSM_INFO,&info)!=-1 || errno!=EINVAL)goto done;
+ retired.handle=second;if(ioctl(fd,WAFFLE_MSM_CLOSE,&retired))goto done;second=0;
+ printf("waffle-gl-surface-import: passed=1 sid=%u first=%u second=%u duplicate_same=1 stale_refused=1 CPU_map_refused=1 closed=2 GPU_memory_access=0\n",sid,info.handle,r.handle);ok=true;
+ done:
+ if(first){struct waffle_msm_close r={.handle=first};ioctl(fd,WAFFLE_MSM_CLOSE,&r);}
+ if(second){struct waffle_msm_close r={.handle=second};ioctl(fd,WAFFLE_MSM_CLOSE,&r);}
+ if(!ok)printf("waffle-gl-surface-import: passed=0\n");close(fd);return ok;
+}
+#endif
+#ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
+static bool check_surface_resource(void)
+{
+ void (*image_target)(GLenum,void *)=(void (*)(GLenum,void *))OSMesaGetProcAddress("glEGLImageTargetTexture2DOES");
+ if(!image_target)return false;
+ GLuint textures[2]={0};GLint previous=0;unsigned checked=0;bool ok=false;
+ glGetIntegerv(GL_TEXTURE_BINDING_2D,&previous);
+ if(glGetError()!=GL_NO_ERROR || setenv("WAFFLE_GPU_SURFACE_IMPORT_AUDIT","1",1))return false;
+ glGenTextures(2,textures);
+ for(unsigned i=0;i<2;i++){
+  glBindTexture(GL_TEXTURE_2D,textures[i]);
+  image_target(GL_TEXTURE_2D,(void *)(uintptr_t)IOSurfaceGetID(hook_surface));
+  GLint width=0,height=0;
+  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&width);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
+  if(glGetError()!=GL_NO_ERROR || width!=750 || height!=1624)goto done;
+  checked++;
+ }
+ ok=true;
+ done:
+ unsetenv("WAFFLE_GPU_SURFACE_IMPORT_AUDIT");
+ glBindTexture(GL_TEXTURE_2D,(GLuint)previous);glDeleteTextures(2,textures);
+ if(glGetError()!=GL_NO_ERROR)ok=false;
+ printf("waffle-gl-surface-resource: passed=%u sid=%u textures=%u width=750 height=1624 deleted=2 GPU_memory_access=0\n",ok,IOSurfaceGetID(hook_surface),checked);
+ return ok;
+}
+#endif
 static bool check_full_surface(void)
 {
  if(!hook_surface || IOSurfaceGetWidth(hook_surface)!=750 || IOSurfaceGetHeight(hook_surface)!=1624 || IOSurfaceGetBytesPerRow(hook_surface)<3000)return false;
+#ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
+ if(!check_surface_resource())return false;
+#endif
+#ifdef WAFFLE_GL_SURFACE_IMPORT_TEST
+ if(!check_surface_import())return false;
+#endif
+#if defined(WAFFLE_GL_SURFACE_MAP_TEST) && !defined(WAFFLE_GL_SURFACE_IMPORT_TEST) && !defined(WAFFLE_GL_SURFACE_RESOURCE_TEST)
+ int fd=existing_gpu_fd();
+ if(fd<0){printf("waffle-gl-surface-map: passed=0 stage=fd\n");return false;}
+ struct waffle_msm_surface request={.surface=IOSurfaceGetID(hook_surface)};
+#if defined(WAFFLE_GL_SURFACE_WRITE_TEST) || defined(WAFFLE_GL_SURFACE_READ_TEST)
+ if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS){close(fd);return false;}
+#ifdef WAFFLE_GL_SURFACE_READ_TEST
+ int mapped=ioctl(fd,WAFFLE_MSM_SURFACE_READ_TEST,&request);close(fd);
+#else
+ int mapped=ioctl(fd,WAFFLE_MSM_SURFACE_WRITE_TEST,&request);close(fd);
+#endif
+#else
+ int mapped=ioctl(fd,WAFFLE_MSM_SURFACE_MAP_TEST,&request);close(fd);
+#endif
+ if(mapped || request.handle || request.surface!=IOSurfaceGetID(hook_surface) || request.size!=IOSurfaceGetAllocSize(hook_surface)){
+#if defined(WAFFLE_GL_SURFACE_WRITE_TEST) || defined(WAFFLE_GL_SURFACE_READ_TEST)
+  IOSurfaceUnlock(hook_surface,0,NULL);
+#endif
+  printf("waffle-gl-surface-map: passed=0 stage=map_revoke error=%d\n",mapped);return false;
+ }
+#if defined(WAFFLE_GL_SURFACE_WRITE_TEST) || defined(WAFFLE_GL_SURFACE_READ_TEST)
+#ifdef WAFFLE_GL_SURFACE_READ_TEST
+ printf("waffle-gl-surface-read: passed=1 GPU_memory_access=1 restored=1\n");
+#else
+ printf("waffle-gl-surface-write: passed=1 GPU_memory_access=1 restored=1\n");
+#endif
+#else
+ printf("waffle-gl-surface-map: passed=1 native_registry=1 mapped_then_revoked=1 GPU_memory_access=0\n");
+#endif
+#endif
+#if !defined(WAFFLE_GL_SURFACE_WRITE_TEST) && !defined(WAFFLE_GL_SURFACE_READ_TEST)
  if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS)return false;
+#endif
  const uint8_t *base=IOSurfaceGetBaseAddress(hook_surface);size_t stride=IOSurfaceGetBytesPerRow(hook_surface);
  if(!base || stride>16384 || IOSurfaceGetAllocSize(hook_surface)<stride*1624){IOSurfaceUnlock(hook_surface,0,NULL);return false;}
  unsigned wrong=0,filled=0,padding=0;

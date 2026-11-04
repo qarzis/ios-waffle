@@ -2,13 +2,28 @@
 from pathlib import Path
 import re,subprocess,tempfile
 root=Path(__file__).resolve().parents[2]
-s=re.sub(r'^#include .*$','',(root/'kernel/files/iokit/Kernel/WaffleGPUMemory.cpp').read_text(),flags=re.M).replace('__asm__ volatile("dsb sy":::"memory");','')
+s=re.sub(r'^#include .*$','',(root/'kernel/files/iokit/Kernel/WaffleGPUMemory.cpp').read_text(),flags=re.M).replace('__asm__ volatile("dsb sy":::"memory");','').replace('__asm__ volatile("dc ivac, %0"::"r"(address):"memory");','host_cache_line(address,true);').replace('__asm__ volatile("dc cvac, %0"::"r"(address):"memory");','host_cache_line(address,false);')
 h=r'''
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include "waffle_gpu_memory.h"
+#include "waffle_gpu_surface.h"
+static void *IOMallocZero(size_t size){return calloc(1,size);}
+static void IOFree(void *p,size_t size){(void)size;free(p);}
+static unsigned cache_cleaned,cache_invalidated;
+static uintptr_t cache_first,cache_last;
+static void host_cache_line(uintptr_t a,bool invalidate){assert(!(a&63));if(!cache_cleaned && !cache_invalidated)cache_first=a;cache_last=a;if(invalidate)cache_invalidated++;else cache_cleaned++;}
+static bool surface_fail=true;static unsigned surface_holds,surface_drops;
+bool waffle_gpu_surface_hold(uint32_t sid,struct waffle_gpu_surface_backing *b){
+ if(surface_fail)return false;
+ assert(sid==79 && b && !b->object);
+ surface_holds++;*b={.object=0x1234,.pixels=0x10000000,.surface=79,.bytes=32768,.offset=0,.stride=3072,.width=750,.height=8,.published=false};return true;
+}
+uint64_t waffle_gpu_surface_page(const struct waffle_gpu_surface_backing *b,uint32_t off){assert(b && b->object && off<b->bytes);return 0x8000000+off*2;}
+bool waffle_gpu_surface_release(struct waffle_gpu_surface_backing *b,bool detached){assert(b && b->object);if(b->published && !detached)return false;surface_drops++;*b={};return true;}
+
 using IOByteCount=uint64_t;
 static unsigned mode,releases,options_seen,maps;
 static int kernel_task=7;static int current_task(){return mode==8?7:9;}
@@ -61,7 +76,25 @@ int main(){
  assert(!waffle_gpu_memory_create(4096,0x80000,&bo));assert(!waffle_gpu_memory_create(4096,WAFFLE_GPU_BO_WC|1,&bo));
  assert(waffle_gpu_memory_create(4096,WAFFLE_GPU_BO_WC,&bo));
  uintptr_t token=0;uint64_t address=0;mode=7;assert(!waffle_gpu_memory_map(&bo,false,&address,&token));mode=8;assert(!waffle_gpu_memory_map(&bo,false,&address,&token));mode=0;
- assert(waffle_gpu_memory_destroy(&bo,false));return 0;
+ assert(waffle_gpu_memory_destroy(&bo,false));
+ assert(!waffle_gpu_memory_surface(79,&bo) && !bo.object);
+ surface_fail=false;assert(waffle_gpu_memory_surface(79,&bo) && surface_holds==1);
+ assert(bo.storage==WAFFLE_GPU_STORAGE_SURFACE && bo.flags==WAFFLE_GPU_BO_CACHED && bo.memory==0x10000000);
+ assert(waffle_gpu_memory_page(&bo,4096)==0x8002000);
+ unsigned old_maps=maps;token=0;address=0x1234;
+ assert(!waffle_gpu_memory_map(&bo,false,&address,&token) && !token && maps==old_maps && address==0x1234);
+ assert(!waffle_gpu_memory_surface(79,&bo) && surface_holds==1);
+ bo.published=true;
+ assert(!waffle_gpu_memory_surface_sync(&bo,0,0,0));
+ assert(!waffle_gpu_memory_surface_sync(&bo,bo.bytes,1,0));
+ assert(!waffle_gpu_memory_surface_sync(&bo,0,16,2));
+ assert(waffle_gpu_memory_surface_sync(&bo,64,16,WAFFLE_GPU_SURFACE_TO_GPU));
+ assert(cache_cleaned==1 && !cache_invalidated && cache_first==bo.memory+64 && cache_last==cache_first);
+ assert(waffle_gpu_memory_surface_sync(&bo,127,2,WAFFLE_GPU_SURFACE_TO_CPU));
+ assert(cache_invalidated==2 && cache_last==bo.memory+128);
+ assert(!waffle_gpu_memory_destroy(&bo,false) && !surface_drops);
+ assert(waffle_gpu_memory_destroy(&bo,true) && surface_drops==1 && !bo.object && !bo.storage);
+ return 0;
 }
 '''
 with tempfile.TemporaryDirectory() as d:

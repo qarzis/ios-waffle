@@ -1,0 +1,12 @@
+{
+  "source": "Mesa 26.3.0-rc1 src/freedreno/registers/adreno/adreno_pm4.xml",
+  "source_sha256": "ff1e308f0900f93e2601393bfd5bd7a7a2ec1c606644952f826ff91e530c8b77",
+  "opcode": 115,
+  "payload_words": 5,
+  "reg64_offsets": {
+    "DST": "1",
+    "SRC_A": "3",
+    "SRC_B": "5",
+    "SRC_C": "7"
+  }
+}

@@ -7,6 +7,8 @@ def strip(s):return re.sub(r'^#include .*$','',s,flags=re.M)
 h='#define _DEFAULT_SOURCE\n'+parts['h'][:parts['h'].index('static int proc_pid')]
 h+=r'''
 #include "waffle_gpu_registry.h"
+#include "waffle_gpu_surface_write.h"
+#include "waffle_gpu_surface_read.h"
 #include "waffle_gpu_handles.h"
 #include "waffle_gpu_va.h"
 #define Z_WAITOK 1
@@ -24,6 +26,11 @@ static void redwood_tl(const char *fmt,...){(void)fmt;}
 static void loader_return(void){assert(0);}
 struct waffle_msm_surface;
 int waffle_gpu_surface_describe(struct waffle_msm_surface *r){(void)r;assert(held);return ENOENT;}
+bool waffle_gpu_memory_surface(uint32_t sid,struct waffle_gpu_memory *b){(void)sid;(void)b;assert(held);return false;}
+struct waffle_gpu_memory *waffle_gpu_context_memory_adopt(struct waffle_gpu_context *c,struct waffle_gpu_memory *b){(void)c;(void)b;assert(held);return NULL;}
+bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *b,bool detached){(void)b;(void)detached;assert(held);return false;}
+bool waffle_gpu_memory_surface_sync(const struct waffle_gpu_memory *b,uint32_t o,uint32_t n,unsigned d){(void)b;(void)o;(void)n;(void)d;assert(held);return false;}
+
 static int copyin(uint64_t a,void *out,unsigned bytes){if(a<4096)return 14;memcpy(out,(void *)(uintptr_t)a,bytes);return 0;}
 static int copyout(const void *in,uint64_t a,unsigned bytes){if(a<4096)return 14;memcpy((void *)(uintptr_t)a,in,bytes);return 0;}
 struct waffle_gpu_context *waffle_gpu_context_begin(void){assert(held);context.fence=0;return &context;}

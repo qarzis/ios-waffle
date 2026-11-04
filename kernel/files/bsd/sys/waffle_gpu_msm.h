@@ -41,6 +41,11 @@ struct waffle_msm_transfer { uint64_t pointer; uint32_t handle,offset,bytes,flag
 struct waffle_msm_map { uint64_t address; uint32_t handle,bytes,flags,pad; };
 struct waffle_msm_report { uint32_t version,checks,wrong,fence,negative; };
 #define WAFFLE_MSM_SURFACE _IOWR('d',0x7e,struct waffle_msm_surface)
+/* Private isolated PID1 map/unmap audit, not a Mesa import request. */
+#define WAFFLE_MSM_SURFACE_IMPORT_TEST _IOWR('W',0x58,struct waffle_msm_surface)
+#define WAFFLE_MSM_SURFACE_READ_TEST _IOWR('W',0x57,struct waffle_msm_surface)
+#define WAFFLE_MSM_SURFACE_WRITE_TEST _IOWR('W',0x56,struct waffle_msm_surface)
+#define WAFFLE_MSM_SURFACE_MAP_TEST _IOWR('W',0x55,struct waffle_msm_surface)
 #define WAFFLE_MSM_PARAM _IOWR('d',0x40,struct waffle_msm_param)
 #define WAFFLE_MSM_CPU_PREP _IOW('d',0x44,struct waffle_msm_cpu_prep)
 #define WAFFLE_MSM_CPU_FINI _IOW('d',0x45,struct waffle_msm_cpu_fini)
