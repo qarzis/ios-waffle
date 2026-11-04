@@ -193,7 +193,10 @@ static WaffleDisplayPresentState *waffleDisplayPresentCreate(uint8_t *front)
  s->front = front;s->context.owner = s;
  s->context.dpu = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
  s->context.smmu = ml_io_map_unmappable(0x15000000, 0x100000, VM_WIMG_IO);
- s->context.target = ml_io_map_unmappable(WAFFLE_DISPLAY_TEST, WAFFLE_DISPLAY_FRAME, VM_WIMG_IO);
+ /* Match the boot console's RAM framebuffer mapping (video_console.c).
+  * Keep DPU/SMMU registers as device memory; only reserved pixel RAM uses WCOMB.
+  */
+ s->context.target = ml_io_map_unmappable(WAFFLE_DISPLAY_TEST, WAFFLE_DISPLAY_FRAME, VM_WIMG_WCOMB);
  s->working = IOBufferMemoryDescriptor::inTaskWithOptions(kernel_task, kIODirectionInOut, WAFFLE_DISPLAY_FRAME, PAGE_SIZE);
  s->io = {{{{&s->context, waffleDisplayFlipRead}, waffleDisplayFlipWrite, waffleDisplayPresentDelay}, waffleDisplayFlipDomain, NULL}, waffleDisplayPresentCopy};
  if (!s->context.dpu || !s->context.smmu || !s->context.target || !s->working ||
@@ -409,15 +412,6 @@ static TUNABLE(uint32_t, gMacan, "macan", 0);
 static TUNABLE(uint32_t, gWaffle, "waffle", 0);
 /* Waffle display consumer lease: held until CPU presentation completes. */
 static TUNABLE(uint32_t, gWaffleDisplayUse, "waffle_display_use", 0);
-/* D06: buffered presentation must publish its source use until show() retires.
- * This prevents native pools which honor IsInUse from recycling a queued source;
- * it is not a writer lock and does not replace SwapWait completion semantics.
- */
-static inline bool
-waffleDisplaySourceLease(void)
-{
- return gWaffle && (gWaffleDisplayUse != 0 || gWaffleDisplayPresent == 1);
-}
 static TUNABLE(uint32_t, gWaffleTorch, "waffle_torch", 0);
 static TUNABLE(uint32_t, gMacan14, "macan_14pm", 0);
 static inline uint32_t
@@ -1152,7 +1146,7 @@ IOMobileFramebuffer::present(const uint8_t * swap)
  for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
   uint32_t sid = swapWord(swap, SWAP_SURFACE(layer));
   fSwapSurfaces[slot][layer] = sid == 0 ? NULL :
-      waffleDisplaySourceLease() ? MiniIOSurfaceCopyForDisplay(sid) : MiniIOSurfaceCopy(sid);
+      gWaffle && gWaffleDisplayUse ? MiniIOSurfaceCopyForDisplay(sid) : MiniIOSurfaceCopy(sid);
  }
  fSwapsWaiting++;
  IOLockWakeup(fSwapLock, fSwap, true);
@@ -1179,7 +1173,7 @@ IOMobileFramebuffer::presenter(void)
   show(swap, surfaces);
   for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
    if (surfaces[layer] != NULL) {
-    if (waffleDisplaySourceLease()) {
+    if (gWaffle && gWaffleDisplayUse) {
      MiniIOSurfaceDropForDisplay(surfaces[layer]);
     } else {
      MiniIOSurfaceDrop(surfaces[layer]);
@@ -1294,7 +1288,7 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
   }
   if (gWaffle && report) {
    IOLog("MiniIOMobileFramebuffer: display read surface %u usage_enabled=%u holds=%u system_use=%llu\n",
-       sid, (unsigned)waffleDisplaySourceLease(), s->displayUses, (unsigned long long) s->shared()->useCount);
+       sid, gWaffleDisplayUse, s->displayUses, (unsigned long long) s->shared()->useCount);
   }
   if (s->info.bytesPerElement == 4 && s->info.planeCount == 0) {
    if (!fGraphics) {

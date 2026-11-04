@@ -1,0 +1,26 @@
+{
+  "experiment": "D06 source useCount lease in explicit buffered mode",
+  "run": "20261104T085150Z",
+  "decision": "Rejected as sufficient source-stability repair; revert experimental activation",
+  "source_summary": {
+    "reads": 1915,
+    "changes": 88,
+    "sampled_pixel_changes": 61
+  },
+  "gpu_close": {
+    "passed": true,
+    "commands": 10163,
+    "buffers": 4150
+  },
+  "restore": {
+    "quiesced": true,
+    "restored": true,
+    "commits": 1931,
+    "active": "d5100000"
+  },
+  "android_confirmed": true,
+  "android_status": "outer host verified boot_completed=1",
+  "hardware_does_not_prove_visible_tearing_fixed": true,
+  "outer_runner_exit": 1,
+  "outer_success": false
+}

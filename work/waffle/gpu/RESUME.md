@@ -1,3 +1,7 @@
+# ACTIVE — D07 B framebuffer WCOMB hardware test
+
+D06leaseFAILsource-stability:88changes/61pixels/1915reads, GPUclose10163/4150,1931commits/quiescerestored1/Android1; originalouter1retained. D06activationREVERTED; checkpoint13320c1retainscandidate. D07onlydifferencefromD05: B pixelRAM map IO->WCOMB (nativebootconsoleusesWCOMB); DPU/SMMUunchanged. Fullbuild27478PASS/sourcebindingschecked; pairedartifactdiagnostic-copy-mapping-ui-d07, same240GPU300kernelroot/Mesa749/E113/7cores/torch/doublebuffer+hardwarevsync. Soleownerauto-copy-mapping-d07.log. Need B copy31–36ms->~2–3ms expectation, no commit/GPUerrors, fullclose/restore/Android; source-race remains independent. VisualtearingNOTfixedqualified.
+
 # ACTIVE — D06 hardware source lease test
 
 Full build94221 PASS; source/root pairedartifact diagnostic-source-lease-ui-d06 validated; solephoneowner session99964 / auto-source-lease-d06.log. Phone Android detected1c62e9aa, userconfirmedconnected. Same240GPU300kernel root/5autoopens/Mesa749/E113/sevencores/torch/doublebuffer+hardwarevsync. D06 only adds existing source useCountlease to explicitbufferedmode; see forensic-audit/D06-source-lease-plan.md. Need source change counts vs reads/workload, useCount holds, GPUclose/OOM/quiesce/Android. No timing/cache/wait fix. D05 final partialevidence preserved; nativewait flags stillunknown.
