@@ -1,0 +1,235 @@
+{
+  "source": "work/waffle/images/system.packfs",
+  "source_sha256": "564709e25c30e66d839391a4773aa485b4c3e2db7c3fdcfc19c6d88f30c38744",
+  "output": "work/waffle/images/system-battery-b03.packfs",
+  "output_sha256": "dbffd789c747650d5a988d11909ffcdbb28437941ce1f1637a4439cbf998de58",
+  "original_extents_preserved": true,
+  "firmware": {
+    "adsp.b01": {
+      "size": 21032,
+      "sha256": "e5b65995f625b7c08533f589765c53bd6fa4fa6012a60e789dfb3abfbda35327"
+    },
+    "adsp.b02": {
+      "size": 131532,
+      "sha256": "8288327619e122660fee5ba70c7c671adf4fab187fa007822576808503fe04bd"
+    },
+    "adsp.b03": {
+      "size": 88232,
+      "sha256": "53eda52e7ce9e1a16dc1ec37921b54610045ef9195cd994d7b9ff88522743a89"
+    },
+    "adsp.b04": {
+      "size": 28084,
+      "sha256": "6f7368a04b51c4be803fdfc09b4b711cf04157ca9ef0df14884dabc6830c09cd"
+    },
+    "adsp.b05": {
+      "size": 51280,
+      "sha256": "e2fbbd2ecde76d1977c5e2635807326be694596fc44054f6d114c99acd255987"
+    },
+    "adsp.b06": {
+      "size": 733184,
+      "sha256": "ce93364330af94b8d70948d0e5732b5b37d74fea3b694a10effef25bf82db1ba"
+    },
+    "adsp.b07": {
+      "size": 240,
+      "sha256": "913f2f1c676b8f7afa16d21f5eb92578ea5bf8eda9a3f8ee352ec2ffd1b43a8a"
+    },
+    "adsp.b08": {
+      "size": 9732,
+      "sha256": "43ce90eead9e9c71c01d98fd98ae12a852d28fb4a6f02d57db923e326540237d"
+    },
+    "adsp.b09": {
+      "size": 2811364,
+      "sha256": "e509fa245490bcdb3d381a05afb37c1221e6600f52ed18465811e64a7a79601d"
+    },
+    "adsp.b10": {
+      "size": 370764,
+      "sha256": "c343b4491c511e8cac9df6bed9400d3bafa5b180f8f8f55dd7f81e26eb93ae28"
+    },
+    "adsp.b11": {
+      "size": 2584,
+      "sha256": "49567f2c4919bc87dec0dbc6abeb441802e30820b23c77358d7b68a9b7d2ca6a"
+    },
+    "adsp.b12": {
+      "size": 11872,
+      "sha256": "a2eb7630b5fe7f7224ccec6bab197d4cdd31e3c9a58484dd0e476a5a91957ef1"
+    },
+    "adsp.b13": {
+      "size": 1212,
+      "sha256": "6db58e079d61bd49ec10d05569fd171e89a7d58993b969c830cfcc4f12a1f27a"
+    },
+    "adsp.b14": {
+      "size": 239752,
+      "sha256": "f4443c2277a0d79ad0a9b6f41ec9074724c819b2bbff92640467111de8d5eb26"
+    },
+    "adsp.b15": {
+      "size": 154732,
+      "sha256": "21a13161023bbb540b8151e682ead4fd7c829b434ad514aa44135d974a2e6ee5"
+    },
+    "adsp.b16": {
+      "size": 1032192,
+      "sha256": "d79b47bc2ce87f955bca165e224162d8675f59ae7d6552b1ca70dec2cb501f04"
+    },
+    "adsp.b17": {
+      "size": 3071972,
+      "sha256": "51eb82f7f757a405bd3be318e380f981bcb572a450ea632f682d1c6dbcd1747f"
+    },
+    "adsp.b18": {
+      "size": 43272,
+      "sha256": "78868724c0e953b682772390e3d3417f9e46f45db2dce9324e4537c5b5cd58a1"
+    },
+    "adsp.b19": {
+      "size": 272,
+      "sha256": "8e46c92b029f938d8e2677a8687ced8374ee1fd54f66105ba01c783ca59a13a8"
+    },
+    "adsp.b20": {
+      "size": 451780,
+      "sha256": "17b28df261c6cf2e0f1c1559806ee33388f08fa6d4e21d2e8b12a1d081df0589"
+    },
+    "adsp.b21": {
+      "size": 598016,
+      "sha256": "e4002e69ba185f601d84b3e00e92dc75b2c9cbeb09e2f844d4c9d0699a544950"
+    },
+    "adsp.b22": {
+      "size": 3034360,
+      "sha256": "633ab07c06c3c6657a3808438117746fbe22c38297f690fb5f675728f46998f1"
+    },
+    "adsp.b23": {
+      "size": 7380996,
+      "sha256": "602269046d40b6a03e11834e5e8d8a067cf512744dc484bbac26c10a1c4d0bca"
+    },
+    "adsp.b25": {
+      "size": 108,
+      "sha256": "8948a6b88376b9d3f75e89f33ea0c03e149d6ebde637874951c121d0b6b17efd"
+    },
+    "adsp.b26": {
+      "size": 12492,
+      "sha256": "36ac0618047ad978240745d845efc855910eabf057bd9220a34b897259d8c406"
+    },
+    "adsp.b27": {
+      "size": 39304,
+      "sha256": "0d65418237487ca21b5ca1686019e7a6b12f2bdd3442922d401d6e43fdcda9a1"
+    },
+    "adsp.b28": {
+      "size": 778644,
+      "sha256": "59923fea79aba5dccd96324d86cb47b7bdb2fc95992f98b2478576a28f7fb06d"
+    },
+    "adsp.b29": {
+      "size": 199792,
+      "sha256": "255299f46aacf9d84eca92ab14e14587be9c3753e1d4e57fb8bfb3301f05c535"
+    },
+    "adsp.b30": {
+      "size": 169860,
+      "sha256": "ef3cf9556be0ce877ae60cc8c96eb04e801c793ebe297a06a9d427a27ec00d90"
+    },
+    "adsp.b31": {
+      "size": 8412,
+      "sha256": "105e1e47f0a7f2cba97e620f0b1228e8f7324b7a1eaac0569215543d1526e507"
+    },
+    "adsp.b32": {
+      "size": 104753,
+      "sha256": "fb10f05c894aee19b166c3b3da399dcfa0cb78086f2b50de05ecc3bef4288535"
+    },
+    "adsp.b33": {
+      "size": 17652,
+      "sha256": "326374442092002e5e60ce008c1d68768ba5af21dbce4889fd3c5639111c3b05"
+    },
+    "adsp.b34": {
+      "size": 174016,
+      "sha256": "0b1fc41049b097839a7db2f728aa4f7b958bc5caa8ccc6d59cb2fbf8d236f68d"
+    },
+    "adsp.b35": {
+      "size": 90424,
+      "sha256": "2e87598ddfb72eb3e9f18723231eee59cf4bcca6f12a8c8c211b270bca7b67bd"
+    },
+    "adsp.b36": {
+      "size": 68040,
+      "sha256": "0c31b938cb912ffcd19ea06e7b41ea7a30ed4e67c3959b60136d8d075a3c6ad9"
+    },
+    "adsp.b37": {
+      "size": 8648,
+      "sha256": "98953409cacb84dd9a0e467647b61e59431f584768f49308882362a2c64f36db"
+    },
+    "adsp.b38": {
+      "size": 54092,
+      "sha256": "1af6aa1899d6f16c907dbd6b2da17fc246aca2d8bf9e3db4d03965c74ff3e96b"
+    },
+    "adsp.b39": {
+      "size": 82,
+      "sha256": "cfa5063c8aa324965d3658db10236d23437267960ed2ef669fbceb5d81c5c060"
+    },
+    "adsp.b40": {
+      "size": 372736,
+      "sha256": "dca35109dbb82c6362fa3faa1b96dc9baa12d77b49d2e76a285fbb716d83131c"
+    },
+    "adsp.b41": {
+      "size": 11608580,
+      "sha256": "6afe9489b87b8c9a5c5b2e4800354f3abbc4648e6e371539840861179a492866"
+    },
+    "adsp.b42": {
+      "size": 1118216,
+      "sha256": "3cedc673e347e291a3a7137726591b85153dec498a5a6f7c2c189728e1fb8d61"
+    },
+    "adsp.b43": {
+      "size": 20,
+      "sha256": "271c5783def587733c57edd67523fd9890a97b12fd2ee0ad4237226454bb6b85"
+    },
+    "adsp.b44": {
+      "size": 77944,
+      "sha256": "cf555ec935ba87c3155f29f4a4a7b2fa6112925ca508e69391591f2f95d230e4"
+    },
+    "adsp.b45": {
+      "size": 28172,
+      "sha256": "57f13c592419b2fe187dabe4c3761fa3f1001ffd7aeb5a87485a7812befdac45"
+    },
+    "adsp.b46": {
+      "size": 32264,
+      "sha256": "90e52930027a160880aafdd60616e15686607700da2630e690e4621ef36bc721"
+    },
+    "adsp.b47": {
+      "size": 501612,
+      "sha256": "ca8ad621d326cfe09eff272c91ef5253b57c11e9d13594bd8049eb18d1ece575"
+    },
+    "adsp.b48": {
+      "size": 10948,
+      "sha256": "d5cb0b546ace04cd80a5445b87f2a6f0896aacab3ddec50b385301a6acf6bc71"
+    },
+    "adsp.b49": {
+      "size": 375016,
+      "sha256": "a3e7cefb5905997dabae6926307680e7bd958a7543bbcc557fa839fbdbab5c00"
+    },
+    "adsp.b50": {
+      "size": 933888,
+      "sha256": "5c19d0cee2f325c5f728fbc21b4d217c978628b417acef15e46e6808fe1f6bb4"
+    },
+    "adsp.b51": {
+      "size": 83815,
+      "sha256": "4118b3104645a74de1d62b0296dc00fa130dcf2ad48a0362d206eb6b20612fbf"
+    },
+    "adsp.b52": {
+      "size": 962560,
+      "sha256": "88ed3dde28304a3be3092b4f627599d1dedd7c7a20d4ef903bc93b653693c635"
+    },
+    "adsp.b53": {
+      "size": 53248,
+      "sha256": "b4ffd9ec65fa418e3075c766544135dd7941a4afb22b14c3af83aff2586a717c"
+    },
+    "adsp.b54": {
+      "size": 5139992,
+      "sha256": "2afc635e365319d3b549f7c806fd0145b4c6d6116692db9bbccb43ad09f180fa"
+    },
+    "adsp.mdt": {
+      "size": 8364,
+      "sha256": "03de3bf9888dd213a28db2334fa27f6e8bbbe840c8ad727f83547e98d11435fb"
+    },
+    "adsp_dtb.b01": {
+      "size": 56884,
+      "sha256": "507d06b89f7ab47ca7bb3d69a229c9326fcba8f0af8834922af6d4c68740b623"
+    },
+    "adsp_dtb.mdt": {
+      "size": 4044,
+      "sha256": "b423ca93d51d84a4783d1fdcf05719e07b40222c401f6742536985c5b0b1a5fc"
+    }
+  },
+  "native_firmware_fits_dt": true,
+  "hardware_tested": false
+}

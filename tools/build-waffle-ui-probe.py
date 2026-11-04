@@ -50,6 +50,7 @@ def main():
  parser.add_argument('--slider-control',action='store_true',help='Enable native Focus/vibrate-mode/ring bridge')
  parser.add_argument('--slider-monitor',action='store_true',help='Read-only Hall slider sysctl monitor; no iOS state changes')
  parser.add_argument('--cpu-proof',action='store_true',help='Run the delayed CPU concurrency probe alongside the GPU UI')
+ parser.add_argument('--render-timing',action='store_true',help='Use existing EAGL frame timestamps and calls slower than20ms; no renderer binary changes')
  parser.add_argument('--process-cpu-profile',action='store_true',help='Bounded once-per-second backboardd CPU accounting; no GL hooks or clock changes')
  parser.add_argument('--mesa-library',type=Path,help='Use an explicitly bound candidate Mesa library')
  parser.add_argument('--reclaim-on-oom',action='store_true',help='Opt in to one bounded BO-cache purge/retry in candidate Mesa')
@@ -85,8 +86,9 @@ def main():
  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O1','-Wall','-Wextra','-DWAFFLE_UI_GPU_PROBE',f'-DWAFFLE_UI_GPU_STOP_SECONDS={args.stop_seconds}','-dynamiclib','-install_name','/redwood/lib/libredwood.dylib','-framework','CoreFoundation','-framework','IOKit','-lobjc',str(ROOT/'userland/src/inject.c'),'-o',str(inject)])
  scratch=out/'scratch';scratch.mkdir(exist_ok=True)
  tree=pf.scan_tar(str(args.base_kit/'root-base.tar'),str(scratch/'base'))
- if args.transition_frames:
-  gl_args=scratch/'gl.args';gl_args.write_text('glframes=1\n')
+ if args.transition_frames or args.render_timing:
+  gl_args=scratch/'gl.args'
+  gl_args.write_text(('glframes=1 ' if args.transition_frames else '')+('touch_lat=1 glslow=20000' if args.render_timing else '')+'\n')
   pf.add_file(tree,'etc/gl.args',str(gl_args))
  normal=pf.node_at(tree,'sbin/init');assert normal and normal.source
  pf.add_file(tree,'sbin/init.real',normal.source,mode=0o100755)
@@ -191,6 +193,7 @@ def main():
  manifest['brightness_audit']=args.brightness_audit
  manifest['cpu_proof']=args.cpu_proof
  manifest['process_cpu_profile']=args.process_cpu_profile
+ manifest['render_timing']=args.render_timing
  manifest['reclaim_on_oom']=args.reclaim_on_oom
  manifest['mesa_pressure_policy']=pressure_policy
  if hook_manifest:

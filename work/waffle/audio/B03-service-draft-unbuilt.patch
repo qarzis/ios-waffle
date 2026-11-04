@@ -1,0 +1,108 @@
+--- a/kernel/files/bsd/dev/macan_adsp.c
++++ b/kernel/files/bsd/dev/macan_adsp.c
+@@ -43,6 +43,7 @@
+ static bool waffle_board;
+ static bool battery_probe_requested;
+ static bool battery_report_requested;
++static bool battery_service_requested;
+ static LCK_MTX_DECLARE(battery_reply_lock, &adsp_lock_group);
+ static struct {
+  bool pending, ready;
+@@ -2605,7 +2606,7 @@
+  if (mode == 7) { step = 12; if (!step_apm_graph()) { goto fail; } }
+  if (battery_probe_requested) {
+   step = 12;
+-  if (!step_battery_samples()) { goto fail; }
++  if (battery_service_requested ? !step_battery_readonly() : !step_battery_samples()) { goto fail; }
+  }
+  success = true;
+  if (mode == 2 || mode == 6 || mode == 7) {
+@@ -2618,6 +2619,20 @@
+   } else { printf("adsp: adsp=2 stopped clean=%u\n", clean); }
+  }
+  lck_mtx_unlock(&dsp_lock);
++ /* Battery-only UI service: no graph, PCM or amplifier startup. Drop the
++  * lifecycle lock while sleeping so loader shutdown can drain this worker. */
++ unsigned battery_service_samples = battery_service_requested ? 1 : 0;
++ while (battery_service_requested && !stopping && !link_failed) {
++  for (unsigned ms = 0; ms < 10000 && !stopping && !link_failed; ms += 10) sleep_ms(10);
++  if (stopping || link_failed) break;
++  lck_mtx_lock(&dsp_lock);
++  if (!stopping && !link_failed) {
++   if (!step_battery_readonly()) link_failed = true;
++   else printf("adsp: BATTERY_SERVICE sample=%u published=1 setters=0\n", ++battery_service_samples);
++  }
++  lck_mtx_unlock(&dsp_lock);
++ }
++ if (battery_service_requested) printf("adsp: BATTERY_SERVICE stopped=%u samples=%u failed=%u\n", stopping, battery_service_samples, link_failed);
+  while (mode == 1 && !stopping && !link_failed) {
+   sleep_ms(50);
+   if (glink.broken || !glink.channel[CHANNEL_QRTR].open || !glink.channel[CHANNEL_GPR].open) { link_failed = true; }
+@@ -2666,16 +2681,23 @@
+  if (!mode) { return; }
+  PE_parse_boot_argn("waffle", &waffle, sizeof(waffle));
+  if (waffle) {
+-  uint32_t battery_readonly = 0;
++  uint32_t battery_readonly = 0, battery_service = 0;
++  PE_parse_boot_argn("waffle_battery_readonly", &battery_readonly, sizeof(battery_readonly));
++  PE_parse_boot_argn("waffle_battery_service", &battery_service, sizeof(battery_service));
++  if ((mode == 9) != (battery_service == 1) || battery_service > 1 || (battery_service && battery_readonly)) {
++   printf("adsp: battery service requires isolated adsp=9 and waffle_battery_service=1\n");
++   mode = 0; return;
++  }
+   PE_parse_boot_argn("waffle_battery_readonly", &battery_readonly, sizeof(battery_readonly));
+   if (battery_readonly && (battery_readonly > 2 || mode != 6)) {
+    printf("adsp: battery read-only probe requires isolated adsp=6\n");
+    mode = 0; return;
+   }
+-  battery_probe_requested = battery_readonly != 0;
+-  battery_report_requested = battery_readonly == 2;
+-  if (mode < 3 || mode > 8) {
+-   printf("adsp: Waffle permits adsp=3 preflight,4 power,5 survey,6 DSP boot,7 graph,8 IOMMU survey\n");
++  battery_service_requested = battery_service == 1;
++  battery_probe_requested = battery_readonly != 0 || battery_service_requested;
++  battery_report_requested = battery_readonly == 2 || battery_service_requested;
++  if (mode < 3 || mode > 9) {
++   printf("adsp: Waffle permits adsp=3 preflight,4 power,5 survey,6 DSP boot,7 graph,8 IOMMU survey,9 battery service\n");
+    mode = 0; return;
+   }
+   images[0].base = 0x9de80000u;
+--- a/loader/waffle.h
++++ b/loader/waffle.h
+@@ -72,7 +72,7 @@
+ {
+     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
+     int prepare93=0,native94=0;
+-    unsigned battery_readonly=0,battery_boot=0;
++    unsigned battery_readonly=0,battery_boot=0,battery_service=0,battery_service_boot=0,battery_service_budget=0;
+     unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0,audio=0,audio_budget=0,display_survey=0,hardware_vsync=0,display_flush=0,display_flip=0,display_present=0;
+     while (*line) {
+         while (*line == ' ') line++;
+@@ -87,6 +87,9 @@
+         display_present+=waffle_token_equal(line,size,"waffle_display_present=1");
+         battery_readonly+=waffle_number(line,size,"waffle_battery_readonly=",1,2);
+         battery_boot+=waffle_token_equal(line,size,"adsp=6");
++        battery_service+=waffle_token_equal(line,size,"waffle_battery_service=1");
++        battery_service_boot+=waffle_token_equal(line,size,"adsp=9");
++        battery_service_budget+=waffle_number(line,size,"loader_return_after=",1,180);
+         display_flip+=waffle_token_equal(line,size,"waffle_display_flip=1");
+         display_flush+=waffle_token_equal(line,size,"waffle_display_flush=1");
+         hardware_vsync+=waffle_token_equal(line,size,"waffle_vsync=1");
+@@ -123,6 +126,7 @@
+ #if defined(WAFFLE_USERLAND)
+             !waffle_token_equal(line,size,"waffle_display_present=1") &&
+             !waffle_number(line,size,"waffle_battery_readonly=",1,2) &&
++            !waffle_token_equal(line,size,"waffle_battery_service=1") && !waffle_token_equal(line,size,"adsp=9") &&
+             !waffle_token_equal(line,size,"waffle_display_flip=1") &&
+             !waffle_token_equal(line,size,"waffle_display_flush=1") &&
+             !waffle_token_equal(line,size,"waffle_vsync=1") &&
+@@ -132,6 +136,9 @@
+ #endif
+             !waffle_gpu_token_allowed(line, size)) return 0;
+         line = end;
++    }
++    if (battery_service || battery_service_boot) {
++        if (battery_service != 1 || battery_service_boot != 1 || battery_service_budget != 1 || returns != 1 || battery_readonly || audio || gpu_count || torch || hardware_vsync || display_survey || display_flip || display_flush || display_present) return 0;
+     }
+     if (battery_readonly > 1 || (battery_readonly && (battery_boot != 1 || audio != 1))) return 0;
+     return display_present<=1 && (!display_present || (!audio && !display_survey && !display_flip && !display_flush && gpu_count==1 && native94 && gl_image==1)) && display_flip<=1 && (!display_flip || (!audio && !display_survey && !hardware_vsync && !display_flush && gpu_count==1 && native94 && gl_image==1)) && display_flush<=1 && (!display_flush || (!audio && !display_survey && !hardware_vsync && gpu_count==1 && native94 && gl_image==1)) && hardware_vsync<=1 && !(hardware_vsync && (audio || display_survey)) && display_survey<=1 && !(display_survey && audio) && (!audio || (audio==1 && returns==1 && audio_budget==1 && !gpu_count && !torch && !cpus)) &&
