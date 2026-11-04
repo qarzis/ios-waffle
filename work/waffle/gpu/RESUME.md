@@ -1,3 +1,7 @@
+# ACTIVE — S06 real imported GEM lifetime candidate building
+
+PrivatePID1 W/0x58 implemented: realGEMfromretainednativecachedIOSurface, duplicateSIDreturnsexistinghandle/noextrahold, CLOSErevoke/drop, reimportgenerationadvance. SUBMIT/MAP/CPU_PREP/FINIexplicitlyrefuseimportedBOs; normal0x7eremainsENOTSUP. Hostactualcdev+24negativeparserfixturespass. Rootgpu/s06-surface-import-pixel built; fullbuild diagnostic-surface-import-s06 running. Noactivephoneowner. Next awaitbuild, currentsource/compiled/snapshotidentity+pairedvalidator+boundmanifest, saveprivatecheckpoint, RAM-onlyphonecontrol; prove2nativepublications/2GEMcloses/duplicatehandle/stalerefusals/full1218000pixels+Android. Noagents/goals.
+
 # ACTIVE — S05 native CPU-to-GPU surface read PASSED
 
 Run20261104T195742Z/auto195718Z originalrunner0/success1/Android1. GPU fence3 CP_MEM_TO_MEM read4CPU-initializedwordsfromnativecachedIOSurface toseparateWCresult, exact57414646/4c454750/13579bdf/2468ace0/wrong0/restored1/retired1. Full1218000pixels0wrong/padding0/GLerror0;27ordinaryGEMs/3commands/cleanOOBclose. S05-result.json/evidence saved, strictactual256samplevalidationpassed. NoactiveUSBowner;phoneAndroid. S04write+S05readbothqualifiedforisolated4words; noFPS/shadersampling/render-targetclaim.

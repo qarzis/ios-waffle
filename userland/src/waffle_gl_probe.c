@@ -133,10 +133,43 @@ static uint32_t pixels[256];
 static bool benchmark_blue;
 #endif
 #ifdef WAFFLE_GL_FULLSIZE
+#ifdef WAFFLE_GL_SURFACE_IMPORT_TEST
+static bool check_surface_import(void)
+{
+ int fd=existing_gpu_fd();if(fd<0)return false;
+ uint32_t sid=IOSurfaceGetID(hook_surface),first=0,second=0;bool ok=false;
+ struct waffle_msm_surface r={.surface=sid};
+ if(ioctl(fd,WAFFLE_MSM_SURFACE_IMPORT_TEST,&r) || !r.handle || r.size!=IOSurfaceGetAllocSize(hook_surface))goto done;
+ first=r.handle;
+ r=(struct waffle_msm_surface){.surface=sid};
+ if(ioctl(fd,WAFFLE_MSM_SURFACE_IMPORT_TEST,&r) || r.handle!=first)goto done;
+ struct waffle_msm_gem_info info={.handle=first,.info=1};
+ if(ioctl(fd,WAFFLE_MSM_INFO,&info) || !info.value)goto done;
+ struct waffle_msm_map map={.handle=first,.bytes=r.size};
+ if(ioctl(fd,WAFFLE_MSM_MAP,&map)!=-1 || errno!=ENOTSUP)goto done;
+ struct waffle_msm_close retired={.handle=first};
+ if(ioctl(fd,WAFFLE_MSM_CLOSE,&retired))goto done;
+ first=0;
+ if(ioctl(fd,WAFFLE_MSM_INFO,&info)!=-1 || errno!=EINVAL)goto done;
+ r=(struct waffle_msm_surface){.surface=sid};
+ if(ioctl(fd,WAFFLE_MSM_SURFACE_IMPORT_TEST,&r) || !r.handle || r.handle==info.handle)goto done;
+ second=r.handle;
+ if(ioctl(fd,WAFFLE_MSM_INFO,&info)!=-1 || errno!=EINVAL)goto done;
+ retired.handle=second;if(ioctl(fd,WAFFLE_MSM_CLOSE,&retired))goto done;second=0;
+ printf("waffle-gl-surface-import: passed=1 sid=%u first=%u second=%u duplicate_same=1 stale_refused=1 CPU_map_refused=1 closed=2 GPU_memory_access=0\n",sid,info.handle,r.handle);ok=true;
+ done:
+ if(first){struct waffle_msm_close r={.handle=first};ioctl(fd,WAFFLE_MSM_CLOSE,&r);}
+ if(second){struct waffle_msm_close r={.handle=second};ioctl(fd,WAFFLE_MSM_CLOSE,&r);}
+ if(!ok)printf("waffle-gl-surface-import: passed=0\n");close(fd);return ok;
+}
+#endif
 static bool check_full_surface(void)
 {
  if(!hook_surface || IOSurfaceGetWidth(hook_surface)!=750 || IOSurfaceGetHeight(hook_surface)!=1624 || IOSurfaceGetBytesPerRow(hook_surface)<3000)return false;
-#ifdef WAFFLE_GL_SURFACE_MAP_TEST
+#ifdef WAFFLE_GL_SURFACE_IMPORT_TEST
+ if(!check_surface_import())return false;
+#endif
+#if defined(WAFFLE_GL_SURFACE_MAP_TEST) && !defined(WAFFLE_GL_SURFACE_IMPORT_TEST)
  int fd=existing_gpu_fd();
  if(fd<0){printf("waffle-gl-surface-map: passed=0 stage=fd\n");return false;}
  struct waffle_msm_surface request={.surface=IOSurfaceGetID(hook_surface)};

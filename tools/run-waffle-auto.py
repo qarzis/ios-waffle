@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_workload=False):
     """Read-only admission check, called before USB or reboot operations."""
     if not gl_manifest.get('surface_describe'):
-        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test')):
+        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test')):
             raise ValueError('Surface access audit requires metadata binding')
         return
     if ui_workload or not gl_manifest.get('fullsize_probe') or not manifest.get('surface_metadata_describe'):
@@ -30,6 +30,8 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Surface GPU write audit lacks a matching isolated kernel declaration')
     if gl_manifest.get('surface_read_test') and (gl_manifest.get('surface_write_test') or not gl_manifest.get('surface_map_test') or not manifest.get('surface_gpu_read_audit')):
         raise ValueError('Surface GPU read audit lacks a matching isolated kernel declaration')
+    if gl_manifest.get('surface_import_test') and (gl_manifest.get('surface_write_test') or gl_manifest.get('surface_read_test') or not gl_manifest.get('surface_map_test') or not manifest.get('surface_import_lifetime_audit')):
+        raise ValueError('Surface import requires a matching isolated lifetime artifact')
     bindings=manifest.get('surface_description_source_sha256',{})
     required=('kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/iokit/Kernel/MiniIOSurface.cpp')
     if gl_manifest.get('surface_map_test'):

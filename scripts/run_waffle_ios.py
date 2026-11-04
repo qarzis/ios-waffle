@@ -227,6 +227,25 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    import_audit='SURFACE_IMPORT' in text or 'waffle-gl-surface-import:' in text
+    imported={};import_summary=None
+    if import_audit:
+        if any(x in text for x in ('SURFACE_WRITE_', 'SURFACE_MAP_TEST', 'waffle-gl-surface-map:')):
+            raise RuntimeError('Mixed native import and memory-access audits')
+        summaries=set(re.findall(r'waffle-gl-surface-import: passed=1 sid=(\d+) first=(\d+) second=(\d+) duplicate_same=1 stale_refused=1 CPU_map_refused=1 closed=2 GPU_memory_access=0',text))
+        if len(summaries)!=1 or 'waffle-gl-surface-import: passed=0' in text or 'SURFACE_IMPORT cleanup_refused=1' in text:
+            raise RuntimeError('Incomplete native import lifetime proof')
+        import_summary=tuple(map(int,next(iter(summaries))))
+        sid,first,second=import_summary
+        if not sid or not first or second!=first+capacity:raise RuntimeError('Invalid imported handle generation')
+        if set(re.findall(r'SURFACE_IMPORT reused=1 sid=(\d+) handle=(\d+)',text))!={(str(sid),str(first))}:
+            raise RuntimeError('Missing duplicate native import reuse')
+        for row in set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+) index=(\d+) VA=([0-9a-f]+) bytes=(\d+) lifetime_only=1',text)):
+            surface,handle,index,va,size=int(row[0]),int(row[1]),int(row[2]),int(row[3],16),int(row[4])
+            if index in imported or surface!=sid:raise RuntimeError('Conflicting native import publication')
+            imported[index]=(handle,va,size)
+        if len(imported)!=2 or {v[0] for v in imported.values()}!={first,second}:
+            raise RuntimeError('Missing native import handle publications')
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     surface_publication=r"SURFACE_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) cached=1 pages=(\d+)"
     reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"
@@ -270,7 +289,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         seen[key]=values
         if kind in ('publication','surface'):
             if kind=='surface':
-                if ((not write_audit and 'waffle-gl-surface-map: passed=1 native_registry=1 mapped_then_revoked=1 GPU_memory_access=0' not in text) or
+                if ((not write_audit and not import_audit and 'waffle-gl-surface-map: passed=1 native_registry=1 mapped_then_revoked=1 GPU_memory_access=0' not in text) or
                     'waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1' not in text):
                     raise RuntimeError('Surface mapping lacks isolated audit and fullsize pixel proof')
                 values=(values[0],values[1],values[2],values[2],'80000',values[3])
@@ -301,14 +320,20 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     total=int(release[3]) if release[3] else remaining
     if remaining!=len(active) or earlier!=retired or total!=len(buffers) or remaining+earlier!=total:
         raise RuntimeError("GL BO backing release accounting mismatch")
-    surface_audit_announced=any(marker in text for marker in ('SURFACE_MAP_TEST','SURFACE_BO published','waffle-gl-surface-map:','SURFACE_WRITE_TEST','waffle-gl-surface-write:'))
+    surface_audit_announced=any(marker in text for marker in ('SURFACE_MAP_TEST','SURFACE_BO published','waffle-gl-surface-map:','SURFACE_WRITE_TEST','waffle-gl-surface-write:','SURFACE_IMPORT','waffle-gl-surface-import:'))
     if surface_audit_announced!=bool(surface_indices):raise RuntimeError('Surface audit publication evidence missing')
     if any(marker in text for marker in ('SURFACE_MAP_TEST revoke_failed=1','SURFACE_MAP_TEST cleanup_refused=1','waffle-gl-surface-map: passed=0')):
         raise RuntimeError('Surface audit reported a failure')
     for index in surface_indices:
         if index not in retired_indices:raise RuntimeError('Surface audit backing was not revoked')
         va,logical,allocated,flags,pages=buffers[index]
-        if write_audit:
+        if import_audit:
+            if index not in imported or imported[index][1:]!=(va,allocated):raise RuntimeError('Native import backing mismatch')
+            handle=imported[index][0]
+            if not re.search(rf'GENERAL bo_retired handle={handle} bytes={allocated} backing_retained=0',text):
+                raise RuntimeError('Native imported handle not retired')
+            completed=[str(import_summary[0])]
+        elif write_audit:
             completed=re.findall(rf'SURFACE_WRITE_TEST passed=1 sid=(\d+) VA={va:x} bytes={allocated} fence=(\d+) checked=4 wrong=0 restored=1 retired=1',text)
             if len(set(completed))!=1:raise RuntimeError('Missing/conflicting GPU surface write completion')
             sid,fence=completed[0]
@@ -321,6 +346,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         sid=completed[0]
         if not re.search(rf'waffle-gl-surface: sid={sid} bytes={allocated} stride=\d+ width=750 height=1624 format=42475241 metadata_expected=1',text):
             raise RuntimeError('Surface audit metadata differs from userspace')
+    if import_audit and (set(imported)!=surface_indices or not generations):raise RuntimeError('Native imported publication/generation proof missing')
     if write_audit:
         if len(surface_indices)!=1:raise RuntimeError('Write audit requires exactly one surface')
         surface_index=next(iter(surface_indices))
@@ -330,7 +356,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
                 raise RuntimeError('Private surface command allocation/retirement differs')
     normal={};normal_retired=set()
     for index,bo in buffers.items():
-        if index in surface_indices or index in private_commands:continue
+        if (index in surface_indices and not import_audit) or index in private_commands:continue
         ordinal=len(normal)+1;normal[ordinal]=bo
         if index in retired_indices:normal_retired.add(ordinal)
     if generations:validate_gl_generation_handles(text,capacity,normal,normal_retired)
