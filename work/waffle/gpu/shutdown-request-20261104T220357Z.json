@@ -1,0 +1,18 @@
+{
+  "user_requested_finish_after_minutes": 10,
+  "requested_utc": "2026-11-04T22:03:36Z",
+  "OS_poweroff_scheduled_utc": "2026-11-04T22:13:57Z",
+  "OS_poweroff_local": "2026-11-05 01:13:57 Europe/Minsk",
+  "scheduled_by_UID": 1000,
+  "method": "shutdown --no-wall -P +10",
+  "confirmed": true,
+  "stop_after_current_S11": true,
+  "new_hardware_tests_allowed": false,
+  "phone_android_fresh_verified": true,
+  "active_build_or_phone_jobs": 0,
+  "work_stopped": true,
+  "final_qualified_test": "S11",
+  "public_commit": "69b476b6ff4a5c45a0b4f48402d8f282612183a5",
+  "public_remote_verified": true,
+  "public_worktree_clean": true
+}
