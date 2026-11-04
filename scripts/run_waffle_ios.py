@@ -542,6 +542,7 @@ def main():
     parser.add_argument("--audio-boot", action="store_true", help="With --audio-preflight: bounded native ADSP boot, GPR state query and shutdown; no PCM")
     parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
     parser.add_argument("--battery-readonly", action="store_true", help="With isolated --audio-boot: query seven native battery/USB properties once; no charger writes")
+    parser.add_argument('--battery-report-test',action='store_true',help='With --battery-readonly: three bounded samples into the native power-source bridge')
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
     parser.add_argument("--double-buffer", action="store_true", help="Compose offscreen and commit only complete frames to alternating scanout buffers")
@@ -565,6 +566,7 @@ def main():
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
     if args.battery_readonly and (not args.audio_boot or args.audio_graph):parser.error('--battery-readonly requires isolated --audio-boot and excludes graph')
+    if args.battery_report_test and not args.battery_readonly:parser.error('--battery-report-test requires --battery-readonly')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
@@ -646,7 +648,7 @@ def main():
         arguments += " waffle_vsync_audit=1"
     if args.audio_preflight:
         arguments += " adsp=8" if args.audio_iommu else " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
-        if args.battery_readonly:arguments += " waffle_battery_readonly=1"
+        if args.battery_readonly:arguments += " waffle_battery_readonly="+('2' if args.battery_report_test else '1')
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
     if args.torch_readonly:
@@ -1051,8 +1053,21 @@ def main():
                         raise RuntimeError(f'Native ADSP boot/GPR/shutdown not confirmed; logs: {out}')
                     if args.audio_graph and 'adsp: APM_GRAPH lifecycle=1 modules=write_shmem/read_shmem connection=1 no_DMA=1 no_PCM=1 amps_off=1' not in final_text:
                         raise RuntimeError(f'Native APM graph open/close not confirmed; logs: {out}')
-                    if args.battery_readonly and ('adsp: BATTERY_READONLY passed=1 properties=7 setters=0 oneshot=1' not in final_text or 'adsp: BATTERY_READONLY FAIL' in final_text):
+                    battery_marker='adsp: BATTERY_READONLY passed=1 properties=7 setters=0 oneshot='+('0' if args.battery_report_test else '1')
+                    if args.battery_readonly and (battery_marker not in final_text or 'adsp: BATTERY_READONLY FAIL' in final_text):
                         raise RuntimeError(f'Read-only battery request/response not confirmed; logs: {out}')
+                    if args.battery_report_test and not all(marker in final_text for marker in (
+                            'adsp: BATTERY_REPORT passed=1 samples=3 period_ms=10000 bounded=1 setters=0',
+                            'waffle-battery-pid1: updates=3', 'RedwoodBattery: the battery\'s power source is up:',
+                            'waffle-battery-bridge: current=')):
+                        raise RuntimeError(f'Native periodic battery bridge not confirmed; logs: {out}')
+                    if args.battery_report_test:
+                        native=re.findall(r'BATTERY_READONLY sample soc_hundredths=(\d+)',final_text)
+                        bridge=re.findall(r'waffle-battery-bridge: current=(\d+) max=(\d+) installed=(\d+)',final_text)
+                        users=re.findall(r'waffle-battery-pid1: updates=(\d+) soc=(-?\d+)',final_text)
+                        expected=(int(native[-1])+50)//100 if native else -1
+                        if not bridge or not users or tuple(map(int,bridge[-1]))!=(expected,100,1) or int(users[-1][0])<3 or int(users[-1][1])!=expected:
+                            raise RuntimeError(f'Native battery percent disagrees with IOPMPowerSource or PID1 sysctl; logs: {out}')
                     print('Native ADSP boot, GPR SPF state and shutdown validated; no PCM playback',flush=True)
                     return
                 required = ('waffle-audio-probe: PID1 ready',

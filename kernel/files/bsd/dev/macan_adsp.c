@@ -16,6 +16,7 @@
 #include <vm/vm_kern.h>
 #include <sys/macan_firmware.h>
 #include <sys/macan_dsp.h>
+#include <sys/macan_input.h>
 #include <sys/waffle_adsp_power.h>
 #include <sys/waffle_adsp_rpmh.h>
 #include <sys/waffle_apm.h>
@@ -41,6 +42,7 @@ static bool leaving;
 static volatile bool stopping, boot_runs, link_failed;
 static bool waffle_board;
 static bool battery_probe_requested;
+static bool battery_report_requested;
 static LCK_MTX_DECLARE(battery_reply_lock, &adsp_lock_group);
 static struct {
  bool pending, ready;
@@ -1962,7 +1964,8 @@ step_battery_readonly(void)
   return false;
  }
  /* Native OnePlus enum: temperature12. HakiOS's other-phone ID13 must not
-  * be copied here. Each property is queried once; no retries with ambiguous
+  * be copied here. Each property is queried once per successful sample; a
+  * timeout aborts the probe, without retries with ambiguous
   * late replies, no configuration writes, no synthetic voltage-based SOC.
   */
  const uint32_t properties[6] = {4, 2, 0, 7, 9, 12};
@@ -1977,9 +1980,33 @@ step_battery_readonly(void)
   printf("adsp: BATTERY_READONLY FAIL usb_online=1 setters=0\n");
   return false;
  }
- printf("adsp: BATTERY_READONLY sample soc_hundredths=%u present=%u status=%u voltage_uv=%u current_ua=%d temperature_hundredths=%d external=%u setters=0 oneshot=1\n",
-     values[0], values[1], values[2], values[3], (int32_t)values[4], (int32_t)values[5], external);
- printf("adsp: BATTERY_READONLY passed=1 properties=7 setters=0 oneshot=1\n");
+ printf("adsp: BATTERY_READONLY sample soc_hundredths=%u present=%u status=%u voltage_uv=%u current_ua=%d temperature_hundredths=%d external=%u setters=0 oneshot=%u\n",
+     values[0], values[1], values[2], values[3], (int32_t)values[4], (int32_t)values[5], external, !battery_report_requested);
+ if (battery_report_requested) {
+  struct redwood_battery_state state = {
+   .size = sizeof(state), .percent_hundredths = (int32_t)values[0], .present = (int32_t)values[1],
+   .status = (int32_t)values[2], .voltage_uv = (int32_t)values[3], .current_ua = (int32_t)values[4],
+   .temperature_hundredths = (int32_t)values[5], .external = external != 0,
+  };
+  redwood_battery_report(&state);
+ }
+ printf("adsp: BATTERY_READONLY passed=1 properties=7 setters=0 oneshot=%u\n", !battery_report_requested);
+ return true;
+}
+static bool
+step_battery_samples(void)
+{
+ unsigned samples = battery_report_requested ? 3 : 1;
+ for (unsigned i = 0; i < samples; i++) {
+  if (stopping || link_failed) return false;
+  if (!step_battery_readonly()) return false;
+  if (battery_report_requested) printf("adsp: BATTERY_REPORT sample=%u published=1 setters=0\n", i + 1);
+  if (i + 1 < samples) {
+   for (unsigned ms = 0; ms < 10000 && !stopping && !link_failed; ms += 10) sleep_ms(10);
+   if (stopping || link_failed) return false;
+  }
+ }
+ if (battery_report_requested) printf("adsp: BATTERY_REPORT passed=1 samples=3 period_ms=10000 bounded=1 setters=0\n");
  return true;
 }
 #define QRTR_US 1u
@@ -2576,7 +2603,10 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  printf("adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR node=%u services=%u GPR SPF=1 mode=%u\n",
      qrtr_peer, services, mode);
  if (mode == 7) { step = 12; if (!step_apm_graph()) { goto fail; } }
- if (battery_probe_requested) { step = 12; if (!step_battery_readonly()) { goto fail; } }
+ if (battery_probe_requested) {
+  step = 12;
+  if (!step_battery_samples()) { goto fail; }
+ }
  success = true;
  if (mode == 2 || mode == 6 || mode == 7) {
   stopping = true;
@@ -2638,11 +2668,12 @@ macan_adsp_init(void)
  if (waffle) {
   uint32_t battery_readonly = 0;
   PE_parse_boot_argn("waffle_battery_readonly", &battery_readonly, sizeof(battery_readonly));
-  if (battery_readonly && (battery_readonly != 1 || mode != 6)) {
+  if (battery_readonly && (battery_readonly > 2 || mode != 6)) {
    printf("adsp: battery read-only probe requires isolated adsp=6\n");
    mode = 0; return;
   }
-  battery_probe_requested = battery_readonly == 1;
+  battery_probe_requested = battery_readonly != 0;
+  battery_report_requested = battery_readonly == 2;
   if (mode < 3 || mode > 8) {
    printf("adsp: Waffle permits adsp=3 preflight,4 power,5 survey,6 DSP boot,7 graph,8 IOMMU survey\n");
    mode = 0; return;

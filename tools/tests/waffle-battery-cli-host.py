@@ -8,6 +8,7 @@ root = Path(__file__).resolve().parents[2]
 for script, prefix in [('scripts/run_waffle_ios.py', []),
                        ('tools/run-waffle-auto.py', ['--artifact', '/nonexistent-battery-fixture'])]:
     cases = [(['--battery-readonly'], 'requires isolated --audio-boot'),
+             (['--battery-report-test'], 'requires --battery-readonly'),
              (['--battery-readonly', '--audio-preflight', '--audio-boot', '--audio-graph'],
               'requires isolated --audio-boot'),
              (['--battery-readonly', '--audio-preflight', '--audio-boot', '--cpus', '7'],

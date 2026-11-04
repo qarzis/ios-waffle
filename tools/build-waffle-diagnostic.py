@@ -92,6 +92,7 @@ def main():
     run([output / "test-battery-readonly"])
     run([sys.executable, ROOT / "tools/tests/waffle-battery-mailbox-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-battery-cli-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-battery-report-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-iosurface-seed-host.py"])
     for variant,flags in (("user",["-DWAFFLE_USERLAND=1"]),("soak",["-DWAFFLE_USERLAND=1","-DWAFFLE_UI_SOAK_TEST=1"])):
         run(["cc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",*flags,
@@ -254,6 +255,8 @@ def main():
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_present.h", xnu / "bsd/sys/waffle_display_present.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_source.h", xnu / "bsd/sys/waffle_display_source.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_battery_readonly.h", xnu / "bsd/sys/waffle_battery_readonly.h")
+    for relative in ("bsd/dev/macan_battery.c", "iokit/Kernel/MacanBattery.cpp", "bsd/sys/macan_input.h"):
+        shutil.copyfile(ROOT / "kernel/files" / relative, xnu / relative)
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
@@ -318,9 +321,11 @@ def main():
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
     for relative in ("kernel/files/iokit/Kernel/MiniIOSurface.cpp",
+                     "kernel/files/bsd/dev/macan_battery.c", "kernel/files/iokit/Kernel/MacanBattery.cpp", "kernel/files/bsd/sys/macan_input.h",
                      "kernel/files/bsd/sys/waffle_battery_readonly.h", "tools/tests/waffle-battery-readonly-host.c",
                      "tools/tests/waffle-battery-mailbox-host.py",
                      "tools/tests/waffle-battery-cli-host.py",
+                     "tools/tests/waffle-battery-report-host.py",
                      "kernel/files/iokit/Kernel/MiniIOSurface.h",
                      "tools/tests/waffle-framebuffer-clipping-host.py",
                      "tools/tests/waffle-display-usecount-host.py", "tools/tests/waffle-display-retire-host.py",

@@ -85,7 +85,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         cpus+=waffle_cpu_token_allowed(line,size);
 #if defined(WAFFLE_USERLAND)
         display_present+=waffle_token_equal(line,size,"waffle_display_present=1");
-        battery_readonly+=waffle_token_equal(line,size,"waffle_battery_readonly=1");
+        battery_readonly+=waffle_number(line,size,"waffle_battery_readonly=",1,2);
         battery_boot+=waffle_token_equal(line,size,"adsp=6");
         display_flip+=waffle_token_equal(line,size,"waffle_display_flip=1");
         display_flush+=waffle_token_equal(line,size,"waffle_display_flush=1");
@@ -122,7 +122,7 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_cpu_token_allowed(line,size) &&
 #if defined(WAFFLE_USERLAND)
             !waffle_token_equal(line,size,"waffle_display_present=1") &&
-            !waffle_token_equal(line,size,"waffle_battery_readonly=1") &&
+            !waffle_number(line,size,"waffle_battery_readonly=",1,2) &&
             !waffle_token_equal(line,size,"waffle_display_flip=1") &&
             !waffle_token_equal(line,size,"waffle_display_flush=1") &&
             !waffle_token_equal(line,size,"waffle_vsync=1") &&

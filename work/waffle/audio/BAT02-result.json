@@ -1,0 +1,84 @@
+{
+  "experiment": "BAT02 three native read batches into IOPMPowerSource and BSD sysctl",
+  "run": "20261104T103423Z",
+  "auto_runner": {
+    "started_utc": "20261104T103359Z",
+    "flash_operations": false,
+    "gpu_raw": false,
+    "prepare_gpu": false,
+    "access_matrix": false,
+    "measure_clocks": false,
+    "lpac_map": false,
+    "lpac_cp_init": false,
+    "zap": false,
+    "writeback": false,
+    "ib": false,
+    "session": false,
+    "dynamic_bo": false,
+    "compute": null,
+    "image": false,
+    "image_copy": false,
+    "image_present": false,
+    "copy_jobs": false,
+    "worker": false,
+    "user_copy": false,
+    "data_bo": false,
+    "glsl": false,
+    "user_va": false,
+    "msm": false,
+    "mesa_transport": false,
+    "mapped": false,
+    "gl_context": false,
+    "physical_boot_selection": false,
+    "android_confirmed": true,
+    "automatic_loader_verified": true,
+    "audio_preflight": true,
+    "audio_power": false,
+    "audio_survey": false,
+    "audio_iommu": false,
+    "audio_boot": true,
+    "audio_graph": false,
+    "battery_readonly": true,
+    "battery_report_test": true,
+    "runner_exit": 0,
+    "success": true
+  },
+  "samples": 3,
+  "period_ms": 10000,
+  "native_soc_hundredths": [
+    9500,
+    9500,
+    9500
+  ],
+  "IOPMPowerSource_current_capacity": [
+    95,
+    95,
+    95
+  ],
+  "IOPMPowerSource_max_capacity": 100,
+  "PID1_updates_seen": [
+    1,
+    2,
+    3
+  ],
+  "PID1_soc": [
+    95,
+    95,
+    95
+  ],
+  "fresh_current_ua": [
+    -32000,
+    10000,
+    -4000
+  ],
+  "temperature_hundredths": [
+    3110,
+    3110,
+    3120
+  ],
+  "charger_setters": 0,
+  "passed_bridge": true,
+  "SpringBoard_UI_tested": false,
+  "permanent_service_enabled": false,
+  "stock_Android_percentage_difference_unresolved": true
+}
