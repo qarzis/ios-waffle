@@ -1,0 +1,113 @@
+waffle-gpu: SURFACE_IMPORT created=1 sid=1 handle=27 index=28 VA=101680000 bytes=4898816 lifetime_only=0
+waffle-gpu: SURFACE_SAMPLE imported=1 sid=1 handle=27 index=28 GPU_readonly=1
+waffle-gpu: SURFACE_IMPORT reused=1 sid=1 handle=27
+waffle-gl-eagl-native-input: bound=2 sid=1 selector_present=1 input_only=1
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gl-surface-sample: passed=1 sid=1 checked=256 wrong=0 GL_error=0 stage=7 GPU_readonly=1
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gl-surface-reuse: phase=1 passed=1 checked=256 wrong=0 GL_error=0 same_texture=1
+waffle-gl-surface-reuse: phase=1 offset=0 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=8 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=16 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=24 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=32 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=40 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=48 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=56 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=64 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=72 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=80 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=88 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=96 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=104 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=112 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=120 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=128 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=136 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=144 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=152 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=160 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=168 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=176 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=184 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=192 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=200 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=208 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=216 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=224 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=232 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=240 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=248 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gl-surface-reuse: phase=2 passed=1 checked=256 wrong=0 GL_error=0 same_texture=1
+waffle-gl-surface-reuse: phase=2 offset=0 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=8 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=16 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=24 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=32 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=40 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=48 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=56 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=64 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=72 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=80 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=88 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=96 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=104 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=112 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=120 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=128 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=136 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=144 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=152 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=160 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=168 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=176 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=184 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=192 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=200 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=208 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=216 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=224 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=232 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=240 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=248 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gl-surface-reuse: phase=3 passed=1 checked=256 wrong=0 GL_error=0 same_texture=1
+waffle-gl-surface-reuse: phase=3 offset=0 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=8 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=16 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=24 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=32 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=40 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=48 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=56 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=64 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=72 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=80 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=88 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=96 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=104 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=112 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=120 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=128 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=136 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=144 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=152 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=160 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=168 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=176 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=184 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=192 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=200 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=208 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=216 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-reuse: phase=3 offset=224 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=232 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-reuse: phase=3 offset=240 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=248 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: result=1 phases=3 source_restored=1 same_native_GEM=1
+waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1
+redwood-gl: after 1 frames: 39 calls, 1 draws and 1 triangles a frame on average; the most in one: 39 calls, 1 triangles; 8013 us a frame, of which 0 handing the commands on, 0 waiting for the picture to be drawn and 5317 copying it out, and before each 3501 making textures of IOSurfaces; 2 IOSurfaces were the textures' memory, 1 had to be copied; 2 shaders, 1 programs; biggest texture 750 x 1624; 0 errors
+waffle-gpu: GENERAL bo_retired handle=27 bytes=4898816 backing_retained=0
+waffle-gpu: GENERAL close passed=1 completed=10 buffers=36 context_null=1

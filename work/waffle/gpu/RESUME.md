@@ -1,3 +1,8 @@
+# ACTIVE — S10 existing EAGL native input PASSED
+
+Run20261104T215258Z/auto215234Z originalrunner0/success1/Android1. ExistingEAGLtexImageIOSurface...selectorbound2inputviews, actualhookcounter2IOSurfacesmemory, sameGEM27. RawMesashaderoriginal+3CPUupdates1024pixels0wrong/full1218000sourceunchanged,10commands/36GEMs/cleanGEMretirement. GoldEAGLsource6797...unchanged. S10-result/evidence saved; noactiveownerphoneAndroid. Publicffbcd14throughS08B; S09/S10source+resultslocalonly.
+NextS11useactualtypedEAGLdispatchforallGLsamplerhelpercalls(shader/program/texture/FBO/draw/readback), notrawMesa. Generatorneedsoptionalextra-source toincludesamplerCGLnames; ChelperconditionalincludeofgeneratedheaderandsetterforitsTUtablepointer; sourceGLSLmustlegacy/unversionedasgoldhookprepends300es andwritesgl_FragColorthroughredwood_data. Keepkernel/Mesa/goldeagl.cunchanged. Existingallpixel/reuse/nativecounterproofretained. NoUI/concurrentwriter/FPSqualification. Noagents/goals.
+
 # ACTIVE — S10 existing EAGL native input candidate ready
 
 Rootgpu/s10-surface-eagl-pixel/artifactdiagnostic-surface-eagl-s10 ready/pairedvalidator/preUSBsourcebindingPASS. SameS08Bkernel/Mesa andGOLDunchangedeagl.cSHA6797...; existingregisteredtexImageIOSurface... method invoked twice on actualEAGLContext forinputBGRA/plane0/invertNO(nonrenderTarget). SameprivatePID1ROimportscope andS09rawGLSLsampler/original+green+magenta+restore256pixels each; fullsourcecheck. Strictacceptancerequirehookcounter2IOSurfacesmemory+selectorbound2 +allpreviouscache/fence/GEMproof. SourceEAGLnotmodified. NextsavecheckpointthenRAMphoneS10. Noactivephoneowner;Androidavailable. Publicforkffbcd14throughS08B. S09source/resultcheckpointc494477, notyetpublic. NoFPS/UI/concurrentwriterqualification. Noagents/goals.
