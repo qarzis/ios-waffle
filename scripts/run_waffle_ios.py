@@ -541,13 +541,17 @@ def main():
     parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
     parser.add_argument("--audio-boot", action="store_true", help="With --audio-preflight: bounded native ADSP boot, GPR state query and shutdown; no PCM")
     parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
+    parser.add_argument("--battery-readonly", action="store_true", help="With isolated --audio-boot: query seven native battery/USB properties once; no charger writes")
     parser.add_argument("--system", type=Path, default=IMAGE_DIR / "system.packfs")
     parser.add_argument("--fastboot", default=os.environ.get("FASTBOOT"))
+    parser.add_argument("--double-buffer", action="store_true", help="Compose offscreen and commit only complete frames to alternating scanout buffers")
     parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
     parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
     args = parser.parse_args()
+    if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--double-buffer requires isolated GPU UI and excludes other display/audio modes")
     if args.display_flip_probe and (args.display_flush_probe or args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-flip-probe requires isolated GPU UI and excludes other display/audio modes")
     if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -560,6 +564,7 @@ def main():
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
+    if args.battery_readonly and (not args.audio_boot or args.audio_graph):parser.error('--battery-readonly requires isolated --audio-boot and excludes graph')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
@@ -630,6 +635,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.hardware_vsync:
         arguments += " waffle_vsync=1"
+    if args.double_buffer:
+        arguments += " waffle_display_present=1"
     if args.display_flip_probe:
         arguments += " waffle_display_flip=1"
     if args.display_flush_probe:
@@ -639,6 +646,7 @@ def main():
         arguments += " waffle_vsync_audit=1"
     if args.audio_preflight:
         arguments += " adsp=8" if args.audio_iommu else " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
+        if args.battery_readonly:arguments += " waffle_battery_readonly=1"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
     if args.torch_readonly:
@@ -1043,6 +1051,8 @@ def main():
                         raise RuntimeError(f'Native ADSP boot/GPR/shutdown not confirmed; logs: {out}')
                     if args.audio_graph and 'adsp: APM_GRAPH lifecycle=1 modules=write_shmem/read_shmem connection=1 no_DMA=1 no_PCM=1 amps_off=1' not in final_text:
                         raise RuntimeError(f'Native APM graph open/close not confirmed; logs: {out}')
+                    if args.battery_readonly and ('adsp: BATTERY_READONLY passed=1 properties=7 setters=0 oneshot=1' not in final_text or 'adsp: BATTERY_READONLY FAIL' in final_text):
+                        raise RuntimeError(f'Read-only battery request/response not confirmed; logs: {out}')
                     print('Native ADSP boot, GPR SPF state and shutdown validated; no PCM playback',flush=True)
                     return
                 required = ('waffle-audio-probe: PID1 ready',

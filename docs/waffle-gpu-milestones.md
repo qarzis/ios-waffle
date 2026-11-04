@@ -1,3 +1,19 @@
+## Source retirement and framebuffer copy — 2026-11-04
+
+D04 bound the two-buffer presenter to ordinary UI frames, but visible tearing and jerky movement remained. D05 observed source pixels changing across CPU composition, including with an unchanged seed. The D06 source-useCount lease experiment was insufficient and was reverted.
+
+D07 matched the second pixel buffer to the boot console's WCOMB mapping. Copy time fell from about31–36ms to1.7–1.9ms; the user confirmed smoother movement, with tearing still present. [D07 result](../work/waffle/gpu/D07-result.json).
+
+D08 waited for each submitted frame to finish before returning to the producer. The user confirmed tearing disappeared, and source observations remained unchanged. Its bounded240-second GPU window closed after26,825 commands/8,046 BOs; the original framebuffer was restored and Android returned. However, the user reported severe lag and heat, with some logged intervals around10fps. This is a causal result, not an acceptable final performance or thermal fix. The original collector exit1 remains preserved. [D08 result](../work/waffle/gpu/D08-result.json).
+
+**Current source includes the untested D09 candidate:** retire the source after all CPU draw jobs finish, before copying the private working image and waiting for scanout. Recording retains conservative later retirement. Actual wait/retirement and compositor host tests, full kernel build and paired-image validation passed. No D09 phone result is claimed. A60-second manual-scroll root omits CPU stress and automatic app workload; it is not a like-for-like benchmark against longer runs.
+
+**Battery percentage remains broken.** Latest iOS logs report unknown SOC. The live tree selects the OnePlus ADSP battery service, whose PMIC channel opened in an earlier audio test. Separate, off-by-default BAT01 asks seven read-only battery/USB properties using the pinned OnePlus ABI. It does not change charging, fabricate SOC, or provide live iOS reporting. Protocol/mailbox/CLI tests and full build passed; phone validation is pending. [Native provenance](../work/waffle/gpu/forensic-audit/peripheral-upstream/battery/provenance.json).
+
+Phone testing is held while the user is away and the phone cools in Android. Historical entries below preserve earlier states and are superseded by this section.
+
+---
+
 ## Second display buffer validated — 2026-11-03
 
 D01 read the inherited display DMA route without register writes: both nonsecure display streams select context bank4 with stage1 translation disabled and stage2 bypass. The43MiB splash reservation matches the live DT and Waffle UEFI map.

@@ -1,16 +1,18 @@
 {
-  "status": "standalone_state_machine_draft_only",
-  "files": [
-    "kernel/files/bsd/sys/waffle_display_present.h",
-    "tools/tests/waffle-display-present-host.c"
-  ],
-  "host_model_cases": "1000 full/partial working-frame updates, only inactive destination copied; commit/retire ordering, domain/copy/partial-write/stall failure latching, rollback and shutdown restore",
-  "host_asan_ubsan_passed": true,
-  "kernel_binding_implemented": false,
-  "driver_optin_implemented": false,
-  "kernel_build_performed": false,
-  "hardware_tested": false,
-  "ordinary_ui_double_buffer_enabled": false,
-  "tearing_fixed": false,
-  "reason_stopped": "Explicit user stop; publication only authorized"
+  "status": "kernel_bound_and_hardware_tested_visual_result_negative",
+  "kernel_binding_implemented": true,
+  "driver_optin_implemented": true,
+  "kernel_build_performed": true,
+  "hardware_tested": true,
+  "opt_in_only": true,
+  "ordinary_ui_double_buffer_enabled_in_test": true,
+  "short_run": "20261104T055741Z",
+  "stress_run": "20261104T060655Z",
+  "short_display_commits": 475,
+  "stress_display_commits": 3695,
+  "restored_original_front": true,
+  "visible_tearing_fixed": false,
+  "interactive_performance_accepted": false,
+  "user_feedback": "Horizontal text stripes persist; very laggy and jerky;16\u201323FPS/~41ms driver time",
+  "next": "D05 source seed/hash bracketing and per-stage timing; diagnostic only"
 }

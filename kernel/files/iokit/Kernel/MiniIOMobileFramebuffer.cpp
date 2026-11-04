@@ -21,6 +21,8 @@
 #include "../../bsd/sys/waffle_display_smmu.h"
 #include "../../bsd/sys/waffle_display_flush.h"
 #include "../../bsd/sys/waffle_display_flip.h"
+#include "../../bsd/sys/waffle_display_present.h"
+#include "../../bsd/sys/waffle_display_source.h"
 extern "C" {
 #include <console/video_console.h>
 extern struct vc_info vinfo;
@@ -33,6 +35,7 @@ extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
 static TUNABLE(uint32_t, gWaffleDisplaySurvey, "waffle_vsync_audit", 0);
 static TUNABLE(uint32_t, gWaffleDisplayFlush, "waffle_display_flush", 0);
 static TUNABLE(uint32_t, gWaffleDisplayFlip, "waffle_display_flip", 0);
+static TUNABLE(uint32_t, gWaffleDisplayPresent, "waffle_display_present", 0);
 static bool waffleDisplayRead(void *context, uint32_t offset, uint32_t *value)
 {
  if (offset > 0x83ffc || (offset & 3)) return false;
@@ -90,13 +93,13 @@ static void waffleDisplaySMMUSurvey(void)
  }
  ml_io_unmap(base, 0x100000);
 }
-struct WaffleDisplayFlipContext {vm_offset_t dpu, smmu, target;unsigned writes;};
+struct WaffleDisplayFlipContext {vm_offset_t dpu, smmu, target;unsigned writes;void *owner;bool quiescing;};
 static bool waffleDisplayFlipRead(void *p, uint32_t offset, uint32_t *value)
 {return waffleDisplayRead((void *)((WaffleDisplayFlipContext *)p)->dpu, offset, value);}
 static bool waffleDisplayFlipWrite(void *p, uint32_t offset, uint32_t value)
 {
  WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
- if (gWaffleDisplayFlip != 1 || !((offset == 0x16018 && value == 3) ||
+ if ((gWaffleDisplayFlip != 1 && gWaffleDisplayPresent != 1) || !((offset == 0x16018 && value == 3) ||
      ((offset == 0x5014 || offset == 0x7014) && (value == WAFFLE_DISPLAY_FRONT || value == WAFFLE_DISPLAY_TEST)))) return false;
  *(volatile uint32_t *)(c->dpu + offset) = value;
  __asm__ volatile("dsb sy" ::: "memory");c->writes++;
@@ -148,6 +151,76 @@ static void waffleDisplayFlipProbe(void *, wait_result_t)
  if (c.smmu) ml_io_unmap(c.smmu, 0x100000);
  if (c.dpu) ml_io_unmap(c.dpu, 0x84000);
  thread_terminate(current_thread());
+}
+struct WaffleDisplayPresentState {
+ WaffleDisplayFlipContext context;
+ IOBufferMemoryDescriptor *working;
+ uint8_t *front;
+ struct waffle_display_present_io io;
+ struct waffle_display_present_state state;
+ uint64_t copyNanos;
+ uint32_t sourceReads,sourceChanges,pixelChanges;
+};
+static WaffleDisplayPresentState *gWafflePresenter;
+static void waffleDisplayPresentDelay(void *p, unsigned ms)
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ if (c->quiescing) delay_for_interval(ms, NSEC_PER_MSEC);
+ else IOSleep(ms);
+}
+static bool waffleDisplayPresentCopy(void *p, uint32_t address)
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ WaffleDisplayPresentState *s = (WaffleDisplayPresentState *)c->owner;
+ if (!s || c->quiescing || address == s->state.active ||
+     (address != WAFFLE_DISPLAY_FRONT && address != WAFFLE_DISPLAY_TEST)) return false;
+ uint8_t *to = address == WAFFLE_DISPLAY_FRONT ? s->front : (uint8_t *)c->target;
+ uint64_t began = mach_absolute_time();
+ memcpy(to, s->working->getBytesNoCopy(), WAFFLE_DISPLAY_FRAME);
+ if (address == WAFFLE_DISPLAY_FRONT) {
+  for (uintptr_t at = (uintptr_t)to; at < (uintptr_t)to + WAFFLE_DISPLAY_FRAME; at += 64)
+   __asm__ volatile("dc cvac, %0" :: "r"(at) : "memory");
+ }
+ __asm__ volatile("dsb sy" ::: "memory");
+ absolutetime_to_nanoseconds(mach_absolute_time() - began, &s->copyNanos);
+ return true;
+}
+static WaffleDisplayPresentState *waffleDisplayPresentCreate(uint8_t *front)
+{
+ if (__atomic_load_n(&gWafflePresenter, __ATOMIC_ACQUIRE) || ((uintptr_t)front & 63)) return NULL;
+ WaffleDisplayPresentState *s = (WaffleDisplayPresentState *)IOMallocZero(sizeof(*s));
+ if (!s) return NULL;
+ s->front = front;s->context.owner = s;
+ s->context.dpu = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
+ s->context.smmu = ml_io_map_unmappable(0x15000000, 0x100000, VM_WIMG_IO);
+ /* Match the boot console's RAM framebuffer mapping (video_console.c).
+  * Keep DPU/SMMU registers as device memory; only reserved pixel RAM uses WCOMB.
+  */
+ s->context.target = ml_io_map_unmappable(WAFFLE_DISPLAY_TEST, WAFFLE_DISPLAY_FRAME, VM_WIMG_WCOMB);
+ s->working = IOBufferMemoryDescriptor::inTaskWithOptions(kernel_task, kIODirectionInOut, WAFFLE_DISPLAY_FRAME, PAGE_SIZE);
+ s->io = {{{{&s->context, waffleDisplayFlipRead}, waffleDisplayFlipWrite, waffleDisplayPresentDelay}, waffleDisplayFlipDomain, NULL}, waffleDisplayPresentCopy};
+ if (!s->context.dpu || !s->context.smmu || !s->context.target || !s->working ||
+     !s->working->getBytesNoCopy() || !waffle_display_present_init(&s->io, &s->state)) {
+  if (s->working) s->working->release();
+  if (s->context.target) ml_io_unmap(s->context.target, WAFFLE_DISPLAY_FRAME);
+  if (s->context.smmu) ml_io_unmap(s->context.smmu, 0x100000);
+  if (s->context.dpu) ml_io_unmap(s->context.dpu, 0x84000);
+  IOFree(s, sizeof(*s));return NULL;
+ }
+ memcpy(s->working->getBytesNoCopy(), front, WAFFLE_DISPLAY_FRAME);
+ __atomic_store_n(&gWafflePresenter, s, __ATOMIC_RELEASE);
+ redwood_tl("waffle-display-present: armed=1 working_bytes=%u front=%x back=%x\n", WAFFLE_DISPLAY_FRAME, WAFFLE_DISPLAY_FRONT, WAFFLE_DISPLAY_TEST);
+ return s;
+}
+/* loader_return has already stopped the other CPUs. No allocation, sleeping
+ * locks or scheduler-dependent waits are allowed on this path. */
+extern "C" void waffle_display_quiesce(void)
+{
+ WaffleDisplayPresentState *s = __atomic_load_n(&gWafflePresenter, __ATOMIC_ACQUIRE);
+ if (!s) return;
+ s->context.quiescing = true;
+ bool restored = waffle_display_present_restore(&s->io, &s->state);
+ redwood_tl("waffle-display-present: quiesced=1 restored=%u completed=%u active=%x\n", restored, s->state.completed, s->state.active);
 }
 static void waffleDisplaySurvey(void *, wait_result_t)
 {
@@ -469,6 +542,8 @@ class IOMobileFramebuffer : public IOService
 public:
  IOLock * fLock;
  uint8_t * fBase;
+ WaffleDisplayPresentState * fWafflePresenter;
+ bool fWafflePresentTried;
  uint32_t fPanelWidth, fPanelHeight, fRowBytes;
  uint32_t fWidth, fHeight;
  MiniIOSurface * fDefaultSurface;
@@ -480,6 +555,9 @@ public:
  uint8_t fSwap[SWAP_QUEUE][SWAP_SIZE];
  MiniIOSurface * fSwapSurfaces[SWAP_QUEUE][SWAP_LAYERS];
  unsigned fSwapFirst, fSwapsWaiting;
+ uint64_t fSwapIssued, fSwapCompleted, fSwapTickets[SWAP_QUEUE];
+ bool waitForPresentation(uint64_t ticket);
+ void retireSource(uint64_t ticket);
  uint64_t fBeat;
  uint64_t fReady;
  uint32_t fStatOnBeat;
@@ -509,7 +587,7 @@ public:
  void publishModes(void);
  MiniIOSurface * defaultSurface(void);
  void present(const uint8_t * swap);
- void show(const uint8_t * swap, MiniIOSurface ** surfaces);
+ void show(const uint8_t * swap, MiniIOSurface ** surfaces, uint64_t ticket);
  void presenter(void);
  static void presenterMain(void * self, wait_result_t result);
  void reportFrameTimes(void);
@@ -608,6 +686,9 @@ IOMobileFramebuffer::start(IOService * provider)
       vinfo.v_depth);
   return false;
  }
+ fWafflePresenter = NULL;fWafflePresentTried = false;
+ fSwapIssued = fSwapCompleted = 0;
+ bzero(fSwapTickets, sizeof(fSwapTickets));
  fLock = IOLockAlloc();
  fSwapLock = IOLockAlloc();
  if (kernel_thread_start(&IOMobileFramebuffer::presenterMain, this, &thread) != KERN_SUCCESS) {
@@ -1046,6 +1127,7 @@ void
 IOMobileFramebuffer::present(const uint8_t * swap)
 {
  AbsoluteTime deadline;
+ uint64_t ticket = 0;
  uint64_t now = mach_absolute_time(), period, pause;
  nanoseconds_to_absolutetime(NSEC_PER_SEC / refreshHz() * 5 / 4, &period);
  nanoseconds_to_absolutetime(FRAME_PAUSE * NSEC_PER_MSEC, &pause);
@@ -1066,6 +1148,15 @@ IOMobileFramebuffer::present(const uint8_t * swap)
   }
  }
  unsigned slot = (fSwapFirst + fSwapsWaiting) % SWAP_QUEUE;
+ if (gWaffle && gWaffleDisplayPresent == 1) {
+  if (fSwapIssued == UINT64_MAX) {
+   IOLockUnlock(fSwapLock);
+   redwood_tl("waffle-display-retire: ticket_overflow=1 refused=1\n");
+   return;
+  }
+  ticket = ++fSwapIssued;
+ }
+ fSwapTickets[slot] = ticket;
  memcpy(fSwap[slot], swap, SWAP_SIZE);
  for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
   uint32_t sid = swapWord(swap, SWAP_SURFACE(layer));
@@ -1074,6 +1165,40 @@ IOMobileFramebuffer::present(const uint8_t * swap)
  }
  fSwapsWaiting++;
  IOLockWakeup(fSwapLock, fSwap, true);
+ IOLockUnlock(fSwapLock);
+ if (ticket != 0) waitForPresentation(ticket);
+}
+/* Source-read retirement, not an interpretation of native SwapWait flags.
+ * Timeout is reported, never called retired.
+ */
+bool
+IOMobileFramebuffer::waitForPresentation(uint64_t ticket)
+{
+ AbsoluteTime deadline;
+ clock_interval_to_deadline(SWAP_HELD_MS, kMillisecondScale, &deadline);
+ IOLockLock(fSwapLock);
+ while (fSwapCompleted < ticket) {
+  if (IOLockSleepDeadline(fSwapLock, &fSwapCompleted, deadline, THREAD_UNINT) == THREAD_TIMED_OUT &&
+      fSwapCompleted < ticket) {
+   uint64_t completed = fSwapCompleted;
+   IOLockUnlock(fSwapLock);
+   redwood_tl("waffle-display-retire: ticket=%llu completed=%llu timeout=1\n",
+       (unsigned long long)ticket, (unsigned long long)completed);
+   return false;
+  }
+ }
+ IOLockUnlock(fSwapLock);
+ return true;
+}
+void
+IOMobileFramebuffer::retireSource(uint64_t ticket)
+{
+ if (ticket == 0) return;
+ IOLockLock(fSwapLock);
+ if (fSwapCompleted < ticket) {
+  fSwapCompleted = ticket;
+  IOLockWakeup(fSwapLock, &fSwapCompleted, false);
+ }
  IOLockUnlock(fSwapLock);
 }
 void
@@ -1093,8 +1218,9 @@ IOMobileFramebuffer::presenter(void)
   }
   memcpy(swap, fSwap[fSwapFirst], SWAP_SIZE);
   memcpy(surfaces, fSwapSurfaces[fSwapFirst], sizeof(surfaces));
+  uint64_t ticket = fSwapTickets[fSwapFirst];
   IOLockUnlock(fSwapLock);
-  show(swap, surfaces);
+  show(swap, surfaces, ticket);
   for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
    if (surfaces[layer] != NULL) {
     if (gWaffle && gWaffleDisplayUse) {
@@ -1105,10 +1231,11 @@ IOMobileFramebuffer::presenter(void)
    }
   }
   MiniIOSurfaceClearKept();
+  retireSource(ticket);
  }
 }
 void
-IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
+IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces, uint64_t ticket)
 {
  uint32_t set = swapWord(swap, SWAP_LAYERS_SET);
  uint64_t began = mach_absolute_time(), nanos, ready, shown, drawn;
@@ -1123,7 +1250,7 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
  }
  fStatWaiting += mach_absolute_time() - began;
  began = ready = mach_absolute_time();
- if (gOnTheBeat) {
+ if (gOnTheBeat && !(fWafflePresenter && !fWafflePresenter->state.failed)) {
   uint64_t period, aim, next;
   nanoseconds_to_absolutetime(NSEC_PER_SEC / refreshHz(), &period);
   aim = period * 3 / 8;
@@ -1153,6 +1280,12 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
  IOLockWakeup(fSwapLock, &fSwapsWaiting, true);
  IOLockUnlock(fSwapLock);
  IOLockLock(fLock);
+ if (gWaffle && gWaffleDisplayPresent == 1 && !fWafflePresentTried) {
+  fWafflePresentTried = true;
+  if (fPanelWidth == 1440 && fPanelHeight == 3168 && fRowBytes == 5760) fWafflePresenter = waffleDisplayPresentCreate(fBase);
+  if (fWafflePresenter) fBase = (uint8_t *)fWafflePresenter->working->getBytesNoCopy();
+  else redwood_tl("waffle-display-present: armed=0 initialization_refused=1\n");
+ }
  if (fLastFrame != 0) {
   absolutetime_to_nanoseconds(began - fLastFrame, &nanos);
   nanos /= NSEC_PER_MSEC;
@@ -1170,6 +1303,7 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
       swapWord(swap, SWAP_ID), fSwapsShown, swapWord(swap, SWAP_SURFACE(0)), swapWord(swap, SWAP_SURFACE(1)),
       swapWord(swap, SWAP_SURFACE(2)), swapWord(swap, SWAP_SURFACE(3)), set, swapWord(swap, SWAP_LAYERS_CLEARED));
  }
+ uint64_t composeBegan = mach_absolute_time(), composeNanos = 0;
  for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
   uint32_t sid = swapWord(swap, SWAP_SURFACE(layer));
   int32_t src[4], dst[4];
@@ -1212,10 +1346,50 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
     fGraphics = true;
     PE_initialize_console(NULL, kPEGraphicsMode);
    }
+   struct waffle_display_source_stamp before = {}, after = {};
+   if (fWafflePresenter && s->info.allocSize >= s->info.offset) {
+    before = waffle_display_source_observe(&s->shared()->seed, s->pixels(), s->info.allocSize - s->info.offset,
+        s->info.width, s->info.height, s->info.bytesPerRow);
+   }
    drawLayer(s, src, dst);
+   if (before.valid) {
+    after = waffle_display_source_observe(&s->shared()->seed, s->pixels(), s->info.allocSize - s->info.offset,
+        s->info.width, s->info.height, s->info.bytesPerRow);
+    if (after.valid) {
+     fWafflePresenter->sourceReads++;
+     if (before.seed != after.seed || before.hash != after.hash) {
+      fWafflePresenter->sourceChanges++;
+      fWafflePresenter->pixelChanges += before.hash != after.hash;
+      if (fWafflePresenter->sourceChanges <= 32) redwood_tl("waffle-display-source: sid=%u frame=%u seed_before=%u seed_after=%u samples_changed=%u samples=16\n",
+          sid, fSwapsShown, before.seed, after.seed, before.hash != after.hash);
+     }
+    }
+   }
    if (layer == 0) {
     recorded = s;
    }
+  }
+ }
+ absolutetime_to_nanoseconds(mach_absolute_time() - composeBegan, &composeNanos);
+ /* All drawLayer jobs and source observations have finished. Only the private
+  * working frame is used for scanout copy/commit below. A recording session
+  * still reads its source after commit, so it retains conservative retirement.
+  */
+ if (fWafflePresenter && !fWafflePresenter->state.failed && gRecSeconds == 0) retireSource(ticket);
+ if (fWafflePresenter && !fWafflePresenter->state.failed) {
+  struct waffle_display_present_result r = {};
+  uint64_t start = mach_absolute_time(), elapsed = 0;
+  fWafflePresenter->copyNanos = 0;
+  bool ok = waffle_display_present_frame(&fWafflePresenter->io, &fWafflePresenter->state, &r);
+  absolutetime_to_nanoseconds(mach_absolute_time() - start, &elapsed);
+  unsigned completed = fWafflePresenter->state.completed;
+  if (!ok || completed <= 8 || !(completed % 120)) {
+   redwood_tl("waffle-display-present: committed=%u completed=%u target=%x copied=%u rollback=%u rollback_ok=%u us=%llu\n",
+       ok, completed, r.target, r.copied, r.rollback_attempted, r.rollback_ok, (unsigned long long)(elapsed / 1000));
+   redwood_tl("waffle-display-source: compose_us=%llu copy_us=%llu submit_wait_us=%llu reads=%u changes=%u pixel_changes=%u\n",
+       (unsigned long long)(composeNanos / 1000), (unsigned long long)(fWafflePresenter->copyNanos / 1000),
+       (unsigned long long)((elapsed - fWafflePresenter->copyNanos) / 1000), fWafflePresenter->sourceReads,
+       fWafflePresenter->sourceChanges, fWafflePresenter->pixelChanges);
   }
  }
  drawn = mach_absolute_time();

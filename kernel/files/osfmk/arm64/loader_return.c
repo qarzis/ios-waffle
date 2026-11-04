@@ -34,6 +34,7 @@ extern void macan_adsp_quiesce(void);
 extern void macan_adsp_stop(void);
 extern void macan_haptic_quiesce(void);
 extern void macan_torch_quiesce(void);
+extern void waffle_display_quiesce(void);
 void loader_checkpoint(uint64_t n);
 char loader_log[LOADER_LOG_SIZE];
 uint32_t loader_log_len;
@@ -250,6 +251,7 @@ loader_return(void)
 #if defined(GENERIC_PSCI_SMP)
  psci_smp_stop_others();
 #endif
+ waffle_display_quiesce();
  macan_adsp_quiesce();
  macan_haptic_quiesce();
  macan_torch_quiesce();

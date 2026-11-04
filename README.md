@@ -13,8 +13,8 @@ XNU and iOS boot through UEFI into RAM.</p>
 | | Status | Notes |
 | --- | :---: | --- |
 | CPU, interrupts, timers | ✅ | 7 cores tested; one core reserved for the USB loader |
-| Display | ✅ | iOS renders at 750 × 1624 |
-| GPU | ⚠️ | GPU composition; app-opening snapshot fixed, tearing and crashes remain |
+| Display | ✅ | 1440 × 3168 panel; iOS renders at 750 × 1624 |
+| GPU | ⚠️ | Tear-free scrolling confirmed in one test; lag and heat remain |
 | Metal | ❌ | |
 | Touch | ✅ | Taps and swipes |
 | Buttons | ✅ | Power, volume up, volume down |
@@ -22,7 +22,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | Wi-Fi | ❌ | |
 | Vibration | ❌ | |
 | Flashlight | ✅ | On/off from Control Center |
-| Battery | ❌ | |
+| Battery | ❌ | Incorrect/stale percentage; native reader pending |
 | Packages | ⚪ | Sileo and tweaks unverified |
 | Dynamic Island | ⚪ | Unverified |
 | 120 Hz | ⚪ | Unverified |

@@ -25,7 +25,9 @@ def main():
     parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
     parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
+    parser.add_argument('--battery-readonly',action='store_true',help='With isolated --audio-boot: one native read-only battery sample')
     parser.add_argument('--hardware-vsync',action='store_true',help='Opt-in hardware panel TE timestamps for iOS callbacks')
+    parser.add_argument('--double-buffer',action='store_true',help='Opt-in complete-frame buffered scanout')
     parser.add_argument('--display-flip-probe',action='store_true',help='Bounded reserved-framebuffer pattern flip and restoration')
     parser.add_argument('--display-flush-probe',action='store_true',help='Bounded unchanged-frame native CTL flush control probe')
     parser.add_argument('--display-survey',action='store_true',help='Read-only inherited DPU/TE survey during GPU UI')
@@ -69,6 +71,7 @@ def main():
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
+    if args.battery_readonly and (not args.audio_boot or args.audio_graph):parser.error('--battery-readonly requires isolated --audio-boot and excludes graph')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and any(getattr(args, name) for name in (
             'cpu_ui_test','cpus','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
@@ -126,6 +129,7 @@ def main():
         audio_root=artifact/'audio-probe/root.packfs'
         audio_system=artifact/'audio-probe/system.packfs'
         audio_manifest=json.loads((artifact/'audio-probe/manifest.json').read_text())
+        if args.battery_readonly and not audio_manifest.get('battery_readonly'):parser.error('Battery probe requires a dedicated source-bound artifact')
         for path, key in ((audio_root,'root_sha256'),(audio_system,'system_sha256')):
             if hashlib.sha256(path.read_bytes()).hexdigest()!=audio_manifest[key]:parser.error('Audio image hash mismatch')
         for name,digest in audio_manifest['source_sha256'].items():
@@ -134,6 +138,13 @@ def main():
         bound_source=artifact/'source/kernel/files/bsd/dev/macan_adsp.c'
         if not bound_source.is_file() or hashlib.sha256(bound_source.read_bytes()).hexdigest()!=audio_manifest['source_sha256']['kernel/files/bsd/dev/macan_adsp.c']:
             parser.error('Audio kernel source binding missing or stale')
+        if args.battery_readonly:
+            name='kernel/files/bsd/sys/waffle_battery_readonly.h'
+            bound_header=artifact/'source'/name
+            if not bound_header.is_file() or hashlib.sha256(bound_header.read_bytes()).hexdigest()!=audio_manifest['source_sha256'][name]:
+                parser.error('Battery kernel header binding missing or stale')
+    if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('double_buffer_display')):
+        parser.error('--double-buffer requires a bound dedicated GPU UI artifact and excludes other display/audio modes')
     if args.display_flip_probe and (args.display_flush_probe or args.hardware_vsync or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('display_flip_probe')):
         parser.error('--display-flip-probe requires a bound dedicated GPU UI artifact and excludes other display/audio modes')
     if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('display_flush_probe')):
@@ -245,6 +256,7 @@ def main():
             if args.audio_iommu:items.append('--audio-iommu')
             if args.audio_boot:items.append('--audio-boot')
             if args.audio_graph:items.append('--audio-graph')
+            if args.battery_readonly:items.append('--battery-readonly')
             result=command(items,timeout=240)
             report['audio_preflight']=True
             report['audio_power']=args.audio_power
@@ -252,6 +264,7 @@ def main():
             report['audio_iommu']=args.audio_iommu
             report['audio_boot']=args.audio_boot
             report['audio_graph']=args.audio_graph
+            report['battery_readonly']=args.battery_readonly
             report['runner_exit']=result.returncode
             if result.returncode:raise RuntimeError('Audio firmware preflight failed; inspect preserved logs')
             p=command([args.fastboot,'-s','xnuloader','reboot'])
@@ -282,6 +295,7 @@ def main():
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
             if args.hardware_vsync:items.append('--hardware-vsync')
+            if args.double_buffer:items.append('--double-buffer')
             if args.display_flip_probe:items.append('--display-flip-probe')
             if args.display_flush_probe:items.append('--display-flush-probe')
             if args.display_survey:items.append('--display-survey')

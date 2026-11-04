@@ -1,0 +1,13 @@
+{
+  "source_read_retirement_before_scanout": true,
+  "recording_retains_late_retirement": true,
+  "host_tests_passed": true,
+  "kernel_build_passed": true,
+  "paired_image_validated": true,
+  "hardware_tested": false,
+  "user_visual_result": null,
+  "short_test_GPU_seconds": 60,
+  "short_test_kernel_seconds": 90,
+  "CPU_stress_proof": false,
+  "status": "prepared; lag/tearing result pending; no phone load while user away"
+}

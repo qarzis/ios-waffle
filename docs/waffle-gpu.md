@@ -1,8 +1,10 @@
 # OnePlus 12 GPU port
 
-Current status: actual GPU CoreAnimation composition has completed a 600-second
-RAM-only desktop session with 1,670 verified GPU completions and clean GPU shutdown.
-Indefinite operation and Metal remain unfinished.
+Current status: source retirement removed visible scrolling tears in one bounded
+GPU run, but severe lag and heat remain. A shorter source-read retirement
+candidate is built and host-tested, awaiting phone validation. The second framebuffer
+copy is now about1.7–1.9ms instead of31–36ms. Indefinite stability, performance,
+thermal management and Metal remain unfinished.
 
 See the [current milestones and evidence](waffle-gpu-milestones.md). Sections below
 preserve the earlier hardware audit; their historical status claims are superseded

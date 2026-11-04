@@ -19,6 +19,7 @@ def main():
     parser.add_argument('--firmware', type=Path, required=True)
     parser.add_argument('--dtb', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--battery-readonly', action='store_true', help='Bind the isolated native ADSP battery query; does not qualify hardware or enable live iOS reporting')
     args = parser.parse_args()
     spec = importlib.util.spec_from_file_location('audio_check', ROOT/'tools/check-waffle-audio.py')
     check = importlib.util.module_from_spec(spec)
@@ -46,10 +47,11 @@ def main():
                 pf.add_file(tree,'fw/'+filename,str(args.firmware/filename))
     pf.pack(tree,str(out/'root.packfs'),block=4096,page=16384)
     pf.pack(pf.Node(b'',0o40755,0),str(out/'system.packfs'),block=4096,page=16384)
-    sources=['kernel/files/bsd/sys/waffle_audio_smmu_survey.h','userland/src/waffle_audio_probe.c','userland/libmini/mini.c','userland/libmini/mini.h',
+    sources=['kernel/files/bsd/sys/waffle_battery_readonly.h','kernel/files/bsd/sys/waffle_audio_smmu_survey.h','userland/src/waffle_audio_probe.c','userland/libmini/mini.c','userland/libmini/mini.h',
         'userland/libmini/start.S','kernel/files/bsd/dev/macan_adsp.c','kernel/files/bsd/dev/macan_input.c','kernel/files/bsd/sys/waffle_adsp_power.h','kernel/files/bsd/sys/waffle_adsp_rpmh.h','kernel/files/bsd/sys/waffle_apm.h','kernel/files/bsd/sys/waffle_glink_intent.h','loader/waffle.h',
         'tools/build-waffle-audio-probe.py','tools/check-waffle-audio.py','tools/run-waffle-auto.py','scripts/run_waffle_ios.py']
     manifest={'mode':'adsp=3 firmware-only','hardware_DSP_startup':False,
+        'battery_readonly':args.battery_readonly,
         'root_sha256':hashlib.sha256((out/'root.packfs').read_bytes()).hexdigest(),
         'system_sha256':hashlib.sha256((out/'system.packfs').read_bytes()).hexdigest(),
         'source_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in sources},'preflight':audit}

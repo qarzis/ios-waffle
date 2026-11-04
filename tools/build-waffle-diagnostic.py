@@ -65,6 +65,12 @@ def main():
          "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-flip-host.c", "-o", output / "test-display-flip"])
     run([output / "test-display-flip"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-present-host.c", "-o", output / "test-display-present"])
+    run([output / "test-display-present"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-display-source-host.c", "-o", output / "test-display-source"])
+    run([output / "test-display-source"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
          ROOT / "tools/tests/waffle-policy.c", "-o", output / "test-policy"], cwd=ROOT)
     run([output / "test-policy"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-g",
@@ -79,6 +85,13 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-glink-intent-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-framebuffer-clipping-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-display-usecount-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-display-retire-host.py"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+         "-I", ROOT / "kernel/files/bsd", ROOT / "tools/tests/waffle-battery-readonly-host.c",
+         "-o", output / "test-battery-readonly"])
+    run([output / "test-battery-readonly"])
+    run([sys.executable, ROOT / "tools/tests/waffle-battery-mailbox-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-battery-cli-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-iosurface-seed-host.py"])
     for variant,flags in (("user",["-DWAFFLE_USERLAND=1"]),("soak",["-DWAFFLE_USERLAND=1","-DWAFFLE_UI_SOAK_TEST=1"])):
         run(["cc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",*flags,
@@ -238,6 +251,9 @@ def main():
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_smmu.h", xnu / "bsd/sys/waffle_display_smmu.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_flush.h", xnu / "bsd/sys/waffle_display_flush.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_flip.h", xnu / "bsd/sys/waffle_display_flip.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_present.h", xnu / "bsd/sys/waffle_display_present.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_display_source.h", xnu / "bsd/sys/waffle_display_source.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_battery_readonly.h", xnu / "bsd/sys/waffle_battery_readonly.h")
     # These board overlays may change after XNU was first prepared. Compile
     # the source included in the artifact snapshot, rather than stale copies.
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
@@ -296,15 +312,18 @@ def main():
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "HEAD"], cwd=ROOT))
     source = output / "source"
-    for relative in ("kernel/files/bsd/sys/waffle_display_flip.h", "tools/tests/waffle-display-flip-host.c", "kernel/files/bsd/sys/waffle_display_flush.h", "tools/tests/waffle-display-flush-host.c", "kernel/files/bsd/sys/waffle_display_smmu.h", "tools/tests/waffle-display-smmu-host.c", "kernel/files/bsd/sys/waffle_vsync_phase.h", "tools/tests/waffle-vsync-phase-host.c", "kernel/files/bsd/sys/waffle_display_survey.h", "tools/tests/waffle-display-survey-host.c", "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
+    for relative in ("kernel/files/bsd/sys/waffle_display_source.h", "tools/tests/waffle-display-source-host.c", "kernel/files/bsd/sys/waffle_display_present.h", "tools/tests/waffle-display-present-host.c", "kernel/files/bsd/sys/waffle_display_flip.h", "tools/tests/waffle-display-flip-host.c", "kernel/files/bsd/sys/waffle_display_flush.h", "tools/tests/waffle-display-flush-host.c", "kernel/files/bsd/sys/waffle_display_smmu.h", "tools/tests/waffle-display-smmu-host.c", "kernel/files/bsd/sys/waffle_vsync_phase.h", "tools/tests/waffle-vsync-phase-host.c", "kernel/files/bsd/sys/waffle_display_survey.h", "tools/tests/waffle-display-survey-host.c", "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
                      "tools/tests/waffle-audio-smmu-survey-host.c"):
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
     for relative in ("kernel/files/iokit/Kernel/MiniIOSurface.cpp",
+                     "kernel/files/bsd/sys/waffle_battery_readonly.h", "tools/tests/waffle-battery-readonly-host.c",
+                     "tools/tests/waffle-battery-mailbox-host.py",
+                     "tools/tests/waffle-battery-cli-host.py",
                      "kernel/files/iokit/Kernel/MiniIOSurface.h",
                      "tools/tests/waffle-framebuffer-clipping-host.py",
-                     "tools/tests/waffle-display-usecount-host.py",
+                     "tools/tests/waffle-display-usecount-host.py", "tools/tests/waffle-display-retire-host.py",
                      "tools/tests/waffle-iosurface-seed-host.py",
                      "tools/tests/waffle-10mb-object-host.py"):
         target = source / relative

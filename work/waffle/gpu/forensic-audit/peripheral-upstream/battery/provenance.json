@@ -1,0 +1,29 @@
+{
+  "revision": "38d50357db2728300a61b6f757f2d3a09651c155",
+  "files": [
+    {
+      "path": "vendor/oplus/kernel/charger/charger_ic/oplus_battery_sm8350.c",
+      "url": "https://raw.githubusercontent.com/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/38d50357db2728300a61b6f757f2d3a09651c155/vendor/oplus/kernel/charger/charger_ic/oplus_battery_sm8350.c",
+      "git_blob": "9254a12d85d6cbce0b770868969ceacdb5adcd03",
+      "sha256": "0b4a5d5d6b3b2fed7951d4b023df1856436b324e00d33cb636c03fd9790df7db"
+    },
+    {
+      "path": "vendor/oplus/kernel/charger/charger_ic/oplus_battery_sm8350.h",
+      "url": "https://raw.githubusercontent.com/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/38d50357db2728300a61b6f757f2d3a09651c155/vendor/oplus/kernel/charger/charger_ic/oplus_battery_sm8350.h",
+      "git_blob": "4cc35df858890139eb1db5bfe0a6d8959298c06d",
+      "sha256": "87bcd08dbba791c81a15da0667d1fde8c3f5123cb40da24efd6044c19241b965"
+    },
+    {
+      "path": "vendor/oplus/kernel/charger/v2/charger_ic/oplus_hal_adsp.c",
+      "url": "https://raw.githubusercontent.com/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/38d50357db2728300a61b6f757f2d3a09651c155/vendor/oplus/kernel/charger/v2/charger_ic/oplus_hal_adsp.c",
+      "git_blob": "b89fae55d87ae503e4be5a0949d56e707663f4ad",
+      "sha256": "8e28090d0f7dab54789174d78073d11c02bc76bc7ad028ba8b178c928156b387"
+    },
+    {
+      "path": "vendor/oplus/kernel/charger/v2/charger_ic/oplus_hal_adsp.h",
+      "url": "https://raw.githubusercontent.com/OnePlusOSS/android_kernel_modules_and_devicetree_oneplus_sm8650/38d50357db2728300a61b6f757f2d3a09651c155/vendor/oplus/kernel/charger/v2/charger_ic/oplus_hal_adsp.h",
+      "git_blob": "4939c9e5968ea1029ee654c212f24d85600e53c5",
+      "sha256": "102b2e12324f7e0fba73bb7e515ec690930ad4b152cebda23684cf30404c82a5"
+    }
+  ]
+}

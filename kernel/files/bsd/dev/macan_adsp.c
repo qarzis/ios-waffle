@@ -21,6 +21,7 @@
 #include <sys/waffle_apm.h>
 #include <sys/waffle_glink_intent.h>
 #include <sys/waffle_audio_smmu_survey.h>
+#include <sys/waffle_battery_readonly.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
 extern void ml_io_unmap(vm_offset_t addr, vm_size_t sz);
@@ -39,6 +40,12 @@ static char last_write[96] = "nothing written";
 static bool leaving;
 static volatile bool stopping, boot_runs, link_failed;
 static bool waffle_board;
+static bool battery_probe_requested;
+static LCK_MTX_DECLARE(battery_reply_lock, &adsp_lock_group);
+static struct {
+ bool pending, ready;
+ uint32_t opcode, property, value;
+} battery_reply;
 static bool scm_incomplete;
 extern void loader_log_putc(char c);
 static LCK_MTX_DECLARE(say_lock, &adsp_lock_group);
@@ -1894,6 +1901,82 @@ glink_send(struct glink_channel *channel, const void *data, uint32_t length)
  lck_mtx_unlock(&glink_lock);
  return sent ? 0 : EAGAIN;
 }
+static void
+battery_probe_input(const uint8_t *data, uint32_t length)
+{
+ uint32_t value = 0;
+ lck_mtx_lock(&battery_reply_lock);
+ if (battery_reply.pending && !battery_reply.ready &&
+     waffle_battery_response(data, length, battery_reply.opcode, battery_reply.property, &value)) {
+  battery_reply.value = value;
+  battery_reply.ready = true;
+ }
+ lck_mtx_unlock(&battery_reply_lock);
+}
+static bool
+battery_probe_get(struct glink_channel *channel, uint32_t opcode, uint32_t property, uint32_t *value)
+{
+ uint8_t request[WAFFLE_BATTERY_MESSAGE_BYTES];
+ if (!waffle_battery_request(request, sizeof(request), opcode, property)) return false;
+ lck_mtx_lock(&battery_reply_lock);
+ battery_reply.opcode = opcode;battery_reply.property = property;
+ battery_reply.ready = false;battery_reply.pending = true;
+ lck_mtx_unlock(&battery_reply_lock);
+ bool sent = glink_send(channel, request, sizeof(request)) == 0;
+ bool ready = false;
+ for (unsigned ms = 0; sent && ms < 1000 && !stopping && !link_failed; ms++) {
+  lck_mtx_lock(&battery_reply_lock);
+  ready = battery_reply.ready;
+  if (ready) *value = battery_reply.value;
+  lck_mtx_unlock(&battery_reply_lock);
+  if (ready) break;
+  sleep_ms(1);
+ }
+ lck_mtx_lock(&battery_reply_lock);
+ battery_reply.pending = false;
+ lck_mtx_unlock(&battery_reply_lock);
+ return ready && waffle_battery_value_valid(opcode, property, *value);
+}
+static bool
+step_battery_readonly(void)
+{
+ struct glink_channel *channel = NULL;
+ for (unsigned ms = 0; ms < 1500 && !stopping && !link_failed; ms++) {
+  lck_mtx_lock(&glink_lock);
+  for (unsigned i = 0; i < CHANNELS; i++) {
+   if (glink.channel[i].open && !strcmp(glink.channel[i].name, "PMIC_RTR_ADSP_APPS")) {
+    channel = &glink.channel[i];break;
+   }
+  }
+  lck_mtx_unlock(&glink_lock);
+  if (channel) break;
+  sleep_ms(1);
+ }
+ if (!channel) {
+  printf("adsp: BATTERY_READONLY FAIL channel_not_open=1 setters=0\n");
+  return false;
+ }
+ /* Native OnePlus enum: temperature12. HakiOS's other-phone ID13 must not
+  * be copied here. Each property is queried once; no retries with ambiguous
+  * late replies, no configuration writes, no synthetic voltage-based SOC.
+  */
+ const uint32_t properties[6] = {4, 2, 0, 7, 9, 12};
+ uint32_t values[6] = {}, external = 0;
+ for (unsigned i = 0; i < 6; i++) {
+  if (!battery_probe_get(channel, WAFFLE_BATTERY_GET, properties[i], &values[i])) {
+   printf("adsp: BATTERY_READONLY FAIL property=%u raw=%u setters=0\n", properties[i], values[i]);
+   return false;
+  }
+ }
+ if (!battery_probe_get(channel, WAFFLE_BATTERY_USB_GET, 0, &external)) {
+  printf("adsp: BATTERY_READONLY FAIL usb_online=1 setters=0\n");
+  return false;
+ }
+ printf("adsp: BATTERY_READONLY sample soc_hundredths=%u present=%u status=%u voltage_uv=%u current_ua=%d temperature_hundredths=%d external=%u setters=0 oneshot=1\n",
+     values[0], values[1], values[2], values[3], (int32_t)values[4], (int32_t)values[5], external);
+ printf("adsp: BATTERY_READONLY passed=1 properties=7 setters=0 oneshot=1\n");
+ return true;
+}
 #define QRTR_US 1u
 #define QRTR_CONTROL 0xfffffffeu
 enum { QRTR_DATA = 1, QRTR_HELLO = 2, QRTR_BYE = 3, QRTR_NEW_SERVER = 4, QRTR_DEL_SERVER = 5, QRTR_DEL_CLIENT = 6, QRTR_RESUME_TX = 7,
@@ -2179,6 +2262,8 @@ link_thread(__unused void *parameter, __unused wait_result_t result)
     qrtr_input(packet->data, packet->length);
    } else if (from == CHANNEL_GPR) {
     gpr_input(packet->data, packet->length);
+   } else if (battery_probe_requested && !strcmp(glink.channel[from].name, "PMIC_RTR_ADSP_APPS")) {
+    battery_probe_input(packet->data, packet->length);
    } else {
     if (glink.trace) { glink.trace--; printf("adsp: channel %s received %u bytes\n", glink.channel[from].name, packet->length); }
    }
@@ -2486,6 +2571,7 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  printf("adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR node=%u services=%u GPR SPF=1 mode=%u\n",
      qrtr_peer, services, mode);
  if (mode == 7) { step = 12; if (!step_apm_graph()) { goto fail; } }
+ if (battery_probe_requested) { step = 12; if (!step_battery_readonly()) { goto fail; } }
  success = true;
  if (mode == 2 || mode == 6 || mode == 7) {
   stopping = true;
@@ -2545,6 +2631,13 @@ macan_adsp_init(void)
  if (!mode) { return; }
  PE_parse_boot_argn("waffle", &waffle, sizeof(waffle));
  if (waffle) {
+  uint32_t battery_readonly = 0;
+  PE_parse_boot_argn("waffle_battery_readonly", &battery_readonly, sizeof(battery_readonly));
+  if (battery_readonly && (battery_readonly != 1 || mode != 6)) {
+   printf("adsp: battery read-only probe requires isolated adsp=6\n");
+   mode = 0; return;
+  }
+  battery_probe_requested = battery_readonly == 1;
   if (mode < 3 || mode > 8) {
    printf("adsp: Waffle permits adsp=3 preflight,4 power,5 survey,6 DSP boot,7 graph,8 IOMMU survey\n");
    mode = 0; return;
