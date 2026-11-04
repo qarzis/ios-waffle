@@ -1,3 +1,7 @@
+# ACTIVE — D08 synchronous submission candidate ready; D07 finishing
+
+D07 WCOMB hardwarepositive: Bcopy1.7–1.9ms vs31–36ms, USERsmootherbuttearsremain.240GPUstop/fullclose24221/7362observed; await300kernelquiesce/Android; soleowner41034/auto-copy-mapping-d07.log/run085940Z. D08 adds bounded700ms submitted-ticket retirement beforeSwapEndreturn in explicitbufferedmode, no nativeSwapWaitsemantics invented; retainsWCOMB, D06leaseoff. Actualwait7casesASanUBSanPASS/fullbuild49719PASS/pairedartifactdiagnostic-submit-retire-ui-d08sourceboundvalidated. NotbooteduntilD07outerdone+Androidverified. Needsourcechangesvsreads, timeoutlogs, fullclose/restore/Androidandmanualtearingfeedback; nofixedclaim. LatestsourceincludesD08; D07artifactsourcepreservestestedD07.
+
 # ACTIVE — D07 B framebuffer WCOMB hardware test
 
 D06leaseFAILsource-stability:88changes/61pixels/1915reads, GPUclose10163/4150,1931commits/quiescerestored1/Android1; originalouter1retained. D06activationREVERTED; checkpoint13320c1retainscandidate. D07onlydifferencefromD05: B pixelRAM map IO->WCOMB (nativebootconsoleusesWCOMB); DPU/SMMUunchanged. Fullbuild27478PASS/sourcebindingschecked; pairedartifactdiagnostic-copy-mapping-ui-d07, same240GPU300kernelroot/Mesa749/E113/7cores/torch/doublebuffer+hardwarevsync. Soleownerauto-copy-mapping-d07.log. Need B copy31–36ms->~2–3ms expectation, no commit/GPUerrors, fullclose/restore/Android; source-race remains independent. VisualtearingNOTfixedqualified.

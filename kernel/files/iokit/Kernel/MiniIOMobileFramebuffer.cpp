@@ -555,6 +555,8 @@ public:
  uint8_t fSwap[SWAP_QUEUE][SWAP_SIZE];
  MiniIOSurface * fSwapSurfaces[SWAP_QUEUE][SWAP_LAYERS];
  unsigned fSwapFirst, fSwapsWaiting;
+ uint64_t fSwapIssued, fSwapCompleted, fSwapTickets[SWAP_QUEUE];
+ bool waitForPresentation(uint64_t ticket);
  uint64_t fBeat;
  uint64_t fReady;
  uint32_t fStatOnBeat;
@@ -684,6 +686,8 @@ IOMobileFramebuffer::start(IOService * provider)
   return false;
  }
  fWafflePresenter = NULL;fWafflePresentTried = false;
+ fSwapIssued = fSwapCompleted = 0;
+ bzero(fSwapTickets, sizeof(fSwapTickets));
  fLock = IOLockAlloc();
  fSwapLock = IOLockAlloc();
  if (kernel_thread_start(&IOMobileFramebuffer::presenterMain, this, &thread) != KERN_SUCCESS) {
@@ -1122,6 +1126,7 @@ void
 IOMobileFramebuffer::present(const uint8_t * swap)
 {
  AbsoluteTime deadline;
+ uint64_t ticket = 0;
  uint64_t now = mach_absolute_time(), period, pause;
  nanoseconds_to_absolutetime(NSEC_PER_SEC / refreshHz() * 5 / 4, &period);
  nanoseconds_to_absolutetime(FRAME_PAUSE * NSEC_PER_MSEC, &pause);
@@ -1142,6 +1147,15 @@ IOMobileFramebuffer::present(const uint8_t * swap)
   }
  }
  unsigned slot = (fSwapFirst + fSwapsWaiting) % SWAP_QUEUE;
+ if (gWaffle && gWaffleDisplayPresent == 1) {
+  if (fSwapIssued == UINT64_MAX) {
+   IOLockUnlock(fSwapLock);
+   redwood_tl("waffle-display-retire: ticket_overflow=1 refused=1\n");
+   return;
+  }
+  ticket = ++fSwapIssued;
+ }
+ fSwapTickets[slot] = ticket;
  memcpy(fSwap[slot], swap, SWAP_SIZE);
  for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
   uint32_t sid = swapWord(swap, SWAP_SURFACE(layer));
@@ -1151,6 +1165,30 @@ IOMobileFramebuffer::present(const uint8_t * swap)
  fSwapsWaiting++;
  IOLockWakeup(fSwapLock, fSwap, true);
  IOLockUnlock(fSwapLock);
+ if (ticket != 0) waitForPresentation(ticket);
+}
+/* D08: conservative synchronous submission experiment. This is not an
+ * interpretation of native SwapWait flags: only this submitted CPU read is
+ * retired before returning SwapEnd. Timeout is reported, never called retired.
+ */
+bool
+IOMobileFramebuffer::waitForPresentation(uint64_t ticket)
+{
+ AbsoluteTime deadline;
+ clock_interval_to_deadline(SWAP_HELD_MS, kMillisecondScale, &deadline);
+ IOLockLock(fSwapLock);
+ while (fSwapCompleted < ticket) {
+  if (IOLockSleepDeadline(fSwapLock, &fSwapCompleted, deadline, THREAD_UNINT) == THREAD_TIMED_OUT &&
+      fSwapCompleted < ticket) {
+   uint64_t completed = fSwapCompleted;
+   IOLockUnlock(fSwapLock);
+   redwood_tl("waffle-display-retire: ticket=%llu completed=%llu timeout=1\n",
+       (unsigned long long)ticket, (unsigned long long)completed);
+   return false;
+  }
+ }
+ IOLockUnlock(fSwapLock);
+ return true;
 }
 void
 IOMobileFramebuffer::presenterMain(void * self, wait_result_t result __unused)
@@ -1169,6 +1207,7 @@ IOMobileFramebuffer::presenter(void)
   }
   memcpy(swap, fSwap[fSwapFirst], SWAP_SIZE);
   memcpy(surfaces, fSwapSurfaces[fSwapFirst], sizeof(surfaces));
+  uint64_t ticket = fSwapTickets[fSwapFirst];
   IOLockUnlock(fSwapLock);
   show(swap, surfaces);
   for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
@@ -1181,6 +1220,12 @@ IOMobileFramebuffer::presenter(void)
    }
   }
   MiniIOSurfaceClearKept();
+  if (ticket != 0) {
+   IOLockLock(fSwapLock);
+   fSwapCompleted = ticket;
+   IOLockWakeup(fSwapLock, &fSwapCompleted, false);
+   IOLockUnlock(fSwapLock);
+  }
  }
 }
 void
