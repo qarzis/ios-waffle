@@ -1,0 +1,30 @@
+{
+  "experiment": "S06 retained native IOSurface GEM lifetime",
+  "passed": true,
+  "run": "20261104T210531Z",
+  "auto_run": "20261104T210507Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "first_handle": 27,
+  "duplicate_handle": 27,
+  "reimport_handle": 8219,
+  "generation_step": 8192,
+  "stale_handle_refused": true,
+  "CPU_map_refused": true,
+  "imported_GEMs_created": 2,
+  "imported_GEMs_closed": 2,
+  "surface_bytes": 4898816,
+  "surface_pages_4k": 1196,
+  "GPU_memory_access_by_import_test": false,
+  "fullsize_checked_pixels": 1218000,
+  "fullsize_wrong_pixels": 0,
+  "padding_wrong": 0,
+  "GL_error": 0,
+  "kernel_log_sha256": "df1d6ff85edeb79a96400361d03a38fecc79e939b686cf7119b778e18b5aca4a",
+  "kernel_sha256": "652482077ee7355c932b0e31b5fe01bd7da8a2715408e3bf94af1d8d90712953",
+  "limits": [
+    "Private PID1 import/close only; ordinary Mesa import disabled",
+    "Imported buffer submission, CPU mapping and PREP/FINI deliberately refused",
+    "No shader rendering, FPS or long-term stability claim"
+  ]
+}

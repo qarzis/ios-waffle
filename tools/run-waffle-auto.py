@@ -43,6 +43,8 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         required+=('kernel/files/bsd/sys/waffle_gpu_surface_write.h','kernel/files/bsd/sys/waffle_gpu_writeback.h')
     if gl_manifest.get('surface_read_test'):
         required+=('kernel/files/bsd/sys/waffle_gpu_surface_read.h','kernel/files/bsd/sys/waffle_gpu_surface_write.h','kernel/files/bsd/sys/waffle_gpu_writeback.h')
+    if gl_manifest.get('surface_import_test'):
+        required+=('kernel/files/bsd/sys/waffle_gpu_handles.h',)
     if any(name not in bindings for name in required):raise ValueError('Surface metadata source binding missing')
     for name,sha in bindings.items():
         if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface metadata source changed: '+name)

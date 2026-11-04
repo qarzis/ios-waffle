@@ -67,6 +67,11 @@ with tempfile.TemporaryDirectory() as t:
     imp=copy.deepcopy(g);imp['surface_map_test']=True;imp['surface_import_test']=True
     reject(v,imp)
     v['surface_import_lifetime_audit']=True
+    reject(v,imp)
+    n='kernel/files/bsd/sys/waffle_gpu_handles.h'
+    for base in [r,a/'source']:
+        p=base/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
+    v['surface_description_source_sha256'][n]=hashlib.sha256((r/n).read_bytes()).hexdigest()
     check(r,a,v,imp)
     x=copy.deepcopy(imp);x['surface_read_test']=True;reject(v,x)
     x=copy.deepcopy(imp);x['surface_describe']=False;reject(v,x)
