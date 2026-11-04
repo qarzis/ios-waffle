@@ -32,6 +32,11 @@ bool waffle_gpu_memory_surface(uint32_t surface,struct waffle_gpu_memory *);
 bool waffle_gpu_memory_create(uint64_t bytes,uint32_t flags,struct waffle_gpu_memory *);
 uint64_t waffle_gpu_memory_page(const struct waffle_gpu_memory *,uint32_t offset);
 bool waffle_gpu_memory_map(const struct waffle_gpu_memory *,bool readonly,uint64_t *address,uintptr_t *token);
+/* Caller owns CPU access, and DEVICE_TO_CPU requires proven GPU completion.
+ * These operations do not establish ownership or wait on a fence. */
+#define WAFFLE_GPU_SURFACE_TO_GPU 0u
+#define WAFFLE_GPU_SURFACE_TO_CPU 1u
+bool waffle_gpu_memory_surface_sync(const struct waffle_gpu_memory *,uint32_t offset,uint32_t bytes,unsigned direction);
 /* A published object can only be destroyed after its GPU context is detached. */
 bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *,bool gpu_detached);
 #ifdef __cplusplus

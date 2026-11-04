@@ -1,3 +1,8 @@
+# ACTIVE — S04 native cached IOSurface GPU-write candidate
+
+S03 native map/revoke passed: run20261104T142828Z,1196pages/4898816bytes, dual-ASID revoke, full1218000pixel proof0wrong, Android1. Original runner exit1 preserved; strict parser extended separately and saved log passed offline. No FPS improvement claimed.
+S04 built full required host/XNU/EFI/paired validation, current/compiled/snapshot kernel sources identical. Artifact diagnostic-surface-write-s04; root gpu/s04-surface-write-pixel. Private PID1 W/0x56 only; nativecachedsurface held and published, private WC command issues qualified CP_MEM_WRITE/WAIT, actual completion fence, clean/invalidate cache, read4expected words, restore originals, reclaim command then surface. Unknown completion/invalidation traps retaining backing. Normal Mesa import stays ENOTSUP. Probe holds IOSurfaceLock across write and subsequent full1218000pixel check. Host pure + actual cdev adapter +21 negative log fixtures pass ASan/UBSan; no hardware result yet. Candidate Mesa reused byte-identical S03 metadata binary; no Mesa algorithm change. Phone ADB Android boot_completed1 before test. Next RAM-only isolated S04, no UI stress; verify actual values/restored/retired, clean context and Android. No agents/goals.
+
 # ACTIVE — S01 metadata hardware PASS; S02 retained backing built, imports still off
 
 Useraskedmax20minstart13:52:13UTC,end14:12:13initiallywithoutphone; explicitlyallowedphoneagainbeforeS01USB. Noactivephone/buildowner now; phoneAndroidafterS01. GPUtarget80–100unmet,lastactiveD1634–43fps. D16outputdriver~8–9msv20old, import/readback~6–7msstillmaterial. Noheap/cadence/guardchangesinS01/S02.

@@ -24,6 +24,8 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Surface metadata requires an isolated, bound fullsize artifact')
     if gl_manifest.get('surface_map_test') and not manifest.get('surface_map_audit'):
         raise ValueError('Surface map audit lacks a matching kernel declaration')
+    if gl_manifest.get('surface_write_test') and (not gl_manifest.get('surface_map_test') or not manifest.get('surface_gpu_write_audit')):
+        raise ValueError('Surface GPU write audit lacks a matching isolated kernel declaration')
     bindings=manifest.get('surface_description_source_sha256',{})
     required=('kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/iokit/Kernel/MiniIOSurface.cpp')
     if gl_manifest.get('surface_map_test'):
@@ -31,6 +33,8 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
                    'kernel/files/bsd/sys/waffle_gpu_surface.h','kernel/files/iokit/Kernel/WaffleGPUMemory.cpp',
                    'kernel/files/bsd/dev/waffle_gpu_service.c','kernel/files/bsd/dev/waffle_adreno.c',
                    'kernel/files/bsd/dev/waffle_smmu.c')
+    if gl_manifest.get('surface_write_test'):
+        required+=('kernel/files/bsd/sys/waffle_gpu_surface_write.h','kernel/files/bsd/sys/waffle_gpu_writeback.h')
     if any(name not in bindings for name in required):raise ValueError('Surface metadata source binding missing')
     for name,sha in bindings.items():
         if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface metadata source changed: '+name)

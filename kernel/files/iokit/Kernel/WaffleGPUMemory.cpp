@@ -58,6 +58,26 @@ bool waffle_gpu_memory_map(const struct waffle_gpu_memory *bo,bool readonly,uint
  if(!va || (va&16383)){map->unmap();map->release();return false;}
  *address=va;*token=reinterpret_cast<uintptr_t>(map);return true;
 }
+static void waffle_surface_cache_line(uintptr_t address,bool invalidate)
+{
+ if(invalidate)__asm__ volatile("dc ivac, %0"::"r"(address):"memory");
+ else __asm__ volatile("dc cvac, %0"::"r"(address):"memory");
+}
+bool waffle_gpu_memory_surface_sync(const struct waffle_gpu_memory *bo,uint32_t offset,uint32_t bytes,unsigned direction)
+{
+ if(!bo || !bo->object || !bo->published || bo->storage!=WAFFLE_GPU_STORAGE_SURFACE ||
+    bo->flags!=WAFFLE_GPU_BO_CACHED || !bo->memory || (bo->memory&16383) ||
+    !bytes || offset>bo->bytes || bytes>bo->bytes-offset || bo->bytes>bo->allocation_bytes ||
+    (bo->allocation_bytes&16383) || direction>WAFFLE_GPU_SURFACE_TO_CPU ||
+    bo->memory>UINTPTR_MAX-bo->allocation_bytes)return false;
+ uintptr_t start=(bo->memory+offset)&~(uintptr_t)63;
+ uintptr_t end=(bo->memory+offset+bytes+63)&~(uintptr_t)63;
+ if(end<start || end-bo->memory>bo->allocation_bytes)return false;
+ __asm__ volatile("dsb sy":::"memory");
+ for(uintptr_t at=start;at<end;at+=64)waffle_surface_cache_line(at,direction==WAFFLE_GPU_SURFACE_TO_CPU);
+ __asm__ volatile("dsb sy":::"memory");
+ return true;
+}
 bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *bo,bool gpu_detached)
 {
  if(!bo || (bo->published && !gpu_detached))return false;
