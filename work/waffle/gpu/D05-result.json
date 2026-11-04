@@ -1,0 +1,33 @@
+{
+  "experiment": "D05 diagnostic source observer",
+  "run": "20261104T062259Z",
+  "outer_result": "work/waffle/auto-runs/20261104T062235Z/result.json",
+  "outer_success": false,
+  "outer_runner_exit": 1,
+  "android_confirmed": true,
+  "source_change_events_observed": 15,
+  "pixel_change_events_observed": 11,
+  "last_commit_observed": 600,
+  "quiesce_restore_observed": false,
+  "gpu_close_observed": true,
+  "copy_target_observation": {
+    "d6270000_us": [
+      35934,
+      35879,
+      31565,
+      35846
+    ],
+    "d5100000_us": [
+      2342,
+      2301,
+      2504,
+      2798
+    ]
+  },
+  "limits": [
+    "16 sparse pixel samples do not prove complete source stability",
+    "Source changes bracket draw but do not prove sole cause of physical tearing",
+    "No quiesce marker recovered; Android return does not prove register restoration",
+    "Public visual result remains negative; diagnostic is not a repair"
+  ]
+}

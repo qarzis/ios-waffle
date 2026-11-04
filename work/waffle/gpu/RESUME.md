@@ -1,3 +1,11 @@
+# ACTIVE — D06 hardware source lease test
+
+Full build94221 PASS; source/root pairedartifact diagnostic-source-lease-ui-d06 validated; solephoneowner session99964 / auto-source-lease-d06.log. Phone Android detected1c62e9aa, userconfirmedconnected. Same240GPU300kernel root/5autoopens/Mesa749/E113/sevencores/torch/doublebuffer+hardwarevsync. D06 only adds existing source useCountlease to explicitbufferedmode; see forensic-audit/D06-source-lease-plan.md. Need source change counts vs reads/workload, useCount holds, GPUclose/OOM/quiesce/Android. No timing/cache/wait fix. D05 final partialevidence preserved; nativewait flags stillunknown.
+
+# ACTIVE — D06 source-use lease candidate building
+
+D05 finalized D05-result.json; source changes confirmed, B copy31–36ms vs A2–3ms; visual tearing/lag NEGATIVE. Android confirmed in host; GPUclose3510/2495; >=600commits; quiesce restore marker NOT recovered. Native SwapWait scalar layout proven but meaning/flags incomplete: no guessed wait fix. D06 only enables existing useCount source leases in explicit buffered mode; no cache/timing/queue changes. Host100000cycle nativeusage+CLI guards PASS. Full build session94221 outputdiagnostic-source-lease-d06/logbuild-source-lease-d06.log. Phone absent; pending user USB question; do laptop work. Need fullbuild/sourcepairedartifact and sameD05stressroot then compare seed/pixel change rate, balanced sourceholds, OOM/GPUclose/restoration/Android, no false tearingfixed claim. Mainindex preserve; latest privatecheckpoint fc5b5a7.
+
 # ACTIVE — D05 source observer hardware run
 
 Fullfixedbuild39748PASS; firstcompilehadmisplacedcomposeBegan/composeNanosdeclaration fixedbeforephone. Pairedartifactdiagnostic-buffered-observer-d05, kernel/header/loader/rootbindingschecked, validationnext. Soleowner auto-buffered-observer-d05.log; --double-buffer+hardware-vsync+ui-long-test/240GPU300kernel/7cores/torch. SameD04stressroot/Mesa749/E113/CAvbl+5autoappopens; ONLYkernelmetadatachanged. Needsource16point/seedbefore-afterdifferences pluscompose/copy/submitwaittimings; unchangedsamplesNOTrefutation. D04visualNEGATIVE(horizontaltexttears/lagjerk16–23fps41ms), nofixedclaim. Nolease/newtimingfixyet. Useravailablecanmanualscrollifwantsbutautomaticworkcontinues.

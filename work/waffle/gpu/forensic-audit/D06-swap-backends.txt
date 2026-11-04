@@ -1,0 +1,132 @@
+
+work/waffle/gpu/forensic-audit/D06-backend.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c0648 <.data>:
+   1af1c0648:	d100c3ff 	sub	sp, sp, #0x30
+   1af1c064c:	a9027bfd 	stp	x29, x30, [sp, #32]
+   1af1c0650:	910083fd 	add	x29, sp, #0x20
+   1af1c0654:	9015e0c8 	adrp	x8, 0x1dadd8000
+   1af1c0658:	f9460108 	ldr	x8, [x8, #3072]
+   1af1c065c:	f9400108 	ldr	x8, [x8]
+   1af1c0660:	f81f83a8 	stur	x8, [x29, #-8]
+   1af1c0664:	2a0103e8 	mov	w8, w1
+   1af1c0668:	2a0203e9 	mov	w9, w2
+   1af1c066c:	a90027e8 	stp	x8, x9, [sp]
+   1af1c0670:	f9000bff 	str	xzr, [sp, #16]
+   1af1c0674:	b9401400 	ldr	w0, [x0, #20]
+   1af1c0678:	910003e2 	mov	x2, sp
+   1af1c067c:	528000c1 	mov	w1, #0x6                   	// #6
+   1af1c0680:	52800063 	mov	w3, #0x3                   	// #3
+   1af1c0684:	d2800004 	mov	x4, #0x0                   	// #0
+   1af1c0688:	d2800005 	mov	x5, #0x0                   	// #0
+   1af1c068c:	9425db87 	bl	0x1afb374a8
+   1af1c0690:	f85f83a8 	ldur	x8, [x29, #-8]
+   1af1c0694:	9015e0c9 	adrp	x9, 0x1dadd8000
+   1af1c0698:	f9460129 	ldr	x9, [x9, #3072]
+   1af1c069c:	f9400129 	ldr	x9, [x9]
+   1af1c06a0:	eb08013f 	cmp	x9, x8
+   1af1c06a4:	54000081 	b.ne	0x1af1c06b4  // b.any
+   1af1c06a8:	a9427bfd 	ldp	x29, x30, [sp, #32]
+   1af1c06ac:	9100c3ff 	add	sp, sp, #0x30
+   1af1c06b0:	d65f03c0 	ret
+   1af1c06b4:	9425dbda 	bl	0x1afb3761c
+   1af1c06b8:	b4000080 	cbz	x0, 0x1af1c06c8
+   1af1c06bc:	f943bc03 	ldr	x3, [x0, #1912]
+   1af1c06c0:	b4000043 	cbz	x3, 0x1af1c06c8
+   1af1c06c4:	d61f0060 	br	x3
+   1af1c06c8:	52805840 	mov	w0, #0x2c2                 	// #706
+   1af1c06cc:	72bc0000 	movk	w0, #0xe000, lsl #16
+   1af1c06d0:	d65f03c0 	ret
+   1af1c06d4:	b4000080 	cbz	x0, 0x1af1c06e4
+   1af1c06d8:	f9435802 	ldr	x2, [x0, #1712]
+   1af1c06dc:	b4000042 	cbz	x2, 0x1af1c06e4
+   1af1c06e0:	d61f0040 	br	x2
+   1af1c06e4:	d2800000 	mov	x0, #0x0                   	// #0
+   1af1c06e8:	d65f03c0 	ret
+   1af1c06ec:	b4000080 	cbz	x0, 0x1af1c06fc
+   1af1c06f0:	f9439402 	ldr	x2, [x0, #1832]
+   1af1c06f4:	b4000042 	cbz	x2, 0x1af1c06fc
+
+
+work/waffle/gpu/forensic-audit/D06-backend.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c42e8 <.data>:
+   1af1c42e8:	52800000 	mov	w0, #0x0                   	// #0
+   1af1c42ec:	d65f03c0 	ret
+   1af1c42f0:	52800000 	mov	w0, #0x0                   	// #0
+   1af1c42f4:	d65f03c0 	ret
+   1af1c42f8:	52800000 	mov	w0, #0x0                   	// #0
+   1af1c42fc:	d65f03c0 	ret
+   1af1c4300:	52800000 	mov	w0, #0x0                   	// #0
+   1af1c4304:	d65f03c0 	ret
+   1af1c4308:	52800000 	mov	w0, #0x0                   	// #0
+   1af1c430c:	d65f03c0 	ret
+   1af1c4310:	52800000 	mov	w0, #0x0                   	// #0
+   1af1c4314:	d65f03c0 	ret
+
+
+work/waffle/gpu/forensic-audit/D06-backend.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c4990 <.data>:
+   1af1c4990:	d10103ff 	sub	sp, sp, #0x40
+   1af1c4994:	a9037bfd 	stp	x29, x30, [sp, #48]
+   1af1c4998:	9100c3fd 	add	x29, sp, #0x30
+   1af1c499c:	9015e0a8 	adrp	x8, 0x1dadd8000
+   1af1c49a0:	f9460108 	ldr	x8, [x8, #3072]
+   1af1c49a4:	f9400108 	ldr	x8, [x8]
+   1af1c49a8:	f81f83a8 	stur	x8, [x29, #-8]
+   1af1c49ac:	d0000028 	adrp	x8, 0x1af1ca000
+   1af1c49b0:	fd43f901 	ldr	d1, [x8, #2032]
+   1af1c49b4:	1e610800 	fmul	d0, d0, d1
+   1af1c49b8:	9e790008 	fcvtzu	x8, d0
+   1af1c49bc:	2a0103e9 	mov	w9, w1
+   1af1c49c0:	b201f3ea 	mov	x10, #0xaaaaaaaaaaaaaaaa    	// #-6148914691236517206
+   1af1c49c4:	2a0203eb 	mov	w11, w2
+   1af1c49c8:	a900afe9 	stp	x9, x11, [sp, #8]
+   1af1c49cc:	a901abe8 	stp	x8, x10, [sp, #24]
+   1af1c49d0:	b9401400 	ldr	w0, [x0, #20]
+   1af1c49d4:	910023e2 	add	x2, sp, #0x8
+   1af1c49d8:	528000c1 	mov	w1, #0x6                   	// #6
+   1af1c49dc:	52800063 	mov	w3, #0x3                   	// #3
+   1af1c49e0:	d2800004 	mov	x4, #0x0                   	// #0
+   1af1c49e4:	d2800005 	mov	x5, #0x0                   	// #0
+   1af1c49e8:	9425cab0 	bl	0x1afb374a8
+   1af1c49ec:	f85f83a8 	ldur	x8, [x29, #-8]
+   1af1c49f0:	9015e0a9 	adrp	x9, 0x1dadd8000
+   1af1c49f4:	f9460129 	ldr	x9, [x9, #3072]
+   1af1c49f8:	f9400129 	ldr	x9, [x9]
+   1af1c49fc:	eb08013f 	cmp	x9, x8
+   1af1c4a00:	54000081 	b.ne	0x1af1c4a10  // b.any
+   1af1c4a04:	a9437bfd 	ldp	x29, x30, [sp, #48]
+   1af1c4a08:	910103ff 	add	sp, sp, #0x40
+   1af1c4a0c:	d65f03c0 	ret
+   1af1c4a10:	9425cb03 	bl	0x1afb3761c
+
+
+work/waffle/gpu/forensic-audit/D06-backend.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c92c8 <.data>:
+   1af1c92c8:	f944b008 	ldr	x8, [x0, #2400]
+   1af1c92cc:	f9401103 	ldr	x3, [x8, #32]
+   1af1c92d0:	f944ac00 	ldr	x0, [x0, #2392]
+   1af1c92d4:	9e6703e0 	fmov	d0, xzr
+   1af1c92d8:	d61f0060 	br	x3
+   1af1c92dc:	f944b008 	ldr	x8, [x0, #2400]
+   1af1c92e0:	f9401103 	ldr	x3, [x8, #32]
+   1af1c92e4:	f944ac00 	ldr	x0, [x0, #2392]
+   1af1c92e8:	d61f0060 	br	x3
+   1af1c92ec:	a9bd57f6 	stp	x22, x21, [sp, #-48]!
+   1af1c92f0:	a9014ff4 	stp	x20, x19, [sp, #16]
+   1af1c92f4:	a9027bfd 	stp	x29, x30, [sp, #32]

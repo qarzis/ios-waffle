@@ -1,0 +1,167 @@
+
+work/waffle/gpu/forensic-audit/D06-init-fragment.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c3958 <.data>:
+   1af1c3958:	f9039d49 	str	x9, [x10, #1848]
+   1af1c395c:	f9400269 	ldr	x9, [x19]
+   1af1c3960:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3964:	910ba14a 	add	x10, x10, #0x2e8
+   1af1c3968:	f903a52a 	str	x10, [x9, #1864]
+   1af1c396c:	f9400269 	ldr	x9, [x19]
+   1af1c3970:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3974:	910bc14a 	add	x10, x10, #0x2f0
+   1af1c3978:	f903a92a 	str	x10, [x9, #1872]
+   1af1c397c:	b0000009 	adrp	x9, 0x1af1c4000
+   1af1c3980:	910be129 	add	x9, x9, #0x2f8
+   1af1c3984:	f940026a 	ldr	x10, [x19]
+   1af1c3988:	f903ad49 	str	x9, [x10, #1880]
+   1af1c398c:	f9400269 	ldr	x9, [x19]
+   1af1c3990:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3994:	910c014a 	add	x10, x10, #0x300
+   1af1c3998:	f903b12a 	str	x10, [x9, #1888]
+   1af1c399c:	f9400269 	ldr	x9, [x19]
+   1af1c39a0:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c39a4:	910c214a 	add	x10, x10, #0x308
+
+
+work/waffle/gpu/forensic-audit/D06-init-fragment.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c3968 <.data>:
+   1af1c3968:	f903a52a 	str	x10, [x9, #1864]
+   1af1c396c:	f9400269 	ldr	x9, [x19]
+   1af1c3970:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3974:	910bc14a 	add	x10, x10, #0x2f0
+   1af1c3978:	f903a92a 	str	x10, [x9, #1872]
+   1af1c397c:	b0000009 	adrp	x9, 0x1af1c4000
+   1af1c3980:	910be129 	add	x9, x9, #0x2f8
+   1af1c3984:	f940026a 	ldr	x10, [x19]
+   1af1c3988:	f903ad49 	str	x9, [x10, #1880]
+   1af1c398c:	f9400269 	ldr	x9, [x19]
+   1af1c3990:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3994:	910c014a 	add	x10, x10, #0x300
+   1af1c3998:	f903b12a 	str	x10, [x9, #1888]
+   1af1c399c:	f9400269 	ldr	x9, [x19]
+   1af1c39a0:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c39a4:	910c214a 	add	x10, x10, #0x308
+   1af1c39a8:	f903b52a 	str	x10, [x9, #1896]
+   1af1c39ac:	b0000009 	adrp	x9, 0x1af1c4000
+   1af1c39b0:	910c4129 	add	x9, x9, #0x310
+   1af1c39b4:	f940026a 	ldr	x10, [x19]
+
+
+work/waffle/gpu/forensic-audit/D06-init-fragment.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c3ad8 <.data>:
+   1af1c3ad8:	f9039d2a 	str	x10, [x9, #1848]
+   1af1c3adc:	f9400269 	ldr	x9, [x19]
+   1af1c3ae0:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3ae4:	9124914a 	add	x10, x10, #0x924
+   1af1c3ae8:	f903a52a 	str	x10, [x9, #1864]
+   1af1c3aec:	b0ffffe9 	adrp	x9, 0x1af1c0000
+   1af1c3af0:	91192129 	add	x9, x9, #0x648
+   1af1c3af4:	f940026a 	ldr	x10, [x19]
+   1af1c3af8:	f903a949 	str	x9, [x10, #1872]
+   1af1c3afc:	f9400269 	ldr	x9, [x19]
+   1af1c3b00:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3b04:	9126414a 	add	x10, x10, #0x990
+   1af1c3b08:	f903ad2a 	str	x10, [x9, #1880]
+   1af1c3b0c:	f9400269 	ldr	x9, [x19]
+   1af1c3b10:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3b14:	9128514a 	add	x10, x10, #0xa14
+   1af1c3b18:	f903b12a 	str	x10, [x9, #1888]
+   1af1c3b1c:	b0000009 	adrp	x9, 0x1af1c4000
+   1af1c3b20:	9129f129 	add	x9, x9, #0xa7c
+   1af1c3b24:	f940026a 	ldr	x10, [x19]
+
+
+work/waffle/gpu/forensic-audit/D06-init-fragment.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c3ae8 <.data>:
+   1af1c3ae8:	f903a52a 	str	x10, [x9, #1864]
+   1af1c3aec:	b0ffffe9 	adrp	x9, 0x1af1c0000
+   1af1c3af0:	91192129 	add	x9, x9, #0x648
+   1af1c3af4:	f940026a 	ldr	x10, [x19]
+   1af1c3af8:	f903a949 	str	x9, [x10, #1872]
+   1af1c3afc:	f9400269 	ldr	x9, [x19]
+   1af1c3b00:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3b04:	9126414a 	add	x10, x10, #0x990
+   1af1c3b08:	f903ad2a 	str	x10, [x9, #1880]
+   1af1c3b0c:	f9400269 	ldr	x9, [x19]
+   1af1c3b10:	b000000a 	adrp	x10, 0x1af1c4000
+   1af1c3b14:	9128514a 	add	x10, x10, #0xa14
+   1af1c3b18:	f903b12a 	str	x10, [x9, #1888]
+   1af1c3b1c:	b0000009 	adrp	x9, 0x1af1c4000
+   1af1c3b20:	9129f129 	add	x9, x9, #0xa7c
+   1af1c3b24:	f940026a 	ldr	x10, [x19]
+   1af1c3b28:	f903b549 	str	x9, [x10, #1896]
+   1af1c3b2c:	f9400269 	ldr	x9, [x19]
+   1af1c3b30:	d0ffffea 	adrp	x10, 0x1af1c1000
+   1af1c3b34:	911e214a 	add	x10, x10, #0x788
+
+
+work/waffle/gpu/forensic-audit/D06-init-fragment.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c7250 <.data>:
+   1af1c7250:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7254:	91016108 	add	x8, x8, #0x58
+   1af1c7258:	f9039aa8 	str	x8, [x21, #1840]
+   1af1c725c:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7260:	910af108 	add	x8, x8, #0x2bc
+   1af1c7264:	f903a6a8 	str	x8, [x21, #1864]
+   1af1c7268:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c726c:	910b2108 	add	x8, x8, #0x2c8
+   1af1c7270:	f903aaa8 	str	x8, [x21, #1872]
+   1af1c7274:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7278:	910b7108 	add	x8, x8, #0x2dc
+   1af1c727c:	f903aea8 	str	x8, [x21, #1880]
+   1af1c7280:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7284:	910bb108 	add	x8, x8, #0x2ec
+   1af1c7288:	f903b2a8 	str	x8, [x21, #1888]
+   1af1c728c:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7290:	910f9108 	add	x8, x8, #0x3e4
+   1af1c7294:	f9043aa8 	str	x8, [x21, #2160]
+   1af1c7298:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c729c:	91117108 	add	x8, x8, #0x45c
+
+
+work/waffle/gpu/forensic-audit/D06-init-fragment.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c725c <.data>:
+   1af1c725c:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7260:	910af108 	add	x8, x8, #0x2bc
+   1af1c7264:	f903a6a8 	str	x8, [x21, #1864]
+   1af1c7268:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c726c:	910b2108 	add	x8, x8, #0x2c8
+   1af1c7270:	f903aaa8 	str	x8, [x21, #1872]
+   1af1c7274:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7278:	910b7108 	add	x8, x8, #0x2dc
+   1af1c727c:	f903aea8 	str	x8, [x21, #1880]
+   1af1c7280:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7284:	910bb108 	add	x8, x8, #0x2ec
+   1af1c7288:	f903b2a8 	str	x8, [x21, #1888]
+   1af1c728c:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c7290:	910f9108 	add	x8, x8, #0x3e4
+   1af1c7294:	f9043aa8 	str	x8, [x21, #2160]
+   1af1c7298:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c729c:	91117108 	add	x8, x8, #0x45c
+   1af1c72a0:	f903c2a8 	str	x8, [x21, #1920]
+   1af1c72a4:	d0000008 	adrp	x8, 0x1af1c9000
+   1af1c72a8:	91134108 	add	x8, x8, #0x4d0

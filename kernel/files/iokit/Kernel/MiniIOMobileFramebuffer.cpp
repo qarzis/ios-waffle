@@ -409,6 +409,15 @@ static TUNABLE(uint32_t, gMacan, "macan", 0);
 static TUNABLE(uint32_t, gWaffle, "waffle", 0);
 /* Waffle display consumer lease: held until CPU presentation completes. */
 static TUNABLE(uint32_t, gWaffleDisplayUse, "waffle_display_use", 0);
+/* D06: buffered presentation must publish its source use until show() retires.
+ * This prevents native pools which honor IsInUse from recycling a queued source;
+ * it is not a writer lock and does not replace SwapWait completion semantics.
+ */
+static inline bool
+waffleDisplaySourceLease(void)
+{
+ return gWaffle && (gWaffleDisplayUse != 0 || gWaffleDisplayPresent == 1);
+}
 static TUNABLE(uint32_t, gWaffleTorch, "waffle_torch", 0);
 static TUNABLE(uint32_t, gMacan14, "macan_14pm", 0);
 static inline uint32_t
@@ -1143,7 +1152,7 @@ IOMobileFramebuffer::present(const uint8_t * swap)
  for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
   uint32_t sid = swapWord(swap, SWAP_SURFACE(layer));
   fSwapSurfaces[slot][layer] = sid == 0 ? NULL :
-      gWaffle && gWaffleDisplayUse ? MiniIOSurfaceCopyForDisplay(sid) : MiniIOSurfaceCopy(sid);
+      waffleDisplaySourceLease() ? MiniIOSurfaceCopyForDisplay(sid) : MiniIOSurfaceCopy(sid);
  }
  fSwapsWaiting++;
  IOLockWakeup(fSwapLock, fSwap, true);
@@ -1170,7 +1179,7 @@ IOMobileFramebuffer::presenter(void)
   show(swap, surfaces);
   for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
    if (surfaces[layer] != NULL) {
-    if (gWaffle && gWaffleDisplayUse) {
+    if (waffleDisplaySourceLease()) {
      MiniIOSurfaceDropForDisplay(surfaces[layer]);
     } else {
      MiniIOSurfaceDrop(surfaces[layer]);
@@ -1285,7 +1294,7 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
   }
   if (gWaffle && report) {
    IOLog("MiniIOMobileFramebuffer: display read surface %u usage_enabled=%u holds=%u system_use=%llu\n",
-       sid, gWaffleDisplayUse, s->displayUses, (unsigned long long) s->shared()->useCount);
+       sid, (unsigned)waffleDisplaySourceLease(), s->displayUses, (unsigned long long) s->shared()->useCount);
   }
   if (s->info.bytesPerElement == 4 && s->info.planeCount == 0) {
    if (!fGraphics) {

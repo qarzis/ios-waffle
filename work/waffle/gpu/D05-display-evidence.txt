@@ -1,0 +1,43 @@
+waffle-display-present: armed=1 working_bytes=18247680 front=d5100000 back=d6270000
+waffle-display-present: committed=1 completed=1 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=50089
+waffle-display-source: compose_us=1769 copy_us=35934 submit_wait_us=14154 reads=1 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=2 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15012
+waffle-display-source: compose_us=1760 copy_us=2342 submit_wait_us=12670 reads=2 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=3 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=51221
+waffle-display-source: compose_us=768 copy_us=35879 submit_wait_us=15341 reads=2 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=4 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=16036
+waffle-display-source: compose_us=620 copy_us=2301 submit_wait_us=13734 reads=2 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=5 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=48133
+waffle-display-source: compose_us=1809 copy_us=31565 submit_wait_us=16567 reads=3 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=6 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=21793
+waffle-display-source: compose_us=1803 copy_us=2504 submit_wait_us=19288 reads=4 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=7 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=47152
+waffle-display-source: compose_us=1844 copy_us=35846 submit_wait_us=11306 reads=5 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=8 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=19887
+waffle-display-source: compose_us=13645 copy_us=2798 submit_wait_us=17088 reads=6 changes=0 pixel_changes=0
+waffle-display-source: sid=1 frame=21 seed_before=11 seed_after=12 samples_changed=1 samples=16
+waffle-display-source: sid=2 frame=32 seed_before=17 seed_after=18 samples_changed=1 samples=16
+waffle-display-present: committed=1 completed=120 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=21774
+waffle-display-source: compose_us=3638 copy_us=2119 submit_wait_us=19655 reads=117 changes=2 pixel_changes=2
+waffle-display-source: sid=2 frame=122 seed_before=62 seed_after=62 samples_changed=1 samples=16
+waffle-display-present: committed=1 completed=240 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=16009
+waffle-display-source: compose_us=3927 copy_us=2170 submit_wait_us=13838 reads=237 changes=3 pixel_changes=3
+waffle-display-present: committed=1 completed=360 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15471
+waffle-display-source: compose_us=4015 copy_us=2144 submit_wait_us=13326 reads=357 changes=3 pixel_changes=3
+waffle-display-source: sid=1 frame=435 seed_before=218 seed_after=219 samples_changed=1 samples=16
+waffle-display-source: sid=1 frame=447 seed_before=224 seed_after=225 samples_changed=0 samples=16
+waffle-display-source: sid=2 frame=448 seed_before=225 seed_after=225 samples_changed=1 samples=16
+waffle-display-source: sid=2 frame=450 seed_before=226 seed_after=227 samples_changed=0 samples=16
+waffle-display-source: sid=2 frame=462 seed_before=232 seed_after=232 samples_changed=1 samples=16
+waffle-display-source: sid=2 frame=464 seed_before=233 seed_after=234 samples_changed=1 samples=16
+waffle-display-present: committed=1 completed=480 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=14155
+waffle-display-source: compose_us=2904 copy_us=1824 submit_wait_us=12331 reads=477 changes=9 pixel_changes=7
+waffle-display-source: sid=1 frame=481 seed_before=241 seed_after=242 samples_changed=1 samples=16
+waffle-display-source: sid=1 frame=489 seed_before=245 seed_after=246 samples_changed=0 samples=16
+waffle-display-source: sid=1 frame=491 seed_before=246 seed_after=247 samples_changed=1 samples=16
+waffle-display-source: sid=2 frame=503 seed_before=252 seed_after=253 samples_changed=1 samples=16
+waffle-display-source: sid=1 frame=512 seed_before=256 seed_after=256 samples_changed=1 samples=16
+waffle-gpu: GENERAL close passed=1 completed=3510 buffers=2495 context_null=1
+waffle-display-present: committed=1 completed=600 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=19753
+waffle-display-source: compose_us=13632 copy_us=2720 submit_wait_us=17032 reads=595 changes=14 pixel_changes=11
+waffle-display-source: sid=224 frame=605 seed_before=8 seed_after=9 samples_changed=0 samples=16

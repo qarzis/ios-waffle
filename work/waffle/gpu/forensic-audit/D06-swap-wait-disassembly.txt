@@ -1,0 +1,95 @@
+
+work/waffle/gpu/forensic-audit/D06-SwapWait.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c00f8 <.data>:
+   1af1c00f8:	b4000080 	cbz	x0, 0x1af1c0108
+   1af1c00fc:	f943a803 	ldr	x3, [x0, #1872]
+   1af1c0100:	b4000043 	cbz	x3, 0x1af1c0108
+   1af1c0104:	d61f0060 	br	x3
+   1af1c0108:	52805840 	mov	w0, #0x2c2                 	// #706
+   1af1c010c:	72bc0000 	movk	w0, #0xe000, lsl #16
+   1af1c0110:	d65f03c0 	ret
+   1af1c0114:	d10283ff 	sub	sp, sp, #0xa0
+   1af1c0118:	a9046ffc 	stp	x28, x27, [sp, #64]
+   1af1c011c:	a90567fa 	stp	x26, x25, [sp, #80]
+   1af1c0120:	a9065ff8 	stp	x24, x23, [sp, #96]
+   1af1c0124:	a90757f6 	stp	x22, x21, [sp, #112]
+   1af1c0128:	a9084ff4 	stp	x20, x19, [sp, #128]
+   1af1c012c:	a9097bfd 	stp	x29, x30, [sp, #144]
+   1af1c0130:	910243fd 	add	x29, sp, #0x90
+   1af1c0134:	aa0303f7 	mov	x23, x3
+   1af1c0138:	7100047f 	cmp	w3, #0x1
+   1af1c013c:	54000108 	b.hi	0x1af1c015c  // b.pmore
+   1af1c0140:	52800048 	mov	w8, #0x2                   	// #2
+   1af1c0144:	a90023f7 	stp	x23, x8, [sp]
+   1af1c0148:	f0000041 	adrp	x1, 0x1af1cb000
+   1af1c014c:	9113dc21 	add	x1, x1, #0x4f7
+   1af1c0150:	52800060 	mov	w0, #0x3                   	// #3
+   1af1c0154:	9425dd9b 	bl	0x1afb377c0
+   1af1c0158:	1400007b 	b	0x1af1c0344
+   1af1c015c:	aa0203f8 	mov	x24, x2
+   1af1c0160:	aa0003f3 	mov	x19, x0
+   1af1c0164:	f9400056 	ldr	x22, [x2]
+   1af1c0168:	b9400854 	ldr	w20, [x2, #8]
+   1af1c016c:	9015e148 	adrp	x8, 0x1dade8000
+   1af1c0170:	f943d108 	ldr	x8, [x8, #1952]
+   1af1c0174:	f9400119 	ldr	x25, [x8]
+   1af1c0178:	9015e142 	adrp	x2, 0x1dade8000
+   1af1c017c:	f9456c42 	ldr	x2, [x2, #2776]
+   1af1c0180:	9015e143 	adrp	x3, 0x1dade8000
+   1af1c0184:	f9457063 	ldr	x3, [x3, #2784]
+   1af1c0188:	aa1903e0 	mov	x0, x25
+   1af1c018c:	d2800001 	mov	x1, #0x0                   	// #0
+   1af1c0190:	9425dc7e 	bl	0x1afb37388
+   1af1c0194:	b4000d80 	cbz	x0, 0x1af1c0344
+
+
+work/waffle/gpu/forensic-audit/D06-SwapWaitWithTimeout.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00000001af1c224c <.data>:
+   1af1c224c:	b4000080 	cbz	x0, 0x1af1c225c
+   1af1c2250:	f943ac03 	ldr	x3, [x0, #1880]
+   1af1c2254:	b4000043 	cbz	x3, 0x1af1c225c
+   1af1c2258:	d61f0060 	br	x3
+   1af1c225c:	52805840 	mov	w0, #0x2c2                 	// #706
+   1af1c2260:	72bc0000 	movk	w0, #0xe000, lsl #16
+   1af1c2264:	d65f03c0 	ret
+   1af1c2268:	b4000080 	cbz	x0, 0x1af1c2278
+   1af1c226c:	f943b002 	ldr	x2, [x0, #1888]
+   1af1c2270:	b4000042 	cbz	x2, 0x1af1c2278
+   1af1c2274:	d61f0040 	br	x2
+   1af1c2278:	52805840 	mov	w0, #0x2c2                 	// #706
+   1af1c227c:	72bc0000 	movk	w0, #0xe000, lsl #16
+   1af1c2280:	d65f03c0 	ret
+   1af1c2284:	b4000080 	cbz	x0, 0x1af1c2294
+   1af1c2288:	f943b402 	ldr	x2, [x0, #1896]
+   1af1c228c:	b4000042 	cbz	x2, 0x1af1c2294
+   1af1c2290:	d61f0040 	br	x2
+   1af1c2294:	52805840 	mov	w0, #0x2c2                 	// #706
+   1af1c2298:	72bc0000 	movk	w0, #0xe000, lsl #16
+   1af1c229c:	d65f03c0 	ret
+   1af1c22a0:	b9406801 	ldr	w1, [x0, #104]
+   1af1c22a4:	340000a1 	cbz	w1, 0x1af1c22b8
+   1af1c22a8:	f943a803 	ldr	x3, [x0, #1872]
+   1af1c22ac:	b40000a3 	cbz	x3, 0x1af1c22c0
+   1af1c22b0:	52800022 	mov	w2, #0x1                   	// #1
+   1af1c22b4:	d61f0060 	br	x3
+   1af1c22b8:	52800000 	mov	w0, #0x0                   	// #0
+   1af1c22bc:	d65f03c0 	ret
+   1af1c22c0:	52805840 	mov	w0, #0x2c2                 	// #706
+   1af1c22c4:	72bc0000 	movk	w0, #0xe000, lsl #16
+   1af1c22c8:	d65f03c0 	ret
+   1af1c22cc:	aa0003e8 	mov	x8, x0
+   1af1c22d0:	52805840 	mov	w0, #0x2c2                 	// #706
+   1af1c22d4:	72bc0000 	movk	w0, #0xe000, lsl #16
+   1af1c22d8:	b4000108 	cbz	x8, 0x1af1c22f8
+   1af1c22dc:	b40000e1 	cbz	x1, 0x1af1c22f8
+   1af1c22e0:	b40000c3 	cbz	x3, 0x1af1c22f8
+   1af1c22e4:	f943b904 	ldr	x4, [x8, #1904]
+   1af1c22e8:	b4000064 	cbz	x4, 0x1af1c22f4
