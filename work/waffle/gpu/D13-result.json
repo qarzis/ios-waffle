@@ -1,0 +1,77 @@
+{
+  "experiment": "D13 bounded logger batching, unchanged D11 timing root/rendering",
+  "run": "20261104T132002Z",
+  "user_feedback": "Lag unchanged",
+  "GPU_phase_boundary_first_snapshot": "kernel-218.log",
+  "unique_GL_frame_records": 1014,
+  "GL_frame_us": {
+    "median": 18860.0,
+    "p90": 31748,
+    "max": 105478
+  },
+  "framebuffer_intervals": [
+    "fps: 13 (68 frames in 5041 ms), 22273 us each in the driver",
+    "fps: 29 (149 frames in 5007 ms), 22149 us each in the driver",
+    "fps: 36 (181 frames in 5010 ms), 20012 us each in the driver",
+    "fps: 39 (197 frames in 5003 ms), 19656 us each in the driver",
+    "fps: 34 (175 frames in 5045 ms), 19131 us each in the driver",
+    "fps: 33 (166 frames in 5007 ms), 20649 us each in the driver"
+  ],
+  "GPU_GL_summaries": [
+    "redwood-gl: after 30 frames: 250 calls, 30 draws and 144 triangles a frame on average; the most in one: 1888 calls, 770 triangles; 18703 us a frame, of which 185 handing the commands on, 0 waiting for the picture to be drawn and 8642 copying it out, and before each 1077 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 39 had to be copied; 28 shaders, 23 programs; biggest texture 1326 x 1823; 0 errors",
+    "redwood-gl: after 200 frames: 616 calls, 116 draws and 508 triangles a frame on average; the most in one: 1888 calls, 1139 triangles; 24909 us a frame, of which 40 handing the commands on, 0 waiting for the picture to be drawn and 9242 copying it out, and before each 224 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 52 had to be copied; 42 shaders, 37 programs; biggest texture 1326 x 1823; 1 errors",
+    "redwood-gl: after 400 frames: 657 calls, 129 draws and 561 triangles a frame on average; the most in one: 1888 calls, 1432 triangles; 22816 us a frame, of which 20 handing the commands on, 0 waiting for the picture to be drawn and 7639 copying it out, and before each 179 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 63 had to be copied; 45 shaders, 40 programs; biggest texture 1326 x 1823; 1 errors",
+    "redwood-gl: after 600 frames: 671 calls, 133 draws and 549 triangles a frame on average; the most in one: 1888 calls, 1432 triangles; 21340 us a frame, of which 14 handing the commands on, 0 waiting for the picture to be drawn and 7126 copying it out, and before each 119 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 63 had to be copied; 45 shaders, 40 programs; biggest texture 1326 x 1823; 1 errors",
+    "redwood-gl: after 800 frames: 632 calls, 127 draws and 528 triangles a frame on average; the most in one: 1888 calls, 1432 triangles; 20329 us a frame, of which 11 handing the commands on, 0 waiting for the picture to be drawn and 6918 copying it out, and before each 90 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 68 had to be copied; 45 shaders, 40 programs; biggest texture 1326 x 1823; 1 errors",
+    "redwood-gl: after 1000 frames: 642 calls, 129 draws and 572 triangles a frame on average; the most in one: 1888 calls, 1432 triangles; 21298 us a frame, of which 10 handing the commands on, 0 waiting for the picture to be drawn and 6894 copying it out, and before each 196 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 155 had to be copied; 47 shaders, 42 programs; biggest texture 1326 x 1823; 1 errors"
+  ],
+  "shutdown": [
+    "waffle-gmu: SESSION closed OOB_released=1 outstanding=0",
+    "waffle-gpu: GENERAL close passed=1 completed=9646 buffers=2322 context_null=1",
+    "waffle-display-present: quiesced=1 restored=1 completed=1150 active=d5100000"
+  ],
+  "hypothesis_result": "No perceived improvement; logging overhead not established as main latency cause. Small timing differences are not controlled FPS proof. Preserve all safety checks/messages.",
+  "thermal_fix_qualified": false,
+  "FPS_improvement_qualified": false,
+  "auto_runner": {
+    "started_utc": "20261104T131938Z",
+    "flash_operations": false,
+    "gpu_raw": true,
+    "prepare_gpu": false,
+    "access_matrix": false,
+    "measure_clocks": false,
+    "lpac_map": true,
+    "lpac_cp_init": true,
+    "zap": true,
+    "writeback": true,
+    "ib": true,
+    "session": true,
+    "dynamic_bo": true,
+    "compute": "dispatch",
+    "image": true,
+    "image_copy": false,
+    "image_present": false,
+    "copy_jobs": false,
+    "worker": false,
+    "user_copy": false,
+    "data_bo": false,
+    "glsl": false,
+    "user_va": false,
+    "msm": false,
+    "mesa_transport": false,
+    "mapped": false,
+    "gl_context": true,
+    "physical_boot_selection": false,
+    "android_confirmed": true,
+    "automatic_loader_verified": true,
+    "runner_exit": 1,
+    "error": "GPU test failed; preserve original result and inspect recovery log",
+    "success": false
+  },
+  "post_Android_temperature_C": {
+    "battery": 32.7,
+    "skin": 45.839,
+    "GPU0": 44.9,
+    "CPU7": 45.3
+  }
+}

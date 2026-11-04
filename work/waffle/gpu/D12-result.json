@@ -1,0 +1,49 @@
+{
+  "experiment": "D12 existing readback profiler fullsize pixel control",
+  "run": "20261104T110827Z",
+  "auto_runner": {
+    "started_utc": "20261104T110803Z",
+    "flash_operations": false,
+    "gpu_raw": true,
+    "prepare_gpu": false,
+    "access_matrix": false,
+    "measure_clocks": false,
+    "lpac_map": true,
+    "lpac_cp_init": true,
+    "zap": true,
+    "writeback": true,
+    "ib": true,
+    "session": true,
+    "dynamic_bo": true,
+    "compute": "dispatch",
+    "image": true,
+    "image_copy": false,
+    "image_present": false,
+    "copy_jobs": false,
+    "worker": false,
+    "user_copy": false,
+    "data_bo": false,
+    "glsl": false,
+    "user_va": false,
+    "msm": false,
+    "mesa_transport": false,
+    "mapped": false,
+    "gl_context": true,
+    "physical_boot_selection": false,
+    "android_confirmed": true,
+    "automatic_loader_verified": true,
+    "runner_exit": 0,
+    "success": true
+  },
+  "fullsize": [
+    "waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1"
+  ],
+  "readback": [
+    "waffle-gl-readback: pid=1 mode=batch width=750 height=1624 row=3008 reads=1 elapsed_us=5308"
+  ],
+  "shutdown": [
+    "waffle-gmu: SESSION closed OOB_released=1 outstanding=0",
+    "waffle-gpu: GENERAL close passed=1 completed=2 buffers=27 context_null=1"
+  ],
+  "UI_performance_tested": false
+}
