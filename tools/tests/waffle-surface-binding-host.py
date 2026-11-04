@@ -81,5 +81,13 @@ with tempfile.TemporaryDirectory() as t:
     check(r,a,v,res)
     x=copy.deepcopy(res);x['surface_import_test']=True;reject(v,x)
     x=copy.deepcopy(res);x['surface_describe']=False;reject(v,x)
+    sample=copy.deepcopy(res);sample['surface_sample_test']=True
+    reject(v,sample)
+    v['surface_sample_audit']=True
+    reject(v,sample)
+    for n in ['userland/src/waffle_surface_sample.c','userland/src/waffle_surface_sample.h']:
+        p=r/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
+        sample['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest()
+    check(r,a,v,sample)
     check(r,a,{}, {}) # Existing unrelated probe has no metadata opt-in.
 print(f'PASS actual surface admission:{count} metadata/UI/missing/current/compiled/Mesa-source mismatch refusals before USB; bound and unrelated artifacts preserved')

@@ -1,0 +1,49 @@
+waffle-iommu: GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0
+waffle-gpu: SURFACE_IMPORT created=1 sid=1 handle=27 index=28 VA=101680000 bytes=4898816 lifetime_only=0
+waffle-gpu: SURFACE_SAMPLE imported=1 sid=1 handle=27 index=28 GPU_readonly=1
+waffle-gpu: SURFACE_IMPORT reused=1 sid=1 handle=27
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gl-surface-sample: passed=1 sid=1 checked=256 wrong=0 GL_error=0 stage=7 GPU_readonly=1
+waffle-gl-surface-sample: pixels offset=0 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=8 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=16 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-sample: pixels offset=24 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=32 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-sample: pixels offset=40 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=48 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=56 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=64 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=72 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=80 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=88 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=96 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=104 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=112 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=120 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=128 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=136 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=144 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=152 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=160 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=168 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=176 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=184 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=192 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=200 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=208 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=216 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-sample: pixels offset=224 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=232 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-sample: pixels offset=240 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=248 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-resource: passed=1 sid=1 textures=2 width=750 height=1624 deleted=2 GPU_memory_access=1
+waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1
+waffle-iommu: GENERAL_BO reclaimed index=35 VA=101b44000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=28590080
+waffle-iommu: GENERAL_BO reclaimed index=11 VA=101114000 bytes=5242880 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23347200
+waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=18448384
+waffle-gpu: GENERAL bo_retired handle=27 bytes=4898816 backing_retained=0
+waffle-gpu: GENERAL close passed=1 completed=4 buffers=35 context_null=1
+[  115.126289]: waffle-iommu: GENERAL_BO reclaimed index=1 VA=100000000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=0
+[  120.159371]: waffle-iommu: GENERAL_BO reclaimed index=35 VA=101b44000 bytes=16384 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=28590080
+[  120.159703]: waffle-iommu: GENERAL_BO reclaimed index=11 VA=101114000 bytes=5242880 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=23347200
+[  120.161452]: waffle-iommu: GENERAL_BO reclaimed index=28 VA=101680000 bytes=4898816 CPU_unmapped=1 GPU_idle=1 dual_ASID_TLBI=1 used=18448384

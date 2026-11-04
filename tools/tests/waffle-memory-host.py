@@ -92,6 +92,8 @@ int main(){
  assert(cache_cleaned==1 && !cache_invalidated && cache_first==bo.memory+64 && cache_last==cache_first);
  assert(waffle_gpu_memory_surface_sync(&bo,127,2,WAFFLE_GPU_SURFACE_TO_CPU));
  assert(cache_invalidated==2 && cache_last==bo.memory+128);
+ bo.flags|=WAFFLE_GPU_BO_READONLY;
+ assert(waffle_gpu_memory_surface_sync(&bo,0,16,WAFFLE_GPU_SURFACE_TO_GPU) && cache_cleaned==2);
  assert(!waffle_gpu_memory_destroy(&bo,false) && !surface_drops);
  assert(waffle_gpu_memory_destroy(&bo,true) && surface_drops==1 && !bo.object && !bo.storage);
  return 0;

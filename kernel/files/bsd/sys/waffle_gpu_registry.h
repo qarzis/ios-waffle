@@ -81,7 +81,8 @@ static inline struct waffle_gpu_memory *waffle_gpu_registry_adopt(struct waffle_
 {
  if(!r || !r->buffers || !ops || !ops->idle || !ops->vacant || !ops->map_page || !ops->clean || !ops->tlb ||
     !prepared || !prepared->object || !prepared->memory || prepared->published || prepared->gpu_va || prepared->serial ||
-    prepared->storage!=WAFFLE_GPU_STORAGE_SURFACE || prepared->flags!=WAFFLE_GPU_BO_CACHED ||
+    prepared->storage!=WAFFLE_GPU_STORAGE_SURFACE ||
+    (prepared->flags!=WAFFLE_GPU_BO_CACHED && prepared->flags!=(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY)) ||
     !prepared->bytes || prepared->bytes>WAFFLE_GPU_BO_MAX_BYTES || prepared->allocation_bytes!=prepared->bytes ||
     (prepared->allocation_bytes&16383) || r->poisoned || r->count>WAFFLE_GPU_BO_LIMIT || r->issued==UINT32_MAX)return 0;
  /* A registry entry cannot be moved into itself or another live slot. */
@@ -101,7 +102,7 @@ static inline struct waffle_gpu_memory *waffle_gpu_registry_adopt(struct waffle_
  bo->published=true;
  for(uint32_t off=0;off<allocated;off+=4096){
   uint64_t pa=waffle_gpu_memory_page(bo,off);
-  if(!pa || !ops->map_page(ops->context,address+off,pa,false)){
+  if(!pa || !ops->map_page(ops->context,address+off,pa,(bo->flags&WAFFLE_GPU_BO_READONLY)!=0)){
    r->poisoned=true;return 0;
   }
  }
