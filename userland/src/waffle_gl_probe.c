@@ -166,6 +166,38 @@ static bool check_surface_import(void)
 #ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
 #include "waffle_surface_sample.h"
 #endif
+#ifdef WAFFLE_GL_SURFACE_REUSE_TEST
+static bool check_surface_reuse(GLuint texture)
+{
+ uint8_t *base=IOSurfaceGetBaseAddress(hook_surface);size_t stride=IOSurfaceGetBytesPerRow(hook_surface);
+ uint32_t saved[256];bool ok=true;
+ for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+  unsigned sx=(2*x+1)*750/32,sy=(2*y+1)*1624/32;
+  memcpy(&saved[y*16+x],base+sy*stride+sx*4,4);
+ }
+ for(unsigned phase=1;phase<=3;phase++){
+  if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS){ok=false;break;}
+  for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+   unsigned sx=(2*x+1)*750/32,sy=(2*y+1)*1624/32;
+   uint32_t value=phase==1?0xff00ff00u:phase==2?0xffff00ffu:saved[y*16+x];
+   memcpy(base+sy*stride+sx*4,&value,4);
+  }
+  if(IOSurfaceUnlock(hook_surface,0,NULL)!=KERN_SUCCESS){ok=false;break;}
+  struct waffle_surface_sample_result result;
+  bool passed=waffle_gl_sample_texture(texture,base,stride,750,1624,&result);ok&=passed;
+  printf("waffle-gl-surface-reuse: phase=%u passed=%u checked=256 wrong=%u GL_error=%x same_texture=1\n",phase,passed,result.wrong,result.error);
+  for(unsigned i=0;i<256;i+=8)printf("waffle-gl-surface-reuse: phase=%u offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",phase,i,result.pixels[i],result.pixels[i+1],result.pixels[i+2],result.pixels[i+3],result.pixels[i+4],result.pixels[i+5],result.pixels[i+6],result.pixels[i+7]);
+ }
+ /* Restore even after a known mismatch; unknown GPU completion stops in the
+  * kernel owner and cannot return to this userspace cleanup path. */
+ for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+  unsigned sx=(2*x+1)*750/32,sy=(2*y+1)*1624/32;
+  memcpy(base+sy*stride+sx*4,&saved[y*16+x],4);
+ }
+ printf("waffle-gl-surface-reuse: result=%u phases=3 source_restored=1 same_native_GEM=1\n",ok);
+ return ok;
+}
+#endif
 #ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
 static bool check_surface_resource(void)
 {
@@ -197,6 +229,9 @@ static bool check_surface_resource(void)
  ok=waffle_gl_sample_texture(textures[0],IOSurfaceGetBaseAddress(hook_surface),IOSurfaceGetBytesPerRow(hook_surface),750,1624,&result);
  printf("waffle-gl-surface-sample: passed=%u sid=%u checked=256 wrong=%u GL_error=%x stage=%u GPU_readonly=1\n",ok,IOSurfaceGetID(hook_surface),result.wrong,result.error,result.stage);
  for(unsigned i=0;i<256;i+=8)printf("waffle-gl-surface-sample: pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,result.pixels[i],result.pixels[i+1],result.pixels[i+2],result.pixels[i+3],result.pixels[i+4],result.pixels[i+5],result.pixels[i+6],result.pixels[i+7]);
+#ifdef WAFFLE_GL_SURFACE_REUSE_TEST
+ if(ok)ok=check_surface_reuse(textures[0]);
+#endif
 #else
  ok=true;
 #endif

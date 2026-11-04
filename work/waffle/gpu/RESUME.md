@@ -1,3 +1,7 @@
+# ACTIVE — S09 native texture reuse candidate ready
+
+Useraskedstatus; reportedS08Bactualshader256/256correct/fullsourceunchanged, noFPSgainclaim. S09readyrootgpu/s09-surface-reuse-pixel/artifactdiagnostic-surface-reuse-s09, exactqualifiedS08Bkernel+Mesa reused. Same2nativeviews/oneGEM heldacross3CPUupdates of256samplelocations(green/magenta/original), realshader/outputperphase, cleanuprestoreoriginal. 104negativeparserfixtures+pairedvalidator+preUSBsourceidentityPASS. NextsavecheckpointthenRAMphoneS09; requireall3phases+4cache-cleanednativeGPUdraws+full1218000sourcepixels/nativeGEMretired/Android. Noactivephoneowner;AndroidreturnedafterS08B. Publicfork4614b63throughS07; needpublishS08Bsource/evidenceaftercurrentqualification. Noagents/goals.
+
 # ACTIVE — S08B native texture shader sampling PASSED
 
 Run20261104T213440Z/auto213416Z originalrunner0/success1/Android1. NativeROhandle27/source4898816CPUcleaned/declaredflags3, samplerfence3/readback4 completed. ActualGLSLnative256pixels0wrong/GLerror0, full1218000source0wrong/padding0,4commands/35GEMs/nativeGEMretired. S08-B-result.json/evidence saved. S08-Afailurepreserved (Mesa conservativeREAD|WRITErejectedbeforeGPU; correctedwithoutchanginghardwareROpermission). CurrentkernelqualifiesprivateW0x59sampler; defaultUI0x7eimportstillENOTSUP. Noactivephoneowner,Androidavailable. Newkernelartifactdiagnostic-surface-sample-s08b, rawMesaGLshaderhelper/userland/src/waffle_surface_sample.c, rootgpu/s08-surface-sample-pixel.
