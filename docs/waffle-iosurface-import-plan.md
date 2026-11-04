@@ -22,3 +22,29 @@ A publication flag blocks release until the caller proves GPU detach. Failure be
 4. Deduplicate surface imports into generational handles, preserving held references across command submission and rejecting stale handles. Never import header pages or client-wrapped/multiplanar memory without a separate validated path.
 5. Qualify one imported surface with independent pixel readback, padding/guard checks, CPU-to-GPU and GPU-to-CPU ownership transitions and final detached release. Only then enable it for the compositor. Preserve unsupported-surface fallback.
 6. The80–100fps target also requires a proven display-completion protocol above the current two-MDP-frame guard and a separately qualified higher-rate iOS mode. Surface import alone does not establish that target.
+
+## S03 registry publication candidate
+
+The internal BO now distinguishes owned WC storage from a retained cached surface token. Ordinary GEM allocation still rejects cached-coherent flags; a cached surface is prepared through a separate internal path, without clearing pixels or creating a WC CPU alias. The WC user mapper refuses surface storage. Destruction releases the retained surface token rather than treating it as an IOBuffer allocation.
+
+`waffle_gpu_registry_adopt` checks ownership state, slot/residency/VA limits, idle and vacancy before transferring the prepared object. A pre-transfer failure leaves the object with its caller. After transfer the registry marks publication before the first PTE; uncertain mapping or TLB failure retains the object and poisons further work. Existing reclaim verifies owned leaves, removes mappings and synchronizes GPU/LPAC ASIDs before permitting surface release.
+
+An isolated diagnostic operation, W/0x55, is intentionally separate from Darwin Mesa selector0x7e. It admits only the owning PID1, publishes one retained surface and immediately revokes it. It creates no GEM handle, no CPU mapping and no GPU commands referencing that memory. Host tests execute actual storage, registry, SMMU and cdev adapter code. Physical I/O is modeled there, so native execution remains a separate requirement.
+
+## Next data-access experiment, after native S03 qualification
+
+The first GPU data access should use the already-qualified `waffle_writeback_packet` CP_MEM_WRITE payload, restricted to four words inside the held surface. It must not invent a new packet or enable arbitrary user commands.
+
+* Preserve the original words, admit no concurrent CPU writer in the isolated test, and clean cached CPU data to the point of coherency before GPU ownership.
+* Submit through the existing owned context and qualified completion tail. Cache maintenance is not a substitute for GPU completion.
+* Invalidate/resolve CPU cache state only after confirmed GPU completion, then independently compare actual CPU-read values with the GPU pattern. Do not populate expected values from CPU.
+* Restore original words, make the restoration visible, and verify the full surface/padding through the existing independent pixel control before releasing mappings.
+* Private submissions must update the cdev's fence accounting consistently with the same context. The ioctl may not report a completion fence that was never executed or leave future ordinary Mesa submissions expecting a stale sequence.
+* Any uncertain post-publication failure retains backing until safe context detach/reset. Only after bidirectional cache/data evidence should normal Mesa imports, deduplicated handles, cached CPU mapping and compositor completion integration be enabled.
+
+This plan is not an implemented GPU data-access or zero-copy result.
+
+## S04 qualified hardware result
+Run `20261104T194715Z` passed the original strict runner and returned Android. GPU command fence 3 wrote four expected words directly to the retained cached native IOSurface. CPU read all four correctly after cache invalidation; original words were restored and cleaned before both command and surface mappings were revoked. The following 1,218,000-pixel check reported zero errors. Normal Mesa surface import remains disabled.
+
+Next gate: CPU-initialized native surface data must be read by the GPU into a separate owned result buffer and independently checked after completion. After that, define GEM handle ownership, CPU_PREP/FINI synchronization, resource destruction and failure retention before enabling Mesa imports. Neither this isolated write test nor a future command-copy read test establishes shader resource correctness or higher UI FPS.

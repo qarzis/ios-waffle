@@ -1,3 +1,8 @@
+# ACTIVE — S04 native GPU write to IOSurface PASSED
+
+Run20261104T194715Z/auto194651Z originalrunner0/success1/Android1. Actual GPU fence3 CP_MEM_WRITE wrote57414646/4c454750/13579bdf/2468ace0 directly into nativecached IOSurface; wrong0/restored1/retired1. Native1196pages/4898816bytes, privatecommandBO29+surface28reclaimed,27MesaGEMs/3commands/cleanOOBclose. Full1218000pixels0wrong/padding0/GLerror0; actualstrictvalidatorpassed256independentsamples. S04-result.json+evidence saved. No FPS gain claim. Normal0x7eimport stillENOTSUP. Phone returnedAndroid; noactiveowner.
+Next independent gate: GPU reads CPU-initialized nativecached IOSurface data into ownedWC result with actual completion and cache ownership, then shader/resource import+GEM lifetime/CPU_PREP/FINI design. Do not connect normalUI import before both directions and fence/ownership tests. Cachedsurface mustnevergetWC CPUalias. ReuseS04qualifiedartifact only if sourcebindingunchanged; newkernelinputs require newartifact. UsercontinuesGPUtarget80–100fps; currentUI34–43activefps, refresh/2frameguardcapsremain. Noagents/goals.
+
 # ACTIVE — S04 native cached IOSurface GPU-write candidate
 
 S03 native map/revoke passed: run20261104T142828Z,1196pages/4898816bytes, dual-ASID revoke, full1218000pixel proof0wrong, Android1. Original runner exit1 preserved; strict parser extended separately and saved log passed offline. No FPS improvement claimed.

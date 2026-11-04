@@ -1,0 +1,33 @@
+{
+  "experiment": "S04 native cached IOSurface GPU write/check/restore",
+  "passed": true,
+  "run": "20261104T194715Z",
+  "auto_run": "20261104T194651Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "surface_bytes": 4898816,
+  "surface_pages_4k": 1196,
+  "gpu_fence": 3,
+  "gpu_written_words": [
+    "57414646",
+    "4c454750",
+    "13579bdf",
+    "2468ace0"
+  ],
+  "wrong_words": 0,
+  "original_pixels_restored": true,
+  "surface_and_command_retired": true,
+  "fullsize_checked_pixels": 1218000,
+  "fullsize_wrong_pixels": 0,
+  "padding_wrong": 0,
+  "GL_error": 0,
+  "completed_commands": 3,
+  "Mesa_GEM_buffers": 27,
+  "kernel_log_sha256": "127a0cc89af5559f4f5593e70d4cfcc0ccc2c7d6dc00d3139644031cb4ee2021",
+  "kernel_sha256": "d7f6a7cb50b8ecb6f67a4e44e458535a7e5321865fc71901b25866258a8a598d",
+  "limits": [
+    "Isolated PID1 test; normal Mesa IOSurface import still disabled",
+    "GPU command writes four words only; shader read/render not yet qualified",
+    "No FPS or long UI stability claim"
+  ]
+}
