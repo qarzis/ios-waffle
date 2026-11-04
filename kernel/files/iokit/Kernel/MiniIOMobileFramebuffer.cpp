@@ -1380,12 +1380,20 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces, uint6
   struct waffle_display_present_result r = {};
   uint64_t start = mach_absolute_time(), elapsed = 0;
   fWafflePresenter->copyNanos = 0;
-  bool ok = waffle_display_present_frame(&fWafflePresenter->io, &fWafflePresenter->state, &r);
+  /* The previous copy is immutable in A/B. Compose above overlapped its
+   * scanout wait; retire it here before copying the next inactive buffer. */
+  struct waffle_display_present_result previous = {};
+  bool ok = waffle_display_present_complete(&fWafflePresenter->io, &fWafflePresenter->state, &previous);
+  if (ok) ok = gRecSeconds == 0 ?
+      waffle_display_present_begin(&fWafflePresenter->io, &fWafflePresenter->state, &r) :
+      waffle_display_present_frame(&fWafflePresenter->io, &fWafflePresenter->state, &r);
+  if (!ok && previous.rollback_attempted) r = previous;
   absolutetime_to_nanoseconds(mach_absolute_time() - start, &elapsed);
   unsigned completed = fWafflePresenter->state.completed;
   if (!ok || completed <= 8 || !(completed % 120)) {
-   redwood_tl("waffle-display-present: committed=%u completed=%u target=%x copied=%u rollback=%u rollback_ok=%u us=%llu\n",
-       ok, completed, r.target, r.copied, r.rollback_attempted, r.rollback_ok, (unsigned long long)(elapsed / 1000));
+   redwood_tl("waffle-display-present: committed=%u completed=%u target=%x copied=%u rollback=%u rollback_ok=%u us=%llu accepted=%u pending=%u\n",
+       r.committed || previous.committed, completed, r.target, r.copied, r.rollback_attempted, r.rollback_ok,
+       (unsigned long long)(elapsed / 1000), ok, fWafflePresenter->state.pending);
    redwood_tl("waffle-display-source: compose_us=%llu copy_us=%llu submit_wait_us=%llu reads=%u changes=%u pixel_changes=%u\n",
        (unsigned long long)(composeNanos / 1000), (unsigned long long)(fWafflePresenter->copyNanos / 1000),
        (unsigned long long)((elapsed - fWafflePresenter->copyNanos) / 1000), fWafflePresenter->sourceReads,

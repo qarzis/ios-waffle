@@ -1,8 +1,10 @@
 ## GPU hardware rendering works — latest bounded test
 
+The next target is80–100 visible frames/s. Current callback and conservative buffer-reuse limits are near60fps; see the [architecture gap analysis](waffle-high-fps-gap-analysis.md) before changing cadence or memory ownership.
+
 The README checkmark means real GPU rendering is working through Mesa. It does not qualify Metal,60fps, thermal management or indefinite stability. In D16 the desktop loaded and the user scrolled Settings; active intervals were34–43fps, with visible lag still reported. Display-driver intervals dropped to about8–9ms after overlapping private composition with the previous flip wait. Its60-second GPU window closed after10,340 commands/2,112 BOs, with1,260 completed flips, original framebuffer restoration and Android return. No rejected flip was observed in retained GPU-phase records. The original strict collector exit1 remains recorded, so this is not a whole-test PASS. [D16 result](../work/waffle/gpu/D16-result.json).
 
-D15 previously stopped updating at the Apple logo because deferred completion reused the synchronous eight-frame observation limit; rollback and Android return succeeded. D16 corrected delayed observation while retaining at least two forward hardware frames before reuse. Its source is an experimental candidate under validation; the table describes hardware functionality, not a permanent default-GPU boot. [D15 failure](../work/waffle/gpu/D15-result.json).
+D15 previously stopped updating at the Apple logo because deferred completion reused the synchronous eight-frame observation limit; rollback and Android return succeeded. D16 corrected delayed observation while retaining at least two forward hardware frames before reuse. Its source is included as an experimental candidate under validation; the table describes hardware functionality, not a permanent default-GPU boot. [D15 failure](../work/waffle/gpu/D15-result.json).
 
 D13 logger batching did not produce a perceived smoothness improvement. D14 readback profiling showed one GL read per750×1624 surface, typically5–6ms, with no captured multi-row fallback; increasing the192MiB heap is not supported as the current performance fix. [D13](../work/waffle/gpu/D13-result.json), [D14](../work/waffle/gpu/D14-result.json).
 
