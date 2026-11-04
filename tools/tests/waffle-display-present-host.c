@@ -50,4 +50,12 @@ int main(void){struct waffle_display_present_io io={{{{NULL,rd},wr,present_delay
  }
  setup();assert(waffle_display_present_init(&io,&s));mem[0x360a4/4]=0xffffffffu;
  assert(waffle_display_present_begin(&io,&s,&r));assert(waffle_display_present_complete(&io,&s,&r) && r.frame==1 && r.committed);
+ /* Real UI gaps can exceed the former synchronous eight-frame window. */
+ setup();assert(waffle_display_present_init(&io,&s));assert(waffle_display_present_begin(&io,&s,&r));
+ for(unsigned i=0;i<240;i++)present_delay(NULL,1);
+ uint32_t idle_frame=mem[0x360a4/4];assert(waffle_display_present_complete(&io,&s,&r) && r.committed);
+ assert(mem[0x360a4/4]==idle_frame); /* No extra sleep after already done. */
+ setup();assert(waffle_display_present_init(&io,&s));assert(waffle_display_present_begin(&io,&s,&r));
+ mem[0x360a4/4]=s.pending_before-1;
+ assert(!waffle_display_present_complete(&io,&s,&r) && s.failed && r.rollback_attempted);
  puts("PASS actual double-buffer state:1000 full/partial working-frame updates, copy only inactive target, complete-frame commit before reuse, domain/copy/partial-write/stall failures latched, rollback and shutdown restore; plus600 deferred waits/private composition overlaps, pending-copy rejection, both-target shutdown, partial-write/stall/domain faults and frame-counter wrap; hardware mocked");}

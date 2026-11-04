@@ -48,6 +48,25 @@ static inline bool waffle_display_present_frame(const struct waffle_display_pres
 /* Split only the final completion wait, not the two-frame reuse guard.
  * The presenter may compose into private working RAM while this immutable
  * scanout copy is pending. It must complete before copying either A/B again. */
+static inline bool waffle_display_present_pending_wait(const struct waffle_display_present_io *io,uint32_t target,uint32_t before,uint32_t *after)
+{
+ /* Completion may be observed after an arbitrarily idle UI interval. The
+  * old synchronous <=8-frame window is not a deadline for this caller.
+  * Require at least two forward frames, with half-range wrap protection. */
+ for(unsigned i=0;i<50;i++){
+  uint32_t pending,a,b,auto_refresh;
+  if(!waffle_display_read(&io->flip.control.read,0x16018,&pending) ||
+     !waffle_display_read(&io->flip.control.read,0x360a4,after) ||
+     !waffle_display_read(&io->flip.control.read,0x5014,&a) ||
+     !waffle_display_read(&io->flip.control.read,0x7014,&b) ||
+     !waffle_display_read(&io->flip.control.read,0x362b4,&auto_refresh))return false;
+  uint32_t frames=*after-before;
+  if(a!=target || b!=target || auto_refresh!=0x80000001 || frames>=0x80000000u)return false;
+  if(!pending && frames>=2)return true;
+  io->flip.control.delay_ms(io->flip.control.read.context,1);
+ }
+ return false;
+}
 static inline bool waffle_display_present_complete(const struct waffle_display_present_io *io,struct waffle_display_present_state *s,struct waffle_display_present_result *r)
 {
  if(!r)return false;
@@ -55,7 +74,7 @@ static inline bool waffle_display_present_complete(const struct waffle_display_p
  if(!io || !s || !s->initialized || s->failed)return false;
  if(!s->pending)return true;
  r->target=s->pending_target;r->copied=true;
- bool ok=waffle_display_flip_wait(&io->flip,r->target,s->pending_before,&r->frame) &&
+ bool ok=waffle_display_present_pending_wait(io,r->target,s->pending_before,&r->frame) &&
      io->flip.domain_ok(io->flip.control.read.context);
  if(!ok){
   r->rollback_attempted=true;r->rollback_ok=waffle_display_present_address(io,s->active,&r->frame);
