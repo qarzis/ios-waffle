@@ -47,6 +47,8 @@ static void sleep_ms(unsigned n){
  assert(!locked && n==1);sleeps++;
  if(mode==3 && sleeps==2)send_reply(battery_reply.opcode,battery_reply.property,9600);
  if(mode==6)stopping=true;
+ if(mode==7 && sleeps==1000)send_reply(battery_reply.opcode,battery_reply.property,9600);
+ if(mode==8){send_reply(battery_reply.opcode,battery_reply.property,9600);stopping=true;}
 }
 ''' + function('battery_probe_input') + function('battery_probe_get') + r'''
 static void reset(unsigned m){mode=m;sleeps=0;locked=stopping=link_failed=false;battery_reply={};}
@@ -60,6 +62,8 @@ int main(){
  reset(4);assert(!battery_probe_get(&channel,0x30,4,&v)&&!battery_reply.pending); // impossible SOC
  reset(5);assert(!battery_probe_get(&channel,0x30,4,&v)&&sleeps==1000&&!battery_reply.pending);
  reset(6);assert(!battery_probe_get(&channel,0x30,4,&v)&&sleeps==1&&!locked&&!battery_reply.pending);
+ reset(7);assert(battery_probe_get(&channel,0x30,4,&v)&&sleeps==1000&&v==9600&&!locked&&!battery_reply.pending);
+ reset(8);assert(!battery_probe_get(&channel,0x30,4,&v)&&sleeps==1&&!locked&&!battery_reply.pending);
  reset(0);assert(!battery_probe_get(&channel,0x31,4,&v)&&!sleeps&&!battery_reply.pending);
  reset(0);battery_reply.pending=true;battery_reply.opcode=0x30;battery_reply.property=4;
  uint8_t b[24]={0};battery_probe_input(b,24);battery_probe_input(b,0);assert(!battery_reply.ready);

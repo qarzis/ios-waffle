@@ -1933,6 +1933,11 @@ battery_probe_get(struct glink_channel *channel, uint32_t opcode, uint32_t prope
   sleep_ms(1);
  }
  lck_mtx_lock(&battery_reply_lock);
+ /* Resolve the final sleep/deadline race under the same lock as input. A
+  * matching reply during the last sleep counts; teardown never publishes it.
+  */
+ ready = sent && !stopping && !link_failed && battery_reply.ready;
+ if (ready) *value = battery_reply.value;
  battery_reply.pending = false;
  lck_mtx_unlock(&battery_reply_lock);
  return ready && waffle_battery_value_valid(opcode, property, *value);
