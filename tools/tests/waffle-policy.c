@@ -11,6 +11,12 @@ int main(void)
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=4"));
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=5"));
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=6"));
+    assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=6 waffle_battery_readonly=1"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 waffle_battery_readonly=1"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=7 waffle_battery_readonly=1"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=1 waffle_battery_readonly=1"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=2"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=1 waffle_gpu=94"));
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=7"));
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=8"));
     assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=8 adsp=7"));
@@ -437,6 +443,10 @@ int main(void)
     assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_flip=2"));
 #if defined(WAFFLE_USERLAND)
     assert(waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_flip=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
+#endif
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_present=1"));
+#if defined(WAFFLE_USERLAND)
+    assert(waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
 #endif
     /* Exercise parsing across arbitrary bytes, including token separators. */
 #if defined(WAFFLE_USERLAND)

@@ -1,6 +1,6 @@
 """Parse and forward the double-buffer opt-in without accessing USB."""
 from pathlib import Path
-import ast,sys,subprocess
+import ast,sys,subprocess,tempfile,json
 root=Path(__file__).resolve().parents[2];path=root/'work/waffle/gpu/run-publish-test.py';source=path.read_text();prefix=source[:source.index("before=set(Path('work/waffle/runs').iterdir())")]
 chain=['--lpac-map','--zap','--writeback','--ib','--session','--dynamic-bo','--compute-dispatch','--gl-context','--ui-workload']
 previous=sys.argv
@@ -18,6 +18,8 @@ try:
 finally:sys.argv=previous
 r=subprocess.run([sys.executable,str(root/'scripts/run_waffle_ios.py'),'--double-buffer'],capture_output=True,text=True)
 assert r.returncode and 'requires isolated GPU UI' in r.stderr
-r=subprocess.run([sys.executable,str(root/'tools/run-waffle-auto.py'),'--artifact',str(root/'work/waffle/diagnostic-display-pattern-d03'),'--double-buffer','--ui-workload','--gl-context','--compute','dispatch','--dynamic-bo','--session','--ib','--writeback','--zap','--lpac-cp-init','--lpac-map'],capture_output=True,text=True)
-assert r.returncode and 'requires a bound dedicated GPU UI artifact' in r.stderr
+with tempfile.TemporaryDirectory() as directory:
+ Path(directory,'manifest.json').write_text(json.dumps({}))
+ r=subprocess.run([sys.executable,str(root/'tools/run-waffle-auto.py'),'--artifact',directory,'--double-buffer','--ui-workload','--gl-context','--compute','dispatch','--dynamic-bo','--session','--ib','--writeback','--zap','--lpac-cp-init','--lpac-map'],capture_output=True,text=True)
+ assert r.returncode and 'requires a bound dedicated GPU UI artifact' in r.stderr
 print('PASS actual double-buffer CLI: explicit mode forwarded once, compatible hardware timestamps, other display modes/duplicates/standalone rejected, dedicated artifact required before USB')

@@ -7,7 +7,13 @@ import tempfile
 ROOT=Path(__file__).resolve().parents[2]
 s=(ROOT/'kernel/files/bsd/dev/macan_adsp.c').read_text()
 types=s[s.index('#define GLINK_RESERVE'):s.index('static LCK_MTX_DECLARE(glink_lock')]
-sender=s[s.index('static int\nglink_send('):s.index('#define QRTR_US')]
+start=s.index('static int\nglink_send(')
+opening=s.index('{',start)
+end,depth=opening+1,1
+while depth:
+ depth+=(s[end]=='{')-(s[end]=='}')
+ end+=1
+sender=s[start:end]+'\n'
 prefix=r'''
 #include <assert.h>
 #include <stdbool.h>

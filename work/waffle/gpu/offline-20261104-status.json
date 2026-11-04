@@ -1,0 +1,35 @@
+{
+  "phone_tests_allowed_before_user_returns": false,
+  "offline_window_started_utc": "2026-11-04 09:16:29 UTC",
+  "offline_window_until_utc": "2026-11-04 09:46:29 UTC",
+  "D07": {
+    "copy_B_us": [
+      1692,
+      1798,
+      1840,
+      1921
+    ],
+    "user": "smoother; tears remain"
+  },
+  "D08": {
+    "source_changes_observed": 0,
+    "user": "tears disappeared; severe lag and heat",
+    "gpu_close_commands": 26825,
+    "android_confirmed": true
+  },
+  "D09": {
+    "artifact": "work/waffle/diagnostic-read-retire-short-d09",
+    "hardware_tested": false,
+    "gpu_seconds": 60,
+    "kernel_seconds": 90,
+    "CPU_stress_proof": false,
+    "automatic_app_workload": false
+  },
+  "BAT01": {
+    "artifact": "work/waffle/diagnostic-battery-readonly-bat01",
+    "hardware_tested": false,
+    "only_GET_properties": 7,
+    "live_iOS_reporting": false,
+    "native_property_ABI_needs_phone_comparison": true
+  }
+}

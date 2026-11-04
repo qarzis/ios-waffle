@@ -1,0 +1,28 @@
+{
+  "experiment": "D08 full-show synchronous source retirement",
+  "run": "20261104T090730Z",
+  "source_summaries": [
+    "waffle-display-source: compose_us=3836 copy_us=2139 submit_wait_us=13427 reads=3117 changes=0 pixel_changes=0",
+    "waffle-display-source: compose_us=3841 copy_us=2166 submit_wait_us=14601 reads=3237 changes=0 pixel_changes=0",
+    "waffle-display-source: compose_us=3833 copy_us=2175 submit_wait_us=12449 reads=3357 changes=0 pixel_changes=0",
+    "waffle-display-source: compose_us=3859 copy_us=2086 submit_wait_us=16866 reads=3473 changes=0 pixel_changes=0"
+  ],
+  "retire_timeouts": [],
+  "gpu_close": {
+    "commands": 26825,
+    "buffers": 8046
+  },
+  "restore_evidence": [
+    "waffle-display-present: quiesced=1 restored=1 completed=3510 active=d5100000"
+  ],
+  "android_confirmed": true,
+  "outer_runner_exit": 1,
+  "outer_success": false,
+  "user_feedback": [
+    "Разрывы исчезли",
+    "тока лагает сильно",
+    "меня еще оч смущает нагрев"
+  ],
+  "decision": "Source stability and visible tearing improved in this bounded run; unacceptable lag/heat, not final performance fix",
+  "D09_hardware_tested": false
+}

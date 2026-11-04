@@ -1,0 +1,12 @@
+{
+  "read_only_properties": 7,
+  "charging_setters": 0,
+  "one_sample_only": true,
+  "live_iOS_reporting": false,
+  "native_ABI_source": "forensic-audit/peripheral-upstream/battery/provenance.json",
+  "host_protocol_mailbox_CLI_tests_passed": true,
+  "kernel_build_passed": true,
+  "paired_image_validated": true,
+  "hardware_tested": false,
+  "status": "prepared; phone comparison required before live battery reporting"
+}
