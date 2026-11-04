@@ -1,0 +1,24 @@
+{
+  "experiment": "S08-A readonly native texture shader sampling",
+  "passed": false,
+  "run": "20261104T212813Z",
+  "auto_run": "20261104T212749Z",
+  "original_runner_exit": 1,
+  "android_confirmed": true,
+  "shader_pixels_checked": 256,
+  "shader_wrong_pixels": 256,
+  "GL_error": 0,
+  "first_proven_failure": "cdev refused native handle27 flags3 READ|WRITE before cache clean or imported GPU command",
+  "evidence": [
+    "GENERAL ioctl_refused op=46 error=45",
+    "msm_dump_submit bos[3]: handle=27 flags=3",
+    "SURFACE_SAMPLE sync marker absent"
+  ],
+  "source_reason": "Mesa fd_bo_init_common initializes reloc_flags=FD_RELOC_FLAGS_INIT; msm_ringbuffer_sp copies those conservative flags into every submit BO",
+  "kernel_log_sha256": "0a76618913c8e31f9fc12339c64cbd525db1d6909f5e440069f94feb7f019313",
+  "limits": [
+    "Native source shader readability remains untested",
+    "Returned zero pixels are downstream of rejected draw, not proof of cache/stride failure",
+    "Read-only hardware mappings and clean shutdown/Android worked"
+  ]
+}

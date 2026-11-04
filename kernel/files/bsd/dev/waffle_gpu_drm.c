@@ -122,7 +122,11 @@ static int drm_submit(struct waffle_msm_submit *r)
   unsigned slot=waffle_gpu_handle_slot(bos[i].handle);
   if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen[slot/64]&(1ULL<<(slot%64))) ||
      (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va)){error=EINVAL;goto done;}
-  if(bo->surface && (!bo->surface_sample || !(bos[i].flags&1u) || (bos[i].flags&2u))){error=ENOTSUP;goto done;}
+  /* Mesa initializes every reloc to READ|WRITE, including readonly shader
+   * BOs. These flags are conservative usage hints, not PTE permissions.
+   * Private sampler imports must still have actual immutable readonly PTEs. */
+  if(bo->surface && (!bo->surface_sample || !(bos[i].flags&1u) ||
+      bo->memory->flags!=(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY))){error=ENOTSUP;goto done;}
   seen[slot/64]|=1ULL<<(slot%64);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
@@ -142,7 +146,7 @@ static int drm_submit(struct waffle_msm_submit *r)
   struct drm_bo *bo=drm_buffer(bos[i].handle);
   if(bo->surface_sample){
    if(!waffle_gpu_memory_surface_sync(bo->memory,0,bo->memory->bytes,WAFFLE_GPU_SURFACE_TO_GPU)){error=EIO;goto done;}
-   redwood_tl("waffle-gpu: SURFACE_SAMPLE sync=1 handle=%u bytes=%u GPU_readonly=1\n",bo->handle,bo->memory->bytes);
+   redwood_tl("waffle-gpu: SURFACE_SAMPLE sync=1 handle=%u bytes=%u GPU_readonly=1 declared_flags=%u\n",bo->handle,bo->memory->bytes,bos[i].flags);
   }
  }
  /* Controlled caller owns data consistency. Root bytes are snapshotted into
