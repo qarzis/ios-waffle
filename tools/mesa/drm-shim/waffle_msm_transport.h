@@ -7,6 +7,7 @@ static inline unsigned long waffle_msm_request(unsigned number,size_t size)
 {
 #define REQ(n,t,r) case n:return size==sizeof(t)?r:0
  switch(number){
+ REQ(0x7e,struct waffle_msm_surface,WAFFLE_MSM_SURFACE);
  REQ(0x40,struct waffle_msm_param,WAFFLE_MSM_PARAM);
  REQ(0x42,struct waffle_msm_gem_new,WAFFLE_MSM_NEW);
  REQ(0x43,struct waffle_msm_gem_info,WAFFLE_MSM_INFO);
