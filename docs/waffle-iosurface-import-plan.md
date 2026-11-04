@@ -48,3 +48,21 @@ This plan is not an implemented GPU data-access or zero-copy result.
 Run `20261104T194715Z` passed the original strict runner and returned Android. GPU command fence 3 wrote four expected words directly to the retained cached native IOSurface. CPU read all four correctly after cache invalidation; original words were restored and cleaned before both command and surface mappings were revoked. The following 1,218,000-pixel check reported zero errors. Normal Mesa surface import remains disabled.
 
 Next gate: CPU-initialized native surface data must be read by the GPU into a separate owned result buffer and independently checked after completion. After that, define GEM handle ownership, CPU_PREP/FINI synchronization, resource destruction and failure retention before enabling Mesa imports. Neither this isolated write test nor a future command-copy read test establishes shader resource correctness or higher UI FPS.
+
+## S05 experiment and the remaining ownership gap
+S05 reads four CPU-initialized words from native cached IOSurface pages into a different owned WC buffer using `CP_MEM_TO_MEM` (0x73). The packet's five-word payload (32-bit flags, destination64, source64) is derived from local Mesa `adreno_pm4.xml` and `tu_query_pool.cc::copy_query_value_gpu`, with header parity independently checked. A final `CP_WAIT_MEM_WRITES` and the normal completed submission fence precede CPU inspection. CPU fills only source with expected values and destination with poison. After independently checking destination and unchanged source, it restores the original source words and revokes both allocations. Hardware run `20261104T195742Z` passed the original strict runner: all four destination words matched, originals were restored, both allocations retired, the full 1,218,000-pixel check passed, and Android returned. This qualifies only the isolated command-processor read.
+
+Source audit before enabling ordinary imports:
+
+| Component | Current evidence | Remaining work |
+|---|---|---|
+| Native allocation, SMMU publication and dual-ASID revoke | S03/S04 hardware qualified | Keep the surface retained for each live imported GEM lifetime |
+| GPU write to cached surface and CPU read | S04 isolated four-word write passed | Shader render-target writes and full-frame reuse unverified |
+| CPU writes read by GPU | S05 isolated four-word command-processor read passed | Shader texture sampling unverified even if command-processor read passes |
+| Mesa import entry points | Existing `osmesa_surface_resource` calls `resource_from_handle`; Darwin `fd_bo_from_dmabuf_drm` uses IOSurface ID and `drmPrimeFDToHandle` | Implement a real GEM handle, describe/import consistency and repeated-ID handle reuse; preserve generation limits and failure cleanup |
+| CPU_PREP/FINI | cdev validates only ordinary handle/op; existing WC BO path has no cache transitions | Imported cached BOs need completion and cache ownership transitions; maintain ordinary WC behavior |
+| IOSurface Lock/Unlock | `MiniIOSurface::lockCommon` updates content seed on writer unlock | No GPU completion/cache action exists here. Do not treat the API lock as a GPU fence or kernel-wide exclusive writer lock. Isolated S04/S05 own their private surface by construction |
+| Imported CPU mappings | `waffle_gpu_memory_map` rejects surface storage | Preserve native cached mapping, exclude shared header, retain proper lifetime; never create a WC alias |
+| Resource destruction and reclaim | Existing regular GEM close/reclaim is tested | Imported object must retain backing until all GEM references, CPU maps and GPU use are retired; uncertain completion retains backing |
+
+The next implementation should first expose a bounded isolated import/close test with no rendering, including duplicate import and stale-handle refusals. Only after that should a controlled shader sample/render test enable the native texture path. The GPU test result must remain distinct from UI FPS and display-refresh changes.
