@@ -1,3 +1,8 @@
+# ACTIVE — S08B native texture shader sampling PASSED
+
+Run20261104T213440Z/auto213416Z originalrunner0/success1/Android1. NativeROhandle27/source4898816CPUcleaned/declaredflags3, samplerfence3/readback4 completed. ActualGLSLnative256pixels0wrong/GLerror0, full1218000source0wrong/padding0,4commands/35GEMs/nativeGEMretired. S08-B-result.json/evidence saved. S08-Afailurepreserved (Mesa conservativeREAD|WRITErejectedbeforeGPU; correctedwithoutchanginghardwareROpermission). CurrentkernelqualifiesprivateW0x59sampler; defaultUI0x7eimportstillENOTSUP. Noactivephoneowner,Androidavailable. Newkernelartifactdiagnostic-surface-sample-s08b, rawMesaGLshaderhelper/userland/src/waffle_surface_sample.c, rootgpu/s08-surface-sample-pixel.
+Next S09: reuse SAME2textureviews/GEM across CPUupdates of256samplelocations, green thenmagenta thenrestoreoriginal, actualshader/samplelogsperphase, fullsourcecheck/cleanGEM/Android. Keepkernel+MesabyteidenticaltoS08B, newrootonly; nativeGPUsourcestaysRO, CPUownsprivateinput, previousGPUdrawcompletedbeforeCPUwrites. S08singleDrawdoesnotproveGPUtexturecacheinvalidationonupdates. Publiccurrentlyfork4614b63throughS07; prepare/pushS08withfailurelimitsandreadonlymodeonly. Noagents/goals.
+
 # ACTIVE — S08-A admission failure proven; S08B correction building
 
 S08-A run20261104T212813Z/auto212749Z originalrunner1/Android1. NativeROhandle27created/reused butMesa declaredflags3 READ|WRITE; cdevrejectedENOTSUPbeforecacheclean/shaderGPUcommand. BOtableinactualMesaerrorlogproveshandle27flags3. SourceFD_RELOC_FLAGS_INIT=READ|WRITE andmsm_ringbuffer_spcopiesverbatim for allBOs, includingordinaryreadonlyshaderBOs. Laterreadbackfence3readszeros/256wrong/GLerror0; notshadercachefailure. S08-A-result.json preservesfailure.

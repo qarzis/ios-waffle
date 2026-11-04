@@ -1,0 +1,29 @@
+{
+  "experiment": "S08B actual shader sampling of native readonly IOSurface",
+  "passed": true,
+  "run": "20261104T213440Z",
+  "auto_run": "20261104T213416Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "native_handle": 27,
+  "source_bytes_cleaned": 4898816,
+  "GPU_mapping_readonly": true,
+  "Mesa_usage_declaration": 3,
+  "shader_checked_pixels": 256,
+  "shader_wrong_pixels": 0,
+  "GL_error": 0,
+  "fullsize_source_checked_pixels": 1218000,
+  "fullsize_source_wrong_pixels": 0,
+  "padding_wrong": 0,
+  "completed_commands": 4,
+  "GEM_buffers": 35,
+  "native_source_GEM_retired": true,
+  "kernel_sha256": "b1a0a6866329b3f2f5ebfa9e53b42107a85adf53341e168e509253de1d899247",
+  "kernel_log_sha256": "3ebdbb997b49d3caa8d1db6ba7579edbbc5a4079b8ef1b307c119dccb784680e",
+  "limits": [
+    "One readonly native texture shader draw only; CPU update reuse unverified",
+    "Normal UI/native render-target import remains disabled",
+    "FPS and long UI stability not measured"
+  ],
+  "prior_failed_experiment": "S08-A-result.json"
+}
