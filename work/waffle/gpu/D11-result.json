@@ -1,0 +1,76 @@
+{
+  "experiment": "D11 existing runtime GL timing; unchanged D09/E113/Mesa",
+  "run": "20261104T110146Z",
+  "auto_runner": {
+    "started_utc": "20261104T110122Z",
+    "flash_operations": false,
+    "gpu_raw": true,
+    "prepare_gpu": false,
+    "access_matrix": false,
+    "measure_clocks": false,
+    "lpac_map": true,
+    "lpac_cp_init": true,
+    "zap": true,
+    "writeback": true,
+    "ib": true,
+    "session": true,
+    "dynamic_bo": true,
+    "compute": "dispatch",
+    "image": true,
+    "image_copy": false,
+    "image_present": false,
+    "copy_jobs": false,
+    "worker": false,
+    "user_copy": false,
+    "data_bo": false,
+    "glsl": false,
+    "user_va": false,
+    "msm": false,
+    "mesa_transport": false,
+    "mapped": false,
+    "gl_context": true,
+    "physical_boot_selection": false,
+    "android_confirmed": true,
+    "automatic_loader_verified": true,
+    "runner_exit": 1,
+    "error": "GPU test failed; preserve original result and inspect recovery log",
+    "success": false
+  },
+  "user_feedback": "Scrolled; lag remains",
+  "GPU_phase_boundary_first_snapshot": "kernel-217.log",
+  "timing_rule": "Union exact timing records only from snapshots before first planned GPU stop; exclude later softpipe process",
+  "unique_GL_frame_records": 768,
+  "GL_frame_us": {
+    "median": 20534.0,
+    "p90": 34278,
+    "max": 126039
+  },
+  "slow_calls_over_20ms": {
+    "glFlush": 25,
+    "glFinishObjectAPPLE": 3,
+    "glTexImage2D": 1,
+    "glDeleteTextures": 1,
+    "glDrawElements": 1
+  },
+  "longest_slow_call_us": 57459,
+  "framebuffer_intervals": [
+    "fps: 14 (71 frames in 5023 ms), 24114 us each in the driver",
+    "fps: 30 (153 frames in 5020 ms), 22665 us each in the driver",
+    "fps: 36 (183 frames in 5002 ms), 20106 us each in the driver",
+    "fps: 25 (129 frames in 5011 ms), 22922 us each in the driver",
+    "fps: 25 (127 frames in 5037 ms), 22531 us each in the driver",
+    "fps: 10 (51 frames in 5021 ms), 22771 us each in the driver"
+  ],
+  "GPU_GL_summaries": [
+    "redwood-gl: after 30 frames: 327 calls, 44 draws and 227 triangles a frame on average; the most in one: 1679 calls, 770 triangles; 18931 us a frame, of which 228 handing the commands on, 0 waiting for the picture to be drawn and 8266 copying it out, and before each 720 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 40 had to be copied; 28 shaders, 23 programs; biggest texture 1326 x 1823; 0 errors",
+    "redwood-gl: after 200 frames: 666 calls, 122 draws and 571 triangles a frame on average; the most in one: 1679 calls, 1168 triangles; 25497 us a frame, of which 36 handing the commands on, 0 waiting for the picture to be drawn and 8660 copying it out, and before each 404 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 67 had to be copied; 45 shaders, 40 programs; biggest texture 1326 x 1823; 0 errors",
+    "redwood-gl: after 400 frames: 687 calls, 132 draws and 578 triangles a frame on average; the most in one: 1679 calls, 1400 triangles; 23036 us a frame, of which 19 handing the commands on, 0 waiting for the picture to be drawn and 7544 copying it out, and before each 273 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 77 had to be copied; 48 shaders, 43 programs; biggest texture 1326 x 1823; 0 errors",
+    "redwood-gl: after 600 frames: 712 calls, 137 draws and 656 triangles a frame on average; the most in one: 1679 calls, 1580 triangles; 25249 us a frame, of which 42 handing the commands on, 0 waiting for the picture to be drawn and 7858 copying it out, and before each 369 making textures of IOSurfaces; 0 IOSurfaces were the textures' memory, 164 had to be copied; 59 shaders, 51 programs; biggest texture 1326 x 1823; 0 errors"
+  ],
+  "restore_evidence": [
+    "waffle-display-present: quiesced=1 restored=1 completed=787 active=d5100000"
+  ],
+  "FPS_improvement_qualified": false,
+  "thermal_fix_qualified": false,
+  "hypothesis_result": "GL and output costs both material. glFlush wrapper includes frame_end/readback; not a measurement of raw glFlush or pure GPU duration. Source-epoch trace is not enough to choose a safe clock/idle change."
+}

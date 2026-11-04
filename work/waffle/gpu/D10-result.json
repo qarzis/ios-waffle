@@ -1,0 +1,64 @@
+{
+  "experiment": "D10 bounded process CPU observer, unchanged D09 renderer",
+  "run": "20261104T101940Z",
+  "CPU_by_pid": {
+    "83": {
+      "samples_after_first9": 50,
+      "aggregate_CPU_core_equivalents": 0.41949120069199514
+    },
+    "386": {
+      "samples_after_first9": 18,
+      "aggregate_CPU_core_equivalents": 0.5529087369673383
+    }
+  },
+  "GPU_pid": 83,
+  "planned_CPU_fallback_pid": 386,
+  "manual_scroll_confirmed": false,
+  "limits": [
+    "Uncontrolled workload; GPU and CPU phases are not like-for-like",
+    "Aggregate CPU time includes all process threads; not a GPU duration measurement",
+    "No frequency change or sole bottleneck established"
+  ],
+  "GPU_close": {
+    "commands": 9760,
+    "buffers": 2827
+  },
+  "restore_evidence": [
+    "waffle-display-present: quiesced=1 restored=1 completed=983 active=d5100000"
+  ],
+  "auto_runner": {
+    "started_utc": "20261104T101916Z",
+    "flash_operations": false,
+    "gpu_raw": true,
+    "prepare_gpu": false,
+    "access_matrix": false,
+    "measure_clocks": false,
+    "lpac_map": true,
+    "lpac_cp_init": true,
+    "zap": true,
+    "writeback": true,
+    "ib": true,
+    "session": true,
+    "dynamic_bo": true,
+    "compute": "dispatch",
+    "image": true,
+    "image_copy": false,
+    "image_present": false,
+    "copy_jobs": false,
+    "worker": false,
+    "user_copy": false,
+    "data_bo": false,
+    "glsl": false,
+    "user_va": false,
+    "msm": false,
+    "mesa_transport": false,
+    "mapped": false,
+    "gl_context": true,
+    "physical_boot_selection": false,
+    "android_confirmed": true,
+    "automatic_loader_verified": true,
+    "runner_exit": 1,
+    "error": "GPU test failed; preserve original result and inspect recovery log",
+    "success": false
+  }
+}

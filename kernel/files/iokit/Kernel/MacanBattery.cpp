@@ -6,6 +6,7 @@
 #include <libkern/c++/OSDictionary.h>
 #include <libkern/c++/OSNumber.h>
 #include <libkern/c++/OSSymbol.h>
+#include <pexpert/pexpert.h>
 struct redwood_battery_state {
  uint32_t size;
  int32_t percent_hundredths;
@@ -138,6 +139,11 @@ RedwoodBattery::report(const struct redwood_battery_state * b)
   OSSafeReleaseNULL(none);
  }
  updateStatus();
+ uint32_t probe = 0;
+ if (PE_parse_boot_argn("waffle_battery_readonly", &probe, sizeof(probe)) && probe == 2) {
+  IOLog("waffle-battery-bridge: current=%u max=%u installed=%u external=%u charging=%u\n",
+      currentCapacity(), maxCapacity(), batteryInstalled(), externalConnected(), isCharging());
+ }
 }
 void
 RedwoodBatteryReport(const void * state, unsigned size)

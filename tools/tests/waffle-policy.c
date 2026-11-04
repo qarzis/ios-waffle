@@ -15,7 +15,8 @@ int main(void)
     assert(!waffle_cmdline_allowed("loader_return_after=60 waffle_battery_readonly=1"));
     assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=7 waffle_battery_readonly=1"));
     assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=1 waffle_battery_readonly=1"));
-    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=2"));
+    assert(waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=2"));
+    assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=3"));
     assert(!waffle_cmdline_allowed("loader_return_after=60 adsp=6 waffle_battery_readonly=1 waffle_gpu=94"));
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=7"));
     assert(waffle_cmdline_allowed("bootcpu=7 loader_return_after=60 adsp=8"));

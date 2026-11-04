@@ -1,3 +1,13 @@
+## Latest results — 2026-11-04
+
+D09 released each source after CPU composition, before the private display copy and scanout wait. The user again reported no tearing; an FPS improvement was uncertain. Its60-second GPU window closed after6,454 commands/2,580 BOs,792 display commits, framebuffer restoration and Android return. The original strict collector exit1 is preserved; this is not a whole-test PASS or thermal qualification. [D09 result](../work/waffle/gpu/D09-result.json).
+
+D10 added bounded process CPU accounting. Its workload was uncontrolled, so CPU and GPU phases cannot establish a performance comparison. D11 used existing runtime GL timestamps and slow-call reporting with unchanged EAGL/Mesa binaries and frequencies. The user reproduced lag. Before the planned GPU stop,768 distinct frame records had median20.5ms and p9034.3ms; active framebuffer intervals included25–36fps. GL readback averaged7.5–8.7ms in context summaries. These are separate overlapping stages, not additive end-to-end timing; subsequent softpipe records are excluded. [D11 result](../work/waffle/gpu/D11-result.json). [D10 result](../work/waffle/gpu/D10-result.json).
+
+BAT01 validated native read-only battery queries. BAT02 passed three fresh batches through the native iOS power source and PID1:95/100 matched95% on all three updates. SpringBoard display and permanent service remain untested; the difference from Android's reported percentage remains unresolved. No charger settings are changed. A separate firmware system-image builder preserves existing file extents and passes actual kernel packfs validation/firmware lookup on host fixtures; it is not phone-qualified. [BAT01](../work/waffle/audio/BAT01-result.json), [BAT02](../work/waffle/audio/BAT02-result.json).
+
+The sections below preserve earlier results and their status at the time.
+
 ## Source retirement and framebuffer copy — 2026-11-04
 
 D04 bound the two-buffer presenter to ordinary UI frames, but visible tearing and jerky movement remained. D05 observed source pixels changing across CPU composition, including with an unchanged seed. The D06 source-useCount lease experiment was insufficient and was reverted.

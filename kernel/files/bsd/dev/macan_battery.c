@@ -38,6 +38,8 @@ redwood_battery_temperature(void)
 static int battery_charging, battery_soc_estimated, battery_charger_action = -1;
 static uint64_t battery_updates, battery_failures;
 SYSCTL_NODE(_kern, OID_AUTO, redwood, CTLFLAG_RW | CTLFLAG_LOCKED, 0, "redwood phone bits");
+SYSCTL_QUAD(_kern_redwood, OID_AUTO, battery_updates, CTLFLAG_RD | CTLFLAG_LOCKED,
+    &battery_updates, "battery samples accepted by the platform report path");
 SYSCTL_INT(_kern_redwood, OID_AUTO, battery_soc, CTLFLAG_RD | CTLFLAG_LOCKED,
     &battery_soc_percent, 0, "battery state of charge, 0..100 percent, or -1 if unknown");
 SYSCTL_INT(_kern_redwood, OID_AUTO, battery_voltage_mv, CTLFLAG_RD | CTLFLAG_LOCKED,
