@@ -68,3 +68,42 @@ waffle-display-present: committed=1 completed=1200 target=d5100000 copied=1 roll
 waffle-display-source: compose_us=1892 copy_us=2115 submit_wait_us=11832 reads=1197 changes=111 pixel_changes=64
 waffle-display-present: committed=1 completed=1320 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=14846
 waffle-display-source: compose_us=2061 copy_us=2244 submit_wait_us=12602 reads=1317 changes=112 pixel_changes=64
+waffle-display-present: committed=1 completed=1440 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=14732
+waffle-display-source: compose_us=2885 copy_us=2467 submit_wait_us=12265 reads=1437 changes=112 pixel_changes=64
+waffle-display-present: committed=1 completed=1560 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=20286
+waffle-display-source: compose_us=3965 copy_us=2272 submit_wait_us=18013 reads=1557 changes=126 pixel_changes=77
+waffle-display-present: committed=1 completed=1680 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=21615
+waffle-display-source: compose_us=3827 copy_us=2323 submit_wait_us=19292 reads=1677 changes=142 pixel_changes=90
+waffle-display-present: committed=1 completed=1800 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=20054
+waffle-display-source: compose_us=4017 copy_us=2174 submit_wait_us=17880 reads=1797 changes=153 pixel_changes=101
+waffle-display-present: committed=1 completed=1920 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=20722
+waffle-display-source: compose_us=1982 copy_us=1807 submit_wait_us=18915 reads=1917 changes=162 pixel_changes=108
+waffle-display-present: committed=1 completed=2040 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=14819
+waffle-display-source: compose_us=2193 copy_us=2195 submit_wait_us=12624 reads=2037 changes=163 pixel_changes=108
+waffle-display-present: committed=1 completed=2160 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15502
+waffle-display-source: compose_us=3757 copy_us=2130 submit_wait_us=13372 reads=2157 changes=168 pixel_changes=112
+waffle-display-present: committed=1 completed=2280 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15503
+waffle-display-source: compose_us=4031 copy_us=2124 submit_wait_us=13378 reads=2277 changes=168 pixel_changes=112
+waffle-display-present: committed=1 completed=2400 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=21480
+waffle-display-source: compose_us=4018 copy_us=2259 submit_wait_us=19221 reads=2397 changes=168 pixel_changes=112
+waffle-display-present: committed=1 completed=2520 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=20353
+waffle-display-source: compose_us=4079 copy_us=2755 submit_wait_us=17598 reads=2517 changes=169 pixel_changes=112
+waffle-display-present: committed=1 completed=2640 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=14968
+waffle-display-source: compose_us=2136 copy_us=2445 submit_wait_us=12522 reads=2637 changes=185 pixel_changes=128
+waffle-display-present: committed=1 completed=2760 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=17052
+waffle-display-source: compose_us=1996 copy_us=2430 submit_wait_us=14621 reads=2757 changes=185 pixel_changes=128
+waffle-display-present: committed=1 completed=2880 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=13732
+waffle-display-source: compose_us=1872 copy_us=2256 submit_wait_us=11476 reads=2877 changes=187 pixel_changes=130
+waffle-display-present: committed=1 completed=3000 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15972
+waffle-display-source: compose_us=3891 copy_us=2483 submit_wait_us=13488 reads=2997 changes=187 pixel_changes=130
+waffle-display-present: committed=1 completed=3120 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=21366
+waffle-display-source: compose_us=3892 copy_us=2268 submit_wait_us=19098 reads=3117 changes=196 pixel_changes=135
+waffle-ui-gpu: bounded process stop pid=84 seconds=240
+waffle-gpu: GENERAL close passed=1 completed=24221 buffers=7362 context_null=1
+waffle-display-present: committed=1 completed=3240 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=20192
+waffle-display-source: compose_us=3703 copy_us=2232 submit_wait_us=17959 reads=3234 changes=202 pixel_changes=135
+waffle-display-present: committed=1 completed=3360 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=21516
+waffle-display-source: compose_us=4051 copy_us=2092 submit_wait_us=19424 reads=3354 changes=202 pixel_changes=135
+waffle-display-present: committed=1 completed=3480 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15658
+waffle-display-source: compose_us=3827 copy_us=2191 submit_wait_us=13467 reads=3474 changes=202 pixel_changes=135
+waffle-display-present: quiesced=1 restored=1 completed=3588 active=d5100000

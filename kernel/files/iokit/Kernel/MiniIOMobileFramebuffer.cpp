@@ -557,6 +557,7 @@ public:
  unsigned fSwapFirst, fSwapsWaiting;
  uint64_t fSwapIssued, fSwapCompleted, fSwapTickets[SWAP_QUEUE];
  bool waitForPresentation(uint64_t ticket);
+ void retireSource(uint64_t ticket);
  uint64_t fBeat;
  uint64_t fReady;
  uint32_t fStatOnBeat;
@@ -586,7 +587,7 @@ public:
  void publishModes(void);
  MiniIOSurface * defaultSurface(void);
  void present(const uint8_t * swap);
- void show(const uint8_t * swap, MiniIOSurface ** surfaces);
+ void show(const uint8_t * swap, MiniIOSurface ** surfaces, uint64_t ticket);
  void presenter(void);
  static void presenterMain(void * self, wait_result_t result);
  void reportFrameTimes(void);
@@ -1167,9 +1168,8 @@ IOMobileFramebuffer::present(const uint8_t * swap)
  IOLockUnlock(fSwapLock);
  if (ticket != 0) waitForPresentation(ticket);
 }
-/* D08: conservative synchronous submission experiment. This is not an
- * interpretation of native SwapWait flags: only this submitted CPU read is
- * retired before returning SwapEnd. Timeout is reported, never called retired.
+/* Source-read retirement, not an interpretation of native SwapWait flags.
+ * Timeout is reported, never called retired.
  */
 bool
 IOMobileFramebuffer::waitForPresentation(uint64_t ticket)
@@ -1191,6 +1191,17 @@ IOMobileFramebuffer::waitForPresentation(uint64_t ticket)
  return true;
 }
 void
+IOMobileFramebuffer::retireSource(uint64_t ticket)
+{
+ if (ticket == 0) return;
+ IOLockLock(fSwapLock);
+ if (fSwapCompleted < ticket) {
+  fSwapCompleted = ticket;
+  IOLockWakeup(fSwapLock, &fSwapCompleted, false);
+ }
+ IOLockUnlock(fSwapLock);
+}
+void
 IOMobileFramebuffer::presenterMain(void * self, wait_result_t result __unused)
 {
  ((IOMobileFramebuffer *) self)->presenter();
@@ -1209,7 +1220,7 @@ IOMobileFramebuffer::presenter(void)
   memcpy(surfaces, fSwapSurfaces[fSwapFirst], sizeof(surfaces));
   uint64_t ticket = fSwapTickets[fSwapFirst];
   IOLockUnlock(fSwapLock);
-  show(swap, surfaces);
+  show(swap, surfaces, ticket);
   for (unsigned layer = 0; layer < SWAP_LAYERS; layer++) {
    if (surfaces[layer] != NULL) {
     if (gWaffle && gWaffleDisplayUse) {
@@ -1220,16 +1231,11 @@ IOMobileFramebuffer::presenter(void)
    }
   }
   MiniIOSurfaceClearKept();
-  if (ticket != 0) {
-   IOLockLock(fSwapLock);
-   fSwapCompleted = ticket;
-   IOLockWakeup(fSwapLock, &fSwapCompleted, false);
-   IOLockUnlock(fSwapLock);
-  }
+  retireSource(ticket);
  }
 }
 void
-IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
+IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces, uint64_t ticket)
 {
  uint32_t set = swapWord(swap, SWAP_LAYERS_SET);
  uint64_t began = mach_absolute_time(), nanos, ready, shown, drawn;
@@ -1365,6 +1371,11 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces)
   }
  }
  absolutetime_to_nanoseconds(mach_absolute_time() - composeBegan, &composeNanos);
+ /* All drawLayer jobs and source observations have finished. Only the private
+  * working frame is used for scanout copy/commit below. A recording session
+  * still reads its source after commit, so it retains conservative retirement.
+  */
+ if (fWafflePresenter && !fWafflePresenter->state.failed && gRecSeconds == 0) retireSource(ticket);
  if (fWafflePresenter && !fWafflePresenter->state.failed) {
   struct waffle_display_present_result r = {};
   uint64_t start = mach_absolute_time(), elapsed = 0;

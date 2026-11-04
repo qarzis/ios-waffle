@@ -1,3 +1,11 @@
+# ACTIVE — D09 ready; D08 tears disappeared but severe lag
+
+D08USERtearsgoneBUTseverelag, observed~10fpssegments. Sourcechanges0at3357reads, noobservedtimeout, full240GPUclose26825/8046; finishing300kernel/Android soleowner66357/logauto-submit-retire-d08.log/run090730Z. DoNOTclaimacceptableperformance. D09moves retirement afterallCPUdraw/sourceobservations beforeprivateworkingframecopy+panelwait; recorderenabled orfailed/unarmedpresenterkeepspostshowfallback. Monotonicidempotentretire/wakeall hostPASS,40casecompositorPASS/fullbuild95113PASS/sourcepairedartifactdiagnostic-read-retire-ui-d09validated. NOTbooteduntilD08outercompletion/Android1. Needsource0+uservisualno-tearsANDlagimproved, fullclose/restore/Android. NoD06lease, WCOMBretained.
+
+# ACTIVE — D08 hardware synchronous submission test
+
+D07complete/Android1, evidenceD07-result.json; user smootherbuttearsremain, Bcopy1.7–1.9ms qualified, WCOMBretained. D08pairedartifactdiagnostic-submit-retire-ui-d08validated; onlyadds bounded700ms enqueue-ticket retirement beforeSwapEndreturn in explicitbufferedmode. NoSwapWaitflagguess/noD06lease. Same240GPU300kernel/Mesa749/E113/7cores/torch/autoopens. Soleownernextauto-submit-retire-d08.log. Need sourcechange counts, retiretimeouts, GPUclose/restoration/Androidanduservisual. Privatecheckpointd4e879a.
+
 # ACTIVE — D08 synchronous submission candidate ready; D07 finishing
 
 D07 WCOMB hardwarepositive: Bcopy1.7–1.9ms vs31–36ms, USERsmootherbuttearsremain.240GPUstop/fullclose24221/7362observed; await300kernelquiesce/Android; soleowner41034/auto-copy-mapping-d07.log/run085940Z. D08 adds bounded700ms submitted-ticket retirement beforeSwapEndreturn in explicitbufferedmode, no nativeSwapWaitsemantics invented; retainsWCOMB, D06leaseoff. Actualwait7casesASanUBSanPASS/fullbuild49719PASS/pairedartifactdiagnostic-submit-retire-ui-d08sourceboundvalidated. NotbooteduntilD07outerdone+Androidverified. Needsourcechangesvsreads, timeoutlogs, fullclose/restore/Androidandmanualtearingfeedback; nofixedclaim. LatestsourceincludesD08; D07artifactsourcepreservestestedD07.

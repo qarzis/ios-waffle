@@ -1,0 +1,36 @@
+{
+  "experiment": "D07 B framebuffer WCOMB mapping",
+  "run": "20261104T085940Z",
+  "copy_latency_us": {
+    "B_initial": [
+      1692,
+      1798,
+      1840,
+      1921
+    ],
+    "A_initial": [
+      2264,
+      2240,
+      2397,
+      2577
+    ]
+  },
+  "baseline_B_copy_us_range": [
+    31565,
+    35934
+  ],
+  "user_report": "Плавнее, разрывы остались",
+  "latency_hypothesis_supported": true,
+  "tearing_fixed": false,
+  "source_race_still_observed": true,
+  "gpu_close": {
+    "commands": 24221,
+    "buffers": 7362
+  },
+  "restore_evidence": [
+    "waffle-display-present: quiesced=1 restored=1 completed=3588 active=d5100000"
+  ],
+  "android_confirmed": true,
+  "outer_runner_exit": 1,
+  "outer_success": false
+}

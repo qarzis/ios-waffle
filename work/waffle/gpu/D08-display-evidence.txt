@@ -1,0 +1,23 @@
+waffle-display-present: armed=1 working_bytes=18247680 front=d5100000 back=d6270000
+waffle-display-present: committed=1 completed=1 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=16361
+waffle-display-source: compose_us=1928 copy_us=1809 submit_wait_us=14552 reads=1 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=2 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=13445
+waffle-display-source: compose_us=1844 copy_us=2272 submit_wait_us=11173 reads=2 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=3 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=17464
+waffle-display-source: compose_us=659 copy_us=1682 submit_wait_us=15781 reads=2 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=4 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15387
+waffle-display-source: compose_us=640 copy_us=1887 submit_wait_us=13500 reads=2 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=5 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=13078
+waffle-display-source: compose_us=2110 copy_us=1774 submit_wait_us=11304 reads=3 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=6 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=15994
+waffle-display-source: compose_us=2202 copy_us=2325 submit_wait_us=13669 reads=4 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=7 target=d6270000 copied=1 rollback=0 rollback_ok=0 us=17851
+waffle-display-source: compose_us=2093 copy_us=1885 submit_wait_us=15966 reads=5 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=8 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=16039
+waffle-display-source: compose_us=2145 copy_us=2410 submit_wait_us=13628 reads=6 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=120 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=17781
+waffle-display-source: compose_us=3914 copy_us=2230 submit_wait_us=15551 reads=117 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=240 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=18658
+waffle-display-source: compose_us=14377 copy_us=1980 submit_wait_us=16677 reads=237 changes=0 pixel_changes=0
+waffle-display-present: committed=1 completed=360 target=d5100000 copied=1 rollback=0 rollback_ok=0 us=20799
+waffle-display-source: compose_us=2272 copy_us=2319 submit_wait_us=18480 reads=357 changes=0 pixel_changes=0
