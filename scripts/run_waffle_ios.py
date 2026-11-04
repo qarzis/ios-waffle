@@ -227,8 +227,14 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    dispatch_audit='waffle-gl-eagl-native-draw:' in text
+    eagl_audit='waffle-gl-eagl-native-input:' in text
+    if dispatch_audit and not eagl_audit:raise RuntimeError('EAGL draw dispatch lacks native input proof')
+    reuse_audit='waffle-gl-surface-reuse:' in text
+    if eagl_audit and not reuse_audit:raise RuntimeError('EAGL native input lacks native update/reuse proof')
     sample_audit='SURFACE_SAMPLE' in text or 'waffle-gl-surface-sample:' in text
     resource_audit='waffle-gl-surface-resource:' in text
+    if reuse_audit and not sample_audit:raise RuntimeError('Native texture reuse lacks shader sampling proof')
     if sample_audit and not resource_audit:raise RuntimeError('Shader sampling lacks Mesa resource proof')
     import_audit='SURFACE_IMPORT' in text or 'waffle-gl-surface-import:' in text or resource_audit
     imported={};import_summary=None
@@ -290,6 +296,35 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
                 expected=0xff0040ff if inside else 0xff000000
                 at=y*16+x
                 if samples[(at//8)*8][at%8]!=expected:raise RuntimeError('Incorrect native texture shader pixel')
+    if reuse_audit:
+        if 'waffle-gl-surface-reuse: result=1 phases=3 source_restored=1 same_native_GEM=1' not in text:
+            raise RuntimeError('Native texture reuse failed or did not restore the source')
+        phases=set(re.findall(r'waffle-gl-surface-reuse: phase=(\d+) passed=1 checked=256 wrong=0 GL_error=0 same_texture=1',text))
+        if phases!={'1','2','3'} or re.search(r'waffle-gl-surface-reuse: (?:phase=\d+ passed=0|result=0)',text):
+            raise RuntimeError('Native texture update phase missing or failed')
+        reused={}
+        for phase,offset,values in re.findall(r'waffle-gl-surface-reuse: phase=(\d+) offset=(\d+) values=([0-9a-f/]+)',text):
+            key=(int(phase),int(offset));row=tuple(int(v,16) for v in values.split('/'))
+            if key[0] not in (1,2,3) or key[1] not in range(0,256,8) or len(row)!=8 or (key in reused and reused[key]!=row):
+                raise RuntimeError('Malformed/conflicting native texture reuse pixels')
+            reused[key]=row
+        if len(reused)!=96:raise RuntimeError('Native texture reuse pixels incomplete')
+        for phase in (1,2,3):
+            for offset in range(0,256,8):
+                expected=(0xff00ff00,)*8 if phase==1 else (0xffff00ff,)*8 if phase==2 else samples[offset]
+                if reused[(phase,offset)]!=expected:raise RuntimeError('Native texture reused stale or incorrect pixels')
+        draw_fences=set()
+        for sync in re.finditer(rf'SURFACE_SAMPLE sync=1 handle={handle} bytes={size} GPU_readonly=1',text):
+            draw=re.search(r'GENERAL_SUBMIT begin fence=(\d+)',text[sync.end():])
+            if draw and int(draw[1])>=3:draw_fences.add(int(draw[1]))
+        if len(draw_fences)<4:raise RuntimeError('Native texture reuse lacks four cache-cleaned GPU draws')
+    if eagl_audit:
+        if f'waffle-gl-eagl-native-input: bound=2 sid={sid} selector_present=1 input_only=1' not in text:
+            raise RuntimeError('Existing EAGL surface input selector proof missing')
+        if "2 IOSurfaces were the textures' memory" not in text:
+            raise RuntimeError('EAGL reports no pair of native surface inputs')
+    if dispatch_audit and ('waffle-gl-eagl-native-draw: dispatched=1 shader_draw_readback=1' not in text or 'waffle-gl-eagl-native-draw: dispatched=0' in text):
+        raise RuntimeError('Native texture sampler bypassed EAGL dispatch')
     publication=r"GENERAL_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) allocated=(\d+) flags=([0-9a-f]+) pages=(\d+)"
     surface_publication=r"SURFACE_BO published index=(\d+) VA=([0-9a-f]+) bytes=(\d+) cached=1 pages=(\d+)"
     reclaim=r"GENERAL_BO reclaimed index=(\d+) VA=([0-9a-f]+) bytes=(\d+) CPU_unmapped=(\d+) GPU_idle=(\d+) dual_ASID_TLBI=(\d+) used=(\d+)"

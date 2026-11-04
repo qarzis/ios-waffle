@@ -89,5 +89,18 @@ with tempfile.TemporaryDirectory() as t:
         p=r/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
         sample['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest()
     check(r,a,v,sample)
+    reuse=copy.deepcopy(sample);reuse['surface_reuse_test']=True
+    reject(v,reuse)
+    v['surface_reuse_audit']=True;check(r,a,v,reuse)
+    eagl=copy.deepcopy(reuse);eagl['surface_eagl_test']=True
+    reject(v,eagl)
+    v['surface_eagl_input_audit']=True;reject(v,eagl)
+    n='userland/src/eagl.c';p=r/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
+    eagl['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest();check(r,a,v,eagl)
+    dispatch=copy.deepcopy(eagl);dispatch['surface_dispatch_test']=True
+    reject(v,dispatch)
+    v['surface_dispatch_audit']=True;reject(v,dispatch)
+    n='tools/build-waffle-eagl-dispatch.py';p=r/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
+    dispatch['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest();check(r,a,v,dispatch)
     check(r,a,{}, {}) # Existing unrelated probe has no metadata opt-in.
 print(f'PASS actual surface admission:{count} metadata/UI/missing/current/compiled/Mesa-source mismatch refusals before USB; bound and unrelated artifacts preserved')

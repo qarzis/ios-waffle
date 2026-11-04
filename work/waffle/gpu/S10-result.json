@@ -1,0 +1,29 @@
+{
+  "experiment": "S10 existing EAGL native IOSurface input binding plus shader/update proof",
+  "passed": true,
+  "run": "20261104T215258Z",
+  "auto_run": "20261104T215234Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "actual_EAGL_input_selector": true,
+  "EAGL_native_surface_count": 2,
+  "native_handle": 27,
+  "native_imported_GEMs": 1,
+  "shader_pixels_checked": 1024,
+  "shader_wrong_pixels": 0,
+  "CPU_update_phases": 3,
+  "fullsize_source_checked_pixels": 1218000,
+  "fullsize_source_wrong_pixels": 0,
+  "padding_wrong": 0,
+  "GL_error": 0,
+  "completed_commands": 10,
+  "GEM_buffers": 36,
+  "gold_EAGL_source_sha256": "6797a4d1c522ccedbe762ab8b0d8b15e818b9f17e1895de3f11bea390bae9c1d",
+  "kernel_and_Mesa_reused_from": "qualified S08B",
+  "kernel_log_sha256": "ad11028dacb723b9808ac9318b8b0f145ae022e767fd0279ff7c125e878871e5",
+  "limits": [
+    "EAGL input binding is exercised; diagnostic sampler draw still uses raw Mesa GL",
+    "PID1 exclusive diagnostic; concurrent writers/ordinary UI unqualified",
+    "No native writable render-target or FPS claim"
+  ]
+}

@@ -92,6 +92,9 @@ static int existing_gpu_fd(void)
 #ifdef WAFFLE_GL_HOOK
 #include "waffle_eagl_dispatch.h"
 static IOSurfaceRef hook_surface;
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+static id surface_eagl_context;
+#endif
 #ifdef WAFFLE_GL_CONTEXTS
 static bool check_context_switch(void)
 {
@@ -166,6 +169,38 @@ static bool check_surface_import(void)
 #ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
 #include "waffle_surface_sample.h"
 #endif
+#ifdef WAFFLE_GL_SURFACE_REUSE_TEST
+static bool check_surface_reuse(GLuint texture)
+{
+ uint8_t *base=IOSurfaceGetBaseAddress(hook_surface);size_t stride=IOSurfaceGetBytesPerRow(hook_surface);
+ uint32_t saved[256];bool ok=true;
+ for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+  unsigned sx=(2*x+1)*750/32,sy=(2*y+1)*1624/32;
+  memcpy(&saved[y*16+x],base+sy*stride+sx*4,4);
+ }
+ for(unsigned phase=1;phase<=3;phase++){
+  if(IOSurfaceLock(hook_surface,0,NULL)!=KERN_SUCCESS){ok=false;break;}
+  for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+   unsigned sx=(2*x+1)*750/32,sy=(2*y+1)*1624/32;
+   uint32_t value=phase==1?0xff00ff00u:phase==2?0xffff00ffu:saved[y*16+x];
+   memcpy(base+sy*stride+sx*4,&value,4);
+  }
+  if(IOSurfaceUnlock(hook_surface,0,NULL)!=KERN_SUCCESS){ok=false;break;}
+  struct waffle_surface_sample_result result;
+  bool passed=waffle_gl_sample_texture(texture,base,stride,750,1624,&result);ok&=passed;
+  printf("waffle-gl-surface-reuse: phase=%u passed=%u checked=256 wrong=%u GL_error=%x same_texture=1\n",phase,passed,result.wrong,result.error);
+  for(unsigned i=0;i<256;i+=8)printf("waffle-gl-surface-reuse: phase=%u offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",phase,i,result.pixels[i],result.pixels[i+1],result.pixels[i+2],result.pixels[i+3],result.pixels[i+4],result.pixels[i+5],result.pixels[i+6],result.pixels[i+7]);
+ }
+ /* Restore even after a known mismatch; unknown GPU completion stops in the
+  * kernel owner and cannot return to this userspace cleanup path. */
+ for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
+  unsigned sx=(2*x+1)*750/32,sy=(2*y+1)*1624/32;
+  memcpy(base+sy*stride+sx*4,&saved[y*16+x],4);
+ }
+ printf("waffle-gl-surface-reuse: result=%u phases=3 source_restored=1 same_native_GEM=1\n",ok);
+ return ok;
+}
+#endif
 #ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
 static bool check_surface_resource(void)
 {
@@ -185,18 +220,39 @@ static bool check_surface_resource(void)
  glGenTextures(2,textures);
  for(unsigned i=0;i<2;i++){
   glBindTexture(GL_TEXTURE_2D,textures[i]);
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+  SEL selector=sel_registerName("texImageIOSurface:target:internalFormat:width:height:format:type:plane:invert:");
+  if(!surface_eagl_context || !class_getInstanceMethod(objc_getClass("EAGLContext"),selector))goto done;
+  BOOL bound=((BOOL (*)(id,SEL,IOSurfaceRef,unsigned long,unsigned long,GLsizei,GLsizei,unsigned long,unsigned long,uint32_t,BOOL))objc_msgSend)
+      (surface_eagl_context,selector,hook_surface,GL_TEXTURE_2D,GL_RGBA,750,1624,GL_BGRA,GL_UNSIGNED_BYTE,0,NO);
+  if(!bound)goto done;
+#else
   image_target(GL_TEXTURE_2D,(void *)(uintptr_t)IOSurfaceGetID(hook_surface));
+#endif
   GLint width=0,height=0;
   glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&width);
   glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
   if(glGetError()!=GL_NO_ERROR || width!=750 || height!=1624)goto done;
   checked++;
  }
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+ printf("waffle-gl-eagl-native-input: bound=2 sid=%u selector_present=1 input_only=1\n",IOSurfaceGetID(hook_surface));
+#endif
 #ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
  struct waffle_surface_sample_result result;
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ waffle_gl_sample_set_dispatch(waffle_hook_table);
+#endif
  ok=waffle_gl_sample_texture(textures[0],IOSurfaceGetBaseAddress(hook_surface),IOSurfaceGetBytesPerRow(hook_surface),750,1624,&result);
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ if(!result.dispatch)ok=false;
+ printf("waffle-gl-eagl-native-draw: dispatched=%u shader_draw_readback=1\n",result.dispatch);
+#endif
  printf("waffle-gl-surface-sample: passed=%u sid=%u checked=256 wrong=%u GL_error=%x stage=%u GPU_readonly=1\n",ok,IOSurfaceGetID(hook_surface),result.wrong,result.error,result.stage);
  for(unsigned i=0;i<256;i+=8)printf("waffle-gl-surface-sample: pixels offset=%u values=%08x/%08x/%08x/%08x/%08x/%08x/%08x/%08x\n",i,result.pixels[i],result.pixels[i+1],result.pixels[i+2],result.pixels[i+3],result.pixels[i+4],result.pixels[i+5],result.pixels[i+6],result.pixels[i+7]);
+#ifdef WAFFLE_GL_SURFACE_REUSE_TEST
+ if(ok)ok=check_surface_reuse(textures[0]);
+#endif
 #else
  ok=true;
 #endif
@@ -461,6 +517,9 @@ int main(void)
  if(!ctx){printf("waffle-gl-hook: initializer failed\n");goto finish;}
  waffle_hook_table=((void **(*)(id,SEL))objc_msgSend)(ctx,table);
  if(!waffle_hook_table || !waffle_hook_table[0]){printf("waffle-gl-hook: private table missing\n");goto finish;}
+#ifdef WAFFLE_GL_SURFACE_EAGL_TEST
+ surface_eagl_context=ctx;
+#endif
  printf("waffle-gl-hook: actual_EAGLContext=1 table_nonnull=1 context_nonnull=1\n");
 #else
  struct redwood_gl *ctx=NULL;

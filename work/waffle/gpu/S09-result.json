@@ -1,0 +1,47 @@
+{
+  "experiment": "S09 same native readonly texture/GEM reused after CPU updates",
+  "passed": true,
+  "run": "20261104T214245Z",
+  "auto_run": "20261104T214221Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "native_handle": 27,
+  "native_imported_GEMs": 1,
+  "native_texture_views": 2,
+  "initial_shader_pixels_checked": 256,
+  "update_phases": [
+    {
+      "phase": 1,
+      "CPU_pattern": "green",
+      "checked": 256,
+      "wrong": 0
+    },
+    {
+      "phase": 2,
+      "CPU_pattern": "magenta",
+      "checked": 256,
+      "wrong": 0
+    },
+    {
+      "phase": 3,
+      "CPU_pattern": "original restored",
+      "checked": 256,
+      "wrong": 0
+    }
+  ],
+  "source_restored": true,
+  "cache_cleaned_native_draws": 4,
+  "fullsize_source_checked_pixels": 1218000,
+  "fullsize_source_wrong_pixels": 0,
+  "padding_wrong": 0,
+  "GL_error": 0,
+  "completed_commands": 10,
+  "GEM_buffers": 36,
+  "kernel_and_Mesa_reused_from": "qualified S08B",
+  "kernel_log_sha256": "3496df9a78fc001f48f5ef2fd89ba7aee8db59abb54bebe246792f56999538ca",
+  "limits": [
+    "Single caller owns CPU source updates and waits previous GPU draw; concurrent writers unqualified",
+    "Normal UI/native writable targets remain disabled",
+    "FPS and long stability not measured"
+  ]
+}

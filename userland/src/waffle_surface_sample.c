@@ -1,10 +1,24 @@
-/* Isolated native-texture sampler. Raw Mesa GL, deliberately no EAGL dispatch
- * macros: save/restore its current state and do not change the hook's images. */
+/* Isolated native-texture sampler. Default raw Mesa; optional diagnostic
+ * typed EAGL dispatch exercises the same operations through the existing hook. */
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <string.h>
 #include "waffle_surface_sample.h"
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+#include "waffle_eagl_dispatch.h"
+#if !defined(glDrawArrays) || !defined(glShaderSource) || !defined(glReadPixels)
+#error "Sampler requires actual typed EAGL shader/draw/readback slots"
+#endif
+#endif
+void waffle_gl_sample_set_dispatch(void **table)
+{
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ waffle_hook_table=table;
+#else
+ (void)table;
+#endif
+}
 static GLuint sample_shader(GLenum type,const char *text)
 {
  GLuint shader=glCreateShader(type);glShaderSource(shader,1,&text,NULL);glCompileShader(shader);
@@ -15,6 +29,10 @@ bool waffle_gl_sample_texture(unsigned source_texture,const uint8_t *source,size
 {
  if(!r)return false;
  memset(r,0,sizeof(*r));r->stage=1;
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ if(!waffle_hook_table || !waffle_hook_table[0])return false;
+ r->dispatch=true;
+#endif
  if(!source_texture || !source || !width || !height || stride<(size_t)width*4)return false;
  for(unsigned y=0;y<16;y++)for(unsigned x=0;x<16;x++){
   unsigned sx=(2*x+1)*width/32,sy=(2*y+1)*height/32;
@@ -34,8 +52,15 @@ bool waffle_gl_sample_texture(unsigned source_texture,const uint8_t *source,size
  GLuint vs=0,fs=0,program=0,target=0,framebuffer=0;bool ok=false;
  r->stage=2;
  if(glGetError()!=GL_NO_ERROR)goto done;
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ /* The existing hook prepends GLSL300 and routes legacy gl_FragColor to its
+  * final output. Do not duplicate its #version or bypass that output. */
+ vs=sample_shader(GL_VERTEX_SHADER,"const vec2 p[3]=vec2[3](vec2(-1,-1),vec2(3,-1),vec2(-1,3));varying vec2 uv;void main(){vec2 q=p[gl_VertexID];uv=(q+1.0)*0.5;gl_Position=vec4(q,0,1);}");
+ fs=sample_shader(GL_FRAGMENT_SHADER,"precision highp float;uniform sampler2D src;varying vec2 uv;void main(){gl_FragColor=texture2D(src,uv);}");
+#else
  vs=sample_shader(GL_VERTEX_SHADER,"#version 300 es\nconst vec2 p[3]=vec2[3](vec2(-1,-1),vec2(3,-1),vec2(-1,3));out vec2 uv;void main(){vec2 q=p[gl_VertexID];uv=(q+1.0)*0.5;gl_Position=vec4(q,0,1);}");
  fs=sample_shader(GL_FRAGMENT_SHADER,"#version 300 es\nprecision highp float;uniform sampler2D src;in vec2 uv;out vec4 color;void main(){color=texture(src,uv);}");
+#endif
  if(!vs || !fs)goto done;
  program=glCreateProgram();glAttachShader(program,vs);glAttachShader(program,fs);glLinkProgram(program);
  GLint linked=0;glGetProgramiv(program,GL_LINK_STATUS,&linked);r->stage=3;if(!linked)goto done;

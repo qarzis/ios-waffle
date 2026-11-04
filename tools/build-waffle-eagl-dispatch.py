@@ -7,9 +7,11 @@ import xml.etree.ElementTree as ET
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--output", type=Path, required=True)
+parser.add_argument("--extra-source",type=Path,action="append",default=[])
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
-names = sorted(set(re.findall(r"\b(gl[A-Z]\w*)\s*\(", (root / "userland/src/waffle_gl_probe.c").read_text())))
+sources=[root / "userland/src/waffle_gl_probe.c",*args.extra_source]
+names = sorted(set(name for source in sources for name in re.findall(r"\b(gl[A-Z]\w*)\s*\(",source.read_text())))
 slots = {}
 for line in (root / "userland/src/eagl_slots.txt").read_text().splitlines():
     fields = line.split("#")[0].split()

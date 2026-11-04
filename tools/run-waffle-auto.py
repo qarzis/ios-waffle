@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_workload=False):
     """Read-only admission check, called before USB or reboot operations."""
     if not gl_manifest.get('surface_describe'):
-        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test','surface_sample_test')):
+        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test','surface_sample_test','surface_reuse_test','surface_eagl_test','surface_dispatch_test')):
             raise ValueError('Surface access audit requires metadata binding')
         return
     if ui_workload or not gl_manifest.get('fullsize_probe') or not manifest.get('surface_metadata_describe'):
@@ -38,6 +38,12 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Native shader sampler requires a matching isolated readonly artifact')
     if gl_manifest.get('surface_sample_test') and any(n not in gl_manifest.get('source_sha256',{}) for n in ('userland/src/waffle_surface_sample.c','userland/src/waffle_surface_sample.h')):
         raise ValueError('Native sampler shader source binding missing')
+    if gl_manifest.get('surface_reuse_test') and (not gl_manifest.get('surface_sample_test') or not manifest.get('surface_reuse_audit')):
+        raise ValueError('Native texture reuse requires a matching isolated artifact')
+    if gl_manifest.get('surface_eagl_test') and (not gl_manifest.get('surface_reuse_test') or not manifest.get('surface_eagl_input_audit') or 'userland/src/eagl.c' not in gl_manifest.get('source_sha256',{})):
+        raise ValueError('Native EAGL input requires a source-bound isolated artifact')
+    if gl_manifest.get('surface_dispatch_test') and (not gl_manifest.get('surface_eagl_test') or not manifest.get('surface_dispatch_audit') or 'tools/build-waffle-eagl-dispatch.py' not in gl_manifest.get('source_sha256',{})):
+        raise ValueError('Native sampler EAGL dispatch requires a source-bound isolated artifact')
     bindings=manifest.get('surface_description_source_sha256',{})
     required=('kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/iokit/Kernel/MiniIOSurface.cpp')
     if gl_manifest.get('surface_map_test'):
