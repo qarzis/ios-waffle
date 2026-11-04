@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--hardware-vsync',action='store_true',help='Opt-in hardware panel TE timestamps for iOS callbacks')
+    parser.add_argument('--double-buffer',action='store_true',help='Opt-in complete-frame buffered scanout')
     parser.add_argument('--display-flip-probe',action='store_true',help='Bounded reserved-framebuffer pattern flip and restoration')
     parser.add_argument('--display-flush-probe',action='store_true',help='Bounded unchanged-frame native CTL flush control probe')
     parser.add_argument('--display-survey',action='store_true',help='Read-only inherited DPU/TE survey during GPU UI')
@@ -134,6 +135,8 @@ def main():
         bound_source=artifact/'source/kernel/files/bsd/dev/macan_adsp.c'
         if not bound_source.is_file() or hashlib.sha256(bound_source.read_bytes()).hexdigest()!=audio_manifest['source_sha256']['kernel/files/bsd/dev/macan_adsp.c']:
             parser.error('Audio kernel source binding missing or stale')
+    if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('double_buffer_display')):
+        parser.error('--double-buffer requires a bound dedicated GPU UI artifact and excludes other display/audio modes')
     if args.display_flip_probe and (args.display_flush_probe or args.hardware_vsync or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('display_flip_probe')):
         parser.error('--display-flip-probe requires a bound dedicated GPU UI artifact and excludes other display/audio modes')
     if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('display_flush_probe')):
@@ -282,6 +285,7 @@ def main():
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
             if args.hardware_vsync:items.append('--hardware-vsync')
+            if args.double_buffer:items.append('--double-buffer')
             if args.display_flip_probe:items.append('--display-flip-probe')
             if args.display_flush_probe:items.append('--display-flush-probe')
             if args.display_survey:items.append('--display-survey')

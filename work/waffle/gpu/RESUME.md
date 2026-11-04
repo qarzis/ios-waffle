@@ -1,3 +1,25 @@
+# ACTIVE — D05 source observer hardware run
+
+Fullfixedbuild39748PASS; firstcompilehadmisplacedcomposeBegan/composeNanosdeclaration fixedbeforephone. Pairedartifactdiagnostic-buffered-observer-d05, kernel/header/loader/rootbindingschecked, validationnext. Soleowner auto-buffered-observer-d05.log; --double-buffer+hardware-vsync+ui-long-test/240GPU300kernel/7cores/torch. SameD04stressroot/Mesa749/E113/CAvbl+5autoappopens; ONLYkernelmetadatachanged. Needsource16point/seedbefore-afterdifferences pluscompose/copy/submitwaittimings; unchangedsamplesNOTrefutation. D04visualNEGATIVE(horizontaltexttears/lagjerk16–23fps41ms), nofixedclaim. Nolease/newtimingfixyet. Useravailablecanmanualscrollifwantsbutautomaticworkcontinues.
+
+# ACTIVE — D04 visual NEGATIVE; D05 source-consistency/timing observer building
+
+UserresumedNov4/autonomous butnowavailablevisual. D04short475commits/restore1 provedcontinuousmodefunctional. D04stressrun20261104T060655Z/auto060631Z USERNEGATIVEhorizontaltexttearsremain, verylaggy/jerky.16–23fps/~41msdriver, commit~14ms; controlcommitscontinue,noobservedcommitfailure. Bounded240GPUclose33062/8265, originalcollector1preserved; reportD04-stress-result.json. DO NOTCLAIMTEARINGFIXED.
+
+D05buildsession78512 logbuild-display-source-d05.log outputdiagnostic-display-source-d05. ONLYmetadata: per-layerbefore/aftersharedseed+16pixelFNVsampleswithbounds (noabsenceproof), timingscompose/copy/submit-wait, changescounters. No leases/newwaitpolicyyet. Headerwaffle_display_source.h+ASanUBSanhostPASS, actual40caseclippinghostPASS; fullbuildpending. FramebufferdefaultleasegWaffleDisplayUse0 stilloff; MiniIOSurface lockCommononlyseedpublishonunlock/noexclusion, potentialsource-reusecause. ExistingCopyForDisplay/DropForDisplay usecountlease existsbutnotenabled; oldE103negativewasBLACKanimation anddoesnotrefutethisnewtearinghypothesis. NeedD05positiveevidencebeforeenablingleasesornewlocking. Max3hypothesesH1sourcechangesacrossdraw,H2nativeflush/retirementnotatomic,H3copy/cache/schedulerlatency. Userreports fullwidthhorizontaltearsnotcentralverticalsplit.
+
+PhoneAndroidafterD04autowrapper; checkindependent1beforeD05launch. ReuseD04stress240root/Mesa749/E113/CAvbl/5autoappopens ifnewkernelpaired; usercanmanualscroll, noapprovalneeded. Plan--double-buffer+--hardware-vsync/7cores/torch/ui-long-test300kernel. Needactualsourcechanged+seed/hash distinction andtiming, fullGPUclose/quiescerestore/Android1. Publicstill72d5e58oldD04draft; privatecheckpointneedsallD04binding+loader_return.hook+newCLI+newD05observer. Mainindexuntouched. Noagents/goals.
+
+# ACTIVE — D04 four-minute buffered display stress
+
+Solephoneowner nextauto-buffered-stress-d04.log/artifactdiagnostic-buffered-stress-d04. ShortD04run20261104T055741Z/auto055718Z passedcomponent:475regularflips, >=240loggedbeforeGPU60stop, nofailedcommit, quiescedrestored1/activeA, GPUclose1249/1112/Android1; originalstrictcollector1retained. SamecompiledD04kernel/currentsourcebindings, stressroot240s/7cores/torch/Mesa749/E113/CAvbl/animation-probe5nativeappopens(notmanualicon-equivalent). --double-buffer+--hardware-vsync; --ui-long-test =>300skernel. Needarmed1/countergrowth/nofailedcommit/5appaccepted/fullGPUclose/quiescerestore/Android1. Useraway: NOvisualtearingqualification, GOPscreenshotsreadoriginalbufferonly. Noactiveotherbuild/phoneowner.
+
+# ACTIVE — D04 continuous buffered UI candidate
+
+Userexplicitresume2026-11-04andautonomousrequest. D04cachedworkingframe+inactiveA/Bcopy+nativecommit/2MDPretirementboundinkernel. Fullbuild42256PASS, pairedAUTOandkernel/header/loader_return/rootbindingsverified; artifactdiagnostic-buffered-ui-d04. New--double-buffer+--hardware-vsync, explicitdedicatedmanifest/defaultOFF. SameMesa749/E113rootGPU60/kernel90/7cores/torch; rootCA_FORCE_TIMER1. Needarmed1/committedframes/failedrollback/quiescedrestored1+fullGPUclose+Android1. No uservisualrequest; useraway. VisibletearingmustremainUNQUALIFIEDwithoutphysicalfeedback. GOPscreenshotsreadoriginalbufferonly, notproofactiveframe.
+
+KernelworkingIOBuffer18MBoneallocationforFBlifetime; compositionfBasetoscratch, afterlayers/helperscompletefullcopyONLYinactive, cleanoriginalAtopoC64B+dsb, bothSRCaddr+flush3, wait2MDPframes. Oldsoftwarebeatremovedonlywhenarmed. Failureslatchandretainresources/attemptrollback; nofollowupframemmioafterfailed. loader_return.cAFTERPSCIstopcallswaffle_display_quiesce: preallocatedmaps, rawboundedbusywait/noIOLock/IOSleep, restoresoriginalA. Kernelbinding/fullbuildNOWimplemented (oldD04draftentriesbelowSUPERSEDED), hardwarepending. Public72d5e58oldstatuslastverified; nocurrentpushyet.
+
 # STOPPED — public push verified 72d5e58179bd11fae00af3c9c0c75ce64d5f22a3
 
 PhoneAndroidindependent1; noactivephone/buildtasks. Userstopremainsactiveafterpublication. GitHubbranchwaffle/gpu-bringupcleanandremoteverified. D03physicalpatternflip+restorequalified; D04standalonestatemachinedraftonly, NOTwiredtoregularframes, NOTkernelbuilt/hardwaretested. DoNOTresumeuntiluserexplicitlyasks.
