@@ -747,6 +747,16 @@ waffle_gpu_surface_reads_end(uint32_t count, waffle_surface_read_getter get, con
  }
  IOLockUnlock(gSurfaceLock);return true;
 }
+extern "C" bool
+waffle_gpu_surface_read_state(struct waffle_gpu_surface_backing *b,uint32_t *readers,uint32_t *waiting)
+{
+ if (!readers || !waiting || !gSurfaceLock) return false;
+ IOLockLock(gSurfaceLock);
+ MiniIOSurface *s = surfaceReadObject(b);
+ bool ok = s && b->gpu_reading && s->access.gpu_readers;
+ if (ok) {*readers = s->access.gpu_readers;*waiting = s->access.waiting_writers;}
+ IOLockUnlock(gSurfaceLock);return ok;
+}
 static struct waffle_gpu_surface_backing *surfaceReadOne(const void *context, uint32_t index)
 {
  return index ? NULL : const_cast<struct waffle_gpu_surface_backing *>(static_cast<const struct waffle_gpu_surface_backing *>(context));

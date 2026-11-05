@@ -21,6 +21,7 @@ uint64_t waffle_gpu_surface_page(const struct waffle_gpu_surface_backing *,uint3
  * a subset while waiting for CPU writers. Getter must be pure and stable. */
 bool waffle_gpu_surface_reads_begin(uint32_t,waffle_surface_read_getter,const void *,uint32_t wait_ms);
 bool waffle_gpu_surface_reads_end(uint32_t,waffle_surface_read_getter,const void *);
+bool waffle_gpu_surface_read_state(struct waffle_gpu_surface_backing *,uint32_t *readers,uint32_t *waiting);
 bool waffle_gpu_surface_read_end_one(struct waffle_gpu_surface_backing *);
 bool waffle_gpu_surface_release(struct waffle_gpu_surface_backing *,bool gpu_detached);
 #ifdef __cplusplus

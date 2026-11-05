@@ -44,6 +44,11 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Native EAGL input requires a source-bound isolated artifact')
     if gl_manifest.get('surface_dispatch_test') and (not gl_manifest.get('surface_eagl_test') or not manifest.get('surface_dispatch_audit') or 'tools/build-waffle-eagl-dispatch.py' not in gl_manifest.get('source_sha256',{})):
         raise ValueError('Native sampler EAGL dispatch requires a source-bound isolated artifact')
+    if gl_manifest.get('surface_lease_test'):
+        if not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_lease_contention_audit'):
+            raise ValueError('Surface lease contention lacks isolated kernel support')
+        if 'userland/src/waffle_surface_lease_probe.h' not in gl_manifest.get('source_sha256',{}):
+            raise ValueError('Surface lease probe source binding missing')
     bindings=manifest.get('surface_description_source_sha256',{})
     required=('kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/iokit/Kernel/MiniIOSurface.cpp')
     if gl_manifest.get('surface_map_test'):
@@ -57,6 +62,7 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         required+=('kernel/files/bsd/sys/waffle_gpu_surface_read.h','kernel/files/bsd/sys/waffle_gpu_surface_write.h','kernel/files/bsd/sys/waffle_gpu_writeback.h')
     if gl_manifest.get('surface_import_test') or gl_manifest.get('surface_resource_test'):
         required+=('kernel/files/bsd/sys/waffle_gpu_handles.h',)
+    if gl_manifest.get('surface_lease_test'):required+=('kernel/files/bsd/sys/waffle_surface_access.h','kernel/files/iokit/Kernel/MiniIOSurface.h')
     if any(name not in bindings for name in required):raise ValueError('Surface metadata source binding missing')
     for name,sha in bindings.items():
         if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface metadata source changed: '+name)

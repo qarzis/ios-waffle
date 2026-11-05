@@ -31,6 +31,7 @@ bool waffle_gpu_surface_reads_begin(uint32_t n,waffle_surface_read_getter get,co
 bool waffle_gpu_surface_reads_end(uint32_t n,waffle_surface_read_getter get,const void *ctx){
  assert(n==1 && get(ctx,0)->object==0x1234);batch_ends++;return true;
 }
+bool waffle_gpu_surface_read_state(struct waffle_gpu_surface_backing *b,uint32_t *readers,uint32_t *waiting){assert(b->object==0x1234);*readers=1;*waiting=0;return true;}
 using IOByteCount=uint64_t;
 static unsigned mode,releases,options_seen,maps;
 static int kernel_task=7;static int current_task(){return mode==8?7:9;}

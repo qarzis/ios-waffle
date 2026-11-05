@@ -83,6 +83,11 @@ bool waffle_gpu_memory_surface_reads_end(struct waffle_gpu_memory *const *bos,ui
  return waffle_memory_read_batch_valid(bos,count) &&
      waffle_gpu_surface_reads_end(count,waffle_memory_read_backing,bos);
 }
+bool waffle_gpu_memory_surface_read_state(struct waffle_gpu_memory *bo,uint32_t *readers,uint32_t *waiting)
+{
+ return waffle_memory_read_batch_valid(&bo,1) &&
+     waffle_gpu_surface_read_state(waffle_memory_read_backing(&bo,0),readers,waiting);
+}
 static void waffle_surface_cache_line(uintptr_t address,bool invalidate)
 {
  if(invalidate)__asm__ volatile("dc ivac, %0"::"r"(address):"memory");

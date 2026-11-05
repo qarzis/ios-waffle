@@ -31,6 +31,7 @@ int main(){
  x.object=(uintptr_t)&a;x.surface=1;y.object=(uintptr_t)&b;y.surface=2;z=x;
  waffle_gpu_surface_backing *pair[]={&x,&y};
  assert(waffle_gpu_surface_reads_begin(2,get,pair,0));
+ uint32_t readers=0,waiting=0;assert(waffle_gpu_surface_read_state(&x,&readers,&waiting) && readers==1 && !waiting);
  assert(x.gpu_reading && y.gpu_reading && a.access.gpu_readers==1 && b.access.gpu_readers==1);
  assert(!waffle_gpu_surface_reads_begin(2,get,pair,0));
  assert(waffle_gpu_surface_reads_end(2,get,pair) && wakes==2);
