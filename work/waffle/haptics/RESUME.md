@@ -1,3 +1,11 @@
+# H08 SYSTEM HAPTICS PATH PASS
+
+Run213436Z/auto213412Z original0/Android1. Existingproduct/hapticsnode enablesactualMGcapability: CoreHaptics_supports1(previous0),publicplayer1/error0,actualHALActuatorPCMwithavailabledevice,onequalifiedpulsebeforebaseline. SystemVibrate4095thencompletion callback,secondqualifiedpulsebeforebaseline. Three independentdirecttapsfollow. Total5pulse/stop/restores/emergency0. Active16328/16506/16081/16123/16075us. H08-result.json/analysisrawhash. Nohumanfeedbackneeded: nativeHALPCM+workerproof. PhysicalmotoralreadyfeltH04C/H05. This qualifiesboundedPCMtapapproximation, NOTfullwaveform/intensity/longvibration. OrdinaryGPUUIdoesnotyetenablemode2. NextintegratequalifiedservicewithGPUUIandflashlightwithoutblockingtorchthread, thenactualUIfeedbackcheck. PhoneAndroid,noowner.
+
+# H08 DEVICE TEST ACTIVE — phone reconnected
+
+User reconnectedphone andauthorizedautonomouswork. Activeauto213412Z/run213436Z, auto-h08.log, soleUSBowner. Do notissueindependentadb/fastboot. Dedicated hapticidentityloader+H05kernel+fixedpublicCoreHaptics/independentbaselineclient. Needactualcapability+HALsamples+stop/restore+Androidconfirmation; noassumptionfromhostbuild.
+
 # H08 BUILT + PAIRED VALIDATOR PASS; no device access
 
 Artifact diagnostic-haptic-identity-h08. ExactH05XNUkernelreused, onlyEFIloaderproduct/haptics gatednode and fixeduserlandprobe changed. RebuiltUEFI/container/embeddedEFI/kernel/XNUP/stockDTBchecksPASS; actualidentityblock/PCMwriter/SPMIadaptertestsPASS. Sourcebindingincludesloader.c/waffle.h andnativehapticheaders. h08rootusescorrectarraybound+mainentrymarkers. HardwareNOTtested; noUSBcommands whileuserhasphone. NeedactualMGcapability1 plusHALPCM, neverinferfromsuccessfulcompile.

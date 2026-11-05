@@ -1,0 +1,100 @@
+{
+  "source": "work/waffle/runs/20261105T213436Z/kernel-final.log",
+  "source_sha256": "92d4cd611c49fcd0fd88fbf8408acc96d0b8cacfd67066a445113265616766e5",
+  "capabilities": [
+    1
+  ],
+  "player_returns": [
+    [
+      "1",
+      "0"
+    ]
+  ],
+  "completed_pulses": 5,
+  "confirmed_stop_restore": 5,
+  "active_us": [
+    16328,
+    16506,
+    16081,
+    16123,
+    16075
+  ],
+  "direct_client_results": [
+    [
+      "3",
+      "0"
+    ]
+  ],
+  "HAL_actuator_samples": [
+    {
+      "frames": 256,
+      "peak": 12,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 7122,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 1541,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 6261,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17694,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17683,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17694,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    }
+  ],
+  "fault_or_quarantine": false,
+  "system_route_claim": "Requires capability plus actual HAL samples with available sink; player success alone insufficient",
+  "trace_component_consistent": true,
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "system_path_verified": true,
+  "system_pulses_before_direct": 2,
+  "system_vibrate_completion": true,
+  "ordinary_GPU_UI_integrated": false,
+  "waveform_fidelity_verified": false
+}
