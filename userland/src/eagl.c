@@ -506,6 +506,9 @@ surface_mirrored(struct eagl *e, struct image *image)
 {
  IOSurfaceRef surface = image->surface;
  GLint bound = 0;
+#ifdef WAFFLE_GL_READONLY_SHARED_SOURCE
+ return false; /* Readonly native storage cannot be a blit destination. */
+#endif
  if (!blit_targets || !share_surfaces || !image->target || image->alpha_first ||
      image->format != GL_BGRA || image->type != GL_UNSIGNED_BYTE || image->plane != 0 ||
      (size_t)image->width != IOSurfaceGetWidth(surface) || (size_t)image->height != IOSurfaceGetHeight(surface)) {
@@ -528,6 +531,9 @@ static bool
 surface_shared(struct eagl *e, struct image *image)
 {
  IOSurfaceRef surface = image->surface;
+#ifdef WAFFLE_GL_READONLY_SHARED_SOURCE
+ if (image->target) return false;
+#endif
  if (!share_surfaces || image->invert || image->alpha_first || image->format != GL_BGRA || image->type != GL_UNSIGNED_BYTE ||
      image->plane != 0 || (size_t)image->width != IOSurfaceGetWidth(surface) ||
      (size_t)image->height != IOSurfaceGetHeight(surface) ||
@@ -660,6 +666,9 @@ surface_to_texture(struct eagl *e, struct image *image)
  e->uploads++;
  e->upload_bytes += row * (size_t)image->height;
 }
+#ifdef WAFFLE_GL_READONLY_SHARED_SOURCE
+#include "waffle_eagl_readonly_promote.h"
+#endif
 static void
 target_to_surface(struct eagl *e, struct image *image)
 {
@@ -3055,6 +3064,17 @@ my_glFramebufferTexture2D(void *context, GLenum target, GLenum attachment, GLenu
  struct eagl *e = context;
  EAGL_ENTER(e, 0x1530);
  clear_now(e);
+#ifdef WAFFLE_GL_READONLY_SHARED_SOURCE
+ if ((target == GL_FRAMEBUFFER || target == GL_DRAW_FRAMEBUFFER) && attachment == GL_COLOR_ATTACHMENT0 &&
+     to == GL_TEXTURE_2D && level == 0 && texture != 0) {
+  struct image *image = image_of(e, texture);
+  if (image && image->shared && !waffle_eagl_promote_readonly(e, image)) {
+   say("waffle-readonly-promote: attachment_refused texture=%u\n", texture);
+   EAGL_LEAVE(e, 0x1530);
+   return;
+  }
+ }
+#endif
  if (attachment == GL_COLOR_ATTACHMENT0 && target != GL_READ_FRAMEBUFFER) {
   e->colour = texture;
  }

@@ -210,6 +210,9 @@ static bool check_surface_reuse(GLuint texture)
 #ifdef WAFFLE_GL_SURFACE_DETACH_TEST
 #include "waffle_surface_detach_probe.h"
 #endif
+#ifdef WAFFLE_GL_SURFACE_PROMOTION_TEST
+#include "waffle_surface_promotion_probe.h"
+#endif
 #ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
 static bool check_surface_resource(void)
 {
@@ -247,8 +250,11 @@ static bool check_surface_resource(void)
 #ifdef WAFFLE_GL_SURFACE_EAGL_TEST
  printf("waffle-gl-eagl-native-input: bound=2 sid=%u selector_present=1 input_only=1\n",IOSurfaceGetID(hook_surface));
 #endif
-#ifdef WAFFLE_GL_SURFACE_ROLE_TEST
+#if defined(WAFFLE_GL_SURFACE_ROLE_TEST) && !defined(WAFFLE_GL_SURFACE_PROMOTION_TEST)
  if(!check_surface_role(textures[0]))goto done;
+#endif
+#ifdef WAFFLE_GL_SURFACE_PROMOTION_TEST
+ if(!check_surface_promotion(textures[1],textures[0]))goto done;
 #endif
 #ifdef WAFFLE_GL_SURFACE_DETACH_TEST
  if(!check_surface_detach(textures[1]))goto done;

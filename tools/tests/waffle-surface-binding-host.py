@@ -124,5 +124,14 @@ with tempfile.TemporaryDirectory() as t:
     detach['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest();check(r,a,v,detach)
     x=copy.deepcopy(detach);x['surface_role_test']=False;reject(v,x)
     reject(v,detach,True)
+    promotion=copy.deepcopy(role);promotion['surface_promotion_test']=True
+    reject(v,promotion)
+    v['surface_promotion_audit']=True;reject(v,promotion)
+    for n in ('userland/src/waffle_surface_promotion_probe.h','userland/src/waffle_eagl_readonly_promote.h'):
+        p=r/n;p.write_text(n);promotion['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest()
+    check(r,a,v,promotion)
+    x=copy.deepcopy(promotion);x['surface_role_test']=False;reject(v,x)
+    x=copy.deepcopy(promotion);x['surface_describe']=False;reject(v,x)
+    reject(v,promotion,True)
     check(r,a,{}, {}) # Existing unrelated probe has no metadata opt-in.
 print(f'PASS actual surface admission:{count} metadata/UI/missing/current/compiled/Mesa-source mismatch refusals before USB; bound and unrelated artifacts preserved')

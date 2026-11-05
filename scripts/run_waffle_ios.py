@@ -232,6 +232,25 @@ def validate_surface_role_log(text):
         raise RuntimeError('Role query lacks actual readonly native import')
 
 
+def validate_surface_promotion_log(text):
+    begin=re.search(r'waffle-gl-surface-promotion: begin texture=(\d+) sibling=(\d+) sid=(\d+) native_readonly=1',text)
+    if not begin:raise RuntimeError('Native role promotion start missing')
+    texture,sibling,sid=begin.groups()
+    if texture==sibling:raise RuntimeError('Role promotion lacks retained native sibling')
+    middle=re.search(rf'waffle-readonly-promote: passed=1 texture={texture} sid={sid} owned_upload=1 native_GPU_writes=0',text[begin.end():])
+    if not middle or 'attachment_refused' in text:raise RuntimeError('Actual EAGL role promotion failed')
+    start=begin.end()+middle.end()
+    end=re.search(rf'waffle-gl-surface-promotion: passed=1 texture={texture} owned_wrong=0 native_wrong=0 sibling_wrong=0 restored=1 pixels=1218000',text[start:])
+    if not end or 'waffle-gl-surface-promotion: passed=0' in text:raise RuntimeError('Role promotion pixel/coherence/restore proof failed')
+    if 'GENERAL submitted fence=' not in text[start:start+end.start()]:raise RuntimeError('Role promotion lacks actual GPU submission')
+    interval=text[start:start+end.start()]
+    cpu=interval.find('waffle-gl-surface-promotion: native_checked=1218000 wrong=0 before_sibling=1')
+    sibling_done=interval.find('waffle-gl-surface-promotion: sibling_checked=256 wrong=0 native_cache_sync=1')
+    if cpu<0 or sibling_done<=cpu or 'SURFACE_SAMPLE sync=1' not in interval[cpu:sibling_done] or 'GENERAL submitted fence=' not in interval[cpu:sibling_done]:raise RuntimeError('Role promotion lacks actual native sibling cache/submission proof')
+
+    if not re.search(rf'SURFACE_SAMPLE imported=1 sid={sid} handle=\d+ index=\d+ GPU_readonly=1',text[:begin.start()]):raise RuntimeError('Role promotion lacks native readonly import')
+
+
 def validate_surface_detach_log(text):
     start=re.search(r'waffle-gl-surface-detach: begin texture=(\d+) sid=(\d+) readonly_native=1',text)
     if not start:raise RuntimeError('Native storage replacement start missing')
@@ -279,6 +298,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
     if 'waffle-gl-surface-role:' in text:validate_surface_role_log(text)
     if 'waffle-gl-surface-detach:' in text:validate_surface_detach_log(text)
+    if 'waffle-gl-surface-promotion:' in text:validate_surface_promotion_log(text)
     if 'SURFACE_LEASE_TEST' in text or 'waffle-gl-surface-lease:' in text:
         validate_surface_lease_log(text)
     dispatch_audit='waffle-gl-eagl-native-draw:' in text

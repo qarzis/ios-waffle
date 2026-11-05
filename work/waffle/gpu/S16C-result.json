@@ -1,0 +1,13 @@
+{
+  "run": "20261105T142332Z",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "passed": true,
+  "owned_pixels_checked": 1218000,
+  "wrong": 0,
+  "explicit_glFinish_before_read": false,
+  "actual_EAGL_clear_order_fix": true,
+  "native_update_restore_pass": true,
+  "normal_UI_tested": false,
+  "fps_measured": false
+}

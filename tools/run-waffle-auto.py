@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_workload=False):
     """Read-only admission check, called before USB or reboot operations."""
     if not gl_manifest.get('surface_describe'):
-        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test','surface_sample_test','surface_reuse_test','surface_eagl_test','surface_dispatch_test')):
+        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test','surface_sample_test','surface_reuse_test','surface_eagl_test','surface_dispatch_test','surface_role_test','surface_lease_test','surface_detach_test','surface_promotion_test','surface_readback_clear_test')):
             raise ValueError('Surface access audit requires metadata binding')
         return
     if ui_workload or not gl_manifest.get('fullsize_probe') or not manifest.get('surface_metadata_describe'):
@@ -46,6 +46,11 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Native sampler EAGL dispatch requires a source-bound isolated artifact')
     if gl_manifest.get('surface_role_test') and (not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_role_audit') or 'userland/src/waffle_surface_role_probe.h' not in gl_manifest.get('source_sha256',{})):
         raise ValueError('Surface role audit lacks isolated kernel/source binding')
+    if gl_manifest.get('surface_promotion_test'):
+        if not gl_manifest.get('surface_role_test') or not manifest.get('surface_promotion_audit'):
+            raise ValueError('Native role promotion requires a dedicated isolated artifact')
+        if any(n not in gl_manifest.get('source_sha256',{}) for n in ('userland/src/waffle_surface_promotion_probe.h','userland/src/waffle_eagl_readonly_promote.h')):
+            raise ValueError('Native role promotion source binding missing')
     if gl_manifest.get('surface_readback_clear_test') and (not gl_manifest.get('surface_detach_test') or not manifest.get('surface_readback_clear_audit')):
         raise ValueError('Deferred-clear readback requires dedicated isolated EAGL artifact')
     if gl_manifest.get('surface_detach_test') and (not gl_manifest.get('surface_role_test') or not manifest.get('surface_detach_audit') or 'userland/src/waffle_surface_detach_probe.h' not in gl_manifest.get('source_sha256',{})):
