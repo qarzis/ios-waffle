@@ -765,6 +765,7 @@ def main():
     parser.add_argument("--double-buffer", action="store_true", help="Compose offscreen and commit only complete frames to alternating scanout buffers")
     parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
     parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
+    parser.add_argument("--display-irq-probe", action="store_true", help="Bounded masked PP0_DONE clear/fresh-event diagnostic; keeps two-frame guard")
     parser.add_argument("--display-completion-audit", action="store_true", help="Read-only trace around existing guarded double-buffer commits")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
     parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
@@ -776,6 +777,8 @@ def main():
         parser.error("--display-flip-probe requires isolated GPU UI and excludes other display/audio modes")
     if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-flush-probe requires isolated GPU UI and excludes other display/audio modes")
+    if args.display_irq_probe and not args.display_completion_audit:
+        parser.error("--display-irq-probe requires --display-completion-audit")
     if args.display_completion_audit and (not args.double_buffer or not args.hardware_vsync or args.display_survey or args.display_flip_probe or args.display_flush_probe or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-completion-audit requires guarded hardware-VSync GPU UI")
     if args.hardware_vsync and (args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -859,6 +862,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.surface_lock_audit:
         arguments += " waffle_surface_lock_audit=1"
+    if args.display_irq_probe:
+        arguments += " waffle_display_irq_probe=1"
     if args.display_completion_audit:
         arguments += " waffle_display_completion_audit=1"
     if args.hardware_vsync:
@@ -1014,6 +1019,8 @@ def main():
             if args.display_completion_audit:
                 import runpy
                 completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
+                if args.display_irq_probe and not completion.get('irq_probe',{}).get('enabled'):
+                    raise RuntimeError('Masked IRQ probe did not report its diagnostic state')
                 if b'waffle-display-irq:' in args.kernel.read_bytes() and completion['irq_record_count']!=completion['record_count']:
                     raise RuntimeError('Compiled IRQ observation lacks paired samples')
                 (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')

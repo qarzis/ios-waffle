@@ -46,8 +46,39 @@ with tempfile.TemporaryDirectory() as directory:
  p=Path(directory);kernel=p/'kernel';kernel.write_bytes(b'waffle-display-irq:')
  text='identity'.ljust(256)+'\nwaffle-display-completion: records=1 no_extra_writes=1 guard_frames=2 cntfrq=1000000\nwaffle-display-completion: row=0 seq=1 stage=2 ticks=100 valid=1 frame0=3 frame1=3 flush=0 scheduler=1 auto_status=0 write_line=0 read_line=1 address0=d5100000 address1=d5100000\nwaffle-display-irq: row=0 top_status=100 top_enable=0 ctl_status=200 ctl_enable=0 tear_status=4f tear_enable=0 active=2\n'
  (p/'kernel-1.log').write_text(text);(p/'kernel-final.log').write_text(text+'END')
- ns={'ROOT':root,'args':types.SimpleNamespace(display_completion_audit=True,kernel=kernel),'out':p,'json':json,'final_text':text+'END'}
+ ns={'ROOT':root,'args':types.SimpleNamespace(display_completion_audit=True,display_irq_probe=False,kernel=kernel),'out':p,'json':json,'final_text':text+'END'}
  exec(compile(ast.fix_missing_locations(ast.Module(body=[collection],type_ignores=[])),str(inner),'exec'),ns)
  assert json.loads((p/'display-completion.json').read_text())['irq_record_count']==1
  assert json.loads((p/'kernel-stream-proof.json').read_text())['bytes']==len((text+'END').encode())
 print('PASS actual post-run collector before early GPU gates, paired IRQ requirement and valid JSON artifacts; synthetic snapshots only.')
+previous=sys.argv
+try:
+ flags=chain+['--display-completion-audit','--display-irq-probe'];sys.argv=['runner','94','artifact',*flags];ns={};exec(prefix,ns)
+ assert ns['display_irq_probe'];command=eval(compile(ast.Expression(calls[0].args[0]),str(path),'eval'),ns);assert command.count('--display-irq-probe')==1
+ for bad in [chain+['--display-irq-probe'],flags+['--display-irq-probe'],['--display-irq-probe']]:
+  sys.argv=['runner','94','artifact',*bad]
+  try:exec(prefix,{})
+  except AssertionError:pass
+  else:raise AssertionError('Unbound masked write probe admitted')
+finally:sys.argv=previous
+result=subprocess.run([sys.executable,str(root/'scripts/run_waffle_ios.py'),'--display-irq-probe'],capture_output=True,text=True)
+assert result.returncode and 'requires --display-completion-audit' in result.stderr
+print('PASS masked IRQ probe CLI: explicit completion opt-in, forwarding and duplicate/incomplete refusal before USB.')
+with tempfile.TemporaryDirectory() as directory:
+ r=Path(directory)/'repo';a=Path(directory)/'artifact';m={'display_irq_probe':True,'display_completion_source_sha256':{}}
+ names=['loader/waffle.h','kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp','kernel/files/bsd/sys/waffle_display_completion.h','kernel/files/bsd/sys/waffle_display_present.h','kernel/files/bsd/sys/waffle_display_irq_probe.h']
+ for name in names:
+  for base in [r,a/'source']:
+   p=base/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(name+' waffle_display_completion_audit=1 waffle_display_irq_probe=1')
+  m['display_completion_source_sha256'][name]=hashlib.sha256((r/name).read_bytes()).hexdigest()
+ check(r,a,m)
+ for name in names:
+  bad=copy.deepcopy(m);del bad['display_completion_source_sha256'][name]
+  try:check(r,a,bad)
+  except ValueError:pass
+  else:raise AssertionError('Unbound masked IRQ write code admitted')
+ p=a/'source'/names[-1];p.write_text('stale probe')
+ try:check(r,a,m)
+ except ValueError:pass
+ else:raise AssertionError('Stale compiled masked IRQ code admitted')
+print('PASS masked IRQ probe source bindings: five missing bindings and stale compiled probe refused before USB.')

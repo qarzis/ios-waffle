@@ -489,6 +489,17 @@ int main(void)
 #else
     assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_completion_audit=1 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
 #endif
+#if defined(WAFFLE_USERLAND)
+    assert(waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=1 waffle_display_completion_audit=1 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=1 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=1 waffle_display_completion_audit=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=1 waffle_display_completion_audit=1 waffle_display_present=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=2 waffle_display_completion_audit=1 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=1 waffle_display_completion_audit=1 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13 waffle_display_irq_probe=1"));
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=1 waffle_display_completion_audit=1 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13 waffle_vsync_audit=1"));
+#else
+    assert(!waffle_cmdline_allowed("bootcpu=1 loader_return_after=90 waffle_display_irq_probe=1 waffle_display_completion_audit=1 waffle_display_present=1 waffle_vsync=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13"));
+#endif
     uint32_t random = 17;
     for (unsigned n = 0; n < 10000; n++) {
         char line[64];

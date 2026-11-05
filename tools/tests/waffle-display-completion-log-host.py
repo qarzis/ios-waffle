@@ -32,3 +32,14 @@ for bad in [fresh.replace(irq(1,0x300,1,1),''),fresh+irq(1,0,0,0)]:
  except ValueError:pass
  else:raise AssertionError('Incomplete/conflicting IRQ pair accepted')
 print('PASS IRQ observations: sticky high is no fresh edge; sampled low/high still not a release fence; missing/conflicting pairs refused.')
+header='waffle-display-completion: records=5 no_extra_writes=0 guard_frames=2 cntfrq=1000000\nwaffle-display-irq-probe: enabled=1 writes=1 clear_offset=1018 clear_mask=100 guard_frames=2 mode_change=0 irq_enable_writes=0\n'
+probe=header+''.join(row(i,stage,ticks,frame,flush).replace('auto_status=0','auto_status=1') for i,(stage,ticks,frame,flush) in enumerate([(2,100,10,0),(3,102,10,3),(1,500,11,0),(1,1500,11,0),(1,2500,12,0)]))+''.join(irq(i,0x100,0x200,0x4f) for i in range(5))
+clear='waffle-display-irq-probe: row=2 seq=1 action=1 wrote=1 status_after=0 mux=0 version=a0000000\n'
+fresh='waffle-display-irq-probe: row=3 seq=1 action=2 wrote=0 status_after=100 mux=0 version=0\n'
+probe+=clear+fresh
+a=check(probe);assert a['irq_probe']['writes']==a['irq_probe']['fresh_events']==1 and not a['one_frame_retirement_qualified']
+for bad in [probe.replace(clear,''),probe.replace('writes=1','writes=2'),probe.replace('status_after=0 mux=0 version=a0000000','status_after=100 mux=0 version=a0000000'),probe.replace('clear_mask=100','clear_mask=300'),probe.replace('top_enable=0','top_enable=100'),probe.replace('version=a0000000','version=1')]:
+ try:check(bad)
+ except ValueError:pass
+ else:raise AssertionError('Unproven masked clear/fresh event accepted')
+print('PASS masked IRQ probe proof: accounted writes, verified clear, later PP0 event, unchanged guard; six corrupt histories refused.')

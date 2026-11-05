@@ -1456,3 +1456,26 @@ fresh transfer-done while retaining two-frame guard. No production IRQ/pacing
 change or FPS improvement claimed. Host fixes and hardware observations saved.
 
 D18 source/observer/strict log stream recovery/tests and honest original/offline results published to qarzis/ios-waffle waffle/gpu-bringup commit 8065aa129823c9562e32544bdc1645b3ab711e27. Representative host/sanitizer checks rerun from public worktree PASS; remote SHA matched and worktree clean. Android freshly confirmed; no active phone owner.
+
+## D19 bounded masked completion freshness candidate
+D18 established sampled stale PP0_DONE with IRQ masks0. Selected hypothesis:
+a verified-zero PP0 baseline after latch, followed by PP0 reassertion, identifies a
+new event; whether it can retire scanout early remains a separate qualification.
+New private boot/CLI opt-in requires existing guarded hardware-VSync GPU UI.
+Pure helper tracks baseline/commit by sequence and admits at most one clear when
+MDP delta exactly1, flush0, both addresses=new target, activeINTF2, busy1, oldPP0bit
+and PP IRQmask0. Immediately rechecks SoC versiona0000000/INTF_MUX0/wholemask0/
+busy/flush/addresses/counter. Unsupported splitlink or any other mux refuses.
+Only write is topbase1000+INTR_CLEAR18 valueBIT8=100; no enable/mode/timing/address
+write in this helper. Confirm readback bit0 before arming; later set records fresh
+event. Total at most8clears before early audit logs close. Original frame/flip
+headers byte-identical D16; fresh event never controls wait/retirement.
+Actual host helper all gates/everyread failure/write failure/unconfirmed clear/
+wrap/stale sequence PASS. Actual C++ observer/callback tests catch context wiring,
+allowlist/default-off/mask/route/budget/quiesce refusal. A context mismatch was
+caught during host review and corrected before build; initial C++ fixture needed
+normal C aggregate initializer warning setting. CLI/loader tokens, source bindings,
+write accounting/clear-before-fresh parser checks pass. Fullhost/XNU/EFI/container
+build PASS. DedicatedD19artifact reuses exactD16UI/E75Mesa; gold EAGLunchanged.
+No D19 hardware result yet. Collector fixes from D18 are before all early GPU
+proof gates; no rerun merely to replace D18's original failed exit.

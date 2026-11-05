@@ -23,6 +23,7 @@
 #include "../../bsd/sys/waffle_display_flip.h"
 #include "../../bsd/sys/waffle_display_present.h"
 #include "../../bsd/sys/waffle_display_completion.h"
+#include "../../bsd/sys/waffle_display_irq_probe.h"
 #include "../../bsd/sys/waffle_display_source.h"
 extern "C" {
 #include <console/video_console.h>
@@ -33,6 +34,7 @@ extern struct vc_info vinfo;
 extern "C" void redwood_tl(const char * format, ...) __printflike(1, 2);
 extern "C" vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
 extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
+static TUNABLE(uint32_t, gWaffleDisplayIRQProbe, "waffle_display_irq_probe", 0);
 static TUNABLE(uint32_t, gWaffleDisplayCompletionAudit, "waffle_display_completion_audit", 0);
 static TUNABLE(uint32_t, gWaffleDisplaySurvey, "waffle_vsync_audit", 0);
 static TUNABLE(uint32_t, gWaffleDisplayFlush, "waffle_display_flush", 0);
@@ -95,12 +97,30 @@ static void waffleDisplaySMMUSurvey(void)
  }
  ml_io_unmap(base, 0x100000);
 }
-struct WaffleDisplayCompletionRecord {uint64_t ticks;uint32_t sequence,stage;bool valid;struct waffle_display_completion_sample sample;};
+struct WaffleDisplayCompletionRecord {uint64_t ticks;uint32_t sequence,stage;bool valid;struct waffle_display_completion_sample sample;struct waffle_display_irq_probe_result probe;};
 struct WaffleDisplayFlipContext {
  vm_offset_t dpu, smmu, target;unsigned writes;void *owner;bool quiescing;
  uint32_t auditStage,auditSequence,auditCount;bool auditLogged;
  WaffleDisplayCompletionRecord *audit;
+ struct waffle_display_irq_probe_state probeState;uint32_t probeWrites;
 };
+static bool waffleDisplayIRQProbeRead(void *p,uint32_t offset,uint32_t *value)
+{
+ return waffleDisplayRead((void *)((WaffleDisplayFlipContext *)p)->dpu,offset,value);
+}
+static bool waffleDisplayIRQProbeWrite(void *p,uint32_t offset,uint32_t value)
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ if (gWaffleDisplayIRQProbe != 1 || gWaffleDisplayCompletionAudit != 1 || gWaffleDisplayPresent != 1 ||
+     c->quiescing || !c->owner || c->auditLogged || c->auditStage != 1 || c->auditSequence > 8 ||
+     c->probeWrites >= 8 || !c->probeState.committed || !c->probeState.attempted || offset != 0x1018 || value != 0x100) return false;
+ uint32_t version,mux,enable;
+ if (!waffleDisplayRead((void *)c->dpu,0,&version) || version != 0xa0000000 ||
+     !waffleDisplayRead((void *)c->dpu,0x3625c,&mux) || mux ||
+     !waffleDisplayRead((void *)c->dpu,0x1010,&enable) || enable) return false;
+ *(volatile uint32_t *)(c->dpu + offset) = value;
+ __asm__ volatile("dsb sy" ::: "memory");c->probeWrites++;return true;
+}
 static void waffleDisplayCompletionObserve(WaffleDisplayFlipContext *c,unsigned stage)
 {
  if (!gWaffleDisplayCompletionAudit || !gWaffleDisplayPresent || !c->owner || c->quiescing ||
@@ -109,13 +129,22 @@ static void waffleDisplayCompletionObserve(WaffleDisplayFlipContext *c,unsigned 
  r->ticks = mach_absolute_time();r->sequence = c->auditSequence;r->stage = stage;
  struct waffle_display_io io = {(void *)c->dpu, waffleDisplayRead};
  r->valid = waffle_display_completion_capture(&io, &r->sample);
+ if (gWaffleDisplayIRQProbe == 1 && r->valid) {
+  if (stage == 2) waffle_display_irq_probe_begin(&c->probeState,c->auditSequence,&r->sample);
+  else if (stage == 3) waffle_display_irq_probe_commit(&c->probeState,c->auditSequence,&r->sample);
+  else if (stage == 1) {
+   struct waffle_display_irq_probe_io probe = {{c,waffleDisplayIRQProbeRead},waffleDisplayIRQProbeWrite};
+   r->probe = waffle_display_irq_probe_step(&probe,&c->probeState,c->auditSequence,&r->sample);
+  }
+ }
 }
 static void waffleDisplayCompletionLog(WaffleDisplayFlipContext *c)
 {
  if (!c->auditCount || c->auditLogged) return;
  c->auditLogged = true;c->auditStage = 0;
- redwood_tl("waffle-display-completion: records=%u no_extra_writes=1 guard_frames=2 cntfrq=%llu\n", c->auditCount,
+ redwood_tl("waffle-display-completion: records=%u no_extra_writes=%u guard_frames=2 cntfrq=%llu\n", c->auditCount, !c->probeWrites,
      (unsigned long long)__builtin_arm_rsr64("CNTFRQ_EL0"));
+ if (gWaffleDisplayIRQProbe == 1) redwood_tl("waffle-display-irq-probe: enabled=1 writes=%u clear_offset=1018 clear_mask=100 guard_frames=2 mode_change=0 irq_enable_writes=0\n",c->probeWrites);
  for (unsigned i = 0; i < c->auditCount; i++) {
   const WaffleDisplayCompletionRecord *r = &c->audit[i];const struct waffle_display_completion_sample *v = &r->sample;
   redwood_tl("waffle-display-completion: row=%u seq=%u stage=%u ticks=%llu valid=%u frame0=%u frame1=%u flush=%x scheduler=%x auto_status=%x write_line=%u read_line=%u address0=%x address1=%x\n",
@@ -123,6 +152,8 @@ static void waffleDisplayCompletionLog(WaffleDisplayFlipContext *c)
       v->flush, v->scheduler, v->auto_status, v->write_line, v->read_line, v->address0, v->address1);
   redwood_tl("waffle-display-irq: row=%u top_status=%x top_enable=%x ctl_status=%x ctl_enable=%x tear_status=%x tear_enable=%x active=%x\n",
       i, v->irq_top, v->irq_top_enable, v->irq_ctl, v->irq_ctl_enable, v->irq_tear, v->irq_tear_enable, v->ctl_active);
+  if (r->probe.action) redwood_tl("waffle-display-irq-probe: row=%u seq=%u action=%u wrote=%u status_after=%x mux=%x version=%x\n",
+      i,r->sequence,r->probe.action,r->probe.wrote,r->probe.status_after,r->probe.mux,r->probe.version);
  }
 }
 
