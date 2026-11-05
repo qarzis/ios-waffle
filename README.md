@@ -20,7 +20,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | Buttons | ✅ | Power, volume up, volume down |
 | Alert Slider | ✅ | Do Not Disturb / vibrate mode / ring; native iOS banners |
 | Wi-Fi | ❌ | |
-| Vibration | ❌ | |
+| Vibration | ⚠️ | PM8550B motor and PCM taps verified; system feedback pending |
 | Flashlight | ✅ | On/off from Control Center |
 | Battery | ❌ | Native readings reach iOS power source; live UI percentage pending |
 | Packages | ⚪ | Sileo and tweaks unverified |
