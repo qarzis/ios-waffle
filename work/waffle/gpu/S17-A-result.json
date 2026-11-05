@@ -1,0 +1,14 @@
+{
+  "run": "20261105T143657Z",
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "passed": false,
+  "actual_role_promotion_pass": true,
+  "owned_pixels_wrong": 0,
+  "native_pixels_wrong": 0,
+  "native_pixels_checked": 1218000,
+  "source_restored": true,
+  "sibling_sample_result_missing": true,
+  "source_cause": "New probe calls separate sampler translation unit before its typed EAGL dispatch setter; existing setter occurs later in standard probe",
+  "next": "S17B initialize sampler dispatch before use and log stage/error/dispatch unconditionally"
+}

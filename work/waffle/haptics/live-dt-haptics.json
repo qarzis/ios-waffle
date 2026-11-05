@@ -1,0 +1,159 @@
+{
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000": {
+    "compatible": "71636f6d2c68762d6861707469637300",
+    "reg": "0000f0000000f1000000f200",
+    "interrupts": "00000007000000f00000000100000001",
+    "interrupt-names": "6669666f2d656d70747900",
+    "qcom,vmax-mv": "00000960",
+    "qcom,brake-mode": "00000000",
+    "qcom,brake-pattern": "ff3f1f",
+    "qcom,lra-period-us": "00001e0c",
+    "qcom,drv-sig-shape": "00000001",
+    "qcom,brake-sig-shape": "00000001",
+    "nvmem-names": "6861705f6366675f7364616d00",
+    "nvmem": "0000055f",
+    "qcom,cl-vmax-mv": "00000960",
+    "qcom,fifo-vmax-mv": "00001edc",
+    "qcom,old-steady-vmax-mv": "00001edc",
+    "qcom,cal-data-restore": "",
+    "qcom,fifo-empty-threshold": "000001e0",
+    "qcom,vibrator-type": "0000270f",
+    "phandle": "000005f9"
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/qcom,hap-swr-slave-reg": {
+    "regulator-name": "6861702d7377722d736c6176652d72656700",
+    "phandle": "000005fa"
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/effect_0": {
+    "qcom,effect-id": "00000000",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "0000001f00000000000000000000003f00000000000000000000005f00000000000000000000007f00000000000000000000017f00000000000000000000015f00000000000000000000013f00000000000000000000011f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-pattern-preload": "",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/effect_1": {
+    "qcom,effect-id": "00000001",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "0000001f00000000000000000000003f00000000000000000000005f00000000000000000000007f00000000000000000000017f00000000000000000000015f00000000000000000000013f00000000000000000000011f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/effect_2": {
+    "qcom,effect-id": "00000002",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "0000001f00000000000000000000003f00000000000000000000005f00000000000000000000007f00000000000000000000017f00000000000000000000015f00000000000000000000013f00000000000000000000011f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/effect_3": {
+    "qcom,effect-id": "00000003",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "0000001f00000000000000000000003f00000000000000000000005f00000000000000000000007f00000000000000000000017f00000000000000000000015f00000000000000000000013f00000000000000000000011f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/effect_4": {
+    "qcom,effect-id": "00000004",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "0000001f00000000000000000000003f00000000000000000000005f00000000000000000000007f00000000000000000000017f00000000000000000000015f00000000000000000000013f00000000000000000000011f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/effect_5": {
+    "qcom,effect-id": "00000005",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "0000001f00000000000000000000003f00000000000000000000005f00000000000000000000007f00000000000000000000017f00000000000000000000015f00000000000000000000013f00000000000000000000011f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_0": {
+    "qcom,primitive-id": "00000000",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000000000000000000000000000000000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_1": {
+    "qcom,primitive-id": "00000001",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_2": {
+    "qcom,primitive-id": "00000002",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_3": {
+    "qcom,primitive-id": "00000003",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_4": {
+    "qcom,primitive-id": "00000004",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_5": {
+    "qcom,primitive-id": "00000005",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_6": {
+    "qcom,primitive-id": "00000006",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_7": {
+    "qcom,primitive-id": "00000007",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/qcom,spmi@c42d000/qcom,pm8550b@7/qcom,hv-haptics@f000/primitive_8": {
+    "qcom,primitive-id": "00000008",
+    "qcom,wf-vmax-mv": "00000e10",
+    "qcom,wf-pattern-data": "000000ff00000000000000000000007f0000000000000000",
+    "qcom,wf-pattern-period-us": "00001a0b",
+    "qcom,wf-brake-pattern": "000000",
+    "qcom,wf-auto-res-disable": ""
+  },
+  "/soc/spf_core_platform/lpass-cdc/rx-macro@6AC0000/rx_swr_master/swr_haptics@f0170220": {
+    "phandle": "00000724",
+    "qcom,rx_swr_ch_map": "0000000000000001000000010000000000000016",
+    "swr-slave-supply": "000005fa",
+    "reg": "00000002f0170220",
+    "compatible": "71636f6d2c706d38353530622d7377722d6861707469637300"
+  },
+  "/soc/feedback_fb": {
+    "compatible": "6f706c75732c6861707469632d666565646261636b00",
+    "phandle": "00000643"
+  }
+}

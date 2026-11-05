@@ -40,7 +40,12 @@ static bool check_surface_promotion(GLuint texture,GLuint sibling)
  if(IOSurfaceUnlock(hook_surface,kIOSurfaceLockReadOnly,NULL)!=KERN_SUCCESS || native_wrong)goto done;
  printf("waffle-gl-surface-promotion: native_checked=1218000 wrong=0 before_sibling=1\n");
  struct waffle_surface_sample_result result;
- if(!waffle_gl_sample_texture(sibling,base,row,width,height,&result))goto done;
+#ifdef WAFFLE_GL_SAMPLE_EAGL
+ waffle_gl_sample_set_dispatch(waffle_hook_table);
+#endif
+ bool sampled=waffle_gl_sample_texture(sibling,base,row,width,height,&result);
+ printf("waffle-gl-surface-promotion: sample_result=%u stage=%u error=%x dispatch=%u wrong=%u\n",sampled,result.stage,result.error,result.dispatch,result.wrong);
+ if(!sampled)goto done;
  sibling_wrong=result.wrong;
  printf("waffle-gl-surface-promotion: sibling_checked=256 wrong=%u native_cache_sync=1\n",sibling_wrong);
  ok=sibling_wrong==0;

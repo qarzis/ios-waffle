@@ -247,6 +247,7 @@ def validate_surface_promotion_log(text):
     cpu=interval.find('waffle-gl-surface-promotion: native_checked=1218000 wrong=0 before_sibling=1')
     sibling_done=interval.find('waffle-gl-surface-promotion: sibling_checked=256 wrong=0 native_cache_sync=1')
     if cpu<0 or sibling_done<=cpu or 'SURFACE_SAMPLE sync=1' not in interval[cpu:sibling_done] or 'GENERAL submitted fence=' not in interval[cpu:sibling_done]:raise RuntimeError('Role promotion lacks actual native sibling cache/submission proof')
+    if 'waffle-gl-surface-promotion: sample_result=1 stage=7 error=0 dispatch=1 wrong=0' not in interval[cpu:sibling_done]:raise RuntimeError('Role promotion lacks typed EAGL sibling result')
 
     if not re.search(rf'SURFACE_SAMPLE imported=1 sid={sid} handle=\d+ index=\d+ GPU_readonly=1',text[:begin.start()]):raise RuntimeError('Role promotion lacks native readonly import')
 

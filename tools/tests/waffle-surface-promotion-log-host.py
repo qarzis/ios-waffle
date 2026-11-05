@@ -10,6 +10,7 @@ GENERAL submitted fence=2
 waffle-gl-surface-promotion: native_checked=1218000 wrong=0 before_sibling=1
 SURFACE_SAMPLE sync=1 handle=28
 GENERAL submitted fence=3
+waffle-gl-surface-promotion: sample_result=1 stage=7 error=0 dispatch=1 wrong=0
 waffle-gl-surface-promotion: sibling_checked=256 wrong=0 native_cache_sync=1
 waffle-gl-surface-promotion: passed=1 texture=3 owned_wrong=0 native_wrong=0 sibling_wrong=0 restored=1 pixels=1218000
 '''
