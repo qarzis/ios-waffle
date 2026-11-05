@@ -1,3 +1,7 @@
+# ACTIVE — S13 lease integration; full build in progress
+
+User resumed. S12B actual framework lock audit PASS; Android returned. S13 WIP has CPU writer accounting/wait and batch GPU read leases integrated into drm_submit. Focused host sanitizers PASS, no S13 hardware yet. Build log gpu/build-s13.log, artifact diagnostic-surface-lease-s13, active exec76344 at time of note. Do not change kernel/build inputs during build. Normal UI imports still disabled, no FPS claim. Current changes not yet checkpointed; previous private checkpoint4bbe813eef2d8d27fa5d3d3606cd92fa68e688dc, public69b476b. Preserve main git index; no agents, RAM-only.
+
 # ACTIVE — S12B actual CPU lock brackets confirmed
 
 Run20261105T080127Z/auto080103Z originalrunner0/Android1;14actualIOSurface.frameworktraps(6writerpairs+1readerpair), no gaps/unmatched/openbrackets, pid1/sid1; S11shader/update/fullsourceproofretained. S12-B-result/lock-analysis/evidence saved. S12-Aloader-refusalpreserved (XNU/GPUneverstarted); newstrictloaderadmission+preUSBsourcepolicybindingqualified. Currentkernelonlydiagnosticlogging, NOleases/exclusionyet. SDKactualCPUspancontract+AvoidSyncCannotLockverifiedlocalheaders. NextS13cooperativeCPUwriter/GPUreadlease undergSurfaceLock, batchedall-or-noneGPUacquirepreventABBA, boundednormalwait/AvoidSyncfail, clientdropcleanup/uncertainGPUretain; firstpurehostmodelthenactualkernel/privateprobe. Noactiveowner;Androidreturned. Publicstill69b476bthroughS11. Noagents/goals.

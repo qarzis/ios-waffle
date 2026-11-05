@@ -112,6 +112,9 @@ static int drm_submit(struct waffle_msm_submit *r)
  void *snapshot=kalloc_data((size_t)bytes,Z_WAITOK|Z_ZERO);
  if(!snapshot)return ENOMEM;
  int error=0;
+ struct waffle_gpu_memory **sources=NULL;
+ unsigned source_count=0;
+ bool sources_held=false;
  struct waffle_msm_submit_bo *bos=snapshot;
  struct waffle_msm_submit_cmd *commands=(void *)(bos+r->nr_bos);
  struct waffle_gpu_command *roots=(void *)(commands+r->nr_cmds);
@@ -127,6 +130,7 @@ static int drm_submit(struct waffle_msm_submit *r)
    * Private sampler imports must still have actual immutable readonly PTEs. */
   if(bo->surface && (!bo->surface_sample || !(bos[i].flags&1u) ||
       bo->memory->flags!=(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY))){error=ENOTSUP;goto done;}
+  if(bo->surface_sample)source_count++;
   seen[slot/64]|=1ULL<<(slot%64);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
@@ -139,7 +143,18 @@ static int drm_submit(struct waffle_msm_submit *r)
   if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS){drm_root_refused(i,cmd);error=EINVAL;goto done;}
   total+=cmd->size/4;
  }
- /* Isolated sampler caller owns its native source against CPU writers.
+ if(source_count){
+  sources=kalloc_data(source_count*sizeof(*sources),Z_WAITOK|Z_ZERO);
+  if(!sources){error=ENOMEM;goto done;}
+  unsigned at=0;
+  for(unsigned i=0;i<r->nr_bos;i++){
+   struct drm_bo *bo=drm_buffer(bos[i].handle);
+   if(bo->surface_sample)sources[at++]=bo->memory;
+  }
+  if(!waffle_gpu_memory_surface_reads_begin(sources,source_count,250)){error=EBUSY;goto done;}
+  sources_held=true;
+ }
+ /* CPU writers are excluded until every synchronous submission completes.
   * All input/root checks finish before the first cache transition/submission.
   * GPU page mappings are read-only, so completion cannot dirty this source. */
  for(unsigned i=0;i<r->nr_bos;i++){
@@ -163,13 +178,24 @@ static int drm_submit(struct waffle_msm_submit *r)
    words+=roots[cursor].bytes/4;cursor++;
   }
   struct waffle_gpu_submit_job job={.commands=roots+first,.count=cursor-first};
-  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){error=EIO;goto done;}
+  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){
+   if(sources_held){
+    redwood_tl("waffle-gpu: SURFACE_LEASE uncertain=1 retain_backing=1\n");
+    loader_return();for(;;);
+   }
+   error=EIO;goto done;
+  }
   drm_fence=job.fence;windows++;
   redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
  }
  r->fence=drm_fence;
  redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
 done:
+ if(sources_held && !waffle_gpu_memory_surface_reads_end(sources,source_count)){
+  redwood_tl("waffle-gpu: SURFACE_LEASE release_failed=1 retain_backing=1\n");
+  loader_return();for(;;);
+ }
+ if(sources)kfree_data(sources,source_count*sizeof(*sources));
  kfree_data(snapshot,(size_t)bytes);
  return error;
 }
