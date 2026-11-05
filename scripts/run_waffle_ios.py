@@ -239,7 +239,7 @@ def validate_surface_detach_log(text):
     replaced=re.search(rf'waffle-gl-surface-detach: replaced=1 texture={texture} error=0 before_draw=1',text[start.end():])
     if not replaced:raise RuntimeError('Native storage replacement not confirmed before draw')
     begin=start.end()+replaced.end()
-    end=re.search(rf'waffle-gl-surface-detach: passed=1 texture={texture} checked=1218000 wrong=0 status=8cd5 error=0 owned_write=1 sibling_retained=1 flush_before_read=1',text[begin:])
+    end=re.search(rf'waffle-gl-surface-detach: passed=1 texture={texture} checked=1218000 wrong=0 status=8cd5 error=0 owned_write=1 sibling_retained=1 flush_before_read=[01]',text[begin:])
     if not end or 'waffle-gl-surface-detach: passed=0' in text:raise RuntimeError('Owned replacement render pixels failed')
     interval=text[begin:begin+end.start()]
     if 'GENERAL submitted fence=' not in interval:raise RuntimeError('Owned replacement lacks actual GPU submission')

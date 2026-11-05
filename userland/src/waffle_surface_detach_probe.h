@@ -29,7 +29,9 @@ static bool check_surface_detach(GLuint texture)
  glDisable(GL_SCISSOR_TEST);glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
  glClearColor(0,1,0,1);glClear(GL_COLOR_BUFFER_BIT);
  /* EAGL defers clears; materialize before the passthrough readback. */
+#ifndef WAFFLE_GL_SURFACE_READBACK_CLEAR_TEST
  glFinish();
+#endif
  glPixelStorei(GL_PACK_ALIGNMENT,4);glPixelStorei(GL_PACK_ROW_LENGTH,0);
  glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
  error=glGetError();if(error!=GL_NO_ERROR)goto done;
@@ -47,6 +49,12 @@ done:
  if(framebuffer)glDeleteFramebuffers(1,&framebuffer);
  free(pixels);
  if(glGetError()!=GL_NO_ERROR)ok=false;
- printf("waffle-gl-surface-detach: passed=%u texture=%u checked=%u wrong=%u status=%x error=%x owned_write=1 sibling_retained=1 flush_before_read=1\n",ok,texture,ok?width*height:0,wrong,status,error);
+ printf("waffle-gl-surface-detach: passed=%u texture=%u checked=%u wrong=%u status=%x error=%x owned_write=1 sibling_retained=1 flush_before_read=%u\n",ok,texture,ok?width*height:0,wrong,status,error,
+#ifdef WAFFLE_GL_SURFACE_READBACK_CLEAR_TEST
+ 0u
+#else
+ 1u
+#endif
+ );
  return ok;
 }

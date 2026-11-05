@@ -1,0 +1,11 @@
+{
+  "source_sha256": "6797a4d1c522ccedbe762ab8b0d8b15e818b9f17e1895de3f11bea390bae9c1d",
+  "test": "tools/tests/waffle-eagl-readback-clear-host.py",
+  "baseline_result": "assertion failed: pixel==0xff00ff00 && clear_calls==1 && !e.unclear",
+  "actual_code_extracted": [
+    "my_glClear",
+    "clear_now",
+    "my_glReadPixels"
+  ],
+  "hardware_corroboration": "S16A no GPU submission and all pixels wrong; S16B explicit finish passes"
+}

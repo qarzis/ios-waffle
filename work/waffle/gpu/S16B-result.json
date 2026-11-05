@@ -1,0 +1,12 @@
+{
+  "run": "20261105T141849Z",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "passed": true,
+  "replacement_pixels_checked": 1218000,
+  "replacement_wrong": 0,
+  "native_shader_sample_pass": true,
+  "native_cpu_update_restore_pass": true,
+  "normal_UI_enabled": false,
+  "fps_measured": false
+}

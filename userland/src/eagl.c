@@ -2888,8 +2888,10 @@ my_glReadPixels(void *context, GLint x, GLint y, GLsizei width, GLsizei height, 
  if (eagl_tracing) {
   eagl_trace("glReadPixels(%d, %d, %d, %d, %#x, %#x, %p)\n", x, y, width, height, format, type, pixels);
  }
- /* The generated passthrough did exactly this call. Observe metadata only:
-  * pixels can be a PBO offset, so never dereference it for diagnostics. */
+ /* Clear is deferred by this hook; materialize it before either a CPU or
+  * PBO read, preserving GL command order without an extra glFinish. */
+ clear_now(e);
+ /* pixels may be a PBO offset: do not dereference them here. */
  glReadPixels(x, y, width, height, format, type, pixels);
  if (frame_lines && width >= 375 && height >= 700) {
   static unsigned observed;
