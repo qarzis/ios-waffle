@@ -1,3 +1,13 @@
+# H04B candidate — no pulse device test yet
+
+Dedicated native16ms/amplitude32 transaction now includes persistent context, panic/return quiesce, measured active_us, post-restore fault check. Default off; only separate --haptic-pulse isolated CPU1/60sec accepts current+snapshot bindings and kernel hash; read-only flag cannot enable it. Host helper/actual writer+quiesce/CLI/binding tests PASS. H04 initial build was deliberately not booted because quiesce/final fault check were added afterward. H04B full build active (build-h04b.log); do not boot initial H04. H03 original0/Android1 remains last hardware evidence. Pulse not yet felt/proved on hardware; no iOS actuator service yet.
+
+# H03 power survey PASS; H04 pulse candidate host tests
+
+Run20261105T202626Z original0/Android1. VSETd4(force bits0),HBFOLLOW e0(auto hardware follow),HBEN00,CLAMP00. No PMIC/motor writes. H03-result.json binds immutable kernel-2.log. Four added read-only native power registers,26 total; all read-failure/observer gates tested. This is observed power policy, not guarantee of future firmware exclusion.
+
+H04 candidate core/header and actual SPMI adapter: fixed amplitude32/255,16ms, stop/readback/poll HPWR20ms, emergency module-disable on uncertain stop, explicit CFG/PTN ownership, no HBST writes. Actual helper tested every read/ambiguous write failure, fault, stalled timer, stuck HPWR, exact restore; adapter tests opt-in/owner/PPID-under-lock and readback. CLI dedicated --haptic-pulse CPU1/60seconds, cannot combine read-only/flash/audio/GPU modes. New code still host/build only; before device, add/qualify panic/return quiesce and final fault check. Initial H04 build does NOT include those extra protections, do not hardware boot it. H03 is last device result.
+
 # H02 hardware component PASS — 2026-11-05
 
 Run20261105T201705Z/auto201641Z. All22 read-only registers captured: HPWR00(disabled),fault00,brake41,cl_brakee1,autores89,cal04. No PMIC writes or motor start. Immutable kernel-2.log SHA saved H02-result.json. Original runner1 due unrelated multicore proof failure (cpu-proof.json preserved); Android independently confirmed1 by outer runner. Do not claim overall success or pulse qualified. Native OnePlus constant-mode branch disables autores whereas inherited89 has enable set; do not blindly use inherited state. H02-stop-contract.md documents native fault/open-loop power/braking/stop dependencies. No active USB owner.

@@ -190,3 +190,7 @@ A15 offline native domain audit recorded in A15-domain-attach-audit.md: absent a
 
 ## 2026-11-05 A17 host-only ACTLR applicability
 Native qsmmuv500_device_group selects DT qcom,actlr by smr_is_subset; init_cb writes ACTLR only for matched overrides. Parsed captured live Apps-SMMU table and native audio stream masks: neither1001/mask80 nor1061/mask0 matches. Evidence A17-dt-actlr-audit.json and A17-actlr-analysis.json. This rules out blindly copying a donor/Adreno ACTLR override; no bank ownership or DMA proof, no register writes. New HakiOS source reviewed at pinned revision in ../hakios-2.3.4-audit/provenance.json; APR/ASM transport remains incompatible with native GPR/APM.
+
+
+## A18 host-only native MAP/UNMAP serialization — 2026-11-05
+Added waffle_apm_memory.h, not connected to DSP transport yet. Actual pinned Linux allocator/map/unmap functions compiled and byte-compared: MAP44 and UNMAP28 (NO GRAPH_OPEN's16-byte APM command header). Native DT audio pool10000000..20000000; SID1001/1061 low4bits atbit32; first step one page-aligned contiguous region, SHMEM8_4Kpool3, property0. DonorSID1801/rawPA/out-of-pool/unaligned/zero/overflow/small capacity refused without modifying output. Ten sizes/SID cases pass ASanUBSan. This proves packet bytes only, NOT domain ownership, DSP map ACK, DMA or sound. Preserve earlier fixture compile failures A18-memory-host*.log; final pass A18-memory-host-final.log. Next transport integration requires qualified SMMU mapping and correlated returned map handle; never send these bytes using raw PA as substitute.

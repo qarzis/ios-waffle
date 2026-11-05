@@ -31,7 +31,9 @@ def main():
     parser.add_argument("--jobs", type=int, default=6)
     parser.add_argument("--userland", action="store_true", help="Enable bounded RAM userland tests")
     parser.add_argument("--ui-soak-loader",action="store_true",help="Allow exact660-second return for the qualified mode13 chain")
+    parser.add_argument("--haptic-pulse-loader",action="store_true",help="Dedicated bounded native haptic-test policy; default off")
     args = parser.parse_args()
+    if args.haptic_pulse_loader and not args.userland:parser.error("--haptic-pulse-loader requires --userland")
     if args.ui_soak_loader and not args.userland:parser.error("--ui-soak-loader requires --userland")
     mu, output = args.mu.resolve(), args.output.resolve()
     loader_dir = mu / "Platforms/OnePlus/wafflePkg/Applications/XnuRamLoader"
@@ -88,6 +90,17 @@ def main():
          "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-haptic-readonly-host.c",
          "-o", output / "test-haptic-readonly"])
     run([output / "test-haptic-readonly"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-haptic-pulse-host.c",
+         "-o", output / "test-haptic-pulse"])
+    run([output / "test-haptic-pulse"])
+    run([sys.executable, ROOT / "tools/tests/waffle-haptic-write-adapter-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-haptic-cli-host.py"])
+    for variant,flags in (("base",[]),("user",["-DWAFFLE_USERLAND=1"]),("pulse",["-DWAFFLE_USERLAND=1","-DWAFFLE_HAPTIC_PULSE_TEST=1"])):
+        run(["cc","-std=c11","-Wall","-Wextra","-Werror",*flags,
+             ROOT / "tools/tests/waffle-haptic-policy-host.c","-o",output / f"test-haptic-policy-{variant}"])
+        run([output / f"test-haptic-policy-{variant}"])
+    run([sys.executable, ROOT / "tools/tests/waffle-haptic-binding-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-adsp-scm-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gpr-reply-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-glink-intent-host.py"])
@@ -308,6 +321,8 @@ def main():
                     xnu / "bsd/sys/waffle_audio_smmu_inventory.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_haptic_readonly.h",
                     xnu / "bsd/sys/waffle_haptic_readonly.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_haptic_pulse.h",
+                    xnu / "bsd/sys/waffle_haptic_pulse.h")
     for relative in ("iokit/Kernel/MiniIOSurface.cpp", "iokit/Kernel/MiniIOSurface.h"):
         shutil.copyfile(ROOT / "kernel/files" / relative, xnu / relative)
     for relative in ("iokit/Kernel/MiniIOMobileFramebuffer.cpp", "bsd/dev/macan_torch.c", "bsd/dev/macan_audio.c", "bsd/dev/macan_buttons.c", "bsd/sys/waffle_slider.h", "iokit/Kernel/WaffleGPUMemory.cpp", "bsd/sys/waffle_gpu_submit.h", "bsd/sys/waffle_gpu_memory.h", "bsd/sys/waffle_display_completion.h", "bsd/sys/waffle_display_irq_probe.h", "bsd/sys/waffle_gpu_surface.h", "bsd/sys/waffle_surface_access.h", "bsd/sys/waffle_gpu_surface_write.h", "bsd/sys/waffle_gpu_surface_read.h", "bsd/sys/waffle_gpu_registry.h", "bsd/sys/waffle_gpu_handles.h", "bsd/sys/waffle_gpu_reclaim.h", "iokit/Kernel/WaffleGPUMap.cpp", "bsd/sys/waffle_gpu_map.h", "bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_gpu_service.c", "bsd/dev/waffle_gpu_drm.c", "bsd/dev/waffle_gpu_msm.c", "bsd/sys/waffle_gpu_msm.h", "bsd/dev/waffle_gpu_user.c", "bsd/sys/waffle_gpu_user.h", "bsd/sys/waffle_gpu_service.h", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
@@ -333,7 +348,8 @@ def main():
     header.write_text(f"#define WAFFLE_KERNEL_SIZE {len(data)}u\n"
                       f"#define WAFFLE_KERNEL_CRC32 0x{zlib.crc32(data):08x}u\n" +
                       ("#define WAFFLE_USERLAND 1\n" if args.userland else "")+
-                      ("#define WAFFLE_UI_SOAK_TEST 1\n" if args.ui_soak_loader else ""))
+                      ("#define WAFFLE_UI_SOAK_TEST 1\n" if args.ui_soak_loader else "")+
+                      ("#define WAFFLE_HAPTIC_PULSE_TEST 1\n" if args.haptic_pulse_loader else ""))
     run(["bash", ROOT / "loader/build.sh"], cwd=ROOT,
         env=os.environ | {"XNU_PLATFORM": "waffle", "WAFFLE_KERNEL_HEADER": str(header)})
     shutil.copyfile(ROOT / "loader/loader-waffle.efi", loader_dir / "loader-waffle.efi")
@@ -358,6 +374,7 @@ def main():
         "kernel_crc32": f"{zlib.crc32(data):08x}",
         "boot_image_sha256": hashlib.sha256(image.read_bytes()).hexdigest(),
         "kernel_build_target": "build (DriverKit symbolsets excluded)",
+        "haptic_pulse_loader": args.haptic_pulse_loader,
     }
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "HEAD"], cwd=ROOT))
@@ -367,6 +384,9 @@ def main():
                      "kernel/files/bsd/sys/waffle_audio_smmu_inventory.h",
                      "tools/tests/waffle-audio-smmu-inventory-host.c",
                      "kernel/files/bsd/sys/waffle_haptic_readonly.h",
+                     "kernel/files/bsd/sys/waffle_haptic_pulse.h",
+                     "tools/tests/waffle-haptic-pulse-host.c",
+                     "tools/tests/waffle-haptic-write-adapter-host.py",
                      "tools/tests/waffle-haptic-readonly-host.c"):
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)

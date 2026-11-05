@@ -10,13 +10,14 @@ struct waffle_haptic_snapshot {
  uint8_t cfg_revision,ptn_revision,boost_revision[2];
  uint8_t enable,play,swr,vmax,drive,tlra[2],direct,period[4];
  uint8_t hpwr,fault,brake,cl_brake,autores,cal;
+ uint8_t vset,boost_follow,boost_enable,boost_clamp;
  bool complete;
 };
 static inline bool waffle_haptic_read_allowed(uint16_t ppid,uint8_t reg)
 {
- if(ppid==0x7f0)return reg==0x0b || reg==0x0c || reg==0x50 || reg==0x51 || reg==0x63 || reg==0x72 || reg==1 || reg==0x46 || reg==0x47 || reg==0x48 || reg==0x4c || reg==0x4e || reg==0x5c || reg==0x5d;
+ if(ppid==0x7f0)return reg==0x68 || reg==0x0b || reg==0x0c || reg==0x50 || reg==0x51 || reg==0x63 || reg==0x72 || reg==1 || reg==0x46 || reg==0x47 || reg==0x48 || reg==0x4c || reg==0x4e || reg==0x5c || reg==0x5d;
  if(ppid==0x7f1)return reg==1 || reg==0x26 || (reg>=0x30 && reg<=0x33);
- return ppid==0x7f2 && reg<=1;
+ return ppid==0x7f2 && (reg<=1 || reg==0x41 || reg==0x46 || reg==0x70);
 }
 static inline bool waffle_haptic_read(const struct waffle_haptic_read_io *io,uint16_t ppid,uint8_t reg,uint8_t *v)
 {
@@ -48,6 +49,12 @@ static inline bool waffle_haptic_capture(const struct waffle_haptic_read_io *io,
     !waffle_haptic_read(io,0x7f0,0x51,&s->cl_brake) ||
     !waffle_haptic_read(io,0x7f0,0x63,&s->autores) ||
     !waffle_haptic_read(io,0x7f0,0x72,&s->cal))return false;
+ /* Native is_boost_vreg_enabled_in_open_loop and force_vreg_ready inputs.
+  * HBST belongs to firmware: these observer reads never grant write ownership. */
+ if(!waffle_haptic_read(io,0x7f0,0x68,&s->vset) ||
+    !waffle_haptic_read(io,0x7f2,0x41,&s->boost_follow) ||
+    !waffle_haptic_read(io,0x7f2,0x46,&s->boost_enable) ||
+    !waffle_haptic_read(io,0x7f2,0x70,&s->boost_clamp))return false;
  s->complete=true;return true;
 }
 #endif

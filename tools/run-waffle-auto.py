@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_workload=False):
     """Read-only admission check, called before USB or reboot operations."""
     if not gl_manifest.get('surface_describe'):
-        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test','surface_sample_test','surface_reuse_test','surface_eagl_test','surface_dispatch_test','surface_role_test','surface_lease_test','surface_detach_test','surface_promotion_test','surface_readback_clear_test')):
+        if any(gl_manifest.get(k) for k in ('surface_map_test','surface_write_test','surface_read_test','surface_import_test','surface_resource_test','surface_sample_test','surface_reuse_test','surface_eagl_test','surface_dispatch_test','surface_role_test','surface_lease_test','surface_detach_test','surface_promotion_test','surface_readback_clear_test','surface_target_test')):
             raise ValueError('Surface access audit requires metadata binding')
         return
     if ui_workload or not gl_manifest.get('fullsize_probe') or not manifest.get('surface_metadata_describe'):
@@ -46,6 +46,11 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Native sampler EAGL dispatch requires a source-bound isolated artifact')
     if gl_manifest.get('surface_role_test') and (not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_role_audit') or 'userland/src/waffle_surface_role_probe.h' not in gl_manifest.get('source_sha256',{})):
         raise ValueError('Surface role audit lacks isolated kernel/source binding')
+    if gl_manifest.get('surface_target_test'):
+        if not gl_manifest.get('surface_resource_test') or not manifest.get('surface_target_audit') or any(gl_manifest.get(k) for k in ('surface_sample_test','surface_eagl_test','surface_dispatch_test','surface_import_test','surface_write_test','surface_read_test','surface_role_test','surface_lease_test')):
+            raise ValueError('Native writable target requires a separate private resource artifact')
+        if 'userland/src/waffle_surface_target_probe.h' not in gl_manifest.get('source_sha256',{}):
+            raise ValueError('Native target probe source binding missing')
     if gl_manifest.get('surface_promotion_test'):
         if not gl_manifest.get('surface_role_test') or not manifest.get('surface_promotion_audit'):
             raise ValueError('Native role promotion requires a dedicated isolated artifact')
@@ -134,6 +139,7 @@ def main():
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
+    parser.add_argument('--haptic-pulse',action='store_true',help='Dedicated H04 native haptic16ms transaction; isolated CPU1 only')
     parser.add_argument('--torch-readonly', action='store_true', help='Separate Waffle flash module identification without PMIC writes')
     parser.add_argument('--torch-pulse',action='store_true',help='Single two-second flash-module pulse in the GPU UI workload')
     parser.add_argument('--torch-service',action='store_true',help='Expose the qualified Waffle flashlight driver in the GPU UI')
@@ -175,11 +181,13 @@ def main():
     if args.battery_report_test and not args.battery_readonly:parser.error('--battery-report-test requires --battery-readonly')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and any(getattr(args, name) for name in (
-            'cpu_ui_test','cpus','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
+            'cpu_ui_test','cpus','haptic_pulse','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
             'measure_clocks','lpac_cp_init','gl_context','mapped','mesa_transport','msm','user_va','glsl',
             'data_bo','user_copy','worker','copy_jobs','image_present','image_copy','image','compute',
             'dynamic_bo','session','ib','writeback','zap','lpac_map','ui_workload','ui_long_test','ui_soak_test')):
         parser.error('--audio-preflight must run separately from other diagnostics')
+    if args.haptic_pulse and (not args.cpu_ui_test or args.cpus!=1 or args.cpu_seconds!=60 or args.torch_readonly or args.torch_pulse or args.torch_service or args.ui_workload or args.audio_preflight or args.prepare_gpu or args.lpac_cp_init or args.gl_context or args.compute or args.dynamic_bo):
+        parser.error('--haptic-pulse requires isolated --cpu-ui-test --cpus1 --cpu-seconds60 without other device modes')
     if args.torch_readonly and not (args.cpu_ui_test or args.ui_workload):parser.error('--torch-readonly requires a CPU or GPU UI workload')
     if args.torch_pulse and (args.torch_readonly or not args.gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
     if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.ui_workload):parser.error('--torch-service requires GPU UI and excludes probe modes')
@@ -281,6 +289,16 @@ def main():
         for name in ('kernel/files/bsd/dev/macan_torch.c','kernel/files/bsd/sys/waffle_haptic_readonly.h'):
             digest=bindings.get(name)
             if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('Haptic readonly source binding mismatch: '+name)
+
+    if args.haptic_pulse:
+        if hashlib.sha256((artifact/'kernel').read_bytes()).hexdigest()!=manifest.get('kernel_sha256'):parser.error('Native haptic kernel hash mismatch')
+        if not manifest.get('haptic_pulse_loader'):parser.error('Artifact lacks dedicated native haptic loader policy')
+        if not manifest.get('haptic_pulse_test'):parser.error('Artifact lacks dedicated native haptic-pulse capability')
+        bindings=manifest.get('haptic_pulse_source_sha256',{})
+        for name in ('kernel/files/bsd/dev/macan_torch.c','kernel/files/bsd/sys/waffle_haptic_readonly.h','kernel/files/bsd/sys/waffle_haptic_pulse.h','loader/waffle.h'):
+            digest=bindings.get(name)
+            if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('Haptic pulse source binding mismatch: '+name)
+        if b'haptic-waffle-pulse: passed=' not in (artifact/'kernel').read_bytes():parser.error('Native haptic pulse code absent from bound kernel')
 
     if args.torch_pulse and not manifest.get('torch_pulse_loader'):parser.error('Artifact lacks the bounded torch pulse policy')
     if args.torch_service and not manifest.get('torch_service_loader'):parser.error('Artifact lacks the iOS torch-service policy')
@@ -409,6 +427,7 @@ def main():
             requests=output/'capture-requests'
             requests.mkdir()
             items=[sys.executable,'scripts/run_waffle_ios.py','--seconds',str(args.cpu_seconds),'--cpus',str(args.cpus or 2),'--kernel',str(artifact/'kernel'),'--root',str(cpu_root),'--fastboot',args.fastboot,'--capture-requests',str(requests)]
+            if args.haptic_pulse:items.append('--haptic-pulse')
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
             result=command(items,timeout=args.cpu_seconds+240)
@@ -426,6 +445,7 @@ def main():
                 '--collect', '--wait-seconds', '60'], cwd=ROOT,
                 stdout=recovery_log, stderr=subprocess.STDOUT)
             items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '94' if args.lpac_cp_init else '93', str(artifact)]
+            if args.haptic_pulse:items.append('--haptic-pulse')
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
             if args.surface_lock_audit:items.append('--surface-lock-audit')

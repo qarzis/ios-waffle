@@ -1,0 +1,18 @@
+{
+  "run": "20261105T202626Z",
+  "source": "work/waffle/runs/20261105T202626Z/kernel-2.log",
+  "sha256": "f99371baacab5c0ac3fd80609d4b28ab1dc4fd2506bcd0a801f51c6be68bcf84",
+  "raw_registers": {
+    "vset": 212,
+    "follow": 224,
+    "boost_enable": 0,
+    "clamp": 0
+  },
+  "autonomous_follow": true,
+  "boost_enabled": false,
+  "force_ready_ack": 0,
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "motor_started": false,
+  "PMIC_writes": 0
+}
