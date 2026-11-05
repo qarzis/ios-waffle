@@ -1,0 +1,21 @@
+{
+  "run": "20261105T205544Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "PCM_device_taps_pass": true,
+  "direct_taps": 3,
+  "active_us": [
+    17097,
+    16049,
+    16048
+  ],
+  "user_feedback": "Felt three short impulses",
+  "mechanical_confirmed": true,
+  "system_vibrate_request": true,
+  "system_HAL_actuator_observed": false,
+  "system_feedback_qualified": false,
+  "no_pulse_before_direct_phase": true,
+  "source": "work/waffle/runs/20261105T205544Z/kernel-final.log",
+  "sha256": "b5208a5eed992451ec9ba2c31ecb0b0e60089f122cc406ccf9d1629c5956b9d7",
+  "note": "Direct loader lines counted; timestamped kernel printf replay retained in raw trace and excluded from event count."
+}

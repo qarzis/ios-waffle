@@ -1,0 +1,14 @@
+{
+  "run": "20261105T210208Z",
+  "original_runner_exit": 1,
+  "android_confirmed": true,
+  "service_ready": true,
+  "client_spawned": true,
+  "system_request_begin_logged": false,
+  "direct_begin_logged": false,
+  "pulse_logged": false,
+  "source": "work/waffle/runs/20261105T210208Z/kernel-final.log",
+  "sha256": "cfb6dd0bb12644928d9b3637201b520f76e0231be34afe434f5d5f6aab4a232b",
+  "hypothesis": "Client may block during CFRunLoop/completion setup before first stage log; exact blocking call not established",
+  "next": "H07B public CoreHaptics probe with pre-call markers and separate direct-only process so baseline cannot be blocked by framework calls"
+}

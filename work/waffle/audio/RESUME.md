@@ -1,3 +1,7 @@
+# A18 host ABI PASS, DMA ownership still next blocker
+
+2026-11-06: waffle_apm_memory.h serializes one native taggedIOVA MAP44 and UNMAP28 without GRAPH_OPEN's16-byte command header. Actual Linux functions compiled/bytecompared10size/SIDcases and negativeoutofpool/rawPA/unaligned/overflow/invalidinput testsPASS. No integration/transmission toDSP, noDMA/PCM. Corvette3848a296 audio reviewed and stillAPR/ASMstream1801, notWaffleGPR/APM1001/1061. HapticsH05nativePCMtapbridgepassed separately; no speakersoundclaim. Publicdocs fba59b2 published toqarzis/ios-waffle waffle/gpu-bringup.
+
 # HakiOS 2.3.4 source review — 2026-11-05
 
 Pinned donor 2631f5d (full revision in ../hakios-2.3.4-audit/provenance.json). Current drivers/audio/hakios.sound.c still uses APR AFE/ASM/ADM and stream1801; it does not supply a Waffle GPR/APM DMA backend. Existing qualified A13 graph remains unchanged. A16 CLIENTPD=0 refutes global-disable blocker; bank ownership/attach remains unresolved. No PCM or sound claimed. H02 haptic host/full build underway, no new audio hardware test.

@@ -1,17 +1,39 @@
 /* Bounded interface test: system vibration request, then three PCM onsets.
  * The direct fallback is logged separately and cannot prove system routing. */
 #include <AudioToolbox/AudioToolbox.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
-int main(void)
+static bool completed;
+static void finished(SystemSoundID sound,void *context)
 {
- sleep(35);
- AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
- printf("waffle-haptic-client: system_vibrate_requested=1\n");fflush(stdout);
- sleep(5);
+ (void)context;completed=true;
+ printf("waffle-haptic-client: system_completed=%u\n",(unsigned)sound);fflush(stdout);
+ CFRunLoopStop(CFRunLoopGetCurrent());
+}
+int main(int argc,char **argv)
+{
+ bool direct_only=argc>1 && !strcmp(argv[1],"--direct-only");
+ sleep(direct_only?47:35);
+ if(!direct_only) {
+ const SystemSoundID sounds[]={1519,kSystemSoundID_Vibrate};
+ for(unsigned i=0;i<2;i++) {
+  completed=false;
+  printf("waffle-haptic-client: completion_register_begin=%u\n",(unsigned)sounds[i]);fflush(stdout);
+  OSStatus status=AudioServicesAddSystemSoundCompletion(sounds[i],CFRunLoopGetCurrent(),kCFRunLoopCommonModes,finished,NULL);
+  printf("waffle-haptic-client: system_begin=%u completion_registration=%d\n",(unsigned)sounds[i],(int)status);fflush(stdout);
+  AudioServicesPlaySystemSound(sounds[i]);
+  CFRunLoopRunInMode(kCFRunLoopDefaultMode,5,false);
+  printf("waffle-haptic-client: system_end=%u completed=%u\n",(unsigned)sounds[i],completed);fflush(stdout);
+  AudioServicesRemoveSystemSoundCompletion(sounds[i]);
+  sleep(1);
+ }
+  return 0;
+ }
  int fd=open("/dev/redwood-haptic",O_WRONLY|O_NONBLOCK);
  if(fd<0){printf("waffle-haptic-client: open_error=%d\n",errno);return 1;}
  int16_t tap[256],silence[256]={0};

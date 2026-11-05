@@ -1,0 +1,52 @@
+{
+  "repo": "https://github.com/SakuraKyuo/hackios-xnu-kernel_corvette",
+  "revision": "3848a29620f0cf7d541bed64319a4e66f1658914",
+  "files": [
+    {
+      "path": "devices/corvette/README.md",
+      "sha256": "f13e915ad30a9234ea86f265f48cfa64a726802f4a9fdffd959fb5d55ed4835c",
+      "git_blob": "e5972af61a9f2db90f895ea8b925cc47ae559dd9"
+    },
+    {
+      "path": "docs/corvette-gpu.md",
+      "sha256": "8a76b3135f4edbef6d3dd1b4beda5ac2d490e626b8a2f4f3b9bec019847dac4d",
+      "git_blob": "48c824c849f8d87529a666b5f4233d3be270c1e9"
+    },
+    {
+      "path": "xnu/files/bsd/dev/hakios.adreno.c",
+      "sha256": "35dba32219ff95b5f4e82f27bdc8389047887db1565c1763db345d334eeb6bdb",
+      "git_blob": "71be5528a821dd0f44d46ac672fa0afa2aaf9b3b"
+    },
+    {
+      "path": "xnu/files/iokit/Kernel/hakios.gpu.cpp",
+      "sha256": "68cbc2552b690ef730b3e59b5817aff2a616b6eb3a5323373b9338565e0b9270",
+      "git_blob": "4371d62089f871ee68ec666283eeb96a4faba219"
+    },
+    {
+      "path": "xnu/files/bsd/dev/hakios.haptic.c",
+      "sha256": "70aacf4dd44714804d7db56833aa413fb8a2e7059779695fa4818f2ff2dfb71b",
+      "git_blob": "944a32b54c8a88b01ffe3c4ee37d344bfcf4539d"
+    },
+    {
+      "path": "xnu/files/bsd/dev/hakios.sound.c",
+      "sha256": "d5573d1c93ece2a7f060b3c25720bdff8d0f876a1ba804bf83aeb3f5f2e4a8e2",
+      "git_blob": "9636fdfb8d5c1418c76d38755c97589a04967238"
+    },
+    {
+      "path": "userland/src/audio_plugin.c",
+      "sha256": "686756476193bc43f77fef9c51e389b72a4352086b3021a50f20cda029132de6",
+      "git_blob": "af13bec5e06048642121b5769db7672ae5003688"
+    },
+    {
+      "path": "userland/build-native-metal.sh",
+      "sha256": "d239579143d9bdacdbd46d54bb9d2ed0e3c00ef2c7cc8aa8eebc09dcbb516977",
+      "git_blob": "b0457672e52fe4e23a90bd90e7da677a914c140a"
+    },
+    {
+      "path": "tools/native-metal-variant.py",
+      "sha256": "6cdd9ac0521652abec1593cac4c1097fc1e247d158ca0196e6da23e7a90c111f",
+      "git_blob": "bf551bb828dff61e04cb17e49046c0c39074459f"
+    }
+  ],
+  "merged": false
+}
