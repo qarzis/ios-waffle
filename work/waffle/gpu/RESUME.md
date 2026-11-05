@@ -1,3 +1,7 @@
+# ACTIVE — S13 hardware PASS; next real contention probe
+
+S13 run20261105T083907Z/auto083843Z original0/success1/Android1. Source leases acquired before cacheclean and released after actual synchronous GPU completion; exclusive S11 shader/update/fullsource proof passes,14 framework traps all result0. Artifact diagnostic-surface-lease-s13 current/prepared/snapshot checked + full build/validator PASS. Private checkpoint d51f9d1eee5f8e160a92aba99549f8c0d87884f4 before hardware; new result/evidence/tests pending next checkpoint. Additional host ref removal/relocation and uncertain-completion retention tests PASS. No ordinary UI enable/FPS claim; contention not hardware-qualified. Next S14 private PID1-only manual read-lease probe (no actual GPU while manually held) tests AvoidSync refusal, normal writer blocking and release, then same real EAGL shader proof. Main index must remain intact, no agents, no flash.
+
 # ACTIVE — S13 lease integration; full build in progress
 
 User resumed. S12B actual framework lock audit PASS; Android returned. S13 WIP has CPU writer accounting/wait and batch GPU read leases integrated into drm_submit. Focused host sanitizers PASS, no S13 hardware yet. Build log gpu/build-s13.log, artifact diagnostic-surface-lease-s13, active exec76344 at time of note. Do not change kernel/build inputs during build. Normal UI imports still disabled, no FPS claim. Current changes not yet checkpointed; previous private checkpoint4bbe813eef2d8d27fa5d3d3606cd92fa68e688dc, public69b476b. Preserve main git index; no agents, RAM-only.

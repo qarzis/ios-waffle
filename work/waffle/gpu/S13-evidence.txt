@@ -1,0 +1,81 @@
+waffle-surface-lock: audit_enabled=1 max_records=128
+redwood-gl: -[EAGLContext initWithAPI:properties:] (@32@0:8Q16@24) replaced
+redwood-gl: -[EAGLContext API] (Q16@0:8) replaced
+redwood-gl: -[EAGLContext sharegroup] (@16@0:8) replaced
+redwood-gl: -[EAGLContext setParameter:to:] (Q28@0:8I16^i20) replaced
+redwood-gl: -[EAGLContext getMacroContextPrivate] (^{EAGLMacroContext=}16@0:8) replaced
+redwood-gl: -[EAGLContext texImageIOSurface:target:internalFormat:width:height:format:type:plane:invert:] (B72@0:8^{__IOSurface=}16Q24Q32I40I44Q48Q56I64B68) replaced
+redwood-gl: -[EAGLContext attachImage:toCoreSurface:invertedRender:] (B36@0:8Q16^{__IOSurface=}24B32) replaced
+redwood-gl: -[EAGLContext dealloc] (v16@0:8) replaced
+redwood-gl: 8 of 8 methods of EAGLContext are ours; OpenGL ES by Mesa, off-screen (OSMesa)
+waffle-surface-lock: audit_enabled=1 max_records=128
+redwood-gl: -[EAGLContext initWithAPI:properties:] (@32@0:8Q16@24) replaced
+redwood-gl: -[EAGLContext API] (Q16@0:8) replaced
+redwood-gl: -[EAGLContext sharegroup] (@16@0:8) replaced
+redwood-gl: -[EAGLContext setParameter:to:] (Q28@0:8I16^i20) replaced
+redwood-gl: -[EAGLContext getMacroContextPrivate] (^{EAGLMacroContext=}16@0:8) replaced
+redwood-gl: -[EAGLContext texImageIOSurface:target:internalFormat:width:height:format:type:plane:invert:] (B72@0:8^{__IOSurface=}16Q24Q32I40I44Q48Q56I64B68) replaced
+redwood-gl: -[EAGLContext attachImage:toCoreSurface:invertedRender:] (B36@0:8Q16^{__IOSurface=}24B32) replaced
+redwood-gl: -[EAGLContext dealloc] (v16@0:8) replaced
+redwood-gl: 8 of 8 methods of EAGLContext are ours; OpenGL ES by Mesa, off-screen (OSMesa)
+waffle-gl-hook: actual_EAGLContext=1 table_nonnull=1 context_nonnull=1
+waffle-surface: created sid=1 owner=waffle-gl-probe pid=1 width=750 height=1624 row=3008 format=0x42475241 offset=0 bytes=4898816 wrapped=0 planes=0
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-surface-lock: seq=1 pid=1 sid=1 unlock=0 options=1 seed=1 result=0
+waffle-surface-lock: seq=2 pid=1 sid=1 unlock=1 options=1 seed=1 result=0
+waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=1 bos=16 roots=2 words=807 windows=1 metadata_bytes=352
+waffle-surface-lock: seq=3 pid=1 sid=1 unlock=0 options=0 seed=1 result=0
+waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=2 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-surface-lock: seq=4 pid=1 sid=1 unlock=1 options=0 seed=2 result=0
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+waffle-gpu: SURFACE_IMPORT created=1 sid=1 handle=27 index=28 VA=101680000 bytes=4898816 lifetime_only=0
+waffle-gpu: SURFACE_SAMPLE imported=1 sid=1 handle=27 index=28 GPU_readonly=1
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-gpu: SURFACE_IMPORT reused=1 sid=1 handle=27
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=3 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=4 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-surface-lock: seq=5 pid=1 sid=1 unlock=0 options=0 seed=2 result=0
+waffle-surface-lock: seq=6 pid=1 sid=1 unlock=1 options=0 seed=3 result=0
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=5 seq=48 control=00000005 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=5 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=6 seq=49 control=00000006 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=6 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-surface-lock: seq=7 pid=1 sid=1 unlock=0 options=0 seed=3 result=0
+waffle-surface-lock: seq=8 pid=1 sid=1 unlock=1 options=0 seed=4 result=0
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=7 seq=50 control=00000007 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=7 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=8 seq=51 control=00000008 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=8 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-surface-lock: seq=9 pid=1 sid=1 unlock=0 options=0 seed=4 result=0
+waffle-surface-lock: seq=10 pid=1 sid=1 unlock=1 options=0 seed=5 result=0
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=27 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=9 seq=52 control=00000009 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=9 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=10 seq=53 control=0000000a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=10 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-surface-lock: seq=11 pid=1 sid=1 unlock=0 options=0 seed=5 result=0
+waffle-surface-lock: seq=12 pid=1 sid=1 unlock=1 options=0 seed=6 result=0
+waffle-gl-hook: IOSurface_readback_owner=EAGL_hook probe_writes=0
+waffle-surface-lock: seq=13 pid=1 sid=1 unlock=0 options=0 seed=6 result=0
+waffle-surface-lock: seq=14 pid=1 sid=1 unlock=1 options=0 seed=7 result=0
+[  114.356356]: waffle-surface: created sid=1 owner=waffle-gl-probe pid=1 width=750 height=1624 row=3008 format=0x42475241 offset=0 bytes=4898816 wrapped=0 planes=0
+[  114.362739]: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+[  114.363407]: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+[  114.368290]: waffle-iommu: SURFACE_BO published index=28 VA=101680000 bytes=4898816 cached=1 pages=1196
+[  114.370739]: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+[  114.371117]: waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+[  114.372988]: waffle-gmu: GENERAL_SUBMIT done fence=5 seq=48 control=00000005 checked=4096 wrong_words=0
+[  114.373306]: waffle-gmu: GENERAL_SUBMIT done fence=6 seq=49 control=00000006 checked=4096 wrong_words=0
+[  114.374986]: waffle-gmu: GENERAL_SUBMIT done fence=7 seq=50 control=00000007 checked=4096 wrong_words=0
+[  114.375296]: waffle-gmu: GENERAL_SUBMIT done fence=8 seq=51 control=00000008 checked=4096 wrong_words=0
+[  114.376917]: waffle-gmu: GENERAL_SUBMIT done fence=9 seq=52 control=00000009 checked=4096 wrong_words=0
+[  114.377231]: waffle-gmu: GENERAL_SUBMIT done fence=10 seq=53 control=0000000a checked=4096 wrong_words=0

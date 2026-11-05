@@ -32,7 +32,7 @@ struct minisurf_shared{uint32_t seed=17;};
 struct MiniIOSurface{waffle_surface_access access{};minisurf_shared state;minisurf_shared *shared(){return &state;}};
 struct minisurf_client_ref{MiniIOSurface *surface;uint32_t cpuWriters=0;};
 static constexpr unsigned WAFFLE_SURFACE_WAIT_MS=250,kMillisecondScale=1,THREAD_UNINT=0,THREAD_TIMED_OUT=1;
-static unsigned sleeps,holds;static bool timeout;
+static unsigned sleeps,holds;static bool timeout;static void (*during_sleep)();
 static void clock_interval_to_deadline(unsigned,unsigned,uint64_t *d){*d=250;}
 static void surfaceHold(MiniIOSurface *){assert(held);holds++;}
 static void surfaceUnhold(MiniIOSurface *){assert(held && holds);holds--;}
@@ -42,14 +42,18 @@ static int IOLockSleepDeadline(int *,void *event,uint64_t,unsigned){
  if(timeout)return THREAD_TIMED_OUT;
  auto *access=static_cast<waffle_surface_access *>(event);
  assert(access->waiting_writers==1 && access->gpu_readers==1);
- assert(waffle_surface_gpu_read_end(access));return 0;
+ assert(waffle_surface_gpu_read_end(access));if(during_sleep)during_sleep();return 0;
 }
 static MiniIOSurface target;
-static minisurf_client_ref ref{&target};
+static minisurf_client_ref ref{&target},moved{&target};
+static minisurf_client_ref *current_ref=&ref;
+static void remove_ref(){current_ref=nullptr;}
+static void move_ref(){current_ref=&moved;ref.surface=nullptr;}
+
 static void copyout(const void *source,user_addr_t dest,unsigned bytes){assert(!held);memcpy((void *)dest,source,bytes);}
 class IOSurfaceRootUserClient {
 public:
- minisurf_client_ref *findRef(uint32_t sid,bool create){assert(held && !create);return sid==1?&ref:nullptr;}
+ minisurf_client_ref *findRef(uint32_t sid,bool create){assert(held && !create);return sid==1?current_ref:nullptr;}
  IOReturn lockCommon(SIGNATURE);
  IOReturn trapLock(void *,void *,void *,void *,void *,void *);
  IOReturn trapUnlock(void *,void *,void *,void *,void *,void *);
@@ -78,6 +82,12 @@ int main(){
  timeout=true;assert(lock(1,0)==kIOReturnCannotLock && !holds && !target.access.waiting_writers);
  timeout=false;assert(lock(1,0)==0 && !holds && !target.access.gpu_readers && ref.cpuWriters==1);
  assert(unlock(1,0)==0 && !target.access.cpu_writers);
+ assert(waffle_surface_gpu_read_begin(&target.access));during_sleep=remove_ref;
+ assert(lock(1,0)==kIOReturnNotFound && !holds && !target.access.waiting_writers && !target.access.cpu_writers);
+ current_ref=&ref;assert(waffle_surface_gpu_read_begin(&target.access));during_sleep=move_ref;
+ assert(lock(1,0)==0 && !holds && moved.cpuWriters==1 && !ref.cpuWriters);
+ assert(unlock(1,0)==0 && !moved.cpuWriters && !target.access.cpu_writers);
+ ref.surface=&target;current_ref=&ref;during_sleep=nullptr;
  target.state.seed=0;
  gWaffleSurfaceLockAudit=1;
  assert(lock(1,0)==0 && seed==0);assert(unlock(1,0)==0 && seed==1);

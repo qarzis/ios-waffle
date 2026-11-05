@@ -10,6 +10,10 @@ assert not r['unmatched_unlock_sequences'] and not r['open_brackets'] and analyz
 r=analyze(banner+row(1,1,0,5));assert r['unmatched_unlock_sequences']==[1] # Evidence of a possible framework fast path, never silently treated as paired.
 r=analyze(banner+row(1,0,0,4));assert r['open_brackets']==[{'pid':1,'sid':7,'role':'writer','depth':1}]
 assert analyze(banner)['record_count']==0
+failed=row(1,0,0,4).rstrip()+' result=e00002bc\n'
+r=analyze(banner+failed+row(2,0,0,4)+row(3,1,0,5))
+assert r['failed_sequences']==[1] and r['writer_locks']==r['writer_unlocks']==1 and not r['open_brackets']
+
 for bad in [text.replace(banner,''),text.replace(row(2,1,0,5),''),text+row(1,1,0,5),banner+row(129,0,0,4)]:
  try:analyze(bad)
  except ValueError:pass
