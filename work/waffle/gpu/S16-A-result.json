@@ -1,0 +1,13 @@
+{
+  "run": "20261105T141400Z",
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "passed": false,
+  "storage_replaced": true,
+  "owned_bo_serial": 30,
+  "owned_bo_handle": 29,
+  "wrong_pixels": 1218000,
+  "gpu_submission_between_clear_and_read": false,
+  "hypothesis": "EAGL queued clear not materialized by passthrough ReadPixels",
+  "minimal_test": "S16B add explicit glFinish only in diagnostic; do not alter EAGL"
+}

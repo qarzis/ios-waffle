@@ -1,0 +1,9 @@
+{
+  "source": "xnu-deps/build/mesa/mesa-26.3.0-rc1/src/mesa/state_tracker/st_cb_texture.c",
+  "sha256": "98bc8f555feb95cd633120db603e5c3268b7385abeac28043c61b587eabc5adb",
+  "function": "prep_teximage",
+  "line": 1268,
+  "behavior": "For surface_based texture, clears texture object, drops resource reference, resets overrides and sets surface_based false before ordinary TexImage",
+  "excerpt": "static void\nprep_teximage(struct gl_context *ctx, struct gl_texture_image *texImage,\n              GLenum format, GLenum type)\n{\n   struct gl_texture_object *texObj = texImage->TexObject;\n\n   /* switch to \"normal\" */\n   if (texObj->surface_based) {\n      const GLenum target = texObj->Target;\n      const GLuint level = texImage->Level;\n      mesa_format texFormat;\n\n      assert(!texImage->pt);\n      _mesa_clear_texture_object(ctx, texObj, texImage);\n      texObj->layer_override = -1;\n      texObj->level_override = -1;\n      pipe_resource_reference(&texObj->pt, NULL);\n\n      /* oops, need to init this image again */\n      texFormat = _mesa_choose_texture_format(ctx, texObj, target, level,\n                                              texImage->InternalFormat, format,\n                                              type);\n\n      _mesa_init_teximage_fields(ctx, texImage,\n                                 texImage->Width, texImage->Height,\n                                 texImage->Depth, texImage->Border,\n                                 texImage->InternalFormat, texFormat);\n\n      texObj->surface_based = GL_FALSE;\n      _mesa_update_texture_object_swizzle(ctx, texObj);\n   }\n}\n",
+  "hardware_test_pending": true
+}
