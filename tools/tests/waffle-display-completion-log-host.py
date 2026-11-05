@@ -22,3 +22,13 @@ with tempfile.TemporaryDirectory() as d:
  except ValueError:pass
  else:raise AssertionError('Incomplete historical trace accepted')
 print('PASS saved-run collection: complete earlier snapshot survives final log rollover; partial history refused.')
+def irq(i,top,ctl,tear):return f'waffle-display-irq: row={i} top_status={top:x} top_enable=0 ctl_status={ctl:x} ctl_enable=0 tear_status={tear:x} tear_enable=0 active=2\n'
+sticky=text+''.join(irq(i,0x300,1,1) for i in range(3))
+a=check(sticky);assert a['irq_record_count']==3 and all(not v for v in a['sampled_irq_rising_edges'].values())
+fresh=text+irq(0,0,0,0)+irq(1,0x300,1,1)+irq(2,0x300,1,1)
+a=check(fresh);assert all(v==[1] for v in a['sampled_irq_rising_edges'].values()) and not a['one_frame_retirement_qualified']
+for bad in [fresh.replace(irq(1,0x300,1,1),''),fresh+irq(1,0,0,0)]:
+ try:check(bad)
+ except ValueError:pass
+ else:raise AssertionError('Incomplete/conflicting IRQ pair accepted')
+print('PASS IRQ observations: sticky high is no fresh edge; sampled low/high still not a release fence; missing/conflicting pairs refused.')

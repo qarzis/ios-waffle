@@ -1,0 +1,13 @@
+{
+  "actual_backboardd_pid": 83,
+  "GPU_fences": 1330,
+  "BO_count": 1176,
+  "actual_CoreAnimation_workload": true,
+  "full_GPU_teardown": true,
+  "pixel_correctness_verified": false,
+  "optical_visibility_verified": false,
+  "source_stream_sha256": "1fa3702746e9d793a5e6344b516df723ece458ccfd65236a4377c5e2f43f437f",
+  "source_run": "20261105T094305Z",
+  "original_runner_exit_unchanged": 1,
+  "qualification": "Offline full-stream verification after moving collector before early GPU prerequisite gates; not a hardware rerun"
+}

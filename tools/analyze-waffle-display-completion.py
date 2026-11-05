@@ -18,6 +18,20 @@ def analyze(text):
  if sorted(rows)!=list(range(count)):raise ValueError('Missing completion observations')
  ordered=[rows[i] for i in range(count)]
  if any(b['ticks']<a['ticks'] for a,b in zip(ordered,ordered[1:])):raise ValueError('Non-monotonic observations')
+ irq_rows={}
+ irq_keys=('row','top_status','top_enable','ctl_status','ctl_enable','tear_status','tear_enable','active')
+ for fields in re.findall(r'waffle-display-irq: row=(\d+) top_status=([0-9a-f]+) top_enable=([0-9a-f]+) ctl_status=([0-9a-f]+) ctl_enable=([0-9a-f]+) tear_status=([0-9a-f]+) tear_enable=([0-9a-f]+) active=([0-9a-f]+)',text):
+  row={k:int(v,10 if k=='row' else 16) for k,v in zip(irq_keys,fields)}
+  if row['row'] in irq_rows and irq_rows[row['row']]!=row:raise ValueError('Conflicting IRQ sample replay')
+  irq_rows[row['row']]=row
+ if 'waffle-display-irq:' in text and sorted(irq_rows)!=list(range(count)):raise ValueError('Missing paired IRQ samples')
+ valid_irq=[irq_rows[r['row']] for r in ordered if r['valid'] and r['frame0']==r['frame1'] and r['row'] in irq_rows]
+ irq_values={k:sorted({r[k] for r in valid_irq}) for k in irq_keys[1:]}
+ rising={name:[] for name in ('pp0_done','pp1_done','ctl0_done','tear_autorefresh_done')}
+ bits={'pp0_done':('top_status',1<<8),'pp1_done':('top_status',1<<9),'ctl0_done':('ctl_status',1),'tear_autorefresh_done':('tear_status',1)}
+ for before,after in zip(valid_irq,valid_irq[1:]):
+  for name,(field,mask) in bits.items():
+   if not before[field]&mask and after[field]&mask:rising[name].append(after['row'])
  sequences=[]
  for seq in sorted({r['seq'] for r in ordered}):
   group=[r for r in ordered if r['seq']==seq];base=next((r for r in group if r['stage']==2 and r['valid'] and r['frame0']==r['frame1']),None)
@@ -32,6 +46,7 @@ def analyze(text):
   sequences.append({'sequence':seq,'baseline_observed':base is not None,'post_flush_observed':post is not None,'observations':states})
  return {'record_count':count,'clock_hz':hz,'invalid_records':sum(not r['valid'] for r in ordered),'crossed_frame_records':sum(r['frame0']!=r['frame1'] for r in ordered if r['valid']),
          'scheduler_values':sorted({r['scheduler'] for r in ordered if r['valid']}),'auto_status_values':sorted({r['auto_status'] for r in ordered if r['valid']}),
+         'irq_record_count':len(irq_rows),'irq_values':irq_values,'sampled_irq_rising_edges':rising,
          'sequences':sequences,'one_frame_retirement_qualified':False,'claim':'Read-only sparse observations around unchanged two-frame guard; no IRQ edge/fence or FPS proof','records':ordered}
 def analyze_run(directory):
     """Use one complete immutable snapshot; never stitch conflicting epochs."""

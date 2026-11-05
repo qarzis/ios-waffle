@@ -655,7 +655,21 @@ def validate_aop_owner_log(text, compute_mode=0, image=False):
     return None if image==9 else extract_copy_jobs(text)[-1] if image>=4 else extract_gpu_image(text,compute_mode,image) if image else None
 
 
-def validate_ui_workload_log(text):
+def validate_guarded_display_log(text):
+    if 'waffle-display-present: armed=1 working_bytes=18247680 front=d5100000 back=d6270000' not in text:
+        raise RuntimeError('Guarded display presenter missing')
+    restored=re.search(r'waffle-display-present: quiesced=1 restored=1 completed=(\d+) active=d5100000',text)
+    if not restored or int(restored[1])<8:raise RuntimeError('Guarded display completion/restore missing')
+    commits=re.findall(r'waffle-display-present: committed=([01]) completed=(\d+) target=([0-9a-f]+) copied=([01]) rollback=([01]) rollback_ok=([01]) us=\d+ accepted=([01]) pending=([01])',text)
+    if not commits or {v[2] for v in commits}!={'d5100000','d6270000'}:
+        raise RuntimeError('Both guarded scanout targets not observed')
+    if any(v[3]!='1' or v[4]!='0' or v[6]!='1' for v in commits):raise RuntimeError('Guarded display commit failed or rolled back')
+    sources=re.findall(r'waffle-display-source: compose_us=\d+ copy_us=\d+ submit_wait_us=\d+ reads=(\d+) changes=\d+ pixel_changes=\d+',text)
+    if not any(int(n)>0 for n in sources):raise RuntimeError('Guarded display never read a source surface')
+    return int(restored[1])
+
+
+def validate_ui_workload_log(text, guarded_display=False):
     """Require real backboardd GPU work and teardown, not triangle/pixel proof."""
     selected=re.search(r"waffle-ui-gpu: selected process=backboardd pid=(\d+) uid=501 bounded=1(?: stop_seconds=(\d+))?",text)
     if not selected or int(selected[1])<=1:raise RuntimeError("Actual mobile backboardd GPU selection missing")
@@ -690,7 +704,9 @@ def validate_ui_workload_log(text):
     if len(buffers)!=int(close[1]):raise RuntimeError("UI workload backing release count mismatch")
     if not re.search(r"redwood-gl: frame [1-9]\d*: \d+ GL calls, [1-9]\d* draws",text):
         raise RuntimeError("Actual CoreAnimation frame drawing missing")
-    if not re.search(r"MiniIOMobileFramebuffer: swap \d+ layer 0: surface \d+ \(",text):
+    if guarded_display:
+        validate_guarded_display_log(text)
+    elif not re.search(r"MiniIOMobileFramebuffer: swap \d+ layer 0: surface \d+ \(",text):
         raise RuntimeError("UI display-worker surface missing")
     if "REBOOT REQUIRED" in text or "A SHADER DOES NOT COMPILE" in text:
         raise RuntimeError("UI workload has GPU ownership or shader failure")
@@ -995,6 +1011,16 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            if args.display_completion_audit:
+                import runpy
+                completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
+                if b'waffle-display-irq:' in args.kernel.read_bytes() and completion['irq_record_count']!=completion['record_count']:
+                    raise RuntimeError('Compiled IRQ observation lacks paired samples')
+                (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
+                log_stream=runpy.run_path(str(ROOT/'tools/waffle_log_stream.py'))
+                stream,stream_proof=log_stream['merge_run_logs'](out)
+                (out/'kernel-stream-proof.json').write_text(json.dumps(stream_proof,indent=2)+'\n')
+                final_text=stream.decode(errors='replace')
             image_pixels=None
             if args.gpu_session and not args.gpu_compute and not all(marker in final_text for marker in (
                     "SESSION OOB ownership transferred; init returned with GX retained",
@@ -1060,11 +1086,7 @@ def main():
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
                 if args.gpu_ui:
-                    if args.display_completion_audit:
-                        import runpy
-                        completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
-                        (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
-                    proof=validate_ui_workload_log(final_text)
+                    proof=validate_ui_workload_log(final_text,guarded_display=args.display_completion_audit)
                     (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")
                 else:
                     image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)

@@ -1,0 +1,13 @@
+{
+  "actual_backboardd_pid": 83,
+  "GPU_fences": 2768,
+  "BO_count": 1882,
+  "actual_CoreAnimation_workload": true,
+  "full_GPU_teardown": true,
+  "pixel_correctness_verified": false,
+  "optical_visibility_verified": false,
+  "source_stream_sha256": "1d4b324337c3f872259ff6237f3e7a41599c252062405a6688edb30051d2760b",
+  "source_run": "20261105T091550Z",
+  "original_runner_exit_unchanged": 1,
+  "qualification": "Offline revalidation with new exact-overlap collector and existing guarded-display protocol, not a new hardware run"
+}

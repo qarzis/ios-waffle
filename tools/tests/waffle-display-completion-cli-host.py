@@ -35,3 +35,19 @@ with tempfile.TemporaryDirectory() as directory:
   else:raise AssertionError('Stale compiled completion binding accepted')
   p.write_bytes(data)
 print('PASS actual completion CLI forwarding/admission + eight missing/stale compiled bindings before USB; synthetic only.')
+# The actual capture block must precede every early GPU prerequisite gate.
+import types,json
+inner=root/'scripts/run_waffle_ios.py';tree=ast.parse(inner.read_text());main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main')
+finished=next(n for n in ast.walk(main) if isinstance(n,ast.If) and ast.unparse(n.test)=='\'running\' not in line')
+collection=next(n for n in finished.body if isinstance(n,ast.If) and ast.unparse(n.test)=='args.display_completion_audit')
+early=next(n for n in finished.body if isinstance(n,ast.If) and ast.unparse(n.test)=='args.gpu_dynamic_bo')
+assert finished.body.index(collection)<finished.body.index(early)
+with tempfile.TemporaryDirectory() as directory:
+ p=Path(directory);kernel=p/'kernel';kernel.write_bytes(b'waffle-display-irq:')
+ text='identity'.ljust(256)+'\nwaffle-display-completion: records=1 no_extra_writes=1 guard_frames=2 cntfrq=1000000\nwaffle-display-completion: row=0 seq=1 stage=2 ticks=100 valid=1 frame0=3 frame1=3 flush=0 scheduler=1 auto_status=0 write_line=0 read_line=1 address0=d5100000 address1=d5100000\nwaffle-display-irq: row=0 top_status=100 top_enable=0 ctl_status=200 ctl_enable=0 tear_status=4f tear_enable=0 active=2\n'
+ (p/'kernel-1.log').write_text(text);(p/'kernel-final.log').write_text(text+'END')
+ ns={'ROOT':root,'args':types.SimpleNamespace(display_completion_audit=True,kernel=kernel),'out':p,'json':json,'final_text':text+'END'}
+ exec(compile(ast.fix_missing_locations(ast.Module(body=[collection],type_ignores=[])),str(inner),'exec'),ns)
+ assert json.loads((p/'display-completion.json').read_text())['irq_record_count']==1
+ assert json.loads((p/'kernel-stream-proof.json').read_text())['bytes']==len((text+'END').encode())
+print('PASS actual post-run collector before early GPU gates, paired IRQ requirement and valid JSON artifacts; synthetic snapshots only.')

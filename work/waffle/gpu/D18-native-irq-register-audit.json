@@ -1,0 +1,51 @@
+{
+  "revision": "38d50357db2728300a61b6f757f2d3a09651c155",
+  "live_dtb_sha256": "c0a4036689044dd47e4a46076285d1fca13361f4c280690c5e2e80ed7382a92a",
+  "top_base": 4096,
+  "intf1_tear_irq_base": 223232,
+  "read_offsets": {
+    "PP_status": 4116,
+    "PP_enable": 4112,
+    "CTL_status": 4108,
+    "CTL_enable": 4104,
+    "INTF1_tear_status": 223236,
+    "INTF1_tear_enable": 223232,
+    "CTL0_active_interfaces": 90356
+  },
+  "masks": {
+    "PP0_done": 256,
+    "PP1_done": 512,
+    "CTL0_done": 1,
+    "INTF1_autorefresh_done": 1
+  },
+  "new_primary_headers": {
+    "revision": "38d50357db2728300a61b6f757f2d3a09651c155",
+    "verified_against_cached_pinned_git_tree": true,
+    "files": [
+      {
+        "path": "vendor/qcom/opensource/display-drivers/msm/sde/sde_hw_interrupts.h",
+        "git_blob": "6f6fe7eda09dbd7ed58770b51b273d6c60b54c21",
+        "sha256": "80163065e401be840ed2efc48b3404bcbf8d884ad8af10421fd75280f1c78ffe"
+      },
+      {
+        "path": "vendor/qcom/opensource/display-drivers/msm/sde/sde_hw_util.h",
+        "git_blob": "4fc4e83f2c80570597c7fdb675829c67027bdfe8",
+        "sha256": "68f610d1910ee4558eb70a5a100a82e647e07d9316af46950d83cb87414248f9"
+      },
+      {
+        "path": "vendor/qcom/opensource/display-drivers/msm/sde/sde_hwio.h",
+        "git_blob": "35cad0138a101e1adb608c68ca876690ee4d21ae",
+        "sha256": "a9be0b1991ba80a93ed71e5f32d368b15b6b9d7f16aec9a7b4cc19f5323e4e90"
+      }
+    ]
+  },
+  "irq_acknowledgement": false,
+  "irq_enable_writes": false,
+  "limits": "Status is latched; sampled high is not a fresh completion. Existing two-frame guard remains unchanged.",
+  "routing_limitation": "Two SSPP source halves do not by themselves establish two output pingpong engines. PP0/PP1 bits are observed as candidates; actual INTF_MUX/merge route is not qualified by D17.",
+  "native_read_semantics": {
+    "status_read": "sde_hw_intr_get_interrupt_status reads status then optionally writes separate clear address only if clear=true",
+    "dispatcher": "reads status and enable; writes clear then dispatches only enabled bits",
+    "freshness_requirement": "A high latched bit without a known clearing boundary cannot identify completion of the new commit"
+  }
+}
