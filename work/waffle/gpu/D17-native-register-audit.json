@@ -1,0 +1,13 @@
+{
+  "revision": "38d50357db2728300a61b6f757f2d3a09651c155",
+  "verified": {
+    "vendor/qcom/opensource/display-drivers/msm/sde/sde_hw_intf.c": "1f1133dde46f487a3d653e0c08f5ddb4f1aec2209ecd3f8274e6271cf2f0167e",
+    "vendor/qcom/opensource/display-drivers/msm/sde/sde_hw_ctl.c": "5a821b52cc82404687cbc7b05e14dba65e4867a7dc3cae584f53aa1752a9340f",
+    "vendor/qcom/opensource/display-drivers/msm/sde/sde_encoder_phys_cmd.c": "3d7a6b3eabafbc5e8a19ea9163027da571bd646dc53ec042c16dfe3d67e8daa9"
+  },
+  "notes": [
+    "No IRQ status/ack/enable read or write introduced",
+    "Auto refresh status is raw; native code treats nonzero as busy before waiting for vblank",
+    "Native scheduler bit0 completion path is conditional on posted start and prior write-pointer success; not a generic fence"
+  ]
+}

@@ -1315,3 +1315,92 @@ S13 qualified exclusive native reads only. New hypothesis test uses private PID1
 
 ## S14 hardware PASS — run20261105T084828Z
 Original runner0/success1/Android1. Actual IOSurface CPU writer held: manual read acquisition EBUSY. Manual read lease op1 active1; actual AvoidSync trap result=e00002cc. Readonly CPU lock/unlock allowed. Separate pthread writer observed in kernel waiting_writers=1 via op3; op2 released lease; writer resumed and unlocked. No GPU commands during manual interval. Subsequent full EAGL native original/CPU-update/restoration shader proof passes:1024 shader pixels0wrong/full1218000 source0wrong,10 commands. Readonly native handle28 created/reused/retired. S14-result/evidence/lockanalysis saved. Does not yet qualify productionBackBoard imports, writabletarget/CPUconsumer cache, or UI FPS. Next production input admission requires explicit readonly input distinction at existing EAGL boundary and actual surface writer coverage; native target remains separate.
+
+S12–S14 source/tests/evidence published to qarzis/ios-waffle branch waffle/gpu-bringup commit aabc06740bf9a9657dd50f1ffdc2ad81f6ae5a16. Remote SHA verified and publish worktree clean. Representative host tests rerun from public worktree PASS. Main git index preserved. Fresh Android sys.boot_completed=1 confirmed after S14. No active phone runner.
+
+## S15 architecture gap: native input may later become a render target
+
+This is a barrier to production import, not a proven cause of existing UI FPS.
+Three current hypotheses/gaps, with no global driver rewrite:
+1. Strongest: readonly input import is not a durable EAGL role. Evidence:
+   osmesa_target.c::osmesa_surface_resource declares SAMPLER_VIEW|RENDER_TARGET;
+   eagl.c::my_texImageIOSurface attempts surface_shared; drawing() explicitly
+   promotes ordinary non-shared imported images to targets, but shared images
+   skip that promotion. The native sampler maps GPU pages readonly. The same
+   descriptor cannot safely be globally enabled for later framebuffer writes.
+   Test: attach the actual readonly imported texture to an FBO, query completeness,
+   detach and restore state without clear/draw/blit. Expected: GL accepts it despite
+   kernel readonly permission, proving frontend role is not enforced by import.
+2. Producer coverage remains unknown for ordinary UI. S14 validates actual
+   framework Lock/Unlock cooperation, not arbitrary writes or every producer.
+   Future check: correlate real producer writes, surface identity and use lifetime
+   before admitting BackBoard native inputs. No exclusion claim for raw writes.
+3. Writable native target cache/CPU consumer path is not qualified. S04 checks
+   four CP-written words, not tiled shader resolve/full-frame shared rendering.
+   Future check: isolated native shader target, post-completion invalidation,
+   independent whole-image/guard verification before removing output readback.
+
+Selected S15 tests hypothesis 1 with no native writes. New --surface-role-test
+implies full existing EAGL dispatch/sample/reuse proof, separate from contention.
+Strict proof requires same native readonly SID/handle, FRAMEBUFFER_COMPLETE,
+zero GL error and no GPU submission in the query interval. Kernel/Mesa/gold
+EAGL are unchanged from S14/S08B; only diagnostic root/tooling rebuilt. Root,
+container validator and pre-USB source binding PASS; three missing capability/
+header/dispatch refusals PASS. Hardware pending.
+
+## S15 hardware PASS — run20261105T085849Z
+Originalrunner0/success1/Android1. Actual readonly nativehandle28 accepted by GL as framebuffer attachment:FRAMEBUFFER_COMPLETE8cd5/GL_error0, noGPUcommands duringquery. Detach/state restoration succeeded; subsequent EAGL shader/CPUupdate/fullsource checks0wrong. Confirms import-time readonly sampler role does not prevent later FBO attachment. Therefore do not globally enable private ROimport for ordinary EAGL inputs. Native writabletarget/cache-consumer contract or explicit role-aware frontend enforcement must be qualified first. This is production import architecture evidence, not a cause established for current lag or a VSync fix. User asked VSync: answered directly no current VSyncchange, two-MDP-frame retirement/60Hzmode remain separate limits. Next audit display completion read-only; do not weaken guard on stale IRQstatus.
+
+## D17 display completion observation candidate
+User explicitly resumed after asking about VSync; focus moved to display retirement.
+Verified SHA256 of pinned native sde_hw_intf/ctl/encoder_phys_cmd files against
+revision38d50357db2728300a61b6f757f2d3a09651c155 provenance. Verified actual
+MDP_FRAME_COUNT/CTL_FLUSH/CTL_STATUS/TEAR_AUTOREFRESH_STATUS/TEAR_LINE_COUNT/
+TEAR_OUT_LINE_COUNT offsets. Native scheduler-idle fallback requires posted-start,
+prior write-pointer success and pending kickoff; it is not a generic bit0 fence.
+Native auto-status is treated as busy when nonzero, not an unconditional done bit.
+Current three hypotheses: (1) current two-MDP-frame retirement guard is a throughput
+ceiling and a fresh observed hardware completion could permit shorter retirement;
+(2) CTL scheduler/raw busy transitions may provide additional evidence, but native
+preconditions must be reproduced before using them; (3) frame/TE counters alone
+are pacing events and can advance without proving old buffer retirement.
+Selected minimal experiment: observe existing A/B commit before flush, immediately
+after flush, and during existing pending-complete polls. Capture frame before/after
+bracketing raw status/line/address reads. No extra hardware write, IRQ ack/enable,
+START, mode/rate change, guard change or new delay. Bounded128 records over first8
+completed frames, stored in heap presenter state and logged once outside polling.
+Sparse sampling during existing waits may miss transitions while CPU composes;
+absence of transition is not evidence that hardware has no completion signal.
+Actual pure read helper sanitizers and every9read-failure case pass; existing
+1000flip+600deferred/overlap/fault/wrap tests pass and frame/flip guard bytes match
+D16 exactly. Separate explicit opt-in boot token/CLI requires guarded hardware-VSync
+GPU UI and source-bound loader/kernel; prevents accidental incompatible survey mode.
+First D17 build passed before new token was added and is not used for hardware.
+D17B first build stopped in host wrapper because Python test paths were accidentally
+added to cc arguments; corrected wrapper, preserved failed log, rebuilding all.
+No hardware D17 attempt yet. Pair same qualified D16 UI root/E75 Mesa, test duration60s.
+
+D17B full required host/XNU/EFI/container build PASS after wrapper fix. Same exact D16 UI root and E75 pressure-qualified Mesa749e5d reused; no application/EAGL/shader code changes. Prepared/current/compiled snapshots and strict new loader token/source binding checked; guard and flip headers byte-identical D16. New runner captures display-completion.json before normal UI proof validation, preserving original failure if any. Hardware pending; no completion/FPS improvement claim.
+
+## D17B hardware observations — run20261105T091550Z
+Original runner1/auto successfalse/Android1, kernel returned1441823 0. Do not
+rewrite the failure as PASS. Final1.5MiB ring log lost the early completion banner;
+current final-only analyzer failed as expected. One complete earlier immutable
+snapshot kernel-124.log contains all67records, with source SHA preserved. Offline
+strict analysis passes; no stitched/invented rows. Collector fixed to locate one
+complete saved snapshot, tested against partial snapshots and final-log rollover.
+No hardware rerun merely to change a status. Normal full UI proof still depends on
+final early lifecycle records; not relaxed by this diagnostic fix.
+All67 samples valid, no counter crossed during capture. CTL scheduler remained1,
+so that value alone provides no fresh completion event. Raw autorefresh status
+changed0/1. Sequence1 showed busy0 with delta0 and flush3: idle alone can precede
+new-address latch and must not be treated as completion. In five observed short
+sequences, after flush cleared and MDP delta1, a busy-to-idle sample preceded the
+existing delta2 acceptance by1125.84–1165.00us (median1151.93us). Sparse ~1ms
+sampling is not a timing bound or release fence; no guard/pacing/IRQ change made.
+Final log shows585completed/restoredflips, GPU close2768commands/1882BOs,
+context_null1; no REBOOT REQUIRED or failed display commit. UI was idle and FPS
+numbers are not comparable with D16 active scrolling. Fresh Android confirmed.
+Next VSync gate: establish fresh transfer-done event / full split-path retirement
+semantics before consuming an earlier signal. Memory exchange and output readback
+remain separate dominant work; do not promise80–100fps from this sampled1ms gap.

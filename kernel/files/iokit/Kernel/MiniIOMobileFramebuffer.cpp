@@ -22,6 +22,7 @@
 #include "../../bsd/sys/waffle_display_flush.h"
 #include "../../bsd/sys/waffle_display_flip.h"
 #include "../../bsd/sys/waffle_display_present.h"
+#include "../../bsd/sys/waffle_display_completion.h"
 #include "../../bsd/sys/waffle_display_source.h"
 extern "C" {
 #include <console/video_console.h>
@@ -32,6 +33,7 @@ extern struct vc_info vinfo;
 extern "C" void redwood_tl(const char * format, ...) __printflike(1, 2);
 extern "C" vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
 extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
+static TUNABLE(uint32_t, gWaffleDisplayCompletionAudit, "waffle_display_completion_audit", 0);
 static TUNABLE(uint32_t, gWaffleDisplaySurvey, "waffle_vsync_audit", 0);
 static TUNABLE(uint32_t, gWaffleDisplayFlush, "waffle_display_flush", 0);
 static TUNABLE(uint32_t, gWaffleDisplayFlip, "waffle_display_flip", 0);
@@ -93,9 +95,42 @@ static void waffleDisplaySMMUSurvey(void)
  }
  ml_io_unmap(base, 0x100000);
 }
-struct WaffleDisplayFlipContext {vm_offset_t dpu, smmu, target;unsigned writes;void *owner;bool quiescing;};
+struct WaffleDisplayCompletionRecord {uint64_t ticks;uint32_t sequence,stage;bool valid;struct waffle_display_completion_sample sample;};
+struct WaffleDisplayFlipContext {
+ vm_offset_t dpu, smmu, target;unsigned writes;void *owner;bool quiescing;
+ uint32_t auditStage,auditSequence,auditCount;bool auditLogged;
+ WaffleDisplayCompletionRecord *audit;
+};
+static void waffleDisplayCompletionObserve(WaffleDisplayFlipContext *c,unsigned stage)
+{
+ if (!gWaffleDisplayCompletionAudit || !gWaffleDisplayPresent || !c->owner || c->quiescing ||
+     !c->audit || !c->auditStage || c->auditLogged || c->auditCount >= 128) return;
+ WaffleDisplayCompletionRecord *r = &c->audit[c->auditCount++];
+ r->ticks = mach_absolute_time();r->sequence = c->auditSequence;r->stage = stage;
+ struct waffle_display_io io = {(void *)c->dpu, waffleDisplayRead};
+ r->valid = waffle_display_completion_capture(&io, &r->sample);
+}
+static void waffleDisplayCompletionLog(WaffleDisplayFlipContext *c)
+{
+ if (!c->auditCount || c->auditLogged) return;
+ c->auditLogged = true;c->auditStage = 0;
+ redwood_tl("waffle-display-completion: records=%u no_extra_writes=1 guard_frames=2 cntfrq=%llu\n", c->auditCount,
+     (unsigned long long)__builtin_arm_rsr64("CNTFRQ_EL0"));
+ for (unsigned i = 0; i < c->auditCount; i++) {
+  const WaffleDisplayCompletionRecord *r = &c->audit[i];const struct waffle_display_completion_sample *v = &r->sample;
+  redwood_tl("waffle-display-completion: row=%u seq=%u stage=%u ticks=%llu valid=%u frame0=%u frame1=%u flush=%x scheduler=%x auto_status=%x write_line=%u read_line=%u address0=%x address1=%x\n",
+      i, r->sequence, r->stage, (unsigned long long)r->ticks, r->valid, v->frame_before, v->frame_after,
+      v->flush, v->scheduler, v->auto_status, v->write_line, v->read_line, v->address0, v->address1);
+ }
+}
+
 static bool waffleDisplayFlipRead(void *p, uint32_t offset, uint32_t *value)
-{return waffleDisplayRead((void *)((WaffleDisplayFlipContext *)p)->dpu, offset, value);}
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ bool ok = waffleDisplayRead((void *)c->dpu, offset, value);
+ if (ok && offset == 0x360a4) waffleDisplayCompletionObserve(c,c->auditStage);
+ return ok;
+}
 static bool waffleDisplayFlipWrite(void *p, uint32_t offset, uint32_t value)
 {
  WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
@@ -103,6 +138,7 @@ static bool waffleDisplayFlipWrite(void *p, uint32_t offset, uint32_t value)
      ((offset == 0x5014 || offset == 0x7014) && (value == WAFFLE_DISPLAY_FRONT || value == WAFFLE_DISPLAY_TEST)))) return false;
  *(volatile uint32_t *)(c->dpu + offset) = value;
  __asm__ volatile("dsb sy" ::: "memory");c->writes++;
+ if (offset == 0x16018) waffleDisplayCompletionObserve(c,3);
  return true;
 }
 static bool waffleDisplayFlipDomain(void *p)
@@ -154,6 +190,7 @@ static void waffleDisplayFlipProbe(void *, wait_result_t)
 }
 struct WaffleDisplayPresentState {
  WaffleDisplayFlipContext context;
+ WaffleDisplayCompletionRecord audit[128];
  IOBufferMemoryDescriptor *working;
  uint8_t *front;
  struct waffle_display_present_io io;
@@ -190,7 +227,7 @@ static WaffleDisplayPresentState *waffleDisplayPresentCreate(uint8_t *front)
  if (__atomic_load_n(&gWafflePresenter, __ATOMIC_ACQUIRE) || ((uintptr_t)front & 63)) return NULL;
  WaffleDisplayPresentState *s = (WaffleDisplayPresentState *)IOMallocZero(sizeof(*s));
  if (!s) return NULL;
- s->front = front;s->context.owner = s;
+ s->front = front;s->context.owner = s;s->context.audit = s->audit;
  s->context.dpu = ml_io_map_unmappable(0xae00000, 0x84000, VM_WIMG_IO);
  s->context.smmu = ml_io_map_unmappable(0x15000000, 0x100000, VM_WIMG_IO);
  /* Match the boot console's RAM framebuffer mapping (video_console.c).
@@ -1383,13 +1420,22 @@ IOMobileFramebuffer::show(const uint8_t * swap, MiniIOSurface ** surfaces, uint6
   /* The previous copy is immutable in A/B. Compose above overlapped its
    * scanout wait; retire it here before copying the next inactive buffer. */
   struct waffle_display_present_result previous = {};
+  if (gWaffleDisplayCompletionAudit && !fWafflePresenter->context.auditLogged) {
+   fWafflePresenter->context.auditStage = 1;
+   fWafflePresenter->context.auditSequence = fWafflePresenter->state.completed + 1;
+  }
   bool ok = waffle_display_present_complete(&fWafflePresenter->io, &fWafflePresenter->state, &previous);
+  if (gWaffleDisplayCompletionAudit && !fWafflePresenter->context.auditLogged) {
+   fWafflePresenter->context.auditStage = 2;
+   fWafflePresenter->context.auditSequence = fWafflePresenter->state.completed + 1;
+  }
   if (ok) ok = gRecSeconds == 0 ?
       waffle_display_present_begin(&fWafflePresenter->io, &fWafflePresenter->state, &r) :
       waffle_display_present_frame(&fWafflePresenter->io, &fWafflePresenter->state, &r);
   if (!ok && previous.rollback_attempted) r = previous;
   absolutetime_to_nanoseconds(mach_absolute_time() - start, &elapsed);
   unsigned completed = fWafflePresenter->state.completed;
+  if (gWaffleDisplayCompletionAudit && (!ok || completed >= 8)) waffleDisplayCompletionLog(&fWafflePresenter->context);
   if (!ok || completed <= 8 || !(completed % 120)) {
    redwood_tl("waffle-display-present: committed=%u completed=%u target=%x copied=%u rollback=%u rollback_ok=%u us=%llu accepted=%u pending=%u\n",
        r.committed || previous.committed, completed, r.target, r.copied, r.rollback_attempted, r.rollback_ok,

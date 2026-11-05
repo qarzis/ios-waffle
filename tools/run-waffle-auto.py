@@ -44,6 +44,8 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Native EAGL input requires a source-bound isolated artifact')
     if gl_manifest.get('surface_dispatch_test') and (not gl_manifest.get('surface_eagl_test') or not manifest.get('surface_dispatch_audit') or 'tools/build-waffle-eagl-dispatch.py' not in gl_manifest.get('source_sha256',{})):
         raise ValueError('Native sampler EAGL dispatch requires a source-bound isolated artifact')
+    if gl_manifest.get('surface_role_test') and (not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_role_audit') or 'userland/src/waffle_surface_role_probe.h' not in gl_manifest.get('source_sha256',{})):
+        raise ValueError('Surface role audit lacks isolated kernel/source binding')
     if gl_manifest.get('surface_lease_test'):
         if not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_lease_contention_audit'):
             raise ValueError('Surface lease contention lacks isolated kernel support')
@@ -84,6 +86,19 @@ def check_surface_lock_policy(root, artifact, manifest):
         raise ValueError('Loader snapshot does not admit the lock audit token')
 
 
+def check_display_completion_binding(root,artifact,manifest):
+    bindings=manifest.get('display_completion_source_sha256',{})
+    required=('loader/waffle.h','kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp',
+              'kernel/files/bsd/sys/waffle_display_completion.h','kernel/files/bsd/sys/waffle_display_present.h')
+    for name in required:
+        if name not in bindings:raise ValueError('Display completion source binding missing')
+        digest=bindings[name]
+        if hashlib.sha256((root/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:
+            raise ValueError('Display completion compiled/current source changed: '+name)
+    if b'waffle_display_completion_audit=1' not in (artifact/'source/loader/waffle.h').read_bytes():
+        raise ValueError('Loader does not admit completion audit')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifact', type=Path, required=True)
@@ -100,6 +115,7 @@ def main():
     parser.add_argument('--double-buffer',action='store_true',help='Opt-in complete-frame buffered scanout')
     parser.add_argument('--display-flip-probe',action='store_true',help='Bounded reserved-framebuffer pattern flip and restoration')
     parser.add_argument('--display-flush-probe',action='store_true',help='Bounded unchanged-frame native CTL flush control probe')
+    parser.add_argument('--display-completion-audit',action='store_true',help='Bounded read-only display commit/completion trace')
     parser.add_argument('--display-survey',action='store_true',help='Read-only inherited DPU/TE survey during GPU UI')
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
@@ -225,6 +241,11 @@ def main():
                 bound=artifact/'source'/name
                 if not bound.is_file() or hashlib.sha256(bound.read_bytes()).hexdigest()!=audio_manifest['source_sha256'][name]:
                     parser.error('Battery report source binding missing or stale: '+name)
+    if args.display_completion_audit and (not args.double_buffer or not args.hardware_vsync or args.display_survey or args.display_flip_probe or args.display_flush_probe or args.audio_preflight or args.ui_long_test or args.ui_soak_test or not args.ui_workload or not args.gl_context or not manifest.get('display_completion_audit')):
+        parser.error('--display-completion-audit requires a bound guarded hardware-VSync GPU UI artifact')
+    if args.display_completion_audit:
+        try:check_display_completion_binding(ROOT,artifact,manifest)
+        except (ValueError,OSError) as error:parser.error(str(error))
     if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('double_buffer_display')):
         parser.error('--double-buffer requires a bound dedicated GPU UI artifact and excludes other display/audio modes')
     if args.display_flip_probe and (args.display_flush_probe or args.hardware_vsync or args.display_survey or args.audio_preflight or not args.ui_workload or not args.gl_context or not manifest.get('display_flip_probe')):
@@ -385,6 +406,7 @@ def main():
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
             if args.surface_lock_audit:items.append('--surface-lock-audit')
+            if args.display_completion_audit:items.append('--display-completion-audit')
             if args.hardware_vsync:items.append('--hardware-vsync')
             if args.double_buffer:items.append('--double-buffer')
             if args.display_flip_probe:items.append('--display-flip-probe')

@@ -44,3 +44,25 @@ A safe faster flip contract must establish when the old physical scanout buffer 
 3. Qualify the higher-rate iOS mode separately once presentation can safely exceed60fps. Measure delivered frames, tears, frame-time tails and close/recovery, rather than only notification count.
 4. Implement IOSurface exchange incrementally: metadata-only ABI first, then one retained surface and GPU mapping, controlled render/readback/coherency pixel proof, then normal compositor integration. Keep fallback for unsupported pitch/plane/client-memory types. This is larger than enabling selector0x7e or increasing the heap.
 5. Judge80–100fps using an active scrolling interval and independent presentation evidence, with stutter and long-run stability still reported. No deadline or guaranteed final FPS follows from this audit.
+
+
+## D17B retirement observations (2026-11-05)
+
+The two-frame guard and flip headers remain byte-identical to D16. A bounded
+read-only observer recorded 67 samples around the first eight guarded commits.
+Pinned native file hashes and register constants were checked before access;
+there are no additional MMIO writes, IRQ acknowledgments or rate changes.
+
+CTL scheduler status stayed at 1, which cannot identify a new completion by
+itself. Autorefresh busy status changed between 0 and 1. One idle sample occurred
+before the new flush cleared or its first MDP count advanced, so an idle bit by
+itself is also insufficient. Five short sequences showed a post-latch busy-to-idle
+sample about 1.13–1.17 ms before the existing two-frame acceptance. That is a sparse
+observation, not a proven reuse fence or a measured FPS improvement.
+
+The original runner exited 1 because its final-only analysis lost the early audit
+in the 1.5 MiB rolling log. This failure is preserved in `D17-result.json`. A complete
+earlier snapshot contains all rows and is verified separately; the analyzer now
+locates one complete saved snapshot rather than stitching partial traces. The
+final log records 585 restored flips and a clean GPU close of 2,768 commands and
+1,882 BOs; Android returned. There was no active-scroll FPS comparison.

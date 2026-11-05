@@ -1,0 +1,8 @@
+{
+  "reference": "diagnostic-display-overlap-d16",
+  "sha256": {
+    "kernel/files/bsd/sys/waffle_display_present.h": "cd3f4a86739ab59cf5d846e310ddcad44c97251610d842fe8f121201ddd00861",
+    "kernel/files/bsd/sys/waffle_display_flip.h": "0128d3088c69cf7d41e885d5cac7320ec95cbf1d8a8f540bd55426ad5ed63f30"
+  },
+  "guard_changed": false
+}

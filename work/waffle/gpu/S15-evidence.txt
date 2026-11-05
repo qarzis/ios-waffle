@@ -1,0 +1,796 @@
+waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1
+waffle-gl-eagl: begin actual_adapter=gl_osmesa API=2 texture_FBO=1
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-gl-eagl: FBO_status=8cd5
+waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=1 bos=16 roots=2 words=807 windows=1 metadata_bytes=352
+waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=2 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=3 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=4 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=5 seq=48 control=00000005 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=5 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=6 seq=49 control=00000006 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=6 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=7 seq=50 control=00000007 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=7 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=8 seq=51 control=00000008 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=8 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=9 seq=52 control=00000009 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=9 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=10 seq=53 control=0000000a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=10 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=11 seq=54 control=0000000b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=11 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=12 seq=55 control=0000000c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=12 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=13 seq=56 control=0000000d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=13 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=14 seq=57 control=0000000e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=14 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=15 seq=58 control=0000000f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=15 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=16 seq=59 control=00000010 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=16 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=17 seq=60 control=00000011 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=17 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=18 seq=61 control=00000012 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=18 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=19 seq=62 control=00000013 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=19 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=20 seq=63 control=00000014 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=20 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=21 seq=64 control=00000015 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=21 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=22 seq=65 control=00000016 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=22 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=23 seq=66 control=00000017 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=23 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=24 seq=67 control=00000018 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=24 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=25 seq=68 control=00000019 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=25 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=26 seq=69 control=0000001a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=26 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=27 seq=70 control=0000001b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=27 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=28 seq=71 control=0000001c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=28 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=29 seq=72 control=0000001d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=29 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=30 seq=73 control=0000001e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=30 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=31 seq=74 control=0000001f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=31 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=32 seq=75 control=00000020 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=32 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=33 seq=76 control=00000021 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=33 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=34 seq=77 control=00000022 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=34 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=35 seq=78 control=00000023 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=35 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=36 seq=79 control=00000024 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=36 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=37 seq=80 control=00000025 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=37 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=38 seq=81 control=00000026 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=38 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=39 seq=82 control=00000027 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=39 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=40 seq=83 control=00000028 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=40 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=41 seq=84 control=00000029 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=41 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=42 seq=85 control=0000002a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=42 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=43 seq=86 control=0000002b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=43 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=44 seq=87 control=0000002c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=44 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=45 seq=88 control=0000002d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=45 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=46 seq=89 control=0000002e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=46 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=47 seq=90 control=0000002f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=47 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=48 seq=91 control=00000030 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=48 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=49 seq=92 control=00000031 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=49 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=50 seq=93 control=00000032 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=50 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=51 seq=94 control=00000033 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=51 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=52 seq=95 control=00000034 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=52 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=53 seq=96 control=00000035 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=53 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=54 seq=97 control=00000036 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=54 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=55 seq=98 control=00000037 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=55 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=56 seq=99 control=00000038 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=56 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=57 seq=100 control=00000039 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=57 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=58 seq=101 control=0000003a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=58 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=59 seq=102 control=0000003b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=59 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=60 seq=103 control=0000003c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=60 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=61 seq=104 control=0000003d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=61 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=62 seq=105 control=0000003e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=62 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=63 seq=106 control=0000003f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=63 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=64 seq=107 control=00000040 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=64 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=65 seq=108 control=00000041 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=65 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=66 seq=109 control=00000042 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=66 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=67 seq=110 control=00000043 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=67 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=68 seq=111 control=00000044 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=68 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=69 seq=112 control=00000045 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=69 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=70 seq=113 control=00000046 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=70 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=71 seq=114 control=00000047 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=71 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=72 seq=115 control=00000048 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=72 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=73 seq=116 control=00000049 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=73 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=74 seq=117 control=0000004a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=74 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=75 seq=118 control=0000004b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=75 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=76 seq=119 control=0000004c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=76 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=77 seq=120 control=0000004d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=77 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=78 seq=121 control=0000004e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=78 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=79 seq=122 control=0000004f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=79 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=80 seq=123 control=00000050 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=80 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=81 seq=124 control=00000051 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=81 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=82 seq=125 control=00000052 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=82 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=83 seq=126 control=00000053 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=83 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=84 seq=127 control=00000054 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=84 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=85 seq=128 control=00000055 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=85 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=86 seq=129 control=00000056 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=86 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=87 seq=130 control=00000057 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=87 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=88 seq=131 control=00000058 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=88 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=89 seq=132 control=00000059 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=89 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=90 seq=133 control=0000005a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=90 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=91 seq=134 control=0000005b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=91 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=92 seq=135 control=0000005c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=92 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=93 seq=136 control=0000005d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=93 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=94 seq=137 control=0000005e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=94 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=95 seq=138 control=0000005f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=95 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=96 seq=139 control=00000060 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=96 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=97 seq=140 control=00000061 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=97 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=98 seq=141 control=00000062 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=98 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=99 seq=142 control=00000063 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=99 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=100 seq=143 control=00000064 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=100 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=101 seq=144 control=00000065 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=101 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=102 seq=145 control=00000066 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=102 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=103 seq=146 control=00000067 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=103 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=104 seq=147 control=00000068 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=104 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=105 seq=148 control=00000069 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=105 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=106 seq=149 control=0000006a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=106 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=107 seq=150 control=0000006b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=107 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=108 seq=151 control=0000006c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=108 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=109 seq=152 control=0000006d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=109 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=110 seq=153 control=0000006e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=110 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=111 seq=154 control=0000006f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=111 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=112 seq=155 control=00000070 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=112 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=113 seq=156 control=00000071 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=113 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=114 seq=157 control=00000072 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=114 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=115 seq=158 control=00000073 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=115 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=116 seq=159 control=00000074 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=116 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=117 seq=160 control=00000075 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=117 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=118 seq=161 control=00000076 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=118 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=119 seq=162 control=00000077 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=119 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=120 seq=163 control=00000078 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=120 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=121 seq=164 control=00000079 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=121 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=122 seq=165 control=0000007a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=122 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=123 seq=166 control=0000007b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=123 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=124 seq=167 control=0000007c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=124 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=125 seq=168 control=0000007d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=125 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=126 seq=169 control=0000007e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=126 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=127 seq=170 control=0000007f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=127 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=128 seq=171 control=00000080 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=128 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=129 seq=172 control=00000081 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=129 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=130 seq=173 control=00000082 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=130 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=131 seq=174 control=00000083 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=131 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=132 seq=175 control=00000084 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=132 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=133 seq=176 control=00000085 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=133 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=134 seq=177 control=00000086 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=134 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=135 seq=178 control=00000087 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=135 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=136 seq=179 control=00000088 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=136 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=137 seq=180 control=00000089 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=137 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=138 seq=181 control=0000008a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=138 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=139 seq=182 control=0000008b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=139 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=140 seq=183 control=0000008c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=140 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=141 seq=184 control=0000008d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=141 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=142 seq=185 control=0000008e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=142 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=143 seq=186 control=0000008f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=143 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=144 seq=187 control=00000090 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=144 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=145 seq=188 control=00000091 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=145 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=146 seq=189 control=00000092 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=146 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=147 seq=190 control=00000093 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=147 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=148 seq=191 control=00000094 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=148 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=149 seq=192 control=00000095 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=149 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=150 seq=193 control=00000096 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=150 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=151 seq=194 control=00000097 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=151 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=152 seq=195 control=00000098 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=152 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=153 seq=196 control=00000099 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=153 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=154 seq=197 control=0000009a checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=154 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=155 seq=198 control=0000009b checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=155 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=156 seq=199 control=0000009c checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=156 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=157 seq=200 control=0000009d checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=157 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=158 seq=201 control=0000009e checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=158 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=159 seq=202 control=0000009f checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=159 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=160 seq=203 control=000000a0 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=160 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=161 seq=204 control=000000a1 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=161 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=162 seq=205 control=000000a2 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=162 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=163 seq=206 control=000000a3 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=163 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=164 seq=207 control=000000a4 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=164 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=165 seq=208 control=000000a5 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=165 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=166 seq=209 control=000000a6 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=166 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=167 seq=210 control=000000a7 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=167 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=168 seq=211 control=000000a8 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=168 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=169 seq=212 control=000000a9 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=169 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=170 seq=213 control=000000aa checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=170 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=171 seq=214 control=000000ab checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=171 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=172 seq=215 control=000000ac checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=172 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=173 seq=216 control=000000ad checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=173 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=174 seq=217 control=000000ae checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=174 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=175 seq=218 control=000000af checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=175 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=176 seq=219 control=000000b0 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=176 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=177 seq=220 control=000000b1 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=177 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=178 seq=221 control=000000b2 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=178 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=179 seq=222 control=000000b3 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=179 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=180 seq=223 control=000000b4 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=180 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=181 seq=224 control=000000b5 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=181 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=182 seq=225 control=000000b6 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=182 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=183 seq=226 control=000000b7 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=183 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=184 seq=227 control=000000b8 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=184 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=185 seq=228 control=000000b9 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=185 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=186 seq=229 control=000000ba checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=186 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=187 seq=230 control=000000bb checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=187 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=188 seq=231 control=000000bc checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=188 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=189 seq=232 control=000000bd checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=189 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=190 seq=233 control=000000be checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=190 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=191 seq=234 control=000000bf checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=191 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=192 seq=235 control=000000c0 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=192 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=193 seq=236 control=000000c1 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=193 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=194 seq=237 control=000000c2 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=194 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=195 seq=238 control=000000c3 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=195 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=196 seq=239 control=000000c4 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=196 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=197 seq=240 control=000000c5 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=197 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=198 seq=241 control=000000c6 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=198 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=199 seq=242 control=000000c7 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=199 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=200 seq=243 control=000000c8 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=200 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=201 seq=244 control=000000c9 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=201 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=202 seq=245 control=000000ca checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=202 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=203 seq=246 control=000000cb checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=203 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=204 seq=247 control=000000cc checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=204 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gmu: GENERAL_SUBMIT done fence=205 seq=248 control=000000cd checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=205 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-iommu: SURFACE_BO published index=29 VA=101684000 bytes=4898816 cached=1 pages=1196
+waffle-gpu: SURFACE_IMPORT created=1 sid=1 handle=28 index=29 VA=101684000 bytes=4898816 lifetime_only=0
+waffle-gpu: SURFACE_SAMPLE imported=1 sid=1 handle=28 index=29 GPU_readonly=1
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-gpu: SURFACE_DESCRIBE sid=1 bytes=4898816 offset=0 stride=3008 width=750 height=1624 format=42475241 planes=0 metadata_only=1 GPU_import=0
+waffle-gpu: SURFACE_IMPORT reused=1 sid=1 handle=28
+waffle-gl-eagl-native-input: bound=2 sid=1 selector_present=1 input_only=1
+waffle-gpu: SURFACE_IMPORT reused=1 sid=1 handle=28
+waffle-gl-surface-role: begin sid=1 handle=28 readonly_native=1
+waffle-gl-surface-role: passed=1 sid=1 handle=28 framebuffer_status=8cd5 GL_error=0 readonly_native=1 attachment_allowed=1 draw_calls=0 restored_binding=1
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=28 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=206 seq=249 control=000000ce checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=206 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=207 seq=250 control=000000cf checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=207 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gl-eagl-native-draw: dispatched=1 shader_draw_readback=1
+waffle-gl-surface-sample: passed=1 sid=1 checked=256 wrong=0 GL_error=0 stage=7 GPU_readonly=1
+waffle-gl-surface-sample: pixels offset=0 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=8 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=16 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-sample: pixels offset=24 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=32 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-sample: pixels offset=40 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=48 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=56 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=64 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=72 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=80 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=88 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=96 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=104 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=112 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=120 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=128 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=136 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=144 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=152 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=160 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=168 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=176 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=184 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=192 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=200 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-sample: pixels offset=208 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=216 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-sample: pixels offset=224 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=232 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-sample: pixels offset=240 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-sample: pixels offset=248 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=28 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=208 seq=251 control=000000d0 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=208 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=209 seq=252 control=000000d1 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=209 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gl-surface-reuse: phase=1 passed=1 checked=256 wrong=0 GL_error=0 same_texture=1
+waffle-gl-surface-reuse: phase=1 offset=0 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=8 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=16 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=24 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=32 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=40 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=48 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=56 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=64 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=72 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=80 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=88 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=96 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=104 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=112 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=120 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=128 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=136 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=144 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=152 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=160 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=168 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=176 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=184 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=192 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=200 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=208 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=216 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=224 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=232 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=240 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gl-surface-reuse: phase=1 offset=248 values=ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00/ff00ff00
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=28 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=210 seq=253 control=000000d2 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=210 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=211 seq=254 control=000000d3 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=211 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gl-surface-reuse: phase=2 passed=1 checked=256 wrong=0 GL_error=0 same_texture=1
+waffle-gl-surface-reuse: phase=2 offset=0 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=8 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=16 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=24 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=32 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=40 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=48 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=56 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=64 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=72 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=80 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=88 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=96 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=104 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=112 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=120 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=128 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=136 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=144 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=152 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=160 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=168 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=176 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=184 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=192 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=200 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=208 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=216 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=224 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=232 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=240 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gl-surface-reuse: phase=2 offset=248 values=ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff/ffff00ff
+waffle-gpu: SURFACE_SAMPLE sync=1 handle=28 bytes=4898816 GPU_readonly=1 declared_flags=3
+waffle-gmu: GENERAL_SUBMIT done fence=212 seq=255 control=000000d4 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=212 bos=16 roots=1 words=236 windows=1 metadata_bytes=304
+waffle-gmu: GENERAL_SUBMIT done fence=213 seq=256 control=000000d5 checked=4096 wrong_words=0
+waffle-gpu: GENERAL request_completed fence=213 bos=6 roots=1 words=107 windows=1 metadata_bytes=144
+waffle-gl-surface-reuse: phase=3 passed=1 checked=256 wrong=0 GL_error=0 same_texture=1
+waffle-gl-surface-reuse: phase=3 offset=0 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=8 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=16 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=24 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=32 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=40 values=ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=48 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=56 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=64 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=72 values=ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=80 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=88 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=96 values=ff000000/ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=104 values=ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=112 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=120 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=128 values=ff000000/ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=136 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=144 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=152 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=160 values=ff000000/ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=168 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=176 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=184 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=192 values=ff000000/ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=200 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000/ff000000
+waffle-gl-surface-reuse: phase=3 offset=208 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=216 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-reuse: phase=3 offset=224 values=ff000000/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=232 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff000000
+waffle-gl-surface-reuse: phase=3 offset=240 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: phase=3 offset=248 values=ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff/ff0040ff
+waffle-gl-surface-reuse: result=1 phases=3 source_restored=1 same_native_GEM=1
+waffle-gl-surface-resource: passed=1 sid=1 textures=2 width=750 height=1624 deleted=2 GPU_memory_access=1
+waffle-gl-surface: sid=1 bytes=4898816 stride=3008 width=750 height=1624 format=42475241 metadata_expected=1
+waffle-gl-eagl: result=1 actual_adapter=gl_osmesa API=2
+[  113.851813]: waffle-gmu: GENERAL_SUBMIT done fence=1 seq=44 control=00000001 checked=4096 wrong_words=0
+[  113.852162]: waffle-gmu: GENERAL_SUBMIT done fence=2 seq=45 control=00000002 checked=4096 wrong_words=0
+[  113.852459]: waffle-gmu: GENERAL_SUBMIT done fence=3 seq=46 control=00000003 checked=4096 wrong_words=0
+[  113.852749]: waffle-gmu: GENERAL_SUBMIT done fence=4 seq=47 control=00000004 checked=4096 wrong_words=0
+[  113.853040]: waffle-gmu: GENERAL_SUBMIT done fence=5 seq=48 control=00000005 checked=4096 wrong_words=0
+[  113.853329]: waffle-gmu: GENERAL_SUBMIT done fence=6 seq=49 control=00000006 checked=4096 wrong_words=0
+[  113.853618]: waffle-gmu: GENERAL_SUBMIT done fence=7 seq=50 control=00000007 checked=4096 wrong_words=0
+[  113.853905]: waffle-gmu: GENERAL_SUBMIT done fence=8 seq=51 control=00000008 checked=4096 wrong_words=0
+[  113.854196]: waffle-gmu: GENERAL_SUBMIT done fence=9 seq=52 control=00000009 checked=4096 wrong_words=0
+[  113.854486]: waffle-gmu: GENERAL_SUBMIT done fence=10 seq=53 control=0000000a checked=4096 wrong_words=0
+[  113.854793]: waffle-gmu: GENERAL_SUBMIT done fence=11 seq=54 control=0000000b checked=4096 wrong_words=0
+[  113.855115]: waffle-gmu: GENERAL_SUBMIT done fence=12 seq=55 control=0000000c checked=4096 wrong_words=0
+[  113.855435]: waffle-gmu: GENERAL_SUBMIT done fence=13 seq=56 control=0000000d checked=4096 wrong_words=0
+[  113.855755]: waffle-gmu: GENERAL_SUBMIT done fence=14 seq=57 control=0000000e checked=4096 wrong_words=0
+[  113.856053]: waffle-gmu: GENERAL_SUBMIT done fence=15 seq=58 control=0000000f checked=4096 wrong_words=0
+[  113.856341]: waffle-gmu: GENERAL_SUBMIT done fence=16 seq=59 control=00000010 checked=4096 wrong_words=0
+[  113.856629]: waffle-gmu: GENERAL_SUBMIT done fence=17 seq=60 control=00000011 checked=4096 wrong_words=0
+[  113.856919]: waffle-gmu: GENERAL_SUBMIT done fence=18 seq=61 control=00000012 checked=4096 wrong_words=0
+[  113.857209]: waffle-gmu: GENERAL_SUBMIT done fence=19 seq=62 control=00000013 checked=4096 wrong_words=0
+[  113.857498]: waffle-gmu: GENERAL_SUBMIT done fence=20 seq=63 control=00000014 checked=4096 wrong_words=0
+[  113.857787]: waffle-gmu: GENERAL_SUBMIT done fence=21 seq=64 control=00000015 checked=4096 wrong_words=0
+[  113.858079]: waffle-gmu: GENERAL_SUBMIT done fence=22 seq=65 control=00000016 checked=4096 wrong_words=0
+[  113.858367]: waffle-gmu: GENERAL_SUBMIT done fence=23 seq=66 control=00000017 checked=4096 wrong_words=0
+[  113.858658]: waffle-gmu: GENERAL_SUBMIT done fence=24 seq=67 control=00000018 checked=4096 wrong_words=0
+[  113.858949]: waffle-gmu: GENERAL_SUBMIT done fence=25 seq=68 control=00000019 checked=4096 wrong_words=0
+[  113.859242]: waffle-gmu: GENERAL_SUBMIT done fence=26 seq=69 control=0000001a checked=4096 wrong_words=0
+[  113.859529]: waffle-gmu: GENERAL_SUBMIT done fence=27 seq=70 control=0000001b checked=4096 wrong_words=0
+[  113.859820]: waffle-gmu: GENERAL_SUBMIT done fence=28 seq=71 control=0000001c checked=4096 wrong_words=0
+[  113.860108]: waffle-gmu: GENERAL_SUBMIT done fence=29 seq=72 control=0000001d checked=4096 wrong_words=0
+[  113.860394]: waffle-gmu: GENERAL_SUBMIT done fence=30 seq=73 control=0000001e checked=4096 wrong_words=0
+[  113.860708]: waffle-gmu: GENERAL_SUBMIT done fence=31 seq=74 control=0000001f checked=4096 wrong_words=0
+[  113.860997]: waffle-gmu: GENERAL_SUBMIT done fence=32 seq=75 control=00000020 checked=4096 wrong_words=0
+[  113.861290]: waffle-gmu: GENERAL_SUBMIT done fence=33 seq=76 control=00000021 checked=4096 wrong_words=0
+[  113.861580]: waffle-gmu: GENERAL_SUBMIT done fence=34 seq=77 control=00000022 checked=4096 wrong_words=0
+[  113.861869]: waffle-gmu: GENERAL_SUBMIT done fence=35 seq=78 control=00000023 checked=4096 wrong_words=0
+[  113.862160]: waffle-gmu: GENERAL_SUBMIT done fence=36 seq=79 control=00000024 checked=4096 wrong_words=0
+[  113.862447]: waffle-gmu: GENERAL_SUBMIT done fence=37 seq=80 control=00000025 checked=4096 wrong_words=0
+[  113.862741]: waffle-gmu: GENERAL_SUBMIT done fence=38 seq=81 control=00000026 checked=4096 wrong_words=0
+[  113.863047]: waffle-gmu: GENERAL_SUBMIT done fence=39 seq=82 control=00000027 checked=4096 wrong_words=0
+[  113.863368]: waffle-gmu: GENERAL_SUBMIT done fence=40 seq=83 control=00000028 checked=4096 wrong_words=0
+[  113.863689]: waffle-gmu: GENERAL_SUBMIT done fence=41 seq=84 control=00000029 checked=4096 wrong_words=0
+[  113.864011]: waffle-gmu: GENERAL_SUBMIT done fence=42 seq=85 control=0000002a checked=4096 wrong_words=0
+[  113.864325]: waffle-gmu: GENERAL_SUBMIT done fence=43 seq=86 control=0000002b checked=4096 wrong_words=0
+[  113.864615]: waffle-gmu: GENERAL_SUBMIT done fence=44 seq=87 control=0000002c checked=4096 wrong_words=0
+[  113.864907]: waffle-gmu: GENERAL_SUBMIT done fence=45 seq=88 control=0000002d checked=4096 wrong_words=0
+[  113.865198]: waffle-gmu: GENERAL_SUBMIT done fence=46 seq=89 control=0000002e checked=4096 wrong_words=0
+[  113.865489]: waffle-gmu: GENERAL_SUBMIT done fence=47 seq=90 control=0000002f checked=4096 wrong_words=0
+[  113.865784]: waffle-gmu: GENERAL_SUBMIT done fence=48 seq=91 control=00000030 checked=4096 wrong_words=0
+[  113.866075]: waffle-gmu: GENERAL_SUBMIT done fence=49 seq=92 control=00000031 checked=4096 wrong_words=0
+[  113.866369]: waffle-gmu: GENERAL_SUBMIT done fence=50 seq=93 control=00000032 checked=4096 wrong_words=0
+[  113.866657]: waffle-gmu: GENERAL_SUBMIT done fence=51 seq=94 control=00000033 checked=4096 wrong_words=0
+[  113.866949]: waffle-gmu: GENERAL_SUBMIT done fence=52 seq=95 control=00000034 checked=4096 wrong_words=0
+[  113.867239]: waffle-gmu: GENERAL_SUBMIT done fence=53 seq=96 control=00000035 checked=4096 wrong_words=0
+[  113.867530]: waffle-gmu: GENERAL_SUBMIT done fence=54 seq=97 control=00000036 checked=4096 wrong_words=0
+[  113.867818]: waffle-gmu: GENERAL_SUBMIT done fence=55 seq=98 control=00000037 checked=4096 wrong_words=0
+[  113.868108]: waffle-gmu: GENERAL_SUBMIT done fence=56 seq=99 control=00000038 checked=4096 wrong_words=0
+[  113.868397]: waffle-gmu: GENERAL_SUBMIT done fence=57 seq=100 control=00000039 checked=4096 wrong_words=0
+[  113.868688]: waffle-gmu: GENERAL_SUBMIT done fence=58 seq=101 control=0000003a checked=4096 wrong_words=0
+[  113.868976]: waffle-gmu: GENERAL_SUBMIT done fence=59 seq=102 control=0000003b checked=4096 wrong_words=0
+[  113.869266]: waffle-gmu: GENERAL_SUBMIT done fence=60 seq=103 control=0000003c checked=4096 wrong_words=0
+[  113.869557]: waffle-gmu: GENERAL_SUBMIT done fence=61 seq=104 control=0000003d checked=4096 wrong_words=0
+[  113.869846]: waffle-gmu: GENERAL_SUBMIT done fence=62 seq=105 control=0000003e checked=4096 wrong_words=0
+[  113.870135]: waffle-gmu: GENERAL_SUBMIT done fence=63 seq=106 control=0000003f checked=4096 wrong_words=0
+[  113.870424]: waffle-gmu: GENERAL_SUBMIT done fence=64 seq=107 control=00000040 checked=4096 wrong_words=0
+[  113.870711]: waffle-gmu: GENERAL_SUBMIT done fence=65 seq=108 control=00000041 checked=4096 wrong_words=0
+[  113.870999]: waffle-gmu: GENERAL_SUBMIT done fence=66 seq=109 control=00000042 checked=4096 wrong_words=0
+[  113.871290]: waffle-gmu: GENERAL_SUBMIT done fence=67 seq=110 control=00000043 checked=4096 wrong_words=0
+[  113.871614]: waffle-gmu: GENERAL_SUBMIT done fence=68 seq=111 control=00000044 checked=4096 wrong_words=0
+[  113.871935]: waffle-gmu: GENERAL_SUBMIT done fence=69 seq=112 control=00000045 checked=4096 wrong_words=0
+[  113.872249]: waffle-gmu: GENERAL_SUBMIT done fence=70 seq=113 control=00000046 checked=4096 wrong_words=0
+[  113.872568]: waffle-gmu: GENERAL_SUBMIT done fence=71 seq=114 control=00000047 checked=4096 wrong_words=0
+[  113.872871]: waffle-gmu: GENERAL_SUBMIT done fence=72 seq=115 control=00000048 checked=4096 wrong_words=0
+[  113.873164]: waffle-gmu: GENERAL_SUBMIT done fence=73 seq=116 control=00000049 checked=4096 wrong_words=0
+[  113.873453]: waffle-gmu: GENERAL_SUBMIT done fence=74 seq=117 control=0000004a checked=4096 wrong_words=0
+[  113.873744]: waffle-gmu: GENERAL_SUBMIT done fence=75 seq=118 control=0000004b checked=4096 wrong_words=0
+[  113.874036]: waffle-gmu: GENERAL_SUBMIT done fence=76 seq=119 control=0000004c checked=4096 wrong_words=0
+[  113.874324]: waffle-gmu: GENERAL_SUBMIT done fence=77 seq=120 control=0000004d checked=4096 wrong_words=0
+[  113.874617]: waffle-gmu: GENERAL_SUBMIT done fence=78 seq=121 control=0000004e checked=4096 wrong_words=0
+[  113.874907]: waffle-gmu: GENERAL_SUBMIT done fence=79 seq=122 control=0000004f checked=4096 wrong_words=0
+[  113.875198]: waffle-gmu: GENERAL_SUBMIT done fence=80 seq=123 control=00000050 checked=4096 wrong_words=0
+[  113.875488]: waffle-gmu: GENERAL_SUBMIT done fence=81 seq=124 control=00000051 checked=4096 wrong_words=0
+[  113.875780]: waffle-gmu: GENERAL_SUBMIT done fence=82 seq=125 control=00000052 checked=4096 wrong_words=0
+[  113.876072]: waffle-gmu: GENERAL_SUBMIT done fence=83 seq=126 control=00000053 checked=4096 wrong_words=0
+[  113.876365]: waffle-gmu: GENERAL_SUBMIT done fence=84 seq=127 control=00000054 checked=4096 wrong_words=0
+[  113.876657]: waffle-gmu: GENERAL_SUBMIT done fence=85 seq=128 control=00000055 checked=4096 wrong_words=0
+[  113.876970]: waffle-gmu: GENERAL_SUBMIT done fence=86 seq=129 control=00000056 checked=4096 wrong_words=0
+[  113.877260]: waffle-gmu: GENERAL_SUBMIT done fence=87 seq=130 control=00000057 checked=4096 wrong_words=0
+[  113.877551]: waffle-gmu: GENERAL_SUBMIT done fence=88 seq=131 control=00000058 checked=4096 wrong_words=0
+[  113.877845]: waffle-gmu: GENERAL_SUBMIT done fence=89 seq=132 control=00000059 checked=4096 wrong_words=0
+[  113.878135]: waffle-gmu: GENERAL_SUBMIT done fence=90 seq=133 control=0000005a checked=4096 wrong_words=0
+[  113.878424]: waffle-gmu: GENERAL_SUBMIT done fence=91 seq=134 control=0000005b checked=4096 wrong_words=0
+[  113.878715]: waffle-gmu: GENERAL_SUBMIT done fence=92 seq=135 control=0000005c checked=4096 wrong_words=0
+[  113.879010]: waffle-gmu: GENERAL_SUBMIT done fence=93 seq=136 control=0000005d checked=4096 wrong_words=0
+[  113.879298]: waffle-gmu: GENERAL_SUBMIT done fence=94 seq=137 control=0000005e checked=4096 wrong_words=0
+[  113.879586]: waffle-gmu: GENERAL_SUBMIT done fence=95 seq=138 control=0000005f checked=4096 wrong_words=0
+[  113.879903]: waffle-gmu: GENERAL_SUBMIT done fence=96 seq=139 control=00000060 checked=4096 wrong_words=0
+[  113.880223]: waffle-gmu: GENERAL_SUBMIT done fence=97 seq=140 control=00000061 checked=4096 wrong_words=0
+[  113.880542]: waffle-gmu: GENERAL_SUBMIT done fence=98 seq=141 control=00000062 checked=4096 wrong_words=0
+[  113.880864]: waffle-gmu: GENERAL_SUBMIT done fence=99 seq=142 control=00000063 checked=4096 wrong_words=0
+[  113.881168]: waffle-gmu: GENERAL_SUBMIT done fence=100 seq=143 control=00000064 checked=4096 wrong_words=0
+[  113.881458]: waffle-gmu: GENERAL_SUBMIT done fence=101 seq=144 control=00000065 checked=4096 wrong_words=0
+[  113.881749]: waffle-gmu: GENERAL_SUBMIT done fence=102 seq=145 control=00000066 checked=4096 wrong_words=0
+[  113.882042]: waffle-gmu: GENERAL_SUBMIT done fence=103 seq=146 control=00000067 checked=4096 wrong_words=0
+[  113.882333]: waffle-gmu: GENERAL_SUBMIT done fence=104 seq=147 control=00000068 checked=4096 wrong_words=0
+[  113.882623]: waffle-gmu: GENERAL_SUBMIT done fence=105 seq=148 control=00000069 checked=4096 wrong_words=0
+[  113.882915]: waffle-gmu: GENERAL_SUBMIT done fence=106 seq=149 control=0000006a checked=4096 wrong_words=0
+[  113.883206]: waffle-gmu: GENERAL_SUBMIT done fence=107 seq=150 control=0000006b checked=4096 wrong_words=0
+[  113.883496]: waffle-gmu: GENERAL_SUBMIT done fence=108 seq=151 control=0000006c checked=4096 wrong_words=0
+[  113.883786]: waffle-gmu: GENERAL_SUBMIT done fence=109 seq=152 control=0000006d checked=4096 wrong_words=0
+[  113.884076]: waffle-gmu: GENERAL_SUBMIT done fence=110 seq=153 control=0000006e checked=4096 wrong_words=0
+[  113.884367]: waffle-gmu: GENERAL_SUBMIT done fence=111 seq=154 control=0000006f checked=4096 wrong_words=0
+[  113.884657]: waffle-gmu: GENERAL_SUBMIT done fence=112 seq=155 control=00000070 checked=4096 wrong_words=0
+[  113.884945]: waffle-gmu: GENERAL_SUBMIT done fence=113 seq=156 control=00000071 checked=4096 wrong_words=0
+[  113.885233]: waffle-gmu: GENERAL_SUBMIT done fence=114 seq=157 control=00000072 checked=4096 wrong_words=0
+[  113.885522]: waffle-gmu: GENERAL_SUBMIT done fence=115 seq=158 control=00000073 checked=4096 wrong_words=0
+[  113.885809]: waffle-gmu: GENERAL_SUBMIT done fence=116 seq=159 control=00000074 checked=4096 wrong_words=0
+[  113.886101]: waffle-gmu: GENERAL_SUBMIT done fence=117 seq=160 control=00000075 checked=4096 wrong_words=0
+[  113.886392]: waffle-gmu: GENERAL_SUBMIT done fence=118 seq=161 control=00000076 checked=4096 wrong_words=0
+[  113.886678]: waffle-gmu: GENERAL_SUBMIT done fence=119 seq=162 control=00000077 checked=4096 wrong_words=0
+[  113.886966]: waffle-gmu: GENERAL_SUBMIT done fence=120 seq=163 control=00000078 checked=4096 wrong_words=0
+[  113.887256]: waffle-gmu: GENERAL_SUBMIT done fence=121 seq=164 control=00000079 checked=4096 wrong_words=0
+[  113.887547]: waffle-gmu: GENERAL_SUBMIT done fence=122 seq=165 control=0000007a checked=4096 wrong_words=0
+[  113.887834]: waffle-gmu: GENERAL_SUBMIT done fence=123 seq=166 control=0000007b checked=4096 wrong_words=0
+[  113.888136]: waffle-gmu: GENERAL_SUBMIT done fence=124 seq=167 control=0000007c checked=4096 wrong_words=0
+[  113.888454]: waffle-gmu: GENERAL_SUBMIT done fence=125 seq=168 control=0000007d checked=4096 wrong_words=0
+[  113.888774]: waffle-gmu: GENERAL_SUBMIT done fence=126 seq=169 control=0000007e checked=4096 wrong_words=0
+[  113.889096]: waffle-gmu: GENERAL_SUBMIT done fence=127 seq=170 control=0000007f checked=4096 wrong_words=0
+[  113.889412]: waffle-gmu: GENERAL_SUBMIT done fence=128 seq=171 control=00000080 checked=4096 wrong_words=0
+[  113.889703]: waffle-gmu: GENERAL_SUBMIT done fence=129 seq=172 control=00000081 checked=4096 wrong_words=0
+[  113.889994]: waffle-gmu: GENERAL_SUBMIT done fence=130 seq=173 control=00000082 checked=4096 wrong_words=0
+[  113.890283]: waffle-gmu: GENERAL_SUBMIT done fence=131 seq=174 control=00000083 checked=4096 wrong_words=0
+[  113.890573]: waffle-gmu: GENERAL_SUBMIT done fence=132 seq=175 control=00000084 checked=4096 wrong_words=0
+[  113.890862]: waffle-gmu: GENERAL_SUBMIT done fence=133 seq=176 control=00000085 checked=4096 wrong_words=0
+[  113.891153]: waffle-gmu: GENERAL_SUBMIT done fence=134 seq=177 control=00000086 checked=4096 wrong_words=0
+[  113.891444]: waffle-gmu: GENERAL_SUBMIT done fence=135 seq=178 control=00000087 checked=4096 wrong_words=0
+[  113.891732]: waffle-gmu: GENERAL_SUBMIT done fence=136 seq=179 control=00000088 checked=4096 wrong_words=0
+[  113.892021]: waffle-gmu: GENERAL_SUBMIT done fence=137 seq=180 control=00000089 checked=4096 wrong_words=0
+[  113.892310]: waffle-gmu: GENERAL_SUBMIT done fence=138 seq=181 control=0000008a checked=4096 wrong_words=0
+[  113.892602]: waffle-gmu: GENERAL_SUBMIT done fence=139 seq=182 control=0000008b checked=4096 wrong_words=0
+[  113.892890]: waffle-gmu: GENERAL_SUBMIT done fence=140 seq=183 control=0000008c checked=4096 wrong_words=0
+[  113.893203]: waffle-gmu: GENERAL_SUBMIT done fence=141 seq=184 control=0000008d checked=4096 wrong_words=0
+[  113.893492]: waffle-gmu: GENERAL_SUBMIT done fence=142 seq=185 control=0000008e checked=4096 wrong_words=0
+[  113.893781]: waffle-gmu: GENERAL_SUBMIT done fence=143 seq=186 control=0000008f checked=4096 wrong_words=0
+[  113.894071]: waffle-gmu: GENERAL_SUBMIT done fence=144 seq=187 control=00000090 checked=4096 wrong_words=0
+[  113.894357]: waffle-gmu: GENERAL_SUBMIT done fence=145 seq=188 control=00000091 checked=4096 wrong_words=0
+[  113.894646]: waffle-gmu: GENERAL_SUBMIT done fence=146 seq=189 control=00000092 checked=4096 wrong_words=0
+[  113.894935]: waffle-gmu: GENERAL_SUBMIT done fence=147 seq=190 control=00000093 checked=4096 wrong_words=0
+[  113.895224]: waffle-gmu: GENERAL_SUBMIT done fence=148 seq=191 control=00000094 checked=4096 wrong_words=0
+[  113.895513]: waffle-gmu: GENERAL_SUBMIT done fence=149 seq=192 control=00000095 checked=4096 wrong_words=0
+[  113.895801]: waffle-gmu: GENERAL_SUBMIT done fence=150 seq=193 control=00000096 checked=4096 wrong_words=0
+[  113.896091]: waffle-gmu: GENERAL_SUBMIT done fence=151 seq=194 control=00000097 checked=4096 wrong_words=0
+[  113.896383]: waffle-gmu: GENERAL_SUBMIT done fence=152 seq=195 control=00000098 checked=4096 wrong_words=0
+[  113.896704]: waffle-gmu: GENERAL_SUBMIT done fence=153 seq=196 control=00000099 checked=4096 wrong_words=0
+[  113.897030]: waffle-gmu: GENERAL_SUBMIT done fence=154 seq=197 control=0000009a checked=4096 wrong_words=0
+[  113.897350]: waffle-gmu: GENERAL_SUBMIT done fence=155 seq=198 control=0000009b checked=4096 wrong_words=0
+[  113.897673]: waffle-gmu: GENERAL_SUBMIT done fence=156 seq=199 control=0000009c checked=4096 wrong_words=0
+[  113.897971]: waffle-gmu: GENERAL_SUBMIT done fence=157 seq=200 control=0000009d checked=4096 wrong_words=0
+[  113.898263]: waffle-gmu: GENERAL_SUBMIT done fence=158 seq=201 control=0000009e checked=4096 wrong_words=0
+[  113.898556]: waffle-gmu: GENERAL_SUBMIT done fence=159 seq=202 control=0000009f checked=4096 wrong_words=0
+[  113.898847]: waffle-gmu: GENERAL_SUBMIT done fence=160 seq=203 control=000000a0 checked=4096 wrong_words=0
+[  113.899139]: waffle-gmu: GENERAL_SUBMIT done fence=161 seq=204 control=000000a1 checked=4096 wrong_words=0
+[  113.899429]: waffle-gmu: GENERAL_SUBMIT done fence=162 seq=205 control=000000a2 checked=4096 wrong_words=0
+[  113.899717]: waffle-gmu: GENERAL_SUBMIT done fence=163 seq=206 control=000000a3 checked=4096 wrong_words=0
+[  113.900006]: waffle-gmu: GENERAL_SUBMIT done fence=164 seq=207 control=000000a4 checked=4096 wrong_words=0
+[  113.900295]: waffle-gmu: GENERAL_SUBMIT done fence=165 seq=208 control=000000a5 checked=4096 wrong_words=0
+[  113.900586]: waffle-gmu: GENERAL_SUBMIT done fence=166 seq=209 control=000000a6 checked=4096 wrong_words=0
+[  113.900880]: waffle-gmu: GENERAL_SUBMIT done fence=167 seq=210 control=000000a7 checked=4096 wrong_words=0
+[  113.901170]: waffle-gmu: GENERAL_SUBMIT done fence=168 seq=211 control=000000a8 checked=4096 wrong_words=0
+[  113.901460]: waffle-gmu: GENERAL_SUBMIT done fence=169 seq=212 control=000000a9 checked=4096 wrong_words=0
+[  113.901752]: waffle-gmu: GENERAL_SUBMIT done fence=170 seq=213 control=000000aa checked=4096 wrong_words=0
+[  113.902040]: waffle-gmu: GENERAL_SUBMIT done fence=171 seq=214 control=000000ab checked=4096 wrong_words=0
+[  113.902331]: waffle-gmu: GENERAL_SUBMIT done fence=172 seq=215 control=000000ac checked=4096 wrong_words=0
+[  113.902620]: waffle-gmu: GENERAL_SUBMIT done fence=173 seq=216 control=000000ad checked=4096 wrong_words=0
+[  113.902914]: waffle-gmu: GENERAL_SUBMIT done fence=174 seq=217 control=000000ae checked=4096 wrong_words=0
+[  113.903205]: waffle-gmu: GENERAL_SUBMIT done fence=175 seq=218 control=000000af checked=4096 wrong_words=0
+[  113.903497]: waffle-gmu: GENERAL_SUBMIT done fence=176 seq=219 control=000000b0 checked=4096 wrong_words=0
+[  113.903788]: waffle-gmu: GENERAL_SUBMIT done fence=177 seq=220 control=000000b1 checked=4096 wrong_words=0
+[  113.904080]: waffle-gmu: GENERAL_SUBMIT done fence=178 seq=221 control=000000b2 checked=4096 wrong_words=0
+[  113.904369]: waffle-gmu: GENERAL_SUBMIT done fence=179 seq=222 control=000000b3 checked=4096 wrong_words=0
+[  113.904658]: waffle-gmu: GENERAL_SUBMIT done fence=180 seq=223 control=000000b4 checked=4096 wrong_words=0
+[  113.904970]: waffle-gmu: GENERAL_SUBMIT done fence=181 seq=224 control=000000b5 checked=4096 wrong_words=0
+[  113.905294]: waffle-gmu: GENERAL_SUBMIT done fence=182 seq=225 control=000000b6 checked=4096 wrong_words=0
+[  113.905620]: waffle-gmu: GENERAL_SUBMIT done fence=183 seq=226 control=000000b7 checked=4096 wrong_words=0
+[  113.905941]: waffle-gmu: GENERAL_SUBMIT done fence=184 seq=227 control=000000b8 checked=4096 wrong_words=0
+[  113.906245]: waffle-gmu: GENERAL_SUBMIT done fence=185 seq=228 control=000000b9 checked=4096 wrong_words=0
+[  113.906536]: waffle-gmu: GENERAL_SUBMIT done fence=186 seq=229 control=000000ba checked=4096 wrong_words=0
+[  113.906825]: waffle-gmu: GENERAL_SUBMIT done fence=187 seq=230 control=000000bb checked=4096 wrong_words=0
+[  113.907119]: waffle-gmu: GENERAL_SUBMIT done fence=188 seq=231 control=000000bc checked=4096 wrong_words=0
+[  113.907410]: waffle-gmu: GENERAL_SUBMIT done fence=189 seq=232 control=000000bd checked=4096 wrong_words=0
+[  113.907700]: waffle-gmu: GENERAL_SUBMIT done fence=190 seq=233 control=000000be checked=4096 wrong_words=0
+[  113.907988]: waffle-gmu: GENERAL_SUBMIT done fence=191 seq=234 control=000000bf checked=4096 wrong_words=0
+[  113.908278]: waffle-gmu: GENERAL_SUBMIT done fence=192 seq=235 control=000000c0 checked=4096 wrong_words=0
+[  113.908567]: waffle-gmu: GENERAL_SUBMIT done fence=193 seq=236 control=000000c1 checked=4096 wrong_words=0
+[  113.908860]: waffle-gmu: GENERAL_SUBMIT done fence=194 seq=237 control=000000c2 checked=4096 wrong_words=0
+[  113.909155]: waffle-gmu: GENERAL_SUBMIT done fence=195 seq=238 control=000000c3 checked=4096 wrong_words=0
+[  113.911108]: waffle-gmu: GENERAL_SUBMIT done fence=196 seq=239 control=000000c4 checked=4096 wrong_words=0
+[  113.911399]: waffle-gmu: GENERAL_SUBMIT done fence=197 seq=240 control=000000c5 checked=4096 wrong_words=0
+[  113.911691]: waffle-gmu: GENERAL_SUBMIT done fence=198 seq=241 control=000000c6 checked=4096 wrong_words=0
+[  113.911983]: waffle-gmu: GENERAL_SUBMIT done fence=199 seq=242 control=000000c7 checked=4096 wrong_words=0
+[  113.912271]: waffle-gmu: GENERAL_SUBMIT done fence=200 seq=243 control=000000c8 checked=4096 wrong_words=0
+[  113.912561]: waffle-gmu: GENERAL_SUBMIT done fence=201 seq=244 control=000000c9 checked=4096 wrong_words=0
+[  113.912850]: waffle-gmu: GENERAL_SUBMIT done fence=202 seq=245 control=000000ca checked=4096 wrong_words=0
+[  113.913152]: waffle-gmu: GENERAL_SUBMIT done fence=203 seq=246 control=000000cb checked=4096 wrong_words=0
+[  113.913477]: waffle-gmu: GENERAL_SUBMIT done fence=204 seq=247 control=000000cc checked=4096 wrong_words=0
+[  113.914157]: waffle-gmu: GENERAL_SUBMIT done fence=205 seq=248 control=000000cd checked=4096 wrong_words=0
+[  113.917415]: waffle-iommu: SURFACE_BO published index=29 VA=101684000 bytes=4898816 cached=1 pages=1196
+[  113.919859]: waffle-gmu: GENERAL_SUBMIT done fence=206 seq=249 control=000000ce checked=4096 wrong_words=0
+[  113.920194]: waffle-gmu: GENERAL_SUBMIT done fence=207 seq=250 control=000000cf checked=4096 wrong_words=0
+[  113.921989]: waffle-gmu: GENERAL_SUBMIT done fence=208 seq=251 control=000000d0 checked=4096 wrong_words=0
+[  113.922308]: waffle-gmu: GENERAL_SUBMIT done fence=209 seq=252 control=000000d1 checked=4096 wrong_words=0
+[  113.923957]: waffle-gmu: GENERAL_SUBMIT done fence=210 seq=253 control=000000d2 checked=4096 wrong_words=0
+[  113.924270]: waffle-gmu: GENERAL_SUBMIT done fence=211 seq=254 control=000000d3 checked=4096 wrong_words=0
+[  113.925897]: waffle-gmu: GENERAL_SUBMIT done fence=212 seq=255 control=000000d4 checked=4096 wrong_words=0
+[  113.926210]: waffle-gmu: GENERAL_SUBMIT done fence=213 seq=256 control=000000d5 checked=4096 wrong_words=0

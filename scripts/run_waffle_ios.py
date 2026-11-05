@@ -219,6 +219,19 @@ def validate_gl_generation_handles(text,capacity,buffers,retired):
         raise RuntimeError("Incomplete GPU generation lifetime proof")
 
 
+def validate_surface_role_log(text):
+    begin=re.search(r'waffle-gl-surface-role: begin sid=(\d+) handle=(\d+) readonly_native=1',text)
+    if not begin:raise RuntimeError('Native role query start missing')
+    sid,handle=begin.groups()
+    end=re.search(rf'waffle-gl-surface-role: passed=1 sid={sid} handle={handle} framebuffer_status=8cd5 GL_error=0 readonly_native=1 attachment_allowed=1 draw_calls=0 restored_binding=1',text[begin.end():])
+    if not end or 'waffle-gl-surface-role: passed=0' in text:raise RuntimeError('Native readonly FBO role query failed')
+    interval=text[begin.end():begin.end()+end.start()]
+    if 'GENERAL_SUBMIT begin' in interval or 'GENERAL submitted' in interval:
+        raise RuntimeError('Role query unexpectedly submitted GPU work')
+    if not re.search(rf'SURFACE_SAMPLE imported=1 sid={sid} handle={handle} index=\d+ GPU_readonly=1',text[:begin.start()]):
+        raise RuntimeError('Role query lacks actual readonly native import')
+
+
 def validate_surface_lease_log(text):
     pattern=r'waffle-gl-surface-lease: passed=1 sid=(\d+) CPU_writer_refused_GPU_lease=1 AvoidSync_refused=1 reader_allowed=1 kernel_waiter_seen=1 writer_resumed=1 manual_no_GPU=1'
     markers=re.findall(pattern,text)
@@ -247,6 +260,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    if 'waffle-gl-surface-role:' in text:validate_surface_role_log(text)
     if 'SURFACE_LEASE_TEST' in text or 'waffle-gl-surface-lease:' in text:
         validate_surface_lease_log(text)
     dispatch_audit='waffle-gl-eagl-native-draw:' in text
@@ -735,6 +749,7 @@ def main():
     parser.add_argument("--double-buffer", action="store_true", help="Compose offscreen and commit only complete frames to alternating scanout buffers")
     parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
     parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
+    parser.add_argument("--display-completion-audit", action="store_true", help="Read-only trace around existing guarded double-buffer commits")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
     parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
@@ -745,6 +760,8 @@ def main():
         parser.error("--display-flip-probe requires isolated GPU UI and excludes other display/audio modes")
     if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-flush-probe requires isolated GPU UI and excludes other display/audio modes")
+    if args.display_completion_audit and (not args.double_buffer or not args.hardware_vsync or args.display_survey or args.display_flip_probe or args.display_flush_probe or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--display-completion-audit requires guarded hardware-VSync GPU UI")
     if args.hardware_vsync and (args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--hardware-vsync requires isolated GPU UI and excludes diagnostic/audio modes")
     if args.display_survey and (args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -826,6 +843,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.surface_lock_audit:
         arguments += " waffle_surface_lock_audit=1"
+    if args.display_completion_audit:
+        arguments += " waffle_display_completion_audit=1"
     if args.hardware_vsync:
         arguments += " waffle_vsync=1"
     if args.double_buffer:
@@ -1041,6 +1060,10 @@ def main():
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
                 if args.gpu_ui:
+                    if args.display_completion_audit:
+                        import runpy
+                        completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
+                        (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
                     proof=validate_ui_workload_log(final_text)
                     (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")
                 else:
