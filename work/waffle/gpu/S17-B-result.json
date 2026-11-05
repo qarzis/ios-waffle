@@ -1,0 +1,16 @@
+{
+  "run": "20261105T191524Z",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "passed": true,
+  "owned_pixels_checked": 1218000,
+  "native_CPU_pixels_checked": 1218000,
+  "native_sibling_checked": 256,
+  "wrong": 0,
+  "actual_EAGL_dispatch": true,
+  "source_restored": true,
+  "subsequent_native_update_and_fullsource_pass": true,
+  "private_PID1_only": true,
+  "production_UI_imports_enabled": false,
+  "fps_measured": false
+}

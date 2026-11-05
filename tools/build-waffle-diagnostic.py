@@ -84,6 +84,10 @@ def main():
          "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-audio-smmu-inventory-host.c",
          "-o", output / "test-audio-smmu-inventory"])
     run([output / "test-audio-smmu-inventory"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-haptic-readonly-host.c",
+         "-o", output / "test-haptic-readonly"])
+    run([output / "test-haptic-readonly"])
     run([sys.executable, ROOT / "tools/tests/waffle-adsp-scm-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gpr-reply-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-glink-intent-host.py"])
@@ -302,6 +306,8 @@ def main():
                     xnu / "bsd/sys/waffle_audio_smmu_survey.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_inventory.h",
                     xnu / "bsd/sys/waffle_audio_smmu_inventory.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_haptic_readonly.h",
+                    xnu / "bsd/sys/waffle_haptic_readonly.h")
     for relative in ("iokit/Kernel/MiniIOSurface.cpp", "iokit/Kernel/MiniIOSurface.h"):
         shutil.copyfile(ROOT / "kernel/files" / relative, xnu / relative)
     for relative in ("iokit/Kernel/MiniIOMobileFramebuffer.cpp", "bsd/dev/macan_torch.c", "bsd/dev/macan_audio.c", "bsd/dev/macan_buttons.c", "bsd/sys/waffle_slider.h", "iokit/Kernel/WaffleGPUMemory.cpp", "bsd/sys/waffle_gpu_submit.h", "bsd/sys/waffle_gpu_memory.h", "bsd/sys/waffle_display_completion.h", "bsd/sys/waffle_display_irq_probe.h", "bsd/sys/waffle_gpu_surface.h", "bsd/sys/waffle_surface_access.h", "bsd/sys/waffle_gpu_surface_write.h", "bsd/sys/waffle_gpu_surface_read.h", "bsd/sys/waffle_gpu_registry.h", "bsd/sys/waffle_gpu_handles.h", "bsd/sys/waffle_gpu_reclaim.h", "iokit/Kernel/WaffleGPUMap.cpp", "bsd/sys/waffle_gpu_map.h", "bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_gpu_service.c", "bsd/dev/waffle_gpu_drm.c", "bsd/dev/waffle_gpu_msm.c", "bsd/sys/waffle_gpu_msm.h", "bsd/dev/waffle_gpu_user.c", "bsd/sys/waffle_gpu_user.h", "bsd/sys/waffle_gpu_service.h", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
@@ -359,7 +365,9 @@ def main():
     for relative in ("kernel/files/bsd/sys/waffle_display_source.h", "tools/tests/waffle-display-source-host.c", "kernel/files/bsd/sys/waffle_display_present.h", "tools/tests/waffle-display-present-host.c", "kernel/files/bsd/sys/waffle_display_flip.h", "tools/tests/waffle-display-flip-host.c", "kernel/files/bsd/sys/waffle_display_flush.h", "tools/tests/waffle-display-flush-host.c", "kernel/files/bsd/sys/waffle_display_smmu.h", "tools/tests/waffle-display-smmu-host.c", "kernel/files/bsd/sys/waffle_vsync_phase.h", "tools/tests/waffle-vsync-phase-host.c", "kernel/files/bsd/sys/waffle_display_survey.h", "tools/tests/waffle-display-survey-host.c", "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
                      "tools/tests/waffle-audio-smmu-survey-host.c",
                      "kernel/files/bsd/sys/waffle_audio_smmu_inventory.h",
-                     "tools/tests/waffle-audio-smmu-inventory-host.c"):
+                     "tools/tests/waffle-audio-smmu-inventory-host.c",
+                     "kernel/files/bsd/sys/waffle_haptic_readonly.h",
+                     "tools/tests/waffle-haptic-readonly-host.c"):
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)

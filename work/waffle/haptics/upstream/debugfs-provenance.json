@@ -1,0 +1,7 @@
+{
+  "revision": "e39bf7032e38c547d588372a11a5dd55eb714860",
+  "path": "drivers/input/misc/qcom-hv-haptics-debugfs.c",
+  "git_blob": "d605d145dad5c3b882d5f78094c9806ea3c5ee73",
+  "sha256": "15c6b1fec877f2a500fddbbf30de4d9e161b060e93f0ab6926ecf51f8d4bcf43",
+  "url": "https://api.github.com/repos/OnePlusOSS/android_kernel_oneplus_sm8650/contents/drivers/input/misc/qcom-hv-haptics-debugfs.c?ref=e39bf7032e38c547d588372a11a5dd55eb714860"
+}

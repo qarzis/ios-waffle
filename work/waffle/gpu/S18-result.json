@@ -1,0 +1,11 @@
+{
+  "run": "20261105T191853Z",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "passed": true,
+  "qualified_normal_EAGL": true,
+  "readonly_promotion_compiled": false,
+  "Mesa": "E75 749e5da7ca49a294dc57b90a50e9c45b2dc0251198462f46bee955b89c699a0f",
+  "fullsize_pixels_checked": 1218000,
+  "fps_measured": false
+}

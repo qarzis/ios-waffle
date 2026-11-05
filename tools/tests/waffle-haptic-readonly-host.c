@@ -1,0 +1,6 @@
+#include <assert.h>
+#include <stdio.h>
+#include "waffle_haptic_readonly.h"
+static unsigned reads,fail_at;static uint8_t cfg=4,ptn=4;
+static bool rd(void *p,uint16_t id,uint8_t reg,uint8_t *v){assert(p==&reads && waffle_haptic_read_allowed(id,reg));if(++reads==fail_at)return false;*v=reg==1&&id==0x7f0?cfg:reg==1&&id==0x7f1?ptn:(uint8_t)(id+reg);return true;}
+int main(void){const struct waffle_haptic_read_io io={&reads,rd};struct waffle_haptic_snapshot s;assert(waffle_haptic_capture(&io,&s)&&s.complete&&reads==16);assert(s.enable==(uint8_t)(0x7f0+0x46)&&s.period[3]==(uint8_t)(0x7f1+0x33));for(unsigned i=1;i<=16;i++){reads=0;fail_at=i;assert(!waffle_haptic_capture(&io,&s)&&!s.complete);}fail_at=0;cfg=2;assert(!waffle_haptic_capture(&io,&s)&&!s.complete);cfg=4;ptn=3;assert(!waffle_haptic_capture(&io,&s));assert(!waffle_haptic_capture(NULL,&s)&&!waffle_haptic_capture(&io,NULL));uint8_t v;for(unsigned p=0;p<4096;p++)for(unsigned r=0;r<256;r++)if(waffle_haptic_read_allowed(p,r))assert((p==0x7f0)||(p==0x7f1)||(p==0x7f2));assert(!waffle_haptic_read(&io,0x7f0,0x49,&v));assert(!waffle_haptic_read(&io,0x7f1,0x20,&v));assert(!waffle_haptic_read(&io,0x7f2,0x46,&v));puts("PASS PM8550B read-only survey: exact allowlist, revision gate,16 read failures; no write interface, mock hardware only");}

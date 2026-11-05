@@ -275,6 +275,13 @@ def main():
     if args.cpus is not None and args.cpus>1 and not manifest.get('multicore_loader'):
         parser.error('Artifact lacks the opt-in multicore loader policy')
     if args.torch_readonly and not manifest.get('torch_readonly_loader'):parser.error('Artifact lacks the torch read-only policy')
+    if args.torch_readonly and b'haptic-waffle: readonly=' in (artifact/'kernel').read_bytes():
+        if not manifest.get('haptic_readonly'):parser.error('Compiled haptic observer lacks dedicated source binding')
+        bindings=manifest.get('haptic_readonly_source_sha256',{})
+        for name in ('kernel/files/bsd/dev/macan_torch.c','kernel/files/bsd/sys/waffle_haptic_readonly.h'):
+            digest=bindings.get(name)
+            if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('Haptic readonly source binding mismatch: '+name)
+
     if args.torch_pulse and not manifest.get('torch_pulse_loader'):parser.error('Artifact lacks the bounded torch pulse policy')
     if args.torch_service and not manifest.get('torch_service_loader'):parser.error('Artifact lacks the iOS torch-service policy')
     if args.cpu_ui_test:

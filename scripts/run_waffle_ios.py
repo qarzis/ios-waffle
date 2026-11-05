@@ -1071,6 +1071,14 @@ def main():
                 final_text=stream.decode(errors='replace')
                 if args.display_irq_probe and b'!wbo:v1!' in args.kernel.read_bytes() and '!wbo:v1!' not in final_text:
                     raise RuntimeError('Compiled compact BO proof protocol was not enabled')
+            elif args.gpu_ui and args.double_buffer:
+                # Guarded normal UI also rolls the final ring. Recover only
+                # exact byte overlaps; do not invent or weaken proof records.
+                import runpy
+                log_stream=runpy.run_path(str(ROOT/'tools/waffle_log_stream.py'))
+                stream,stream_proof=log_stream['merge_run_logs'](out)
+                (out/'kernel-stream-proof.json').write_text(json.dumps(stream_proof,indent=2)+'\n')
+                final_text=stream.decode(errors='replace')
             image_pixels=None
             if args.gpu_session and not args.gpu_compute and not all(marker in final_text for marker in (
                     "SESSION OOB ownership transferred; init returned with GX retained",
@@ -1370,6 +1378,9 @@ def main():
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
                     'torch: waffle read-only module=', 'no PMIC writes')):
                 raise RuntimeError(f"Waffle torch identification failed; logs: {out}")
+            if args.torch_readonly and b'haptic-waffle: readonly=' in args.kernel.read_bytes():
+                if not re.search(r'haptic-waffle: readonly=1 cfg_rev=4 ptn_rev=4 boost_rev=[0-9a-f]{4} PMIC_writes=0 motor_started=0',final_text) or not re.search(r'haptic-waffle: direct=[0-9a-f]{2} period1=[0-9a-f]{4} period2=[0-9a-f]{4} complete=1',final_text):
+                    raise RuntimeError(f"Waffle haptic readonly identity incomplete; logs: {out}")
             if args.torch_pulse and not all(s in final_text for s in (
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
                     'the light ON at 100 mA per channel', 'off again after 2 s', '(dark)')):

@@ -1,0 +1,12 @@
+/sys/bus/platform/drivers/haptic_feedback
+bind
+module
+soc:feedback_fb
+uevent
+unbind
+/sys/bus/platform/drivers/qcom-hv-haptics
+bind
+c42d000.qcom,spmi:qcom,pm8550b@7:qcom,hv-haptics@f000
+module
+uevent
+unbind

@@ -8,6 +8,7 @@
 #include <sys/conf.h>
 #include <sys/macan_audio.h>
 #include <sys/macan_input.h>
+#include <sys/waffle_haptic_readonly.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
@@ -314,6 +315,39 @@ find_channel(struct peripheral *p, uint32_t channels)
   say("torch: no channel of the arbiter is %s\n", p->name);
  }
 }
+/* Waffle diagnostic mode1 only: the qualified observer performs read commands.
+ * Do not share the flash write path with the haptic peripherals. */
+struct waffle_haptic_bus_context {struct peripheral peripheral[3];};
+static bool
+waffle_haptic_bus_read(void *context,uint16_t ppid,uint8_t reg,uint8_t *value)
+{
+ struct waffle_haptic_bus_context *c=context;
+ if(!waffle_arb || level!=1 || !waffle_haptic_read_allowed(ppid,reg))return false;
+ for(unsigned i=0;i<3;i++)if(c->peripheral[i].id==ppid)
+  return spmi_read(&c->peripheral[i],reg,value,1)==NULL;
+ return false;
+}
+static void
+waffle_haptic_bus_survey(uint32_t channels)
+{
+ if(!waffle_arb || level!=1)return;
+ struct waffle_haptic_bus_context c={.peripheral={
+  {.name="PM8550B haptic CFG",.id=0x7f0},
+  {.name="PM8550B haptic PTN",.id=0x7f1},
+  {.name="PM8550B haptic HBST",.id=0x7f2}}};
+ for(unsigned i=0;i<3;i++)find_channel(&c.peripheral[i],channels);
+ const struct waffle_haptic_read_io io={&c,waffle_haptic_bus_read};
+ struct waffle_haptic_snapshot state;
+ bool ok=waffle_haptic_capture(&io,&state);
+ say("haptic-waffle: readonly=%u cfg_rev=%x ptn_rev=%x boost_rev=%02x%02x PMIC_writes=0 motor_started=0\n",
+     ok,state.cfg_revision,state.ptn_revision,state.boost_revision[1],state.boost_revision[0]);
+ if(ok){
+  say("haptic-waffle: enable=%02x play=%02x swr=%02x vmax=%02x drive=%02x tlra=%02x%02x\n",
+      state.enable,state.play,state.swr,state.vmax,state.drive,state.tlra[0],state.tlra[1]);
+  say("haptic-waffle: direct=%02x period1=%02x%02x period2=%02x%02x complete=1\n",
+      state.direct,state.period[0],state.period[1],state.period[2],state.period[3]);
+ }
+}
 static void
 show_registers(void)
 {
@@ -553,6 +587,7 @@ torch_thread(__unused void *parameter, __unused wait_result_t result)
  say("torch: platform=%s arbiter=%x APIDs=%u level=%u\n",waffle_arb ? "waffle-v7" : "macan-v8",version,channels,level);
  find_channel(&flash, channels);
  find_channel(&alarm, channels);
+ if(waffle_arb && level==1)waffle_haptic_bus_survey(channels);
  if (!flash.found || spmi_read(&flash, FLASH_TYPE, id, 2) != NULL || spmi_read(&flash, FLASH_REVISION1, &revision, 1) != NULL) {
   say("torch: the flash module cannot be read\n");
   goto out;
