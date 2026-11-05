@@ -1,0 +1,32 @@
+{
+  "component": "H01 read-only PM8550B identification",
+  "trace_valid": true,
+  "original_overall_runner_exit": 1,
+  "android_confirmed": true,
+  "cfg_revision": 4,
+  "ptn_revision": 4,
+  "boost_revision": 2,
+  "raw_registers": {
+    "enable": 128,
+    "play": 1,
+    "swr": 224,
+    "vmax": 48,
+    "drive": 222,
+    "tlra": 1538
+  },
+  "direct": 255,
+  "period1": 1143,
+  "period2": 1333,
+  "vmax_mV": 2400,
+  "tlra_us": 7690,
+  "motor_started": false,
+  "PMIC_writes": 0,
+  "CFG_APID": 591,
+  "CFG_owner": 0,
+  "PTN_APID": 592,
+  "PTN_owner": 0,
+  "HBST_APID": 530,
+  "HBST_owner": 3,
+  "source": "/home/qarzis/ios-macan/work/waffle/runs/20261105T192859Z/kernel-2.log",
+  "source_sha256": "bb38337dd751d121ff8e63e4588e3e4e07c35cfe3309d852010270a337e53df2"
+}

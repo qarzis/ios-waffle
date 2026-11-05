@@ -1,0 +1,30 @@
+{
+  "run": "20261105T192859Z",
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "overall_pass": false,
+  "failure": "GENERAL_SUBMIT completion2213 control field interrupted by newline; separate BO publication proof also incomplete",
+  "display_restored": true,
+  "display_completed": 1094,
+  "kernel_reported_GPU_completed": 8615,
+  "kernel_reported_buffers_closed": 2954,
+  "reported_fps_intervals": [
+    12,
+    32,
+    28,
+    28,
+    28,
+    50,
+    17,
+    5
+  ],
+  "stable_60FPS": false,
+  "cpu_active": 7,
+  "measured_CPU_parallelism": 2.9,
+  "user_report": "Interface lagged more",
+  "profile_readback_enabled": true,
+  "profile_readback_lines": 1341,
+  "GPU_stop_seconds": 60,
+  "late_CPU_fallback_PID": 381,
+  "source_stream_sha256": "15d0c2a268f5a5f08fc5b743e4a9a20438fe08ce354ce20616a00abbe75b617c"
+}
