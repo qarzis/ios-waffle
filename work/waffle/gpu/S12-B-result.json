@@ -1,0 +1,25 @@
+{
+  "experiment": "S12B actual IOSurface.framework CPU lock trap audit",
+  "passed": true,
+  "run": "20261105T080127Z",
+  "auto_run": "20261105T080103Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "XNU_started": true,
+  "GPU_started": true,
+  "trap_records": 14,
+  "writer_locks": 6,
+  "writer_unlocks": 6,
+  "reader_locks": 1,
+  "reader_unlocks": 1,
+  "unmatched_unlocks": 0,
+  "open_brackets_at_end": 0,
+  "framework_CPU_access_reaches_kernel": true,
+  "original_EAGL_shader_and_update_proof": "1024 correct shader pixels and 1218000 unchanged source pixels",
+  "kernel_log_sha256": "e713a67877ae0d2743238674e9cd14cea99fedf0bc140ba698bb81d6e5d35050",
+  "prior_failure": "S12-A-result.json (loader refusal before XNU)",
+  "limits": [
+    "Observed paired framework calls only; no GPU read lease or CPU/GPU exclusion implemented",
+    "Normal UI import remains disabled; FPS not measured"
+  ]
+}

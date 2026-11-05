@@ -1,0 +1,20 @@
+waffle-surface-lock: audit_enabled=1 max_records=128
+waffle-surface-lock: audit_enabled=1 max_records=128
+waffle-surface-lock: seq=1 pid=1 sid=1 unlock=0 options=1 seed=1
+waffle-surface-lock: seq=2 pid=1 sid=1 unlock=1 options=1 seed=1
+waffle-surface-lock: seq=3 pid=1 sid=1 unlock=0 options=0 seed=1
+waffle-surface-lock: seq=4 pid=1 sid=1 unlock=1 options=0 seed=2
+waffle-gl-surface-sample: passed=1 sid=1 checked=256 wrong=0 GL_error=0 stage=7 GPU_readonly=1
+waffle-surface-lock: seq=5 pid=1 sid=1 unlock=0 options=0 seed=2
+waffle-surface-lock: seq=6 pid=1 sid=1 unlock=1 options=0 seed=3
+waffle-surface-lock: seq=7 pid=1 sid=1 unlock=0 options=0 seed=3
+waffle-surface-lock: seq=8 pid=1 sid=1 unlock=1 options=0 seed=4
+waffle-surface-lock: seq=9 pid=1 sid=1 unlock=0 options=0 seed=4
+waffle-surface-lock: seq=10 pid=1 sid=1 unlock=1 options=0 seed=5
+waffle-gl-surface-reuse: result=1 phases=3 source_restored=1 same_native_GEM=1
+waffle-surface-lock: seq=11 pid=1 sid=1 unlock=0 options=0 seed=5
+waffle-surface-lock: seq=12 pid=1 sid=1 unlock=1 options=0 seed=6
+waffle-gl-fullsize: width=750 height=1624 checked=1218000 wrong=0 filled=609000 padding_wrong=0 GL_error=0 hook_owned=1
+waffle-surface-lock: seq=13 pid=1 sid=1 unlock=0 options=0 seed=6
+waffle-surface-lock: seq=14 pid=1 sid=1 unlock=1 options=0 seed=7
+waffle-gpu: GENERAL close passed=1 completed=10 buffers=36 context_null=1
