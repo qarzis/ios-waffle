@@ -1350,3 +1350,34 @@ header/dispatch refusals PASS. Hardware pending.
 
 ## S15 hardware PASS — run20261105T085849Z
 Originalrunner0/success1/Android1. Actual readonly nativehandle28 accepted by GL as framebuffer attachment:FRAMEBUFFER_COMPLETE8cd5/GL_error0, noGPUcommands duringquery. Detach/state restoration succeeded; subsequent EAGL shader/CPUupdate/fullsource checks0wrong. Confirms import-time readonly sampler role does not prevent later FBO attachment. Therefore do not globally enable private ROimport for ordinary EAGL inputs. Native writabletarget/cache-consumer contract or explicit role-aware frontend enforcement must be qualified first. This is production import architecture evidence, not a cause established for current lag or a VSync fix. User asked VSync: answered directly no current VSyncchange, two-MDP-frame retirement/60Hzmode remain separate limits. Next audit display completion read-only; do not weaken guard on stale IRQstatus.
+
+## D17 display completion observation candidate
+User explicitly resumed after asking about VSync; focus moved to display retirement.
+Verified SHA256 of pinned native sde_hw_intf/ctl/encoder_phys_cmd files against
+revision38d50357db2728300a61b6f757f2d3a09651c155 provenance. Verified actual
+MDP_FRAME_COUNT/CTL_FLUSH/CTL_STATUS/TEAR_AUTOREFRESH_STATUS/TEAR_LINE_COUNT/
+TEAR_OUT_LINE_COUNT offsets. Native scheduler-idle fallback requires posted-start,
+prior write-pointer success and pending kickoff; it is not a generic bit0 fence.
+Native auto-status is treated as busy when nonzero, not an unconditional done bit.
+Current three hypotheses: (1) current two-MDP-frame retirement guard is a throughput
+ceiling and a fresh observed hardware completion could permit shorter retirement;
+(2) CTL scheduler/raw busy transitions may provide additional evidence, but native
+preconditions must be reproduced before using them; (3) frame/TE counters alone
+are pacing events and can advance without proving old buffer retirement.
+Selected minimal experiment: observe existing A/B commit before flush, immediately
+after flush, and during existing pending-complete polls. Capture frame before/after
+bracketing raw status/line/address reads. No extra hardware write, IRQ ack/enable,
+START, mode/rate change, guard change or new delay. Bounded128 records over first8
+completed frames, stored in heap presenter state and logged once outside polling.
+Sparse sampling during existing waits may miss transitions while CPU composes;
+absence of transition is not evidence that hardware has no completion signal.
+Actual pure read helper sanitizers and every9read-failure case pass; existing
+1000flip+600deferred/overlap/fault/wrap tests pass and frame/flip guard bytes match
+D16 exactly. Separate explicit opt-in boot token/CLI requires guarded hardware-VSync
+GPU UI and source-bound loader/kernel; prevents accidental incompatible survey mode.
+First D17 build passed before new token was added and is not used for hardware.
+D17B first build stopped in host wrapper because Python test paths were accidentally
+added to cc arguments; corrected wrapper, preserved failed log, rebuilding all.
+No hardware D17 attempt yet. Pair same qualified D16 UI root/E75 Mesa, test duration60s.
+
+D17B full required host/XNU/EFI/container build PASS after wrapper fix. Same exact D16 UI root and E75 pressure-qualified Mesa749e5d reused; no application/EAGL/shader code changes. Prepared/current/compiled snapshots and strict new loader token/source binding checked; guard and flip headers byte-identical D16. New runner captures display-completion.json before normal UI proof validation, preserving original failure if any. Hardware pending; no completion/FPS improvement claim.

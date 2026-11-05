@@ -749,6 +749,7 @@ def main():
     parser.add_argument("--double-buffer", action="store_true", help="Compose offscreen and commit only complete frames to alternating scanout buffers")
     parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
     parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
+    parser.add_argument("--display-completion-audit", action="store_true", help="Read-only trace around existing guarded double-buffer commits")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
     parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
@@ -759,6 +760,8 @@ def main():
         parser.error("--display-flip-probe requires isolated GPU UI and excludes other display/audio modes")
     if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-flush-probe requires isolated GPU UI and excludes other display/audio modes")
+    if args.display_completion_audit and (not args.double_buffer or not args.hardware_vsync or args.display_survey or args.display_flip_probe or args.display_flush_probe or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
+        parser.error("--display-completion-audit requires guarded hardware-VSync GPU UI")
     if args.hardware_vsync and (args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--hardware-vsync requires isolated GPU UI and excludes diagnostic/audio modes")
     if args.display_survey and (args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -840,6 +843,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.surface_lock_audit:
         arguments += " waffle_surface_lock_audit=1"
+    if args.display_completion_audit:
+        arguments += " waffle_display_completion_audit=1"
     if args.hardware_vsync:
         arguments += " waffle_vsync=1"
     if args.double_buffer:
@@ -1055,6 +1060,10 @@ def main():
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
                 if args.gpu_ui:
+                    if args.display_completion_audit:
+                        import runpy
+                        completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze'](final_text)
+                        (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
                     proof=validate_ui_workload_log(final_text)
                     (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")
                 else:
