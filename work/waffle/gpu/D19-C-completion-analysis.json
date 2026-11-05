@@ -1,0 +1,1526 @@
+{
+  "wire_protocol": "compact_v1",
+  "record_count": 56,
+  "clock_hz": 19200000,
+  "invalid_records": 0,
+  "crossed_frame_records": 0,
+  "scheduler_values": [
+    1
+  ],
+  "auto_status_values": [
+    0,
+    1
+  ],
+  "no_extra_MMIO_writes": false,
+  "irq_probe": {
+    "enabled": true,
+    "writes": 3,
+    "fresh_events": 3,
+    "actions": [
+      {
+        "row": 12,
+        "seq": 3,
+        "action": 1,
+        "wrote": 1,
+        "status_after": 0,
+        "mux": 983040,
+        "version": 2684354560
+      },
+      {
+        "row": 18,
+        "seq": 3,
+        "action": 2,
+        "wrote": 0,
+        "status_after": 256,
+        "mux": 0,
+        "version": 0
+      },
+      {
+        "row": 34,
+        "seq": 7,
+        "action": 1,
+        "wrote": 1,
+        "status_after": 0,
+        "mux": 983040,
+        "version": 2684354560
+      },
+      {
+        "row": 40,
+        "seq": 7,
+        "action": 2,
+        "wrote": 0,
+        "status_after": 256,
+        "mux": 0,
+        "version": 0
+      },
+      {
+        "row": 46,
+        "seq": 8,
+        "action": 1,
+        "wrote": 1,
+        "status_after": 0,
+        "mux": 983040,
+        "version": 2684354560
+      },
+      {
+        "row": 52,
+        "seq": 8,
+        "action": 2,
+        "wrote": 0,
+        "status_after": 256,
+        "mux": 0,
+        "version": 0
+      }
+    ]
+  },
+  "irq_record_count": 56,
+  "irq_values": {
+    "top_status": [
+      0,
+      256
+    ],
+    "top_enable": [
+      0
+    ],
+    "ctl_status": [
+      512
+    ],
+    "ctl_enable": [
+      0
+    ],
+    "tear_status": [
+      79
+    ],
+    "tear_enable": [
+      0
+    ],
+    "active": [
+      2
+    ]
+  },
+  "sampled_irq_rising_edges": {
+    "pp0_done": [
+      18,
+      40,
+      52
+    ],
+    "pp1_done": [],
+    "ctl0_done": [],
+    "tear_autorefresh_done": []
+  },
+  "sequences": [
+    {
+      "sequence": 1,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 13.44,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 2,
+          "elapsed_us": 11928.7,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 12.97,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 22,
+          "elapsed_us": 181433.75,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 0
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 14.43,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 619.64,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 1775.78,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 2930.42,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 4079.32,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 5230.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 6399.9,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 7554.9,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 8725.89,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 9879.06,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 11028.54,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 12178.75,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 2,
+          "elapsed_us": 13333.12,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    },
+    {
+      "sequence": 4,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 12.97,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 193,
+          "elapsed_us": 1597584.38,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    },
+    {
+      "sequence": 5,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 25.83,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 108,
+          "elapsed_us": 897404.06,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    },
+    {
+      "sequence": 6,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 26.25,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 8,
+          "elapsed_us": 68812.19,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    },
+    {
+      "sequence": 7,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 26.04,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 4682.92,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 5839.11,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 6986.61,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 8133.96,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 9291.82,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 10437.97,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 11583.59,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 12743.12,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 13897.14,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 15058.65,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 2,
+          "elapsed_us": 16236.41,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    },
+    {
+      "sequence": 8,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 13.8,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 1836.3,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 0,
+          "elapsed_us": 3067.71,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 4222.08,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 5359.48,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 6531.2,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 7700.73,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 8855.16,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 9890.42,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 1,
+          "elapsed_us": 11047.24,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 0
+        },
+        {
+          "stage": 1,
+          "mdp_delta": 2,
+          "elapsed_us": 12231.51,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    },
+    {
+      "sequence": 9,
+      "baseline_observed": true,
+      "post_flush_observed": true,
+      "observations": [
+        {
+          "stage": 2,
+          "mdp_delta": 0,
+          "elapsed_us": 0.0,
+          "flush": 0,
+          "scheduler": 1,
+          "auto_status": 1
+        },
+        {
+          "stage": 3,
+          "mdp_delta": 0,
+          "elapsed_us": 25.36,
+          "flush": 3,
+          "scheduler": 1,
+          "auto_status": 1
+        }
+      ]
+    }
+  ],
+  "one_frame_retirement_qualified": false,
+  "claim": "Bounded masked PP0 clear/reassertion observations under unchanged guard; no release fence or FPS qualification",
+  "records": [
+    {
+      "row": 0,
+      "seq": 1,
+      "stage": 2,
+      "ticks": 2358741808,
+      "valid": 1,
+      "frame0": 14020,
+      "frame1": 14020,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 1,
+      "seq": 1,
+      "stage": 3,
+      "ticks": 2358742066,
+      "valid": 1,
+      "frame0": 14020,
+      "frame1": 14020,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 2,
+      "seq": 1,
+      "stage": 1,
+      "ticks": 2358970839,
+      "valid": 1,
+      "frame0": 14022,
+      "frame1": 14022,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1387,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 3,
+      "seq": 2,
+      "stage": 2,
+      "ticks": 2359058082,
+      "valid": 1,
+      "frame0": 14022,
+      "frame1": 14022,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 4,
+      "seq": 2,
+      "stage": 3,
+      "ticks": 2359058331,
+      "valid": 1,
+      "frame0": 14022,
+      "frame1": 14022,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 5,
+      "seq": 2,
+      "stage": 1,
+      "ticks": 2362541610,
+      "valid": 1,
+      "frame0": 14044,
+      "frame1": 14044,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 6,
+      "seq": 3,
+      "stage": 2,
+      "ticks": 2362630017,
+      "valid": 1,
+      "frame0": 14045,
+      "frame1": 14045,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1513,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 7,
+      "seq": 3,
+      "stage": 3,
+      "ticks": 2362630294,
+      "valid": 1,
+      "frame0": 14045,
+      "frame1": 14045,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1519,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 8,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362641914,
+      "valid": 1,
+      "frame0": 14045,
+      "frame1": 14045,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1792,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 9,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362664112,
+      "valid": 1,
+      "frame0": 14045,
+      "frame1": 14045,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2315,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 10,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362686281,
+      "valid": 1,
+      "frame0": 14045,
+      "frame1": 14045,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2836,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 11,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362708340,
+      "valid": 1,
+      "frame0": 14045,
+      "frame1": 14045,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 12,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362730433,
+      "valid": 1,
+      "frame0": 14046,
+      "frame1": 14046,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 140,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 13,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362752895,
+      "valid": 1,
+      "frame0": 14046,
+      "frame1": 14046,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 667,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 14,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362775071,
+      "valid": 1,
+      "frame0": 14046,
+      "frame1": 14046,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1189,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 15,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362797554,
+      "valid": 1,
+      "frame0": 14046,
+      "frame1": 14046,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1717,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 16,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362819695,
+      "valid": 1,
+      "frame0": 14046,
+      "frame1": 14046,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2237,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 17,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362841765,
+      "valid": 1,
+      "frame0": 14046,
+      "frame1": 14046,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2756,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 18,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362863849,
+      "valid": 1,
+      "frame0": 14046,
+      "frame1": 14046,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 19,
+      "seq": 3,
+      "stage": 1,
+      "ticks": 2362886013,
+      "valid": 1,
+      "frame0": 14047,
+      "frame1": 14047,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 62,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 20,
+      "seq": 4,
+      "stage": 2,
+      "ticks": 2362968558,
+      "valid": 1,
+      "frame0": 14047,
+      "frame1": 14047,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2003,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 21,
+      "seq": 4,
+      "stage": 3,
+      "ticks": 2362968807,
+      "valid": 1,
+      "frame0": 14047,
+      "frame1": 14047,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2009,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 22,
+      "seq": 4,
+      "stage": 1,
+      "ticks": 2393642178,
+      "valid": 1,
+      "frame0": 14240,
+      "frame1": 14240,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2284,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 23,
+      "seq": 5,
+      "stage": 2,
+      "ticks": 2393723781,
+      "valid": 1,
+      "frame0": 14241,
+      "frame1": 14241,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 467,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 24,
+      "seq": 5,
+      "stage": 3,
+      "ticks": 2393724277,
+      "valid": 1,
+      "frame0": 14241,
+      "frame1": 14241,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 479,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 25,
+      "seq": 5,
+      "stage": 1,
+      "ticks": 2410953939,
+      "valid": 1,
+      "frame0": 14349,
+      "frame1": 14349,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2188,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 26,
+      "seq": 6,
+      "stage": 2,
+      "ticks": 2411056627,
+      "valid": 1,
+      "frame0": 14350,
+      "frame1": 14350,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 868,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 27,
+      "seq": 6,
+      "stage": 3,
+      "ticks": 2411057131,
+      "valid": 1,
+      "frame0": 14350,
+      "frame1": 14350,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 880,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 28,
+      "seq": 6,
+      "stage": 1,
+      "ticks": 2412377821,
+      "valid": 1,
+      "frame0": 14358,
+      "frame1": 14358,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2052,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 29,
+      "seq": 7,
+      "stage": 2,
+      "ticks": 2412461577,
+      "valid": 1,
+      "frame0": 14359,
+      "frame1": 14359,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 286,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 30,
+      "seq": 7,
+      "stage": 3,
+      "ticks": 2412462077,
+      "valid": 1,
+      "frame0": 14359,
+      "frame1": 14359,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 298,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 31,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412551489,
+      "valid": 1,
+      "frame0": 14359,
+      "frame1": 14359,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2399,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 32,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412573688,
+      "valid": 1,
+      "frame0": 14359,
+      "frame1": 14359,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2921,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 33,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412595720,
+      "valid": 1,
+      "frame0": 14359,
+      "frame1": 14359,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 34,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412617749,
+      "valid": 1,
+      "frame0": 14360,
+      "frame1": 14360,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 222,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 35,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412639980,
+      "valid": 1,
+      "frame0": 14360,
+      "frame1": 14360,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 744,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 36,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412661986,
+      "valid": 1,
+      "frame0": 14360,
+      "frame1": 14360,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1262,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 37,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412683982,
+      "valid": 1,
+      "frame0": 14360,
+      "frame1": 14360,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1779,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 38,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412706245,
+      "valid": 1,
+      "frame0": 14360,
+      "frame1": 14360,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2303,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 39,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412728402,
+      "valid": 1,
+      "frame0": 14360,
+      "frame1": 14360,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2823,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 40,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412750703,
+      "valid": 1,
+      "frame0": 14360,
+      "frame1": 14360,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 41,
+      "seq": 7,
+      "stage": 1,
+      "ticks": 2412773316,
+      "valid": 1,
+      "frame0": 14361,
+      "frame1": 14361,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 145,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 42,
+      "seq": 8,
+      "stage": 2,
+      "ticks": 2412862026,
+      "valid": 1,
+      "frame0": 14361,
+      "frame1": 14361,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2230,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    },
+    {
+      "row": 43,
+      "seq": 8,
+      "stage": 3,
+      "ticks": 2412862291,
+      "valid": 1,
+      "frame0": 14361,
+      "frame1": 14361,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2237,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 44,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2412897283,
+      "valid": 1,
+      "frame0": 14361,
+      "frame1": 14361,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 3060,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 45,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2412920926,
+      "valid": 1,
+      "frame0": 14361,
+      "frame1": 14361,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 46,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2412943090,
+      "valid": 1,
+      "frame0": 14362,
+      "frame1": 14362,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 402,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 47,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2412964928,
+      "valid": 1,
+      "frame0": 14362,
+      "frame1": 14362,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 917,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 48,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2412987425,
+      "valid": 1,
+      "frame0": 14362,
+      "frame1": 14362,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1446,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 49,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2413009880,
+      "valid": 1,
+      "frame0": 14362,
+      "frame1": 14362,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 1972,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 50,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2413032045,
+      "valid": 1,
+      "frame0": 14362,
+      "frame1": 14362,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2493,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 51,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2413051922,
+      "valid": 1,
+      "frame0": 14362,
+      "frame1": 14362,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2961,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 52,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2413074133,
+      "valid": 1,
+      "frame0": 14362,
+      "frame1": 14362,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 0,
+      "write_line": 3168,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 53,
+      "seq": 8,
+      "stage": 1,
+      "ticks": 2413096871,
+      "valid": 1,
+      "frame0": 14363,
+      "frame1": 14363,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 284,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 54,
+      "seq": 9,
+      "stage": 2,
+      "ticks": 2413179861,
+      "valid": 1,
+      "frame0": 14363,
+      "frame1": 14363,
+      "flush": 0,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2235,
+      "read_line": 0,
+      "address0": 3574595584,
+      "address1": 3574595584
+    },
+    {
+      "row": 55,
+      "seq": 9,
+      "stage": 3,
+      "ticks": 2413180348,
+      "valid": 1,
+      "frame0": 14363,
+      "frame1": 14363,
+      "flush": 3,
+      "scheduler": 1,
+      "auto_status": 1,
+      "write_line": 2247,
+      "read_line": 0,
+      "address0": 3592880128,
+      "address1": 3592880128
+    }
+  ],
+  "source_log": "kernel-119.log",
+  "source_log_sha256": "c6a6e704a186ae820609213a781fc9055f266410f1a8f68f80cce7c0decf6bb5"
+}

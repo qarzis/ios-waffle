@@ -1507,3 +1507,7 @@ D19B full mandatory host/XNU/EFI/container build PASS after owner harness declar
 
 ## D19B evidence refused; D19C compact display telemetry
 D19B original runner exit1 and Android return preserved. Four clear and four fresh action records exist, but the long display formatter truncates source addresses and a row interleaves. Full transaction qualification remains false. D19C emits typed, bounded records through the existing 64-byte logger; decoder requires all parts and full-width fields. Actual C++ formatter, corruption/replay/max-width host checks and full host/XNU/EFI/container build pass. Seven current/prepared/snapshot bindings and exact D16 UI root verified; paired image validator passed. Two-frame retirement guard and normal rendering remain unchanged; no FPS gain claimed.
+
+D19C preliminary immutable trace: 56 compact rows/56 IRQ rows, three verified clear-to-fresh transactions at MDP delta1 (6948.75/6924.69/6825.16us). Full run still pending at note; no guard change/FPS claim. Concurrent A15 audio candidate is read-only full SMMU inventory; see audio/A15-domain-attach-audit.md.
+
+D19C final: original exit1, Android confirmed; GPU UI proof passes 1341 fences/1154 BOs/full teardown, 523 display commits/restored front. Overall failure is separate multicore proof with empty counts/times (cpu-proof.json); not rewritten. Strict compact trace qualifies three fresh masked PP0 events under unchanged guard, not early scanout retirement or FPS. A15 host/XNU/EFI/container and paired validator PASS; isolated read-only inventory next.

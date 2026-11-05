@@ -22,6 +22,7 @@
 #include <sys/waffle_apm.h>
 #include <sys/waffle_glink_intent.h>
 #include <sys/waffle_audio_smmu_survey.h>
+#include <sys/waffle_audio_smmu_inventory.h>
 #include <sys/waffle_battery_readonly.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
@@ -2500,8 +2501,25 @@ waffle_audio_iommu_survey(void)
       m->sid, m->matches, m->index, m->smr, m->s2cr, m->cb, m->translated,
       m->context_read, m->cbar, m->sctlr, m->tcr, m->tcr2, m->ttbr0, m->ttbr1, m->fsr, m->far);
  }
+ /* Heap storage: inventory arrays must not enlarge the kernel stack. */
+ struct waffle_audio_smmu_inventory *inventory = kalloc_data(sizeof(*inventory), Z_WAITOK | Z_ZERO);
+ bool inventory_valid = inventory && waffle_audio_smmu_inventory_read(&io, inventory);
+ if (inventory_valid) {
+  printf("adsp: AUDIO_INVENTORY v=1 groups=%u banks=%u stage2=%u candidates=%u ownership=0\n",
+      inventory->groups, inventory->banks, inventory->s2_banks, inventory->candidates);
+  for (unsigned i = 0; i < inventory->groups; i++) {
+   printf("adsp: AUDIO_ROUTE i=%u smr=%#x s2cr=%#x\n", i, inventory->smr[i], inventory->s2cr[i]);
+  }
+  for (unsigned i = 0; i < inventory->banks; i++) {
+   printf("adsp: AUDIO_BANK cb=%u referenced=%u sctlr=%#x candidate=%u\n",
+       i, inventory->referenced[i], inventory->sctlr[i], inventory->candidate[i]);
+  }
+ } else {
+  printf("adsp: AUDIO_INVENTORY FAIL ownership=0\n");
+ }
+ if (inventory) { kfree_data(inventory, sizeof(*inventory)); }
  ml_io_unmap(base, 0x100000);
- return valid;
+ return valid && inventory_valid;
 }
 static void
 adsp_thread(__unused void *parameter, __unused wait_result_t result)

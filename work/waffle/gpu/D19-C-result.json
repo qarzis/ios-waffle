@@ -1,0 +1,23 @@
+{
+  "experiment": "D19C",
+  "run": "20261105T110850Z",
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "overall_pass": false,
+  "failure": "Multicore proof missing counts/CPU-time records",
+  "masked_fresh_event_observation_qualified": true,
+  "display_records": 56,
+  "verified_clear_fresh_transactions": 3,
+  "guard_frames": 2,
+  "one_frame_retirement_qualified": false,
+  "fps_improvement_measured": false,
+  "gpu_ui_proof": {
+    "actual_backboardd_pid": 83,
+    "GPU_fences": 1341,
+    "BO_count": 1154,
+    "actual_CoreAnimation_workload": true,
+    "full_GPU_teardown": true,
+    "pixel_correctness_verified": false,
+    "optical_visibility_verified": false
+  }
+}

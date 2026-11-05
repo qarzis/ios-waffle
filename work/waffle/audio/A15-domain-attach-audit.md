@@ -16,3 +16,10 @@ Live audio DT: coherent DMA; pool10000000+10000000, native SID maskf, stream1001
 Next minimal experiment must remain read-only: inventory all valid stream routes and referenced CBs, NUMS2CB, and SCTLR of potential unreferenced banks; preserve global/stream configuration. Decode ambiguous/overlapping routes and enabled unreferenced banks as unavailable. This provides candidates, not proof of secure ownership; qualify native implementation/secure access before first writes. After ownership, use one bounded page table and unmapped guards, then DSP memory-map ACK, then period completion; no amp/iOS sink claims before actual PCM.
 
 No new hardware run for audio during E109 GPU USB ownership. No DMA/CB/reset writes implemented by this audit.
+
+## A15 read-only inventory candidate, 2026-11-05
+Live DT compatible qcom,qsmmu-v500 selects qsmmuv500_impl (native arm-smmu-qcom.c:3144,3270 onward), not the Adreno override. This implementation has no write_s2cr callback; generic stream writes apply only after native domain ownership is established. Global reset remains prohibited.
+
+New inventory reads all SMR/S2CR pairs and all SCTLRs twice, and verifies ID registers again. Any read failure, observed change, reserved route type or translated out-of-range CB rejects the entire result. A candidate must be outside NUMS2CB, unreferenced by every valid translated route and SCTLR.M=0. Enabled unreferenced banks are excluded. Even stable disabled candidates do not establish secure ownership, global exclusion or writability; no allocation or attach is implemented. The two passes cannot exclude ABA or later firmware changes.
+
+Actual helper sanitizer tests pass legacy/EXID validity, all read failures and changes at every read position, geometry, reserved/out-of-range routes, stage2 and enabled-orphan exclusion. Existing isolated --audio-preflight --audio-iommu path adds heap-backed inventory with matching free/unmap, prints all routes/banks only after a complete stable inventory. Mandatory build test and source snapshot list updated. Dedicated diagnostic-audio-inventory-a15 building; no A15 hardware result yet.
