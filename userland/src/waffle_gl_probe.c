@@ -207,6 +207,9 @@ static bool check_surface_reuse(GLuint texture)
 #ifdef WAFFLE_GL_SURFACE_ROLE_TEST
 #include "waffle_surface_role_probe.h"
 #endif
+#ifdef WAFFLE_GL_SURFACE_DETACH_TEST
+#include "waffle_surface_detach_probe.h"
+#endif
 #ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
 static bool check_surface_resource(void)
 {
@@ -246,6 +249,9 @@ static bool check_surface_resource(void)
 #endif
 #ifdef WAFFLE_GL_SURFACE_ROLE_TEST
  if(!check_surface_role(textures[0]))goto done;
+#endif
+#ifdef WAFFLE_GL_SURFACE_DETACH_TEST
+ if(!check_surface_detach(textures[1]))goto done;
 #endif
 #ifdef WAFFLE_GL_SURFACE_LEASE_TEST
  if(!check_surface_lease())goto done;

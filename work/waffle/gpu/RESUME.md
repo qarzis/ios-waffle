@@ -1,3 +1,7 @@
+# ACTIVE S16 prepared; target stable60FPS
+
+User says do not stop after status; goal revised60FPS only. New isolated surface-detach-s16 package from fullbuiltA16kernel + freshrootgpu/s16-surface-detach-pixel + exactS08Mesa/goldEAGL. Replacement second native GLuint viaTexImage, errorcheck beforeclear,1218000ownedgreenpixels then existing originalnativeCPUupdate/fullsourceproof. No normal imports enabled. Actual C mock failures/state and strictlog/binding/pairedvalidatorPASS. Checkpoint then auto with surface-lock-audit; soleowner waitAndroid. A16 originalstatusmissing afterhostinterruption, stricttraceCR02c0406/ACR41c CLIENTPD0 USFCFG1 CACHELOCK0; global-disablehypothesisrefuted. PhoneAndroidconnected. Telegram configured via privatefiles; notifywhenneeded. Noagents/noflash/mainindexpreserve.
+
 # D19C fresh-event trace qualified; A15 audio inventory PASS
 
 D19C run20261105T110850Z original1/Android1 due separate missing multicore proof; GPU UI proof1341fences/1154BO/fullteardown,523restoredflips. Strict56compactrows/56IRQrows,3clear-fresh transactions atdelta1. Old2frameguard unchanged/noFPSgain. D20-native-release-contract.json and retirement-plan saved; next prove inherited autorefresh event-to-latch/both-half lifetime before earlyreuse. AudioA15 run20261105T111402Z original0/Android1,107routes/71banks, refs0–5,65disabledunreferencedbutnonzeroSCTLR => no ownership. No active hardware owner; no agents/noflash/mainindexpreserve.

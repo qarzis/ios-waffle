@@ -1,6 +1,6 @@
 # Waffle: reaching 80–100 visible frames per second
 
-Target: sustained active scrolling at 80–100 genuinely presented frames/s, without tearing or resprings. Callback frequency and GL submission count are not presentation FPS. Latest evidence is D16, 2026-11-04; the bounded test does not qualify sustained stability.
+Current user target (2026-11-05): sustained active scrolling at 60 genuinely presented frames/s, without tearing or resprings. Callback frequency and GL submission count are not presentation FPS. Latest evidence is D16, 2026-11-04; the bounded test does not qualify sustained stability.
 
 ## Current measurements and hard limits
 
@@ -103,3 +103,5 @@ codes remain unchanged. The final log shows 518 restored flips and a clean GPU
 close of 1,330 commands/1,176 BOs. Android returned. A future bounded fresh-event
 experiment needs the actual INTF mux route and a known clearing boundary before
 any earlier buffer retirement is considered.
+
+The earlier80–100FPS target is superseded by the user request for stable60FPS. Do not change higher-refresh mode to pursue the old target. D19C fresh PP0 event preceded the first delta2 sample by1154.38/1177.76/1184.27us; these sparse observations suggest limited wait reduction alone, not a measured frame-rate gain.

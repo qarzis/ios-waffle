@@ -232,6 +232,20 @@ def validate_surface_role_log(text):
         raise RuntimeError('Role query lacks actual readonly native import')
 
 
+def validate_surface_detach_log(text):
+    start=re.search(r'waffle-gl-surface-detach: begin texture=(\d+) sid=(\d+) readonly_native=1',text)
+    if not start:raise RuntimeError('Native storage replacement start missing')
+    texture,sid=start.groups()
+    replaced=re.search(rf'waffle-gl-surface-detach: replaced=1 texture={texture} error=0 before_draw=1',text[start.end():])
+    if not replaced:raise RuntimeError('Native storage replacement not confirmed before draw')
+    begin=start.end()+replaced.end()
+    end=re.search(rf'waffle-gl-surface-detach: passed=1 texture={texture} checked=1218000 wrong=0 status=8cd5 error=0 owned_write=1 sibling_retained=1',text[begin:])
+    if not end or 'waffle-gl-surface-detach: passed=0' in text:raise RuntimeError('Owned replacement render pixels failed')
+    interval=text[begin:begin+end.start()]
+    if 'GENERAL submitted fence=' not in interval:raise RuntimeError('Owned replacement lacks actual GPU submission')
+    if not re.search(rf'SURFACE_SAMPLE imported=1 sid={sid} handle=\d+ index=\d+ GPU_readonly=1',text[:start.start()]):raise RuntimeError('Storage replacement lacks original readonly import')
+
+
 def validate_surface_lease_log(text):
     pattern=r'waffle-gl-surface-lease: passed=1 sid=(\d+) CPU_writer_refused_GPU_lease=1 AvoidSync_refused=1 reader_allowed=1 kernel_waiter_seen=1 writer_resumed=1 manual_no_GPU=1'
     markers=re.findall(pattern,text)
@@ -264,6 +278,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
     if 'waffle-gl-surface-role:' in text:validate_surface_role_log(text)
+    if 'waffle-gl-surface-detach:' in text:validate_surface_detach_log(text)
     if 'SURFACE_LEASE_TEST' in text or 'waffle-gl-surface-lease:' in text:
         validate_surface_lease_log(text)
     dispatch_audit='waffle-gl-eagl-native-draw:' in text

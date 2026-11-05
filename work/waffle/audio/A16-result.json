@@ -1,0 +1,17 @@
+{
+  "experiment": "A16 inherited CR0/ACR read-only state",
+  "run": "20261105T113040Z",
+  "runner_exit": null,
+  "overall_status": "interrupted host session; no original terminal result saved",
+  "android_boot_completed_verified_after_resume": true,
+  "inventory_trace_valid": true,
+  "cr0": "0x2c0406",
+  "acr": "0x41c",
+  "CLIENTPD": false,
+  "USFCFG": true,
+  "CACHE_LOCK_bit26": false,
+  "global_powerdown_hypothesis_refuted": true,
+  "ownership_qualified": false,
+  "dma_tested": false,
+  "pcm_tested": false
+}
