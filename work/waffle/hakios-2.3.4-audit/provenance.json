@@ -1,0 +1,32 @@
+{
+  "repository": "https://github.com/oosexgang/hakios-xnu-kernel",
+  "revision": "2631f5d7d4f9d7322aca60991b34ba465dec343b",
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "d7ca4afb91ae0f8218e707abbc7bf2deaeaad28ad810fa934699c879c18f5d14",
+      "git_blob": "861278bf29039a9dc26f9556509396e9555975e0"
+    },
+    {
+      "path": "drivers/audio/hakios.sound.c",
+      "sha256": "f8743e9c18e5a23981bbfe05300de5942185b1011ece6ac1ffe3d3a6ac0f49ac",
+      "git_blob": "f75fc607e9a852721021b9de4c3946e28f46024d"
+    },
+    {
+      "path": "drivers/haptic/hakios.haptic.c",
+      "sha256": "271530fc117b5116a5f9de62a546c4a288646ed4e034c398831ee49d5b126224",
+      "git_blob": "dea76bd23ab00704f8ce18c7db8e5ffbd348ce6b"
+    },
+    {
+      "path": "docs/porting/index.md",
+      "sha256": "fd5deafd1c1c68937fa2f9eff66cc51640ce55425ebe6aaeeafd1e013ee8f27d",
+      "git_blob": "36b3dd504a28c1192b847bf416445c237f5efb97"
+    },
+    {
+      "path": "hakios-metal/plugin/hakios_metallib.c",
+      "sha256": "95f248f9d8c831d0c07651a201d4ea099acdace56f1dbdb4b1cc1c57b2501c00",
+      "git_blob": "34b9c9a77808f70be1b8d819895a01241f0e9c5e"
+    }
+  ],
+  "applied_to_waffle": false
+}

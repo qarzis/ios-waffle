@@ -344,6 +344,8 @@ waffle_haptic_bus_survey(uint32_t channels)
  if(ok){
   say("haptic-waffle: enable=%02x play=%02x swr=%02x vmax=%02x drive=%02x tlra=%02x%02x\n",
       state.enable,state.play,state.swr,state.vmax,state.drive,state.tlra[0],state.tlra[1]);
+  say("haptic-waffle: hpwr=%02x fault=%02x brake=%02x cl_brake=%02x autores=%02x cal=%02x stop_survey=1\n",
+      state.hpwr,state.fault,state.brake,state.cl_brake,state.autores,state.cal);
   say("haptic-waffle: direct=%02x period1=%02x%02x period2=%02x%02x complete=1\n",
       state.direct,state.period[0],state.period[1],state.period[2],state.period[3]);
  }

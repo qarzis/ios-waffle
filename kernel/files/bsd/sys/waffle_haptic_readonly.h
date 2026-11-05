@@ -9,11 +9,12 @@ struct waffle_haptic_read_io {void *context;bool (*read8)(void *,uint16_t,uint8_
 struct waffle_haptic_snapshot {
  uint8_t cfg_revision,ptn_revision,boost_revision[2];
  uint8_t enable,play,swr,vmax,drive,tlra[2],direct,period[4];
+ uint8_t hpwr,fault,brake,cl_brake,autores,cal;
  bool complete;
 };
 static inline bool waffle_haptic_read_allowed(uint16_t ppid,uint8_t reg)
 {
- if(ppid==0x7f0)return reg==1 || reg==0x46 || reg==0x47 || reg==0x48 || reg==0x4c || reg==0x4e || reg==0x5c || reg==0x5d;
+ if(ppid==0x7f0)return reg==0x0b || reg==0x0c || reg==0x50 || reg==0x51 || reg==0x63 || reg==0x72 || reg==1 || reg==0x46 || reg==0x47 || reg==0x48 || reg==0x4c || reg==0x4e || reg==0x5c || reg==0x5d;
  if(ppid==0x7f1)return reg==1 || reg==0x26 || (reg>=0x30 && reg<=0x33);
  return ppid==0x7f2 && reg<=1;
 }
@@ -39,6 +40,14 @@ static inline bool waffle_haptic_capture(const struct waffle_haptic_read_io *io,
     !waffle_haptic_read(io,0x7f0,0x5d,&s->tlra[1]) ||
     !waffle_haptic_read(io,0x7f1,0x26,&s->direct))return false;
  for(unsigned i=0;i<4;i++)if(!waffle_haptic_read(io,0x7f1,0x30+i,&s->period[i]))return false;
+ /* Native enable/stop prerequisites; observational only, never clear faults.
+  * qcom-hv-haptics.c: haptics_enable_play/wait_brake_complete/load_constant_effect. */
+ if(!waffle_haptic_read(io,0x7f0,0x0b,&s->hpwr) ||
+    !waffle_haptic_read(io,0x7f0,0x0c,&s->fault) ||
+    !waffle_haptic_read(io,0x7f0,0x50,&s->brake) ||
+    !waffle_haptic_read(io,0x7f0,0x51,&s->cl_brake) ||
+    !waffle_haptic_read(io,0x7f0,0x63,&s->autores) ||
+    !waffle_haptic_read(io,0x7f0,0x72,&s->cal))return false;
  s->complete=true;return true;
 }
 #endif

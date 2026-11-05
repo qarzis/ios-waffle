@@ -1,0 +1,18 @@
+{
+  "DT_sha256": "c0a4036689044dd47e4a46076285d1fca13361f4c280690c5e2e80ed7382a92a",
+  "native_match_function": "arm-smmu-qcom.c:2779 smr_is_subset",
+  "matches": [
+    {
+      "audio_sid": "0x1001",
+      "audio_ignore_mask": "0x80",
+      "matched_ACTLR_overrides": []
+    },
+    {
+      "audio_sid": "0x1061",
+      "audio_ignore_mask": "0x0",
+      "matched_ACTLR_overrides": []
+    }
+  ],
+  "conclusion": "No matching native per-stream ACTLR override for these audio streams; no ACTLR write justified by this table. Context ownership remains unresolved.",
+  "hardware_test": false
+}

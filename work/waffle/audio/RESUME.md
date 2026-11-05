@@ -1,3 +1,7 @@
+# HakiOS 2.3.4 source review — 2026-11-05
+
+Pinned donor 2631f5d (full revision in ../hakios-2.3.4-audit/provenance.json). Current drivers/audio/hakios.sound.c still uses APR AFE/ASM/ADM and stream1801; it does not supply a Waffle GPR/APM DMA backend. Existing qualified A13 graph remains unchanged. A16 CLIENTPD=0 refutes global-disable blocker; bank ownership/attach remains unresolved. No PCM or sound claimed. H02 haptic host/full build underway, no new audio hardware test.
+
 # A15 hardware inventory PASS — 2026-11-05
 
 Originalrunner0/success1/Android1; run20261105T111402Z. Complete immutable kernel-1.log strict analyzer proof saved. 107routes/71banks, referencedCB0–5, remaining65 M=0 but nonzeroSCTLR; NOTfree/owned/writable. No DSP/DMA/PCM/writes. Missing-root preUSB failure preserved then dedicated bound root built. Next qualify native secure ownership/nonzero disabled config before any CB writes. No active phone owner.

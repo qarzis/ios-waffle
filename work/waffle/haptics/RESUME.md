@@ -1,3 +1,9 @@
+# H02 stop prerequisites — host PASS, full build in progress
+
+2026-11-05 user resumed vibration/audio and requested HakiOS 2.3.4 review. Added six CFG-only read registers (HPWR 0b, fault 0c, brake50, closed-loop brake51, autores63, calibration72), pinned native qcom-hv-haptics.c definitions. Existing revision/allowlist/platform/mode gates retained; no write callback. Sanitizer helper checks all22 read failure positions and actual observer adapter passes. New line stop_survey=1 records raw prerequisites; not a readiness assertion. H02 hardware NOT tested. Build log build-h02.log, artifact diagnostic-haptic-stop-survey-h02. Existing H01 artifact/source bindings remain historical; do not use it with modified sources as if newly compiled.
+
+Native enable/stop requires fault/power/braking behavior beyond PLAY_EN; no motor pulse implemented. Release donor remains AW86927 and APR audio; provenance/audit in ../hakios-2.3.4-audit/. Phone Android boot_completed=1 before build; no hardware owner.
+
 # H01 read-only hardware identity PASS
 
 Run20261105T192859Z originaloverall1(Android1)dueGPUlogging; componentcompletekernel2 rawSHA savedH01-result.json. ModelCFG4/PTN4/HBST0002(HAP525_HV/boostv0.2),enable80/play01(motorENbitoff),vmax30=2400mV,TLRA0602=7690us. CFGAPID591/PTN592owner0, HBST530owner3read-only; do notwriteforeignboostbank. Nativewa_flagsSW_CTRL_HBST onlyboostv0.1, notobservedv0.2. ActualAndroiddriverboundPM8550B. No PMIC/motor/resetwrites. Futureboundedpulse needs nativeDIRECT_PLAY/autores/brake/fault/stop policy and source-backedlimits; ordinaryiOShapticinterface notimplemented. GPUregressioncomparisonD22 usesoldD16kernel, soH01notactive.
