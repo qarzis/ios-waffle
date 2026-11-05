@@ -102,5 +102,16 @@ with tempfile.TemporaryDirectory() as t:
     v['surface_dispatch_audit']=True;reject(v,dispatch)
     n='tools/build-waffle-eagl-dispatch.py';p=r/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
     dispatch['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest();check(r,a,v,dispatch)
+    lease=copy.deepcopy(dispatch);lease['surface_lease_test']=True
+    reject(v,lease)
+    v['surface_lease_contention_audit']=True;reject(v,lease)
+    n='userland/src/waffle_surface_lease_probe.h';p=r/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
+    lease['source_sha256'][n]=hashlib.sha256(p.read_bytes()).hexdigest();reject(v,lease)
+    for n in ['kernel/files/bsd/sys/waffle_surface_access.h','kernel/files/iokit/Kernel/MiniIOSurface.h']:
+        for base in [r,a/'source']:
+            p=base/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(n)
+        v['surface_description_source_sha256'][n]=hashlib.sha256((r/n).read_bytes()).hexdigest()
+    check(r,a,v,lease)
+    x=copy.deepcopy(lease);x['surface_dispatch_test']=False;reject(v,x)
     check(r,a,{}, {}) # Existing unrelated probe has no metadata opt-in.
 print(f'PASS actual surface admission:{count} metadata/UI/missing/current/compiled/Mesa-source mismatch refusals before USB; bound and unrelated artifacts preserved')

@@ -95,3 +95,39 @@ S10 (`20261104T215258Z`) used the existing registered EAGL IOSurface input selec
 Both original strict runners passed and returned Android. S11 checked 1,024 GPU pixels across the original and three CPU-update/restoration draws, plus the full 1,218,000-pixel restored source, with zero errors. Native GEM retirement was clean. These are small controlled rendering tests; their mixed frame timings do not measure SpringBoard FPS.
 
 Remaining production boundary: private native sampler admission is PID1-only, ordinary 0x7e import remains disabled, and concurrent CPU writers are not qualified. MiniIOSurface Lock/Unlock currently publishes content seeds without GPU access leases. Before enabling normal UI inputs, define the read lease and producer synchronization contract and use an input-specific import mode; do not turn on the diagnostic environment variable globally for writable targets. Native render-target writes and CPU consumer cache visibility require a separate controlled test before removing the remaining output readback. Display refresh/flip cadence and an actual UI FPS workload remain separate gates toward 80–100 FPS.
+
+
+### CPU writer and native GPU reader contract (S12–S14)
+
+S12B observed actual IOSurface.framework traps: six writer pairs and one reader
+pair, with no unmatched unlock or unfinished bracket. These observations cover
+cooperating callers of the framework API, not arbitrary writes to its mapping.
+
+S13 introduced kernel bookkeeping under the existing surface lock. Per-client
+writer counts are dropped on client reference cleanup. A writer waits at most
+250 ms for GPU readers, while `kIOSurfaceLockAvoidSync` returns
+`kIOReturnCannotLock`. Existing CPU/CPU sharing and modification-seed semantics
+remain unchanged; this is not a general exclusive CPU mutex. GPU source leases
+are acquired atomically across the entire validated native source batch, before
+cache clean, and released after synchronous completion of all command windows.
+No partial batch remains held while waiting. Unknown completion retains leases
+and backing and returns to the loader instead of permitting CPU writers.
+
+S13 hardware run `20261105T083907Z` passed the existing EAGL native shader,
+CPU-update and full-source restoration checks and returned Android. It covered
+an exclusive diagnostic caller; it did not exercise concurrent producer access.
+Host sanitizer tests separately cover waiting, AvoidSync refusal, reference
+relocation/removal during sleep, batch rollback, and uncertain-completion
+retention. These modeled cases are not hardware race qualification.
+
+S14 adds an internal PID1-only `W/0x5a` diagnostic, with begin/end/query operations
+on the existing readonly native sampler handle. Query returns the actual kernel
+waiting-writer count. While manually held, submission and GEM_CLOSE are refused.
+The diagnostic performs no GPU work during this interval: an actual framework
+writer thread must block, be observed by the kernel query, and resume after
+release. A subsequent real EAGL draw checks that normal GPU operation remains
+correct. S14 hardware run `20261105T084828Z` passed: the actual kernel waiter was observed, AvoidSync returned `e00002cc`, and the writer resumed after lease release. The subsequent EAGL shader/update/full-source checks passed with zero pixel errors, and Android returned automatically. This qualifies the tested framework thread/lease contract, not production compositor concurrency.
+
+Normal UI imports remain disabled. Writable render targets, CPU consumer cache
+visibility, production producer synchronization and actual UI FPS are separate
+gates; these experiments do not establish 80–100 FPS.

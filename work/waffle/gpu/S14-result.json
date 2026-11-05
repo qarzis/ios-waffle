@@ -1,0 +1,28 @@
+{
+  "experiment": "S14 actual IOSurface.framework writer contention against manual native read lease",
+  "passed": true,
+  "run": "20261105T084828Z",
+  "auto_run": "20261105T084804Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "source_checkpoint": "892d42eedb0c3d0078f6d6aae5e3eb1a88f02312",
+  "kernel_log_sha256": "5f46daaee7f43a7173d94d69bde4d605e4f3a7b2dee7a4217dcc3b4f353ba4af",
+  "CPU_writer_blocks_GPU_read_lease": true,
+  "AvoidSync_result": "e00002cc (kIOReturnCannotLock)",
+  "readonly_CPU_lock_allowed": true,
+  "actual_kernel_waiting_writer_observed": true,
+  "writer_resumed_after_release": true,
+  "GPU_commands_during_manual_lease": 0,
+  "shader_pixels_checked": 1024,
+  "restored_source_pixels_checked": 1218000,
+  "wrong_pixels": 0,
+  "lock_records": 21,
+  "expected_refused_lock_sequences": [
+    7
+  ],
+  "limits": [
+    "Manually held GPU read lease tests real framework thread waiting; GPU commands run afterward",
+    "No production BackBoard import or writable native render-target qualification",
+    "UI FPS not measured"
+  ]
+}
