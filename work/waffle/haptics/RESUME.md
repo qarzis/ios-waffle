@@ -1,3 +1,7 @@
+# H02 hardware component PASS — 2026-11-05
+
+Run20261105T201705Z/auto201641Z. All22 read-only registers captured: HPWR00(disabled),fault00,brake41,cl_brakee1,autores89,cal04. No PMIC writes or motor start. Immutable kernel-2.log SHA saved H02-result.json. Original runner1 due unrelated multicore proof failure (cpu-proof.json preserved); Android independently confirmed1 by outer runner. Do not claim overall success or pulse qualified. Native OnePlus constant-mode branch disables autores whereas inherited89 has enable set; do not blindly use inherited state. H02-stop-contract.md documents native fault/open-loop power/braking/stop dependencies. No active USB owner.
+
 # H02 stop prerequisites — host PASS, full build in progress
 
 2026-11-05 user resumed vibration/audio and requested HakiOS 2.3.4 review. Added six CFG-only read registers (HPWR 0b, fault 0c, brake50, closed-loop brake51, autores63, calibration72), pinned native qcom-hv-haptics.c definitions. Existing revision/allowlist/platform/mode gates retained; no write callback. Sanitizer helper checks all22 read failure positions and actual observer adapter passes. New line stop_survey=1 records raw prerequisites; not a readiness assertion. H02 hardware NOT tested. Build log build-h02.log, artifact diagnostic-haptic-stop-survey-h02. Existing H01 artifact/source bindings remain historical; do not use it with modified sources as if newly compiled.

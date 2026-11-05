@@ -1,0 +1,22 @@
+{
+  "component": "H02 PM8550B stop prerequisites",
+  "run": "20261105T201705Z",
+  "raw_source": "work/waffle/runs/20261105T201705Z/kernel-2.log",
+  "source_sha256": "292201f7d212d1dfd7aad1156ab3362b3bf591fcd3cac938c0fafed8c5539e39",
+  "component_pass": true,
+  "raw_registers": {
+    "hpwr": 0,
+    "fault": 0,
+    "brake": 65,
+    "cl_brake": 225,
+    "autores": 137,
+    "cal": 4
+  },
+  "HPWR_DISABLED": true,
+  "PMIC_writes": 0,
+  "motor_started": false,
+  "pulse_qualified": false,
+  "original_runner_exit": 1,
+  "android_confirmed": true,
+  "original_failure": "Multicore proof failed; haptic component complete in immutable kernel-2.log"
+}
