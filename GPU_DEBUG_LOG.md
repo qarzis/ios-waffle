@@ -1317,3 +1317,33 @@ S13 qualified exclusive native reads only. New hypothesis test uses private PID1
 Original runner0/success1/Android1. Actual IOSurface CPU writer held: manual read acquisition EBUSY. Manual read lease op1 active1; actual AvoidSync trap result=e00002cc. Readonly CPU lock/unlock allowed. Separate pthread writer observed in kernel waiting_writers=1 via op3; op2 released lease; writer resumed and unlocked. No GPU commands during manual interval. Subsequent full EAGL native original/CPU-update/restoration shader proof passes:1024 shader pixels0wrong/full1218000 source0wrong,10 commands. Readonly native handle28 created/reused/retired. S14-result/evidence/lockanalysis saved. Does not yet qualify productionBackBoard imports, writabletarget/CPUconsumer cache, or UI FPS. Next production input admission requires explicit readonly input distinction at existing EAGL boundary and actual surface writer coverage; native target remains separate.
 
 S12–S14 source/tests/evidence published to qarzis/ios-waffle branch waffle/gpu-bringup commit aabc06740bf9a9657dd50f1ffdc2ad81f6ae5a16. Remote SHA verified and publish worktree clean. Representative host tests rerun from public worktree PASS. Main git index preserved. Fresh Android sys.boot_completed=1 confirmed after S14. No active phone runner.
+
+## S15 architecture gap: native input may later become a render target
+
+This is a barrier to production import, not a proven cause of existing UI FPS.
+Three current hypotheses/gaps, with no global driver rewrite:
+1. Strongest: readonly input import is not a durable EAGL role. Evidence:
+   osmesa_target.c::osmesa_surface_resource declares SAMPLER_VIEW|RENDER_TARGET;
+   eagl.c::my_texImageIOSurface attempts surface_shared; drawing() explicitly
+   promotes ordinary non-shared imported images to targets, but shared images
+   skip that promotion. The native sampler maps GPU pages readonly. The same
+   descriptor cannot safely be globally enabled for later framebuffer writes.
+   Test: attach the actual readonly imported texture to an FBO, query completeness,
+   detach and restore state without clear/draw/blit. Expected: GL accepts it despite
+   kernel readonly permission, proving frontend role is not enforced by import.
+2. Producer coverage remains unknown for ordinary UI. S14 validates actual
+   framework Lock/Unlock cooperation, not arbitrary writes or every producer.
+   Future check: correlate real producer writes, surface identity and use lifetime
+   before admitting BackBoard native inputs. No exclusion claim for raw writes.
+3. Writable native target cache/CPU consumer path is not qualified. S04 checks
+   four CP-written words, not tiled shader resolve/full-frame shared rendering.
+   Future check: isolated native shader target, post-completion invalidation,
+   independent whole-image/guard verification before removing output readback.
+
+Selected S15 tests hypothesis 1 with no native writes. New --surface-role-test
+implies full existing EAGL dispatch/sample/reuse proof, separate from contention.
+Strict proof requires same native readonly SID/handle, FRAMEBUFFER_COMPLETE,
+zero GL error and no GPU submission in the query interval. Kernel/Mesa/gold
+EAGL are unchanged from S14/S08B; only diagnostic root/tooling rebuilt. Root,
+container validator and pre-USB source binding PASS; three missing capability/
+header/dispatch refusals PASS. Hardware pending.

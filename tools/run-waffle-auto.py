@@ -44,6 +44,8 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Native EAGL input requires a source-bound isolated artifact')
     if gl_manifest.get('surface_dispatch_test') and (not gl_manifest.get('surface_eagl_test') or not manifest.get('surface_dispatch_audit') or 'tools/build-waffle-eagl-dispatch.py' not in gl_manifest.get('source_sha256',{})):
         raise ValueError('Native sampler EAGL dispatch requires a source-bound isolated artifact')
+    if gl_manifest.get('surface_role_test') and (not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_role_audit') or 'userland/src/waffle_surface_role_probe.h' not in gl_manifest.get('source_sha256',{})):
+        raise ValueError('Surface role audit lacks isolated kernel/source binding')
     if gl_manifest.get('surface_lease_test'):
         if not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_lease_contention_audit'):
             raise ValueError('Surface lease contention lacks isolated kernel support')

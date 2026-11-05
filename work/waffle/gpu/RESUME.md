@@ -1,3 +1,7 @@
+# ACTIVE — S15 readonly input / later FBO role query ready
+
+S14 public aabc067, private63a2fb5. Audit found actual osmesa_surface_resource bindSAMPLER_VIEW|RENDER_TARGET and gold EAGL selector later targetpromotion semantics, sharednativeinput cannot safelygloballyenableRO. S15 diagnostic-only --surface-role-test attachesactualROnative texture toFBO, queriescomplete, detacheswithoutdraw. SameEAGLsample/update/fullsourceproof follows. Rootgpu/s15-surface-role-pixel/artifactdiagnostic-surface-role-s15 ready; exactkernelcopyS14/MesaS08B/goldEAGLunchanged. Rootcompiled/currentbindings/pairedvalidatorPASS; strict rolelogfixtureand3preUSBnegativecasesPASS. No S15 hardware started at note. New files userland/src/waffle_surface_role_probe.h and tools/tests/waffle-surface-role-log-host.py; toolingonlychanges. SavecheckpointthenboundedautoS15, waitAndroid. Noagents/noflash/mainindexpreserve.
+
 # S14 qualified and published
 
 Public fork qarzis/ios-waffle waffle/gpu-bringup commit aabc06740bf9a9657dd50f1ffdc2ad81f6ae5a16 verified; source/tests/evidence S12–S14 included, worktreeclean. PhonefreshAndroidboot_completed1, noactivehardwareowner. User asked triangle purpose: explained known-pixel full pipeline/native texture CPUupdates/cache/synchronization proof, notSpringBoardFPS. Work may continue toward production readonly input boundary, no new test pending.

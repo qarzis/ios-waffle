@@ -219,6 +219,19 @@ def validate_gl_generation_handles(text,capacity,buffers,retired):
         raise RuntimeError("Incomplete GPU generation lifetime proof")
 
 
+def validate_surface_role_log(text):
+    begin=re.search(r'waffle-gl-surface-role: begin sid=(\d+) handle=(\d+) readonly_native=1',text)
+    if not begin:raise RuntimeError('Native role query start missing')
+    sid,handle=begin.groups()
+    end=re.search(rf'waffle-gl-surface-role: passed=1 sid={sid} handle={handle} framebuffer_status=8cd5 GL_error=0 readonly_native=1 attachment_allowed=1 draw_calls=0 restored_binding=1',text[begin.end():])
+    if not end or 'waffle-gl-surface-role: passed=0' in text:raise RuntimeError('Native readonly FBO role query failed')
+    interval=text[begin.end():begin.end()+end.start()]
+    if 'GENERAL_SUBMIT begin' in interval or 'GENERAL submitted' in interval:
+        raise RuntimeError('Role query unexpectedly submitted GPU work')
+    if not re.search(rf'SURFACE_SAMPLE imported=1 sid={sid} handle={handle} index=\d+ GPU_readonly=1',text[:begin.start()]):
+        raise RuntimeError('Role query lacks actual readonly native import')
+
+
 def validate_surface_lease_log(text):
     pattern=r'waffle-gl-surface-lease: passed=1 sid=(\d+) CPU_writer_refused_GPU_lease=1 AvoidSync_refused=1 reader_allowed=1 kernel_waiter_seen=1 writer_resumed=1 manual_no_GPU=1'
     markers=re.findall(pattern,text)
@@ -247,6 +260,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    if 'waffle-gl-surface-role:' in text:validate_surface_role_log(text)
     if 'SURFACE_LEASE_TEST' in text or 'waffle-gl-surface-lease:' in text:
         validate_surface_lease_log(text)
     dispatch_audit='waffle-gl-eagl-native-draw:' in text
