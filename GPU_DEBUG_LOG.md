@@ -1404,3 +1404,5 @@ numbers are not comparable with D16 active scrolling. Fresh Android confirmed.
 Next VSync gate: establish fresh transfer-done event / full split-path retirement
 semantics before consuming an earlier signal. Memory exchange and output readback
 remain separate dominant work; do not promise80–100fps from this sampled1ms gap.
+
+S15/D17 source, tests and honest hardware/collector results published to qarzis/ios-waffle waffle/gpu-bringup commit ca51c80d1e9b15584644c490d5da479356d7c8c1. Public worktree representative host sanitizer/CLI/log tests pass; remote SHA verified. Main index preserved. Phone Android confirmed, no active phone runner.

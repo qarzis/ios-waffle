@@ -1,3 +1,7 @@
+# D17 checkpoint published
+
+Public fork waffle/gpu-bringup ca51c80d1e9b15584644c490d5da479356d7c8c1 includes S15+read-onlyD17 code/results, actualrunnerfailurepreserved. No VSyncguardorFPSclaim. Privateprepublication346adf967b8798a9ee4953d54484015b32fc654d. PhoneAndroid/noactiveowner. NextfreshTXdone/splitretirementproof; do notuseconstantscheduler1 or rawidlealone.
+
 # ACTIVE — D17B observations collected, original runner failure preserved
 
 Run20261105T091550Z/auto091525Z originalrunner1/successfalse/Android1, kernel returned1441823 0. Final1.5MiBring lost earlyaudit => analyzerMissingbanner; complete earlierkernel-124.log recovered67rows withSHA in D17-completion-analysis.json. CTLschedulerconstant1, autobusy0/1; idlecanoccurbeforeflushlatch(delta0/flush3), so notcompletionalone. Fivepost-latchbusy-to-idle samples precedeold2frameguard by~1.15ms, NOTsafe-release/FPSproof. Guard/flipbytesunchangedD16. Final585restoredflips/GPUclose2768commands1882BOs/contextnull/noREBOOT_REQUIRED. UIidle/nocomparableFPS. D17-result passedfalse butdiagnostictracevalidtrue; donotoverwriteoriginalfailure. Collector nowanalyze_run scansonecompletesavedimmutablefile, tests partial/finalrolloverPASS; no hardware rerun forparseronly. Sourcecheckpoint8dcac964 prehardware, result+collector changespendingcheckpoint. PhoneAndroid/noactiveowner. NextfreshTXdone/splitretirementcontract beforeweakeningguard. Publicaabc067throughS14; S15private287072... currentbranchalsoD17. Preserveindex/noflash/noagents.
