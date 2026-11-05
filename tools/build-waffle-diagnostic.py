@@ -94,6 +94,10 @@ def main():
          "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-haptic-pulse-host.c",
          "-o", output / "test-haptic-pulse"])
     run([output / "test-haptic-pulse"])
+    run(["cc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",
+         "-I",ROOT / "kernel/files/bsd/sys",ROOT / "tools/tests/waffle-haptic-events-host.c",
+         "-o",output / "test-haptic-events"])
+    run([output / "test-haptic-events"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-write-adapter-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-cli-host.py"])
     for variant,flags in (("base",[]),("user",["-DWAFFLE_USERLAND=1"]),("pulse",["-DWAFFLE_USERLAND=1","-DWAFFLE_HAPTIC_PULSE_TEST=1"])):
@@ -323,6 +327,8 @@ def main():
                     xnu / "bsd/sys/waffle_haptic_readonly.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_haptic_pulse.h",
                     xnu / "bsd/sys/waffle_haptic_pulse.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_haptic_events.h",
+                    xnu / "bsd/sys/waffle_haptic_events.h")
     for relative in ("iokit/Kernel/MiniIOSurface.cpp", "iokit/Kernel/MiniIOSurface.h"):
         shutil.copyfile(ROOT / "kernel/files" / relative, xnu / relative)
     for relative in ("iokit/Kernel/MiniIOMobileFramebuffer.cpp", "bsd/dev/macan_torch.c", "bsd/dev/macan_audio.c", "bsd/dev/macan_buttons.c", "bsd/sys/waffle_slider.h", "iokit/Kernel/WaffleGPUMemory.cpp", "bsd/sys/waffle_gpu_submit.h", "bsd/sys/waffle_gpu_memory.h", "bsd/sys/waffle_display_completion.h", "bsd/sys/waffle_display_irq_probe.h", "bsd/sys/waffle_gpu_surface.h", "bsd/sys/waffle_surface_access.h", "bsd/sys/waffle_gpu_surface_write.h", "bsd/sys/waffle_gpu_surface_read.h", "bsd/sys/waffle_gpu_registry.h", "bsd/sys/waffle_gpu_handles.h", "bsd/sys/waffle_gpu_reclaim.h", "iokit/Kernel/WaffleGPUMap.cpp", "bsd/sys/waffle_gpu_map.h", "bsd/dev/waffle_synaptics.c", "bsd/dev/waffle_adreno.c", "bsd/dev/waffle_gpu_service.c", "bsd/dev/waffle_gpu_drm.c", "bsd/dev/waffle_gpu_msm.c", "bsd/sys/waffle_gpu_msm.h", "bsd/dev/waffle_gpu_user.c", "bsd/sys/waffle_gpu_user.h", "bsd/sys/waffle_gpu_service.h", "bsd/dev/waffle_smmu.c", "bsd/sys/waffle_gpu.h", "bsd/sys/waffle_gpu_pll.h", "bsd/sys/waffle_gmu_clock.h", "bsd/sys/waffle_gpu_va.h", "bsd/sys/waffle_aop.h",
@@ -385,6 +391,8 @@ def main():
                      "tools/tests/waffle-audio-smmu-inventory-host.c",
                      "kernel/files/bsd/sys/waffle_haptic_readonly.h",
                      "kernel/files/bsd/sys/waffle_haptic_pulse.h",
+                     "kernel/files/bsd/sys/waffle_haptic_events.h",
+                     "tools/tests/waffle-haptic-events-host.c",
                      "tools/tests/waffle-haptic-pulse-host.c",
                      "tools/tests/waffle-haptic-write-adapter-host.py",
                      "tools/tests/waffle-haptic-readonly-host.c"):

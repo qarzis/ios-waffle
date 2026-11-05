@@ -1,0 +1,22 @@
+{
+  "run": "20261105T204242Z",
+  "original_runner_exit": 1,
+  "original_failure": "Early haptic proof lines rotated out of final rolling snapshot; exact stream recovery was not enabled for haptic",
+  "android_confirmed": true,
+  "component_pass": true,
+  "offline_exact_stream_pass": true,
+  "source": "work/waffle/runs/20261105T204242Z/kernel-2.log",
+  "source_sha256": "0c31a3b26ab524f420b0c01b7edf9a7f76742ac29368afd58062cb68fb6d5dac",
+  "stream_sha256": "79dcc8fa8b9fd51741e9c033c123a54f7f0314ef45fb9fa9816f3a823649c981",
+  "user_feedback": "Felt the impulse",
+  "mechanical_impulse_confirmed": true,
+  "active_us": 16090,
+  "requested_us": 16000,
+  "amplitude": 32,
+  "writes": 7,
+  "stopped": true,
+  "restored": true,
+  "emergency": false,
+  "HBST_writes": 0,
+  "ios_actuator_service": false
+}

@@ -784,6 +784,7 @@ def main():
     parser.add_argument("--bootcpu", type=int, default=7, choices=range(1, 8))
     parser.add_argument("--cpus", type=int, choices=range(1, 8), help="XNU cores; one physical core remains with the resident USB loader")
     parser.add_argument("--capture-requests", type=Path, help="Read *.request screenshot requests; this runner alone owns fastboot")
+    parser.add_argument("--haptic-service-test", action="store_true", help="H05 bounded native PCM actuator bridge")
     parser.add_argument("--haptic-pulse", action="store_true", help="Dedicated H04 native haptic16ms transaction; CPU1 only")
     parser.add_argument("--torch-readonly", action="store_true", help="Waffle v7 SPMI flash module identification; no PMIC writes")
     parser.add_argument("--torch-pulse", action="store_true", help="Waffle qualified module: one two-second pulse and verified darkness")
@@ -858,6 +859,8 @@ def main():
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
+    if args.haptic_service_test and (args.haptic_pulse or args.audio_preflight or args.gpu_probe is not None or args.cpus!=1 or args.seconds>90 or args.torch_readonly or args.torch_pulse or args.torch_service):
+        parser.error('--haptic-service-test requires isolated CPU1, <=90seconds, no GPU/audio/flash')
     if args.haptic_pulse and (args.audio_preflight or args.gpu_probe is not None or args.cpus!=1 or args.seconds>90 or args.torch_readonly or args.torch_pulse or args.torch_service):
         parser.error('--haptic-pulse requires isolated CPU1, <=90 seconds, no GPU/audio/flash modes')
     if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
@@ -948,6 +951,8 @@ def main():
         if args.battery_readonly:arguments += " waffle_battery_readonly="+('2' if args.battery_report_test else '1')
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
+    if args.haptic_service_test:
+        arguments += " waffle_torch=1 waffle_haptic_test=2"
     if args.haptic_pulse:
         arguments += " waffle_torch=1 waffle_haptic_test=1"
     if args.torch_readonly:
@@ -1100,7 +1105,7 @@ def main():
                 final_text=stream.decode(errors='replace')
                 if args.display_irq_probe and b'!wbo:v1!' in args.kernel.read_bytes() and '!wbo:v1!' not in final_text:
                     raise RuntimeError('Compiled compact BO proof protocol was not enabled')
-            elif args.gpu_ui and args.double_buffer:
+            elif (args.gpu_ui and args.double_buffer) or getattr(args, 'haptic_pulse', False) or getattr(args, 'haptic_service_test', False):
                 # Guarded normal UI also rolls the final ring. Recover only
                 # exact byte overlaps; do not invent or weaken proof records.
                 import runpy
@@ -1403,6 +1408,12 @@ def main():
                               ['adsp: WAFFLE PREFLIGHT OK: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes']))
                 if not all(s in final_text for s in required) or any(s in final_text for s in ('adsp: FAIL', 'adsp: WAFFLE PREFLIGHT FAIL', 'adsp: WAFFLE POWER_APPLY FAIL', 'adsp: PAS ', 'adsp: RPMh ')):
                     raise RuntimeError(f'ADSP firmware preflight evidence missing or hardware path reached; logs: {out}')
+            if args.haptic_service_test and not all(marker in final_text for marker in (
+                'haptic-waffle-service: ready=1 PCM=S16_mono',
+                'waffle-haptic-client: direct_taps=3 errors=0',
+                'haptic-waffle-pulse: passed=1 admitted=1 start=1',
+                'haptic-waffle-pulse: stopped=1 restored=1 emergency=0 writes=7')):
+                raise RuntimeError(f"Native PCM haptic bridge proof incomplete; logs: {out}")
             if args.haptic_pulse and not all(marker in final_text for marker in (
                 'haptic-waffle-pulse: passed=1 admitted=1 start=1',
                 'haptic-waffle-pulse: stopped=1 restored=1 emergency=0 writes=7',

@@ -88,7 +88,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         haptic_torch1+=waffle_token_equal(line,size,"waffle_torch=1");
         haptic_budget+=waffle_number(line,size,"loader_return_after=",1,90);
 #if defined(WAFFLE_USERLAND) && defined(WAFFLE_HAPTIC_PULSE_TEST)
-        haptic+=waffle_token_equal(line,size,"waffle_haptic_test=1");
+        haptic+=waffle_number(line,size,"waffle_haptic_test=",1,2);
 #endif
 #if defined(WAFFLE_USERLAND)
         surface_lock_audit+=waffle_token_equal(line,size,"waffle_surface_lock_audit=1");
@@ -131,7 +131,7 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_number(line, size, "fbscale=", 1, 3) &&
             !waffle_cpu_token_allowed(line,size) &&
 #if defined(WAFFLE_USERLAND) && defined(WAFFLE_HAPTIC_PULSE_TEST)
-            !waffle_token_equal(line,size,"waffle_haptic_test=1") &&
+            !waffle_number(line,size,"waffle_haptic_test=",1,2) &&
 #endif
 #if defined(WAFFLE_USERLAND)
             !waffle_token_equal(line,size,"waffle_surface_lock_audit=1") &&

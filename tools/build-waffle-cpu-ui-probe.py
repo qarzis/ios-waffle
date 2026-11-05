@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--hud-probe', action='store_true', help='Read-only SpringBoard geometry audit and bounded synthetic volume presses')
     parser.add_argument('--hud-relocate', action='store_true', help='Test scoped portrait side-HUD model placement')
     parser.add_argument('--service-audit', action='store_true', help='Read-only enumeration of actual Focus/ringer/Poster service methods')
+    parser.add_argument("--haptic-service-test",action="store_true",help="Bounded public system vibration and three explicit PCM onsets")
     args = parser.parse_args()
     if args.hud_relocate and not args.hud_probe:parser.error('--hud-relocate requires --hud-probe')
     if args.service_audit and not args.hud_probe:parser.error('--service-audit requires --hud-probe')
@@ -88,10 +89,17 @@ def main():
         pf.add_file(tree,'etc/inject.conf',str(config))
     for path in sorted(jobs.iterdir()):
         pf.add_file(tree, 'LaunchDaemons/' + path.name, str(path))
+    if args.haptic_service_test:
+        helper=out/'waffle_haptic_client'
+        run([cc,'-arch','arm64','-isysroot',str(sdk),'-O2','-Wall','-Wextra','-framework','AudioToolbox',str(ROOT/'userland/src/waffle_haptic_client.c'),'-o',str(helper)])
+        pf.add_file(tree,'bin/waffle_haptic_client',str(helper),mode=0o100755)
+        job={'Label':'org.waffle.haptic-client','ProgramArguments':['/redwood/bin/waffle_haptic_client'],'RunAtLoad':True,'KeepAlive':False,'StandardOutPath':'/dev/console','StandardErrorPath':'/dev/console'}
+        path=scratch/'haptic-client.plist';path.write_bytes(plistlib.dumps(job));pf.add_file(tree,'LaunchDaemons/org.waffle.haptic-client.plist',str(path))
     root = out / 'root.packfs'
     pf.pack(tree, str(root), zstd=15)
     assert root.stat().st_size + 16 * 1024 * 1024 < 0x03f00000
     sources = ['tools/build-waffle-cpu-ui-probe.py', 'userland/src/cpu_test.c', 'userland/src/inject.c', 'userland/mkjobs.py', 'tools/assemble.py']
+    if args.haptic_service_test:sources.append('userland/src/waffle_haptic_client.c')
     if args.hud_probe: sources.append('userland/src/waffle_hud_probe.m')
     if args.hud_relocate:sources.append('userland/src/inject_waffle_hud.m')
     if args.service_audit:sources.append('userland/src/waffle_service_audit.m')
@@ -100,7 +108,7 @@ def main():
                 'posterboard_base_sha256': hashlib.sha256(base.read_bytes()).hexdigest(),
                 'posterboard_providers': ['duetexpertd','mobileassetd'], 'hud_probe':args.hud_probe,
                 'hud_relocate':args.hud_relocate,
-                'service_audit':args.service_audit,
+                'service_audit':args.service_audit,'haptic_service_test':args.haptic_service_test,
                 'source_sha256': {s: hashlib.sha256((ROOT / s).read_bytes()).hexdigest() for s in sources}}
     (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(json.dumps(manifest, indent=2))

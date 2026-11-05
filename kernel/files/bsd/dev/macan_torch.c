@@ -1,5 +1,7 @@
 #include <kern/clock.h>
 #include <kern/thread.h>
+#include <kern/locks.h>
+#include <kern/sched_prim.h>
 #include <libkern/libkern.h>
 #include <mach/mach_types.h>
 #include <machine/machine_routines.h>
@@ -10,6 +12,7 @@
 #include <sys/macan_input.h>
 #include <sys/waffle_haptic_readonly.h>
 #include <sys/waffle_haptic_pulse.h>
+#include <sys/waffle_haptic_events.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
@@ -19,6 +22,10 @@ static uint32_t level;
 static bool waffle_arb;
 static uint32_t haptic_test;
 static bool haptic_active;
+static LCK_GRP_DECLARE(haptic_event_group,"waffle-haptic-events");
+static LCK_MTX_DECLARE(haptic_event_lock,&haptic_event_group);
+static struct waffle_haptic_events haptic_events;
+static bool haptic_service_ready;
 static uint32_t arb_ppid(uint32_t entry)
 {
  return waffle_arb ? (entry >> 8) & 0xfffu : entry & 0x1fffu;
@@ -336,7 +343,7 @@ static bool
 waffle_haptic_bus_write(void *context,uint16_t ppid,uint8_t reg,uint8_t value)
 {
  struct waffle_haptic_bus_context *c=context;
- if(!waffle_arb || level!=1 || haptic_test!=1 || !haptic_active ||
+ if(!waffle_arb || level!=1 || (haptic_test!=1 && haptic_test!=2) || !haptic_active ||
     !waffle_haptic_pulse_write_allowed(ppid,reg))return false;
  for(unsigned i=0;i<2;i++) {
   const struct peripheral *p=&c->peripheral[i];
@@ -359,7 +366,9 @@ waffle_haptic_bus_write(void *context,uint16_t ppid,uint8_t reg,uint8_t value)
 static void
 waffle_haptic_quiesce(void)
 {
- if(!waffle_arb || haptic_test!=1 || !haptic_active)return;
+ if(!waffle_arb || (haptic_test!=1 && haptic_test!=2))return;
+ leaving=true;
+ if(!haptic_active)return;
  /* Panic/return uses the same bounded, ownership-checked writer as flash;
   * leaving skips taking a mutex that a stopped core might own. */
  leaving=true;
@@ -378,15 +387,16 @@ waffle_haptic_wait_us(__unused void *context,uint32_t us)
 {
  delay_for_interval(us,NSEC_PER_USEC);
 }
-static void
+static bool
 waffle_haptic_bus_pulse(struct waffle_haptic_bus_context *c)
 {
- haptic_pulse_context=*c;c=&haptic_pulse_context;
+ if(c!=&haptic_pulse_context)haptic_pulse_context=*c;
+ c=&haptic_pulse_context;
  bool owned=true;
  for(unsigned i=0;i<2;i++) {
   struct peripheral *p=&c->peripheral[i];
   if(!p->found || !p->writable){owned=false;continue;}
-  p->write=ml_io_map(0x0c500000UL+0x1000UL*p->channel,0x200);
+  if(!p->write)p->write=ml_io_map(0x0c500000UL+0x1000UL*p->channel,0x200);
   if(!p->write)owned=false;
  }
  const struct waffle_haptic_pulse_io io={
@@ -402,6 +412,69 @@ waffle_haptic_bus_pulse(struct waffle_haptic_bus_context *c)
      result.stopped,result.restored,result.emergency_disabled,result.writes);
  say("haptic-waffle-pulse: amplitude=32 requested_us=16000 HBST_writes=0\n");
  say("haptic-waffle-pulse: active_us=%llu\n",result.active_us);
+ return ok;
+}
+/* The audio HAL already sends mono S16 PCM to this device. Copy/queue only
+ * on its real-time path; all PMIC traffic runs on the service worker. */
+static int
+waffle_haptic_pcm_open(__unused dev_t dev,__unused int flags,__unused int type,__unused struct proc *p)
+{
+ lck_mtx_lock(&haptic_event_lock);
+ bool ready=haptic_service_ready && !leaving;
+ lck_mtx_unlock(&haptic_event_lock);
+ return ready?0:ENXIO;
+}
+static int
+waffle_haptic_pcm_write(__unused dev_t dev,struct uio *uio,__unused int ioflag)
+{
+ int16_t samples[256];
+ if(uio_resid(uio)&1)return EINVAL;
+ while(uio_resid(uio)>0) {
+  int count=uio_resid(uio)>(user_ssize_t)sizeof(samples)?(int)sizeof(samples):(int)uio_resid(uio);
+  int error=uiomove((caddr_t)samples,count,uio);
+  if(error)return error;
+  lck_mtx_lock(&haptic_event_lock);
+  if(!haptic_service_ready || leaving){lck_mtx_unlock(&haptic_event_lock);return ENXIO;}
+  waffle_haptic_events_feed(&haptic_events,samples,(size_t)count/2,waffle_haptic_now_us(NULL));
+  lck_mtx_unlock(&haptic_event_lock);
+ }
+ return 0;
+}
+static const struct cdevsw waffle_haptic_pcm_cdevsw={
+ .d_open=waffle_haptic_pcm_open,.d_close=waffle_haptic_pcm_open,
+ .d_read=eno_rdwrt,.d_write=waffle_haptic_pcm_write,.d_ioctl=eno_ioctl,
+ .d_stop=eno_stop,.d_reset=eno_reset,.d_select=eno_select,.d_mmap=eno_mmap,
+ .d_strategy=eno_strat,.d_type=0
+};
+static void
+waffle_haptic_service(struct waffle_haptic_bus_context *context)
+{
+ haptic_pulse_context=*context;context=&haptic_pulse_context;
+ int major=cdevsw_add(-1,&waffle_haptic_pcm_cdevsw);
+ if(major<0 || !devfs_make_node(makedev(major,0),DEVFS_CHAR,UID_ROOT,GID_WHEEL,0666,"redwood-haptic")) {
+  say("haptic-waffle-service: device_create_failed=1\n");return;
+ }
+ lck_mtx_lock(&haptic_event_lock);haptic_service_ready=true;lck_mtx_unlock(&haptic_event_lock);
+ say("haptic-waffle-service: ready=1 PCM=S16_mono tap_us=16000 cooldown_us=80000\n");
+ unsigned taps=0;bool failed=false;
+ while(!leaving) {
+  lck_mtx_lock(&haptic_event_lock);
+  bool fire=waffle_haptic_events_take(&haptic_events,waffle_haptic_now_us(NULL));
+  lck_mtx_unlock(&haptic_event_lock);
+  if(fire) {
+   if(!waffle_haptic_bus_pulse(context)){failed=true;break;}
+   taps++;
+  }
+  /* Scheduler sleep, not delay_for_interval busy polling on an idle core. */
+  assert_wait_timeout((event_t)&haptic_events,THREAD_UNINT,10,NSEC_PER_MSEC);
+  thread_block(THREAD_CONTINUE_NULL);
+ }
+ lck_mtx_lock(&haptic_event_lock);
+ haptic_service_ready=false;haptic_events.pending=false;
+ uint64_t frames=haptic_events.frames,onsets=haptic_events.onsets;
+ lck_mtx_unlock(&haptic_event_lock);
+ say("haptic-waffle-service: stopped=1 taps=%u failed=%u\n",taps,failed);
+ say("haptic-waffle-service: frames=%llu onsets=%llu\n",frames,onsets);
 }
 static void
 waffle_haptic_bus_survey(uint32_t channels)
@@ -427,7 +500,8 @@ waffle_haptic_bus_survey(uint32_t channels)
   say("haptic-waffle: direct=%02x period1=%02x%02x period2=%02x%02x complete=1\n",
       state.direct,state.period[0],state.period[1],state.period[2],state.period[3]);
  }
- if(ok && haptic_test==1)waffle_haptic_bus_pulse(&c);
+ if(ok && haptic_test==1)(void)waffle_haptic_bus_pulse(&c);
+ if(ok && haptic_test==2)waffle_haptic_service(&c);
 }
 static void
 show_registers(void)
@@ -645,7 +719,7 @@ torch_thread(__unused void *parameter, __unused wait_result_t result)
 {
  uint32_t version, channels;
  uint8_t id[2] = { 0, 0 }, revision = 0, alarm_status = 0;
- say("torch: level %u: %s\n", level, level == 1 ? (haptic_test==1 ? "bounded haptic diagnostic, flash read-only" : "a look, reading only") : level == 2 ? "the light on once" :
+ say("torch: level %u: %s\n", level, level == 1 ? (haptic_test ? "bounded haptic diagnostic/service, flash read-only" : "a look, reading only") : level == 2 ? "the light on once" :
      "the light for iOS");
  arb_core = ml_io_map(ARB_CORE_PHYS, ARB_CORE_SIZE);
  arb_cnfg = ml_io_map(waffle_arb ? 0x0c42d000UL : ARB_CNFG_PHYS,waffle_arb ? 0x4000 : ARB_CNFG_SIZE);
@@ -759,7 +833,7 @@ macan_torch_init(void)
   level=0;
   PE_parse_boot_argn("waffle_torch",&level,sizeof(level));
   PE_parse_boot_argn("waffle_haptic_test",&haptic_test,sizeof(haptic_test));
-  if(haptic_test && (haptic_test!=1 || level!=1))return;
+  if(haptic_test && (haptic_test>2 || level!=1))return;
   /* Modes1/2 identified this module and verified the bounded pulse and
    * darkness on Waffle; mode3 exposes the same checked path to iOS. */
   if (level<1 || level>3) return;
