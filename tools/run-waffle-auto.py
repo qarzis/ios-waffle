@@ -66,6 +66,18 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface probe source changed: '+name)
 
 
+def check_surface_lock_policy(root, artifact, manifest):
+    """Bind the new diagnostic token to its actual loader/kernel snapshots."""
+    bindings=manifest.get('surface_lock_policy_sha256',{})
+    for name in ('loader/waffle.h','kernel/files/iokit/Kernel/MiniIOSurface.cpp'):
+        if name not in bindings:raise ValueError('Surface lock audit policy binding missing')
+        digest=bindings[name]
+        if hashlib.sha256((root/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:
+            raise ValueError('Surface lock audit loader/kernel source changed: '+name)
+    if b'waffle_surface_lock_audit=1' not in (artifact/'source/loader/waffle.h').read_bytes():
+        raise ValueError('Loader snapshot does not admit the lock audit token')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifact', type=Path, required=True)
@@ -176,6 +188,9 @@ def main():
     manifest = json.loads((artifact / 'manifest.json').read_text())
     if args.surface_lock_audit and (not args.gl_context or args.ui_workload or not manifest.get('surface_lock_audit')):
         parser.error('Surface lock audit requires a bound isolated GL artifact')
+    if args.surface_lock_audit:
+        try:check_surface_lock_policy(ROOT,artifact,manifest)
+        except (ValueError,OSError) as error:parser.error(str(error))
     if args.audio_preflight:
         if args.audio_boot:
             for name in ('A06-result.json','A07-result.json'):

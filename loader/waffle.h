@@ -72,7 +72,7 @@ static inline int waffle_cmdline_allowed(const char *line)
 {
     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
-    unsigned battery_readonly=0,battery_boot=0;
+    unsigned battery_readonly=0,battery_boot=0,surface_lock_audit=0;
     unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0,audio=0,audio_budget=0,display_survey=0,hardware_vsync=0,display_flush=0,display_flip=0,display_present=0;
     while (*line) {
         while (*line == ' ') line++;
@@ -84,6 +84,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         returns+=waffle_return_token_allowed(line,size);
         cpus+=waffle_cpu_token_allowed(line,size);
 #if defined(WAFFLE_USERLAND)
+        surface_lock_audit+=waffle_token_equal(line,size,"waffle_surface_lock_audit=1");
         display_present+=waffle_token_equal(line,size,"waffle_display_present=1");
         battery_readonly+=waffle_number(line,size,"waffle_battery_readonly=",1,2);
         battery_boot+=waffle_token_equal(line,size,"adsp=6");
@@ -121,6 +122,7 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_number(line, size, "fbscale=", 1, 3) &&
             !waffle_cpu_token_allowed(line,size) &&
 #if defined(WAFFLE_USERLAND)
+            !waffle_token_equal(line,size,"waffle_surface_lock_audit=1") &&
             !waffle_token_equal(line,size,"waffle_display_present=1") &&
             !waffle_number(line,size,"waffle_battery_readonly=",1,2) &&
             !waffle_token_equal(line,size,"waffle_display_flip=1") &&
@@ -134,6 +136,7 @@ static inline int waffle_cmdline_allowed(const char *line)
         line = end;
     }
     if (battery_readonly > 1 || (battery_readonly && (battery_boot != 1 || audio != 1))) return 0;
+    if(surface_lock_audit>1 || (surface_lock_audit && (audio || cpus || torch || soak || display_present || display_flip || display_flush || display_survey || hardware_vsync || gpu_count!=1 || !native94 || gl_image!=1 || returns!=1)))return 0;
     return display_present<=1 && (!display_present || (!audio && !display_survey && !display_flip && !display_flush && gpu_count==1 && native94 && gl_image==1)) && display_flip<=1 && (!display_flip || (!audio && !display_survey && !hardware_vsync && !display_flush && gpu_count==1 && native94 && gl_image==1)) && display_flush<=1 && (!display_flush || (!audio && !display_survey && !hardware_vsync && gpu_count==1 && native94 && gl_image==1)) && hardware_vsync<=1 && !(hardware_vsync && (audio || display_survey)) && display_survey<=1 && !(display_survey && audio) && (!audio || (audio==1 && returns==1 && audio_budget==1 && !gpu_count && !torch && !cpus)) &&
         cpus<=1 && torch<=1 && ((!matrix && !measure) ||
         (matrix<=1 && measure<=1 && gpu_count==1 && prepare93)) &&
