@@ -1347,3 +1347,6 @@ zero GL error and no GPU submission in the query interval. Kernel/Mesa/gold
 EAGL are unchanged from S14/S08B; only diagnostic root/tooling rebuilt. Root,
 container validator and pre-USB source binding PASS; three missing capability/
 header/dispatch refusals PASS. Hardware pending.
+
+## S15 hardware PASS — run20261105T085849Z
+Originalrunner0/success1/Android1. Actual readonly nativehandle28 accepted by GL as framebuffer attachment:FRAMEBUFFER_COMPLETE8cd5/GL_error0, noGPUcommands duringquery. Detach/state restoration succeeded; subsequent EAGL shader/CPUupdate/fullsource checks0wrong. Confirms import-time readonly sampler role does not prevent later FBO attachment. Therefore do not globally enable private ROimport for ordinary EAGL inputs. Native writabletarget/cache-consumer contract or explicit role-aware frontend enforcement must be qualified first. This is production import architecture evidence, not a cause established for current lag or a VSync fix. User asked VSync: answered directly no current VSyncchange, two-MDP-frame retirement/60Hzmode remain separate limits. Next audit display completion read-only; do not weaken guard on stale IRQstatus.

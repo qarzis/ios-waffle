@@ -1,0 +1,24 @@
+{
+  "experiment": "S15 readonly native import accepted as framebuffer attachment without drawing",
+  "passed": true,
+  "run": "20261105T085849Z",
+  "auto_run": "20261105T085825Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "source_checkpoint": "07f6c00f31507e11b0befc4bf59a59c4abdd14e3",
+  "kernel_log_sha256": "c4b938d4b95fd2cf0dcefc6bfcd02bc838c0f2c377599713f91e5dc50408100f",
+  "kernel_reused": "diagnostic-surface-contention-s14",
+  "native_handle": 28,
+  "framebuffer_status": "8cd5 (GL_FRAMEBUFFER_COMPLETE)",
+  "GL_error": 0,
+  "GPU_submissions_during_role_query": 0,
+  "role_ambiguity_confirmed": true,
+  "shader_pixels_checked": 1024,
+  "restored_source_pixels_checked": 1218000,
+  "wrong_pixels": 0,
+  "limits": [
+    "No native framebuffer write attempted or qualified",
+    "FBO completeness does not grant writable GPU PTEs",
+    "Does not measure UI FPS or display synchronization"
+  ]
+}
