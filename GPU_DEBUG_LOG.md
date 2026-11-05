@@ -1454,3 +1454,5 @@ No hardware rerun for collector-only changes. Next diagnostic should first read
 INTF_MUX and establish a known masked completion clearing boundary, then observe
 fresh transfer-done while retaining two-frame guard. No production IRQ/pacing
 change or FPS improvement claimed. Host fixes and hardware observations saved.
+
+D18 source/observer/strict log stream recovery/tests and honest original/offline results published to qarzis/ios-waffle waffle/gpu-bringup commit 8065aa129823c9562e32544bdc1645b3ab711e27. Representative host/sanitizer checks rerun from public worktree PASS; remote SHA matched and worktree clean. Android freshly confirmed; no active phone owner.
