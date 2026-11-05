@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Analyze bounded read-only commit observations, never infer a release fence."""
 from pathlib import Path
-import re,json,argparse,hashlib
+import re,json,argparse,hashlib,runpy
 
 def analyze(text):
+ compact='!dph:' in text
+ if compact:text=runpy.run_path(str(Path(__file__).with_name('waffle_display_log.py')))['normalize'](text)
  banners=re.findall(r'waffle-display-completion: records=(\d+) no_extra_writes=([01]) guard_frames=2 cntfrq=(\d+)',text)
  if not banners or len(set(banners))!=1:raise ValueError('Missing/conflicting completion audit banner')
  count,readonly,hz=map(int,banners[0])
@@ -78,7 +80,7 @@ def analyze(text):
     if delta>=0x80000000:continue
     states.append({'stage':r['stage'],'mdp_delta':delta,'elapsed_us':round((r['ticks']-base['ticks'])*1e6/hz,2),'flush':r['flush'],'scheduler':r['scheduler'],'auto_status':r['auto_status']})
   sequences.append({'sequence':seq,'baseline_observed':base is not None,'post_flush_observed':post is not None,'observations':states})
- return {'record_count':count,'clock_hz':hz,'invalid_records':sum(not r['valid'] for r in ordered),'crossed_frame_records':sum(r['frame0']!=r['frame1'] for r in ordered if r['valid']),
+ return {'wire_protocol':'compact_v1' if compact else 'legacy_text','record_count':count,'clock_hz':hz,'invalid_records':sum(not r['valid'] for r in ordered),'crossed_frame_records':sum(r['frame0']!=r['frame1'] for r in ordered if r['valid']),
          'scheduler_values':sorted({r['scheduler'] for r in ordered if r['valid']}),'auto_status_values':sorted({r['auto_status'] for r in ordered if r['valid']}),
          'no_extra_MMIO_writes':bool(readonly),'irq_probe':probe,
          'irq_record_count':len(irq_rows),'irq_values':irq_values,'sampled_irq_rising_edges':rising,
@@ -92,7 +94,7 @@ def analyze_run(directory):
     for path in logs:
         if not path.is_file():continue
         raw=path.read_bytes()
-        if b'waffle-display-completion: records=' not in raw:continue
+        if b'waffle-display-completion: records=' not in raw and b'!dph:v1/' not in raw:continue
         try:report=analyze(raw.decode(errors='replace'))
         except ValueError:continue
         report['source_log']=path.name;report['source_log_sha256']=hashlib.sha256(raw).hexdigest()

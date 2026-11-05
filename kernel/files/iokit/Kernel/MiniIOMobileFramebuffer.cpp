@@ -1,4 +1,5 @@
 #include <IOKit/IOLib.h>
+#include <stdarg.h>
 #include <IOKit/IOLocks.h>
 #include <IOKit/IOKitKeys.h>
 #include <IOKit/IOService.h>
@@ -31,6 +32,7 @@ extern struct vc_info vinfo;
 }
 #include <IOKit/IOBufferMemoryDescriptor.h>
 #include "MiniIOSurface.h"
+extern "C" void loader_log_line(const char *);
 extern "C" void redwood_tl(const char * format, ...) __printflike(1, 2);
 extern "C" vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
 extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
@@ -138,10 +140,29 @@ static void waffleDisplayCompletionObserve(WaffleDisplayFlipContext *c,unsigned 
   }
  }
 }
+static void waffleDisplayCompactLog(const char *format,...) __printflike(1,2);
+static void waffleDisplayCompactLog(const char *format,...)
+{
+ char line[64];va_list args;va_start(args,format);
+ int n = vsnprintf(line,sizeof(line),format,args);va_end(args);
+ loader_log_line(n > 0 && n < (int)sizeof(line) ? line : "!dph:error!\n");
+}
 static void waffleDisplayCompletionLog(WaffleDisplayFlipContext *c)
 {
  if (!c->auditCount || c->auditLogged) return;
  c->auditLogged = true;c->auditStage = 0;
+ if (gWaffleDisplayIRQProbe == 1) {
+  waffleDisplayCompactLog("!dph:v1/%x/%llx/%x/1!\n",c->auditCount,(unsigned long long)__builtin_arm_rsr64("CNTFRQ_EL0"),c->probeWrites);
+  for (unsigned i = 0; i < c->auditCount; i++) {
+   const WaffleDisplayCompletionRecord *r = &c->audit[i];const struct waffle_display_completion_sample *v = &r->sample;
+   waffleDisplayCompactLog("!dpa:%x/%x/%x/%llx/%x/%x/%x!\n",i,r->sequence,r->stage,(unsigned long long)r->ticks,v->frame_before,v->frame_after,r->valid?1u:0u);
+   waffleDisplayCompactLog("!dpb:%x/%x/%x/%x/%x/%x!\n",i,v->flush,v->scheduler,v->auto_status,v->write_line,v->read_line);
+   waffleDisplayCompactLog("!dpc:%x/%x/%x/%x/%x!\n",i,v->address0,v->address1,v->irq_top,v->irq_top_enable);
+   waffleDisplayCompactLog("!dpd:%x/%x/%x/%x/%x/%x!\n",i,v->irq_ctl,v->irq_ctl_enable,v->irq_tear,v->irq_tear_enable,v->ctl_active);
+   if (r->probe.action) waffleDisplayCompactLog("!dpp:%x/%x/%x/%x/%x/%x/%x!\n",i,r->sequence,r->probe.action,r->probe.wrote?1u:0u,r->probe.status_after,r->probe.mux,r->probe.version);
+  }
+  return;
+ }
  redwood_tl("waffle-display-completion: records=%u no_extra_writes=%u guard_frames=2 cntfrq=%llu\n", c->auditCount, !c->probeWrites,
      (unsigned long long)__builtin_arm_rsr64("CNTFRQ_EL0"));
  if (gWaffleDisplayIRQProbe == 1) redwood_tl("waffle-display-irq-probe: enabled=1 writes=%u clear_offset=1018 clear_mask=100 guard_frames=2 mode_change=0 irq_enable_writes=0\n",c->probeWrites);

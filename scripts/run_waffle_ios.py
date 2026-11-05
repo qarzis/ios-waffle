@@ -1022,6 +1022,8 @@ def main():
             if args.display_completion_audit:
                 import runpy
                 completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
+                if args.display_irq_probe and b'!dph:v1/' in args.kernel.read_bytes() and completion.get('wire_protocol')!='compact_v1':
+                    raise RuntimeError('Compiled compact display protocol missing')
                 if args.display_irq_probe and not completion.get('irq_probe',{}).get('enabled'):
                     raise RuntimeError('Masked IRQ probe did not report its diagnostic state')
                 if b'waffle-display-irq:' in args.kernel.read_bytes() and completion['irq_record_count']!=completion['record_count']:

@@ -2,7 +2,7 @@
 """Execute actual observer/adapter to catch context, allowlist and off-mode errors."""
 from pathlib import Path
 import subprocess,tempfile
-r=Path(__file__).resolve().parents[2];source=(r/'kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp').read_text();code=source[source.index('struct WaffleDisplayCompletionRecord'):source.index('static void waffleDisplayCompletionLog(')]
+r=Path(__file__).resolve().parents[2];source=(r/'kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp').read_text();code=source[source.index('struct WaffleDisplayCompletionRecord'):source.index('static void waffleDisplayCompactLog(')]
 code=code.replace('__asm__ volatile("dsb sy" ::: "memory");','')
 h=r'''
 #include <cassert>

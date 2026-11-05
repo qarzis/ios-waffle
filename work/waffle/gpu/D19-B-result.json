@@ -1,0 +1,10 @@
+{
+  "experiment": "D19B",
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "qualified": false,
+  "clear_records": 4,
+  "fresh_records": 4,
+  "blocker": "192-byte verbose display formatter truncates source address fields; complete transaction proof refused",
+  "next": "D19C compact typed records shorter than 64 bytes; unchanged two-frame guard"
+}

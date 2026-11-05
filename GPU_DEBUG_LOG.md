@@ -1504,3 +1504,6 @@ D19B build stopped in an independent owner fixture missing these declarations,
 fixed fixture and retained failure log. D19B fullbuild running again, nohardwareyet.
 
 D19B full mandatory host/XNU/EFI/container build PASS after owner harness declarations fixed. Seven current/prepared/compiled source bindings (including unchanged64-byte logger) verified; exact D16 UI/E75 Mesa reused. No guard/flip/EAGL changes. Source/probe ledger parsing and compact emitters tested; no unsupported transcript repair. Ready for hardware with explicit IRQ probe flag.
+
+## D19B evidence refused; D19C compact display telemetry
+D19B original runner exit1 and Android return preserved. Four clear and four fresh action records exist, but the long display formatter truncates source addresses and a row interleaves. Full transaction qualification remains false. D19C emits typed, bounded records through the existing 64-byte logger; decoder requires all parts and full-width fields. Actual C++ formatter, corruption/replay/max-width host checks and full host/XNU/EFI/container build pass. Seven current/prepared/snapshot bindings and exact D16 UI root verified; paired image validator passed. Two-frame retirement guard and normal rendering remain unchanged; no FPS gain claimed.
