@@ -1,3 +1,7 @@
+# A15 hardware inventory PASS — 2026-11-05
+
+Originalrunner0/success1/Android1; run20261105T111402Z. Complete immutable kernel-1.log strict analyzer proof saved. 107routes/71banks, referencedCB0–5, remaining65 M=0 but nonzeroSCTLR; NOTfree/owned/writable. No DSP/DMA/PCM/writes. Missing-root preUSB failure preserved then dedicated bound root built. Next qualify native secure ownership/nonzero disabled config before any CB writes. No active phone owner.
+
 # ACTIVE — A15 read-only full inventory building
 
 2026-11-05 user requests audio alongside GPU. New waffle_audio_smmu_inventory.h + actual sanitized host fixture PASS. Full routes/banks double-read, geometry/type/range/change checks; candidates exclude stage2/referenced/enabled orphan banks; ownership remains0. Existing isolated audio-iommu path heap storage/free/unmap; no SMMU writes/DMA/PCM. Native DT qsmmu-v500 => qsmmuv500_impl, not Adreno. Full build diagnostic-audio-inventory-a15 active; log audio/build-a15.log, freeze compiled inputs. GPU D19C sole USB owner (run20261105T110850Z), do not overlap; next validator/checkpoint then audio-only RAM inventory after Android confirmed.

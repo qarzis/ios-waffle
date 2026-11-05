@@ -1,0 +1,24 @@
+{
+  "measurements": [
+    {
+      "sequence": 3,
+      "clear_to_fresh_us": 6948.75,
+      "fresh_delta": 1,
+      "first_sample_at_delta2_row": 19
+    },
+    {
+      "sequence": 7,
+      "clear_to_fresh_us": 6924.69,
+      "fresh_delta": 1,
+      "first_sample_at_delta2_row": 41
+    },
+    {
+      "sequence": 8,
+      "clear_to_fresh_us": 6825.16,
+      "fresh_delta": 1,
+      "first_sample_at_delta2_row": 53
+    }
+  ],
+  "release_fence_qualified": false,
+  "fps_measured": false
+}

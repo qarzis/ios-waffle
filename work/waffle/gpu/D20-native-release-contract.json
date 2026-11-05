@@ -1,0 +1,32 @@
+{
+  "native_revision": "38d50357db2728300a61b6f757f2d3a09651c155",
+  "source": "work/waffle/gpu/forensic-audit/peripheral-upstream/display/vendor/qcom/opensource/display-drivers/msm/sde/sde_encoder_phys_cmd.c",
+  "sha256": "3d7a6b3eabafbc5e8a19ea9163027da571bd646dc53ec042c16dfe3d67e8daa9",
+  "contracts": [
+    {
+      "function": "_sde_encoder_phys_signal_frame_done",
+      "line": 441,
+      "behavior": "Signals DONE and RELEASE_FENCE only when a pending kickoff is decremented"
+    },
+    {
+      "function": "sde_encoder_phys_cmd_pp_tx_done_irq",
+      "line": 518,
+      "behavior": "Routes pingpong completion to signal_frame_done"
+    },
+    {
+      "function": "sde_encoder_phys_cmd_wait_for_tx_complete",
+      "line": 2203,
+      "behavior": "Waits on pending kickoff; no pending means already complete"
+    },
+    {
+      "line": 2822,
+      "behavior": "pp_done callback registered as PING_PONG_COMP"
+    }
+  ],
+  "remaining_gaps": [
+    "XNU inherited autorefresh has no native pending_kickoff counter; associate fresh event with verified new latch instead",
+    "Prove complete active output routing and both visible halves before using event for source reuse",
+    "Bounded early-retirement optical/stress test and active-scroll timing still required"
+  ],
+  "production_guard_changed": false
+}

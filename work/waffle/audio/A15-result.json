@@ -1,0 +1,22 @@
+{
+  "experiment": "A15 read-only full Apps SMMU inventory",
+  "run": "20261105T111402Z",
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "read_only_inventory_pass": true,
+  "groups": 107,
+  "banks": 71,
+  "referenced_banks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "disabled_unreferenced_count": 65,
+  "ownership_qualified": false,
+  "nonzero_sctlr_caution": "Unreferenced disabled banks contain nonzero configuration; no bank declared free or writable",
+  "dma_tested": false,
+  "pcm_tested": false
+}
