@@ -1,3 +1,7 @@
+# STOPPED BY USER — H10 joint test PASS, shutdown requested
+
+H10run214657Z/auto214633Z originalrunner0/success1/Android1. GuardedGPUUI+nativehapticthread+torchserviceCPU1, direct3PCM/stoprestore andexistingUIproofpassed. BoundedGPU60sstop intentionallyrestartsCPU; nounexpectedfallbackorFPSclaim inferred. H10-result.json. Userrequestednoadditionaltests/Git/poweroff. Publichapticcode758574d pushed; lastoutcomedoccommitforthcoming. AllnewexperimentsSTOP. NativeCoreHaptics/systemrouteH08/H09proven; longwaveforms/variableintensity/7corejointtestnotqualified. SoundstillDMAownershipblocker; GPU60FPSnotachieved. Mainindexpreserved, S20host-onlyunpublishedworkretained.
+
 # USER STOP AFTER LAST TEST + GIT + POWER OFF
 
 Userrequestsstop/saveGit/shutdown, thenurgesfastexitduelimits. No newtestsbeyondalreadyactiveH10auto214633Z/run214657Z. SoleUSBownerouterrunner (session44105). AwaitautomaticAndroidreturnbeforepoweroff. Publichapticdriver+tests/docscommit758574d pushforkinprogress; H10jointresultpending, notclaimedworking. Saveallresultsafterrunner. sudo-nrequirespassword; try normaldesktopsession systemctlpoweroffwithoutpassword AFTERAndroidandGit. CurrentnewH10loader/outer/inner/wrapper/UIrootgateshostbuilt/validated; runtimepending. KeepS20host-onlywipnotpublic.
