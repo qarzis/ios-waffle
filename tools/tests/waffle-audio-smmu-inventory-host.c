@@ -18,6 +18,8 @@ int main(void){
  fixture(false);regs[0xc00/4]=3u<<16;assert(!waffle_audio_smmu_inventory_read(&io,&out));
  fixture(false);regs[0xc00/4]=(1u<<16)|255;assert(waffle_audio_smmu_inventory_read(&io,&out)&&!out.referenced[3]&&out.candidate[3]);
  fixture(false);regs[0x24/4]|=9u<<16;assert(!waffle_audio_smmu_inventory_read(&io,&out));
+ fixture(false);regs[0]=0x401;regs[0x10/4]=0x40000000;
+ assert(waffle_audio_smmu_inventory_read(&io,&out) && out.cr0==0x401 && out.acr==0x40000000);
  assert(!waffle_audio_smmu_inventory_read(NULL,&out));assert(!waffle_audio_smmu_inventory_read(&io,NULL));
  puts("PASS audio inventory: all routes/banks, legacy/EXID, stage2 exclusion, enabled orphan exclusion, every read failure/change; read only, no ownership/DMA claim");
 }

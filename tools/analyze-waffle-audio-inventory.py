@@ -3,7 +3,7 @@
 import argparse,json,re
 from pathlib import Path
 
-def analyze(text):
+def analyze(text,require_global=False):
  headers=re.findall(r'AUDIO_SMMU ids=(0x[0-9a-f]+)/(0x[0-9a-f]+)/(0x[0-9a-f]+) groups=(\d+) banks=(\d+) page_shift=(\d+) cb_base=(0x[0-9a-f]+) exids=([01]) complete=1',text)
  if not headers or len(set(headers))!=1:raise ValueError('Missing/conflicting SMMU geometry')
  fields=headers[0];id1=int(fields[1],16);exids=int(fields[7]);groups=int(fields[3]);banks=int(fields[4]);s2=(id1>>16)&255
@@ -39,7 +39,14 @@ def analyze(text):
   if bool(ref)!=(cb in referenced) or bool(candidate)!=expected:raise ValueError('Bank classification mismatch')
   if candidate:candidates.append(cb)
  if len(candidates)!=nc or 'WAFFLE AUDIO_IOMMU OK' not in text or 'AUDIO_INVENTORY FAIL' in text:raise ValueError('Incomplete inventory completion')
- return dict(read_only_inventory_valid=True,groups=groups,banks=banks,stage2_banks=s2,referenced_banks=sorted(referenced),disabled_unreferenced_candidates=candidates,ownership_qualified=False,dma_tested=False,pcm_tested=False)
+ global_rows=re.findall(r'AUDIO_GLOBAL v=1 cr0=(0x[0-9a-f]+|0) acr=(0x[0-9a-f]+|0) clientpd=([01]) usfcfg=([01])',text)
+ if (require_global or 'AUDIO_GLOBAL' in text) and (not global_rows or len(set(global_rows))!=1):raise ValueError('Missing/conflicting global SMMU state')
+ global_state=None
+ if global_rows:
+  cr0,acr,pd,usf=(int(x,0) for x in global_rows[0])
+  if pd!=bool(cr0&1) or usf!=bool(cr0&(1<<10)):raise ValueError('Global bit decode mismatch')
+  global_state=dict(cr0=cr0,acr=acr,client_power_down=bool(pd),unmatched_stream_fault=bool(usf),ownership_qualified=False)
+ return dict(global_state=global_state,read_only_inventory_valid=True,groups=groups,banks=banks,stage2_banks=s2,referenced_banks=sorted(referenced),disabled_unreferenced_candidates=candidates,ownership_qualified=False,dma_tested=False,pcm_tested=False)
 
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('log',type=Path);a=p.parse_args();print(json.dumps(analyze(a.log.read_text(errors='replace')),indent=2))
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('log',type=Path);p.add_argument('--require-global',action='store_true');a=p.parse_args();print(json.dumps(analyze(a.log.read_text(errors='replace'),a.require_global),indent=2))

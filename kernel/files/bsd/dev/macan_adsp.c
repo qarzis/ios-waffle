@@ -2505,6 +2505,8 @@ waffle_audio_iommu_survey(void)
  struct waffle_audio_smmu_inventory *inventory = kalloc_data(sizeof(*inventory), Z_WAITOK | Z_ZERO);
  bool inventory_valid = inventory && waffle_audio_smmu_inventory_read(&io, inventory);
  if (inventory_valid) {
+  printf("adsp: AUDIO_GLOBAL v=1 cr0=%#x acr=%#x clientpd=%u usfcfg=%u\n",
+      inventory->cr0, inventory->acr, !!(inventory->cr0 & 1), !!(inventory->cr0 & (1u << 10)));
   printf("adsp: AUDIO_INVENTORY v=1 groups=%u banks=%u stage2=%u candidates=%u ownership=0\n",
       inventory->groups, inventory->banks, inventory->s2_banks, inventory->candidates);
   for (unsigned i = 0; i < inventory->groups; i++) {

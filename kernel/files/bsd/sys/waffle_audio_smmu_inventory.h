@@ -6,6 +6,7 @@
 #include "waffle_audio_smmu_survey.h"
 struct waffle_audio_smmu_inventory {
  uint32_t id0,id1,id2,groups,banks,s2_banks,page_shift,cb_base;
+ uint32_t cr0,acr;
  uint32_t smr[256],s2cr[256],sctlr[256];
  bool referenced[256],candidate[256],complete;
  uint32_t candidates;
@@ -15,7 +16,9 @@ static inline bool waffle_audio_smmu_inventory_read(
 {
  if(!out)return false;
  *out=(struct waffle_audio_smmu_inventory){0};
- if(!waffle_audio_smmu_read(io,0x20,&out->id0) ||
+ if(!waffle_audio_smmu_read(io,0,&out->cr0) ||
+    !waffle_audio_smmu_read(io,0x10,&out->acr) ||
+    !waffle_audio_smmu_read(io,0x20,&out->id0) ||
     !waffle_audio_smmu_read(io,0x24,&out->id1) ||
     !waffle_audio_smmu_read(io,0x28,&out->id2))return false;
  if(!(out->id0&(1u<<30)) || !(out->id0&(1u<<27)))return false;
@@ -56,6 +59,9 @@ static inline bool waffle_audio_smmu_inventory_read(
   uint32_t v,expected=offset==0x20?out->id0:offset==0x24?out->id1:out->id2;
   if(!waffle_audio_smmu_read(io,offset,&v) || v!=expected)return false;
  }
+ uint32_t cr0,acr;
+ if(!waffle_audio_smmu_read(io,0,&cr0) ||
+    !waffle_audio_smmu_read(io,0x10,&acr) || cr0!=out->cr0 || acr!=out->acr)return false;
  for(uint32_t cb=out->s2_banks;cb<out->banks;cb++)
   if(!out->referenced[cb] && !(out->sctlr[cb]&1)) {
    out->candidate[cb]=true;out->candidates++;
