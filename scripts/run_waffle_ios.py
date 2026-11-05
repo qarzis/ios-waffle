@@ -219,6 +219,26 @@ def validate_gl_generation_handles(text,capacity,buffers,retired):
         raise RuntimeError("Incomplete GPU generation lifetime proof")
 
 
+def validate_surface_lease_log(text):
+    pattern=r'waffle-gl-surface-lease: passed=1 sid=(\d+) CPU_writer_refused_GPU_lease=1 AvoidSync_refused=1 reader_allowed=1 kernel_waiter_seen=1 writer_resumed=1 manual_no_GPU=1'
+    markers=re.findall(pattern,text)
+    if not markers or len(set(markers))!=1 or 'waffle-gl-surface-lease: passed=0' in text:
+        raise RuntimeError('Native lease contention user proof missing')
+    begin=re.search(r'SURFACE_LEASE_TEST op=1 handle=(\d+) active=1 waiting=0 manual_no_GPU=1',text)
+    if not begin:raise RuntimeError('Native read lease acquisition missing')
+    handle=begin[1]
+    end=re.search(rf'SURFACE_LEASE_TEST op=2 handle={handle} active=0 waiting=0 manual_no_GPU=1',text[begin.end():])
+    if not end:raise RuntimeError('Native read lease release missing')
+    interval=text[begin.end():begin.end()+end.start()]
+    if f'SURFACE_LEASE_TEST op=3 handle={handle} active=1 waiting=1 manual_no_GPU=1' not in interval:
+        raise RuntimeError('Actual kernel CPU waiter not observed')
+    if 'GENERAL_SUBMIT begin' in interval or 'GENERAL submitted' in interval:
+        raise RuntimeError('GPU submission during manual lease')
+    sid=markers[0]
+    if not re.search(rf'waffle-surface-lock: seq=\d+ pid=1 sid={sid} unlock=0 options=2 seed=\d+ result=e00002cc',interval):
+        raise RuntimeError('Actual AvoidSync refusal missing')
+
+
 def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     """Track unique publications/revocations across console replay duplicates."""
     if any(x in text for x in ('SURFACE_READ_', 'waffle-gl-surface-read:')):
@@ -227,6 +247,8 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # Identical ownership/fence/pattern/restore evidence; preserve distinct
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
+    if 'SURFACE_LEASE_TEST' in text or 'waffle-gl-surface-lease:' in text:
+        validate_surface_lease_log(text)
     dispatch_audit='waffle-gl-eagl-native-draw:' in text
     eagl_audit='waffle-gl-eagl-native-input:' in text
     if dispatch_audit and not eagl_audit:raise RuntimeError('EAGL draw dispatch lacks native input proof')
@@ -714,6 +736,7 @@ def main():
     parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
     parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
+    parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
     args = parser.parse_args()
     if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -799,7 +822,10 @@ def main():
         raise RuntimeError("Expected the waffle loader; select Boot iOS in the PJD110 UEFI menu")
     if "kernel-supported: software-userland-test" not in command("getvar", "kernel-supported"):
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
+    if args.surface_lock_audit and (not args.gpu_gl_context or args.gpu_ui):parser.error("Surface lock audit requires isolated GL")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
+    if args.surface_lock_audit:
+        arguments += " waffle_surface_lock_audit=1"
     if args.hardware_vsync:
         arguments += " waffle_vsync=1"
     if args.double_buffer:

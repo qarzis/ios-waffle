@@ -58,6 +58,36 @@ bool waffle_gpu_memory_map(const struct waffle_gpu_memory *bo,bool readonly,uint
  if(!va || (va&16383)){map->unmap();map->release();return false;}
  *address=va;*token=reinterpret_cast<uintptr_t>(map);return true;
 }
+static struct waffle_gpu_surface_backing *waffle_memory_read_backing(const void *context,uint32_t index)
+{
+ auto bos=static_cast<struct waffle_gpu_memory *const *>(context);
+ return reinterpret_cast<struct waffle_gpu_surface_backing *>(bos[index]->object);
+}
+static bool waffle_memory_read_batch_valid(struct waffle_gpu_memory *const *bos,uint32_t count)
+{
+ if(!bos || !count || count>WAFFLE_SURFACE_READ_BATCH_MAX)return false;
+ for(uint32_t i=0;i<count;i++){
+  const struct waffle_gpu_memory *bo=bos[i];
+  if(!bo || !bo->object || !bo->published || bo->storage!=WAFFLE_GPU_STORAGE_SURFACE ||
+     bo->flags!=(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY))return false;
+ }
+ return true;
+}
+bool waffle_gpu_memory_surface_reads_begin(struct waffle_gpu_memory *const *bos,uint32_t count,uint32_t wait_ms)
+{
+ return waffle_memory_read_batch_valid(bos,count) &&
+     waffle_gpu_surface_reads_begin(count,waffle_memory_read_backing,bos,wait_ms);
+}
+bool waffle_gpu_memory_surface_reads_end(struct waffle_gpu_memory *const *bos,uint32_t count)
+{
+ return waffle_memory_read_batch_valid(bos,count) &&
+     waffle_gpu_surface_reads_end(count,waffle_memory_read_backing,bos);
+}
+bool waffle_gpu_memory_surface_read_state(struct waffle_gpu_memory *bo,uint32_t *readers,uint32_t *waiting)
+{
+ return waffle_memory_read_batch_valid(&bo,1) &&
+     waffle_gpu_surface_read_state(waffle_memory_read_backing(&bo,0),readers,waiting);
+}
 static void waffle_surface_cache_line(uintptr_t address,bool invalidate)
 {
  if(invalidate)__asm__ volatile("dc ivac, %0"::"r"(address):"memory");

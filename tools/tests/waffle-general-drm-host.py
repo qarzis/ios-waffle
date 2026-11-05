@@ -29,6 +29,10 @@ int waffle_gpu_surface_describe(struct waffle_msm_surface *r){(void)r;assert(hel
 bool waffle_gpu_memory_surface(uint32_t sid,struct waffle_gpu_memory *b){(void)sid;(void)b;assert(held);return false;}
 struct waffle_gpu_memory *waffle_gpu_context_memory_adopt(struct waffle_gpu_context *c,struct waffle_gpu_memory *b){(void)c;(void)b;assert(held);return NULL;}
 bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *b,bool detached){(void)b;(void)detached;assert(held);return false;}
+static unsigned read_begins,read_ends;static bool read_held,read_busy;
+bool waffle_gpu_memory_surface_reads_begin(struct waffle_gpu_memory *const *b,uint32_t n,uint32_t wait){assert(held && b && n && (wait==250 || !wait) && !read_held);read_begins++;if(read_busy)return false;read_held=true;return true;}
+bool waffle_gpu_memory_surface_read_state(struct waffle_gpu_memory *b,uint32_t *readers,uint32_t *waiting){assert(held && b && read_held);*readers=1;*waiting=0;return true;}
+bool waffle_gpu_memory_surface_reads_end(struct waffle_gpu_memory *const *b,uint32_t n){assert(held && b && n && read_held);read_ends++;read_held=false;return true;}
 bool waffle_gpu_memory_surface_sync(const struct waffle_gpu_memory *b,uint32_t o,uint32_t n,unsigned d){(void)b;(void)o;(void)n;(void)d;assert(held);return false;}
 
 static int copyin(uint64_t a,void *out,unsigned bytes){if(a<4096)return 14;memcpy(out,(void *)(uintptr_t)a,bytes);return 0;}

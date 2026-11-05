@@ -19,11 +19,19 @@ static bool surface_fail=true;static unsigned surface_holds,surface_drops;
 bool waffle_gpu_surface_hold(uint32_t sid,struct waffle_gpu_surface_backing *b){
  if(surface_fail)return false;
  assert(sid==79 && b && !b->object);
- surface_holds++;*b={.object=0x1234,.pixels=0x10000000,.surface=79,.bytes=32768,.offset=0,.stride=3072,.width=750,.height=8,.published=false};return true;
+ surface_holds++;*b={.object=0x1234,.pixels=0x10000000,.surface=79,.bytes=32768,.offset=0,.stride=3072,.width=750,.height=8,.published=false,.gpu_reading=false};return true;
 }
 uint64_t waffle_gpu_surface_page(const struct waffle_gpu_surface_backing *b,uint32_t off){assert(b && b->object && off<b->bytes);return 0x8000000+off*2;}
 bool waffle_gpu_surface_release(struct waffle_gpu_surface_backing *b,bool detached){assert(b && b->object);if(b->published && !detached)return false;surface_drops++;*b={};return true;}
 
+static unsigned batch_begins,batch_ends;
+bool waffle_gpu_surface_reads_begin(uint32_t n,waffle_surface_read_getter get,const void *ctx,uint32_t wait){
+ assert(n==1 && wait==250 && get(ctx,0)->object==0x1234);batch_begins++;return true;
+}
+bool waffle_gpu_surface_reads_end(uint32_t n,waffle_surface_read_getter get,const void *ctx){
+ assert(n==1 && get(ctx,0)->object==0x1234);batch_ends++;return true;
+}
+bool waffle_gpu_surface_read_state(struct waffle_gpu_surface_backing *b,uint32_t *readers,uint32_t *waiting){assert(b->object==0x1234);*readers=1;*waiting=0;return true;}
 using IOByteCount=uint64_t;
 static unsigned mode,releases,options_seen,maps;
 static int kernel_task=7;static int current_task(){return mode==8?7:9;}
@@ -56,6 +64,17 @@ IOBufferMemoryDescriptor *IOBufferMemoryDescriptor::inTaskWithOptions(int task,u
 '''
 t=r'''
 int main(){
+ waffle_gpu_surface_backing lease_backing{};lease_backing.object=0x1234;
+ waffle_gpu_memory source{};source.object=(uintptr_t)&lease_backing;source.published=true;
+ source.storage=WAFFLE_GPU_STORAGE_SURFACE;source.flags=WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY;
+ waffle_gpu_memory *batch[]={&source};
+ assert(waffle_gpu_memory_surface_reads_begin(batch,1,250));assert(waffle_gpu_memory_surface_reads_end(batch,1));
+ source.flags=WAFFLE_GPU_BO_CACHED;assert(!waffle_gpu_memory_surface_reads_begin(batch,1,250));
+ source.flags|=WAFFLE_GPU_BO_READONLY;source.published=false;assert(!waffle_gpu_memory_surface_reads_end(batch,1));
+ source.published=true;source.storage=WAFFLE_GPU_STORAGE_OWNED;assert(!waffle_gpu_memory_surface_reads_begin(batch,1,250));
+ assert(!waffle_gpu_memory_surface_reads_begin(nullptr,1,250) && !waffle_gpu_memory_surface_reads_end(batch,0));
+ assert(batch_begins==1 && batch_ends==1);
+
  for(unsigned bytes:{4096u,8192u,16384u,4194304u,5242880u,WAFFLE_GPU_BO_MAX_BYTES}){
   for(unsigned flags:{WAFFLE_GPU_BO_WC,WAFFLE_GPU_BO_WC|WAFFLE_GPU_BO_READONLY}){
    struct waffle_gpu_memory bo={};mode=0;assert(waffle_gpu_memory_create(bytes,flags,&bo));

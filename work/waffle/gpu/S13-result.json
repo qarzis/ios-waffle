@@ -1,0 +1,22 @@
+{
+  "experiment": "S13 source read leases around native EAGL shader submission",
+  "passed": true,
+  "run": "20261105T083907Z",
+  "auto_run": "20261105T083843Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "kernel_log_sha256": "d4f1129f1114a12d9f33dcc60b07fd44d9acb2e8f3137d8f00d440a276ef4e17",
+  "source_checkpoint": "d51f9d1eee5f8e160a92aba99549f8c0d87884f4",
+  "framework_lock_records": 14,
+  "writer_pairs": 6,
+  "reader_pairs": 1,
+  "shader_pixels_checked": 1024,
+  "restored_source_pixels_checked": 1218000,
+  "wrong_pixels": 0,
+  "limits": [
+    "Exclusive controlled native input; real simultaneous CPU/GPU contention not tested",
+    "Native imports remain private/PID1, normal UI unchanged",
+    "No UI FPS measured",
+    "Unknown completion retention validated by host injection only"
+  ]
+}

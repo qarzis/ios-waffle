@@ -28,6 +28,7 @@ struct drm_bo {
  bool live;
  uint32_t handle;
  uint32_t surface; /* Nonzero only for isolated retained native imports. */
+ bool surface_manual_lease;
  bool surface_sample; /* Private read-only shader experiment, never a command root. */
 };
 static struct drm_bo drm_bos[WAFFLE_GPU_BO_LIMIT];
@@ -112,6 +113,9 @@ static int drm_submit(struct waffle_msm_submit *r)
  void *snapshot=kalloc_data((size_t)bytes,Z_WAITOK|Z_ZERO);
  if(!snapshot)return ENOMEM;
  int error=0;
+ struct waffle_gpu_memory **sources=NULL;
+ unsigned source_count=0;
+ bool sources_held=false;
  struct waffle_msm_submit_bo *bos=snapshot;
  struct waffle_msm_submit_cmd *commands=(void *)(bos+r->nr_bos);
  struct waffle_gpu_command *roots=(void *)(commands+r->nr_cmds);
@@ -122,11 +126,13 @@ static int drm_submit(struct waffle_msm_submit *r)
   unsigned slot=waffle_gpu_handle_slot(bos[i].handle);
   if(!bo || !bos[i].flags || (bos[i].flags&~7u) || (seen[slot/64]&(1ULL<<(slot%64))) ||
      (bos[i].presumed && bos[i].presumed!=bo->memory->gpu_va)){error=EINVAL;goto done;}
+  if(bo->surface_manual_lease){error=EBUSY;goto done;}
   /* Mesa initializes every reloc to READ|WRITE, including readonly shader
    * BOs. These flags are conservative usage hints, not PTE permissions.
    * Private sampler imports must still have actual immutable readonly PTEs. */
   if(bo->surface && (!bo->surface_sample || !(bos[i].flags&1u) ||
       bo->memory->flags!=(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY))){error=ENOTSUP;goto done;}
+  if(bo->surface_sample)source_count++;
   seen[slot/64]|=1ULL<<(slot%64);
  }
  for(unsigned i=0;i<r->nr_cmds;i++){
@@ -139,7 +145,18 @@ static int drm_submit(struct waffle_msm_submit *r)
   if(!waffle_gpu_command_valid(&roots[i]) || cmd->size/4>WAFFLE_GPU_SUBMIT_WORDS){drm_root_refused(i,cmd);error=EINVAL;goto done;}
   total+=cmd->size/4;
  }
- /* Isolated sampler caller owns its native source against CPU writers.
+ if(source_count){
+  sources=kalloc_data(source_count*sizeof(*sources),Z_WAITOK|Z_ZERO);
+  if(!sources){error=ENOMEM;goto done;}
+  unsigned at=0;
+  for(unsigned i=0;i<r->nr_bos;i++){
+   struct drm_bo *bo=drm_buffer(bos[i].handle);
+   if(bo->surface_sample)sources[at++]=bo->memory;
+  }
+  if(!waffle_gpu_memory_surface_reads_begin(sources,source_count,250)){error=EBUSY;goto done;}
+  sources_held=true;
+ }
+ /* CPU writers are excluded until every synchronous submission completes.
   * All input/root checks finish before the first cache transition/submission.
   * GPU page mappings are read-only, so completion cannot dirty this source. */
  for(unsigned i=0;i<r->nr_bos;i++){
@@ -163,13 +180,24 @@ static int drm_submit(struct waffle_msm_submit *r)
    words+=roots[cursor].bytes/4;cursor++;
   }
   struct waffle_gpu_submit_job job={.commands=roots+first,.count=cursor-first};
-  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){error=EIO;goto done;}
+  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){
+   if(sources_held){
+    redwood_tl("waffle-gpu: SURFACE_LEASE uncertain=1 retain_backing=1\n");
+    loader_return();for(;;);
+   }
+   error=EIO;goto done;
+  }
   drm_fence=job.fence;windows++;
   redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
  }
  r->fence=drm_fence;
  redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
 done:
+ if(sources_held && !waffle_gpu_memory_surface_reads_end(sources,source_count)){
+  redwood_tl("waffle-gpu: SURFACE_LEASE release_failed=1 retain_backing=1\n");
+  loader_return();for(;;);
+ }
+ if(sources)kfree_data(sources,source_count*sizeof(*sources));
  kfree_data(snapshot,(size_t)bytes);
  return error;
 }
@@ -302,11 +330,32 @@ static int drm_surface_import_access(struct waffle_msm_surface *r,bool sample)
  if(sample)redwood_tl("waffle-gpu: SURFACE_SAMPLE imported=1 sid=%u handle=%u index=%u GPU_readonly=1\n",r->surface,handle,bo->serial);
  return 0;
 }
+/* Diagnostic-only held read lease: no GPU submission is allowed while held. */
+static int drm_surface_lease_test(struct waffle_msm_surface_lease *r)
+{
+ struct drm_bo *bo=drm_buffer(r->handle);
+ if(!bo || !bo->surface_sample || r->active || r->waiting_writers || r->operation<1 || r->operation>3)return EINVAL;
+ if(r->operation==1){
+  if(bo->surface_manual_lease || !waffle_gpu_memory_surface_reads_begin(&bo->memory,1,0))return EBUSY;
+  bo->surface_manual_lease=true;
+ }else{
+  if(!bo->surface_manual_lease)return EINVAL;
+  if(r->operation==2){
+   if(!waffle_gpu_memory_surface_reads_end(&bo->memory,1))return EIO;
+   bo->surface_manual_lease=false;
+  }
+ }
+ if(bo->surface_manual_lease && !waffle_gpu_memory_surface_read_state(bo->memory,&r->active,&r->waiting_writers))return EIO;
+ if(r->operation!=3 || r->waiting_writers)redwood_tl("waffle-gpu: SURFACE_LEASE_TEST op=%u handle=%u active=%u waiting=%u manual_no_GPU=1\n",r->operation,r->handle,r->active,r->waiting_writers);
+ return 0;
+}
 static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc *p)
 {
  (void)dev;(void)flags;lck_mtx_lock(&drm_lock);int error=0;
  if(!drm_context || proc_pid(p)!=drm_pid){error=EPERM;goto done;}
- if(command==WAFFLE_MSM_SURFACE_IMPORT_TEST || command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT){
+ if(command==WAFFLE_MSM_SURFACE_LEASE_TEST){
+  error=proc_pid(p)==1?drm_surface_lease_test((void *)data):EPERM;
+ }else if(command==WAFFLE_MSM_SURFACE_IMPORT_TEST || command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT){
   error=proc_pid(p)==1?drm_surface_import_access((void *)data,command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT):EPERM;
  }else if(command==WAFFLE_MSM_SURFACE_MAP_TEST || command==WAFFLE_MSM_SURFACE_WRITE_TEST || command==WAFFLE_MSM_SURFACE_READ_TEST){
   error=proc_pid(p)==1?drm_surface_map_test((void *)data,command==WAFFLE_MSM_SURFACE_WRITE_TEST,command==WAFFLE_MSM_SURFACE_READ_TEST):EPERM;
@@ -389,6 +438,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
  }else if(command==WAFFLE_MSM_CLOSE){
   struct waffle_msm_close *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
   if(!bo || r->pad){error=EINVAL;goto done;}
+  if(bo->surface_manual_lease){error=EBUSY;goto done;}
   uint32_t bytes=bo->memory->allocation_bytes;
   drm_unmap(bo);
   if(!waffle_gpu_context_memory_reclaim(drm_context,bo->memory,!bo->user_map && !bo->user_address)){error=EIO;goto done;}

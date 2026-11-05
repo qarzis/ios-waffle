@@ -14,6 +14,8 @@
 #include <libkern/c++/OSString.h>
 #include <libkern/c++/OSSymbol.h>
 #include <kern/thread_call.h>
+#include <kern/clock.h>
+#include <kern/thread.h>
 #include <sys/systm.h>
 #include <sys/proc.h>
 #include "MiniIOSurface.h"
@@ -75,6 +77,8 @@ static uint32_t gSurfacesMade, gSurfacesFreed;
 static uint64_t gSurfaceLogged[2];
 static TUNABLE(uint32_t, gSurfaceTrace, "surftrace", 24);
 static TUNABLE(uint32_t, gWaffleSurfaceAudit, "waffle", 0);
+static TUNABLE(uint32_t, gWaffleSurfaceLockAudit, "waffle_surface_lock_audit", 0);
+static uint32_t gWaffleSurfaceLockRows; /* Protected by gSurfaceLock, bounded128. */
 static volatile SInt32 gWaffleLargeSurfaces;
 static uint32_t gSurfaceTraced;
 static char gSurfaceTraceOf[32];
@@ -673,7 +677,7 @@ waffle_gpu_surface_hold(uint32_t sid,struct waffle_gpu_surface_backing *backing)
  struct waffle_gpu_surface_backing candidate = {
   .object = reinterpret_cast<uintptr_t>(surface), .pixels = reinterpret_cast<uintptr_t>(surface->kpixels),
   .surface = sid, .bytes = (uint32_t)bytes, .offset = info->offset, .stride = info->bytesPerRow,
-  .width = info->width, .height = info->height, .published = false,
+  .width = info->width, .height = info->height, .published = false, .gpu_reading = false,
  };
  for (uint32_t offset = 0; offset < candidate.bytes; offset += 4096) {
   if (!waffle_gpu_surface_page(&candidate,offset)) { MiniIOSurfaceDrop(surface); return false; }
@@ -681,10 +685,92 @@ waffle_gpu_surface_hold(uint32_t sid,struct waffle_gpu_surface_backing *backing)
  *backing = candidate;
  return true;
 }
+static MiniIOSurface *surfaceReadObject(struct waffle_gpu_surface_backing *b)
+{
+ if (!b || !b->object) return NULL;
+ MiniIOSurface *s = reinterpret_cast<MiniIOSurface *>(b->object);
+ return s->sid == b->surface && !s->client ? s : NULL;
+}
+extern "C" bool
+waffle_gpu_surface_reads_begin(uint32_t count, waffle_surface_read_getter get, const void *context, uint32_t wait_ms)
+{
+ if (!count || count > WAFFLE_SURFACE_READ_BATCH_MAX || !get || !gSurfaceLock || wait_ms > WAFFLE_SURFACE_WAIT_MS) return false;
+ uint64_t deadline = 0;
+ if (wait_ms) clock_interval_to_deadline(wait_ms, kMillisecondScale, &deadline);
+ IOLockLock(gSurfaceLock);
+ for (;;) {
+  MiniIOSurface *blocked = NULL;
+  bool invalid = false;
+  for (uint32_t i = 0; i < count; i++) {
+   struct waffle_gpu_surface_backing *b = get(context, i);
+   MiniIOSurface *s = surfaceReadObject(b);
+   if (!s || b->gpu_reading || s->access.gpu_readers == UINT32_MAX) {invalid = true;break;}
+   for (uint32_t j = 0; j < i; j++) if (get(context, j) == b) invalid = true;
+   if (invalid) break;
+   if (s->access.cpu_writers || s->access.waiting_writers) blocked = s;
+  }
+  if (invalid) {IOLockUnlock(gSurfaceLock);return false;}
+  if (blocked) {
+   if (!wait_ms || IOLockSleepDeadline(gSurfaceLock, &blocked->access, deadline, THREAD_UNINT) == THREAD_TIMED_OUT) {IOLockUnlock(gSurfaceLock);return false;}
+   continue; /* No subset acquired while waiting: avoids cross-surface ABBA. */
+  }
+  uint32_t acquired = 0;
+  for (; acquired < count; acquired++) {
+   struct waffle_gpu_surface_backing *b = get(context, acquired);
+   if (!waffle_surface_gpu_read_begin(&surfaceReadObject(b)->access)) break;
+   b->gpu_reading = true;
+  }
+  if (acquired != count) {
+   for (uint32_t i = 0; i < acquired; i++) {
+    struct waffle_gpu_surface_backing *b = get(context, i);
+    (void)waffle_surface_gpu_read_end(&surfaceReadObject(b)->access);b->gpu_reading = false;
+   }
+   IOLockUnlock(gSurfaceLock);return false;
+  }
+  IOLockUnlock(gSurfaceLock);return true;
+ }
+}
+extern "C" bool
+waffle_gpu_surface_reads_end(uint32_t count, waffle_surface_read_getter get, const void *context)
+{
+ if (!count || count > WAFFLE_SURFACE_READ_BATCH_MAX || !get || !gSurfaceLock) return false;
+ IOLockLock(gSurfaceLock);
+ for (uint32_t i = 0; i < count; i++) {
+  struct waffle_gpu_surface_backing *b = get(context, i);MiniIOSurface *s = surfaceReadObject(b);
+  if (!s || !b->gpu_reading || !s->access.gpu_readers) {IOLockUnlock(gSurfaceLock);return false;}
+  for (uint32_t j = 0; j < i; j++) if (get(context, j) == b) {IOLockUnlock(gSurfaceLock);return false;}
+ }
+ for (uint32_t i = 0; i < count; i++) {
+  struct waffle_gpu_surface_backing *b = get(context, i);MiniIOSurface *s = surfaceReadObject(b);
+  (void)waffle_surface_gpu_read_end(&s->access);b->gpu_reading = false;
+  IOLockWakeup(gSurfaceLock, &s->access, false);
+ }
+ IOLockUnlock(gSurfaceLock);return true;
+}
+extern "C" bool
+waffle_gpu_surface_read_state(struct waffle_gpu_surface_backing *b,uint32_t *readers,uint32_t *waiting)
+{
+ if (!readers || !waiting || !gSurfaceLock) return false;
+ IOLockLock(gSurfaceLock);
+ MiniIOSurface *s = surfaceReadObject(b);
+ bool ok = s && b->gpu_reading && s->access.gpu_readers;
+ if (ok) {*readers = s->access.gpu_readers;*waiting = s->access.waiting_writers;}
+ IOLockUnlock(gSurfaceLock);return ok;
+}
+static struct waffle_gpu_surface_backing *surfaceReadOne(const void *context, uint32_t index)
+{
+ return index ? NULL : const_cast<struct waffle_gpu_surface_backing *>(static_cast<const struct waffle_gpu_surface_backing *>(context));
+}
+extern "C" bool
+waffle_gpu_surface_read_end_one(struct waffle_gpu_surface_backing *b)
+{
+ return waffle_gpu_surface_reads_end(1, surfaceReadOne, b);
+}
 extern "C" bool
 waffle_gpu_surface_release(struct waffle_gpu_surface_backing *backing,bool gpu_detached)
 {
  if (!backing || (backing->published && !gpu_detached)) return false;
+ if (backing->gpu_reading && (!gpu_detached || !waffle_gpu_surface_read_end_one(backing))) return false;
  if (backing->object) MiniIOSurfaceDrop(reinterpret_cast<MiniIOSurface *>(backing->object));
  *backing = {};
  return true;
@@ -806,6 +892,9 @@ MiniIOSurfaceStart(IOService * provider)
  IOCoreSurfaceRoot * root;
  gSurfaceLock = IOLockAlloc();
  gSurfaceKeptLock = IOLockAlloc();
+ if (gWaffleSurfaceLockAudit) {
+  loader_log_line("waffle-surface-lock: audit_enabled=1 max_records=128\n");
+ }
  if (!PE_parse_boot_arg_str("surftrace_of", gSurfaceTraceOf, sizeof(gSurfaceTraceOf))) {
   gSurfaceTraceOf[0] = 0;
  }
@@ -827,6 +916,7 @@ struct minisurf_client_ref {
  IOMemoryMap * map;
  IOMemoryMap * pixelMap;
  uint32_t use[2];
+ uint32_t cpuWriters;
  bool detached;
 };
 class IOSurfaceRootUserClient : public IOUserClient
@@ -971,6 +1061,12 @@ void
 IOSurfaceRootUserClient::dropRef(struct minisurf_client_ref * ref)
 {
  MiniIOSurface * s = ref->surface;
+ if (ref->cpuWriters) {
+  if (!waffle_surface_cpu_write_drop(&s->access, &ref->cpuWriters)) {
+   IOLog("MiniIOSurface: inconsistent CPU writer count on close\n");
+  }
+  IOLockWakeup(gSurfaceLock, &s->access, false);
+ }
  for (unsigned c = 0; c < 2; c++) {
   s->useCount[c] -= ref->use[c];
  }
@@ -1617,26 +1713,59 @@ IOSurfaceRootUserClient::trapDecrementUseCount(void * p1, void * p2, void * p3, 
 IOReturn
 IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut, bool unlocking)
 {
- struct minisurf_client_ref * ref;
- uint32_t seed = 0;
+ uint32_t seed = 0, audit_sequence = 0;
+ bool audit = false;
+ IOReturn result = kIOReturnNotFound;
  IOLockLock(gSurfaceLock);
- ref = findRef(sid, false);
+ struct minisurf_client_ref *ref = findRef(sid, false);
  if (ref != NULL) {
-  struct minisurf_shared * sh = ref->surface->shared();
-  /* A writer publishes its new content version at unlock. Publishing at
-   * lock can make a texture cache consume an unfinished update. */
-  if (unlocking && !(options & kSurfaceLockReadOnly)) {
-   sh->seed++;
+  MiniIOSurface *surface = ref->surface;
+  result = kIOReturnSuccess;
+  if (!unlocking && !(options & kSurfaceLockReadOnly)) {
+   if (surface->access.gpu_readers) {
+    if ((options & 2u) || !waffle_surface_cpu_wait_begin(&surface->access)) {
+     result = kIOReturnCannotLock; /* SDK kIOSurfaceLockAvoidSync. */
+    } else {
+     surfaceHold(surface); /* Client refs may move/disappear during sleep. */
+     uint64_t deadline;
+     clock_interval_to_deadline(WAFFLE_SURFACE_WAIT_MS, kMillisecondScale, &deadline);
+     while (surface->access.gpu_readers) {
+      if (IOLockSleepDeadline(gSurfaceLock, &surface->access, deadline, THREAD_UNINT) == THREAD_TIMED_OUT && surface->access.gpu_readers) {
+       result = kIOReturnCannotLock;break;
+      }
+     }
+     (void)waffle_surface_cpu_wait_end(&surface->access);
+     ref = findRef(sid, false);
+     if (!ref || ref->surface != surface) result = kIOReturnNotFound;
+     IOLockWakeup(gSurfaceLock, &surface->access, false);
+     surfaceUnhold(surface);
+    }
+   }
+   if (result == kIOReturnSuccess && !waffle_surface_cpu_write_begin(&ref->surface->access, &ref->cpuWriters)) result = kIOReturnCannotLock;
   }
-  seed = sh->seed;
+  if (result == kIOReturnSuccess && unlocking && !(options & kSurfaceLockReadOnly)) {
+   if (ref->cpuWriters && !waffle_surface_cpu_write_end(&ref->surface->access, &ref->cpuWriters)) result = kIOReturnError;
+   if (result == kIOReturnSuccess) {
+    ref->surface->shared()->seed++; /* Preserve legacy unmatched-unlock seed semantics. */
+    IOLockWakeup(gSurfaceLock, &ref->surface->access, false);
+   }
+  }
+  if (ref && result != kIOReturnNotFound) {
+   seed = ref->surface->shared()->seed;
+   if (gWaffleSurfaceLockAudit && gWaffleSurfaceLockRows < 128) {
+    audit_sequence = ++gWaffleSurfaceLockRows;audit = true;
+   }
+  }
  }
  IOLockUnlock(gSurfaceLock);
- if (ref == NULL) {
-  return kIOReturnNotFound;
+ if (audit) {
+  char line[208];
+  snprintf(line, sizeof(line), "waffle-surface-lock: seq=%u pid=%d sid=%u unlock=%u options=%x seed=%u result=%x\n",
+      audit_sequence, proc_selfpid(), sid, unlocking, options, seed, result);
+  loader_log_line(line);
  }
- if (seedOut != 0) {
-  copyout(&seed, seedOut, sizeof(seed));
- }
+ if (result != kIOReturnSuccess) return result;
+ if (seedOut != 0) copyout(&seed, seedOut, sizeof(seed));
  return kIOReturnSuccess;
 }
 IOReturn

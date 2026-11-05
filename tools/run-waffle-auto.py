@@ -44,6 +44,11 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         raise ValueError('Native EAGL input requires a source-bound isolated artifact')
     if gl_manifest.get('surface_dispatch_test') and (not gl_manifest.get('surface_eagl_test') or not manifest.get('surface_dispatch_audit') or 'tools/build-waffle-eagl-dispatch.py' not in gl_manifest.get('source_sha256',{})):
         raise ValueError('Native sampler EAGL dispatch requires a source-bound isolated artifact')
+    if gl_manifest.get('surface_lease_test'):
+        if not gl_manifest.get('surface_dispatch_test') or not manifest.get('surface_lease_contention_audit'):
+            raise ValueError('Surface lease contention lacks isolated kernel support')
+        if 'userland/src/waffle_surface_lease_probe.h' not in gl_manifest.get('source_sha256',{}):
+            raise ValueError('Surface lease probe source binding missing')
     bindings=manifest.get('surface_description_source_sha256',{})
     required=('kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/iokit/Kernel/MiniIOSurface.cpp')
     if gl_manifest.get('surface_map_test'):
@@ -57,6 +62,7 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
         required+=('kernel/files/bsd/sys/waffle_gpu_surface_read.h','kernel/files/bsd/sys/waffle_gpu_surface_write.h','kernel/files/bsd/sys/waffle_gpu_writeback.h')
     if gl_manifest.get('surface_import_test') or gl_manifest.get('surface_resource_test'):
         required+=('kernel/files/bsd/sys/waffle_gpu_handles.h',)
+    if gl_manifest.get('surface_lease_test'):required+=('kernel/files/bsd/sys/waffle_surface_access.h','kernel/files/iokit/Kernel/MiniIOSurface.h')
     if any(name not in bindings for name in required):raise ValueError('Surface metadata source binding missing')
     for name,sha in bindings.items():
         if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface metadata source changed: '+name)
@@ -64,6 +70,18 @@ def check_surface_metadata_binding(root, artifact, manifest, gl_manifest, ui_wor
             raise ValueError('Surface metadata compiled snapshot mismatch: '+name)
     for name,sha in gl_manifest['source_sha256'].items():
         if hashlib.sha256((root/name).read_bytes()).hexdigest()!=sha:raise ValueError('Surface probe source changed: '+name)
+
+
+def check_surface_lock_policy(root, artifact, manifest):
+    """Bind the new diagnostic token to its actual loader/kernel snapshots."""
+    bindings=manifest.get('surface_lock_policy_sha256',{})
+    for name in ('loader/waffle.h','kernel/files/iokit/Kernel/MiniIOSurface.cpp'):
+        if name not in bindings:raise ValueError('Surface lock audit policy binding missing')
+        digest=bindings[name]
+        if hashlib.sha256((root/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:
+            raise ValueError('Surface lock audit loader/kernel source changed: '+name)
+    if b'waffle_surface_lock_audit=1' not in (artifact/'source/loader/waffle.h').read_bytes():
+        raise ValueError('Loader snapshot does not admit the lock audit token')
 
 
 def main():
@@ -77,6 +95,7 @@ def main():
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--battery-readonly',action='store_true',help='With isolated --audio-boot: one native read-only battery sample')
     parser.add_argument('--battery-report-test',action='store_true',help='With --battery-readonly: three samples into the native power-source bridge')
+    parser.add_argument('--surface-lock-audit',action='store_true',help='Bounded read-only trace of actual IOSurface lock/unlock traps in isolated GL test')
     parser.add_argument('--hardware-vsync',action='store_true',help='Opt-in hardware panel TE timestamps for iOS callbacks')
     parser.add_argument('--double-buffer',action='store_true',help='Opt-in complete-frame buffered scanout')
     parser.add_argument('--display-flip-probe',action='store_true',help='Bounded reserved-framebuffer pattern flip and restoration')
@@ -173,6 +192,11 @@ def main():
     if args.session and not args.ib:
         parser.error('--session requires --ib')
     manifest = json.loads((artifact / 'manifest.json').read_text())
+    if args.surface_lock_audit and (not args.gl_context or args.ui_workload or not manifest.get('surface_lock_audit')):
+        parser.error('Surface lock audit requires a bound isolated GL artifact')
+    if args.surface_lock_audit:
+        try:check_surface_lock_policy(ROOT,artifact,manifest)
+        except (ValueError,OSError) as error:parser.error(str(error))
     if args.audio_preflight:
         if args.audio_boot:
             for name in ('A06-result.json','A07-result.json'):
@@ -360,6 +384,7 @@ def main():
             items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '94' if args.lpac_cp_init else '93', str(artifact)]
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
+            if args.surface_lock_audit:items.append('--surface-lock-audit')
             if args.hardware_vsync:items.append('--hardware-vsync')
             if args.double_buffer:items.append('--double-buffer')
             if args.display_flip_probe:items.append('--display-flip-probe')

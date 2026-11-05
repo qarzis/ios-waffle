@@ -36,6 +36,10 @@ bool waffle_gpu_memory_map(const struct waffle_gpu_memory *,bool readonly,uint64
  * These operations do not establish ownership or wait on a fence. */
 #define WAFFLE_GPU_SURFACE_TO_GPU 0u
 #define WAFFLE_GPU_SURFACE_TO_CPU 1u
+/* Caller pins every BO until end; acquisition is atomic across the batch. */
+bool waffle_gpu_memory_surface_reads_begin(struct waffle_gpu_memory *const *,uint32_t count,uint32_t wait_ms);
+bool waffle_gpu_memory_surface_read_state(struct waffle_gpu_memory *,uint32_t *,uint32_t *);
+bool waffle_gpu_memory_surface_reads_end(struct waffle_gpu_memory *const *,uint32_t count);
 bool waffle_gpu_memory_surface_sync(const struct waffle_gpu_memory *,uint32_t offset,uint32_t bytes,unsigned direction);
 /* A published object can only be destroyed after its GPU context is detached. */
 bool waffle_gpu_memory_destroy(struct waffle_gpu_memory *,bool gpu_detached);

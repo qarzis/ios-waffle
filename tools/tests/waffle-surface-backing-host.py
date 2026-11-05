@@ -19,7 +19,8 @@ code=r'''
 constexpr uint64_t PAGE_SIZE=16384;constexpr unsigned kIOMemoryMapperNone=0;
 using IOByteCount=uint64_t;
 static uint64_t round_page_64(uint64_t n){return (n+PAGE_SIZE-1)&~(PAGE_SIZE-1);}
-static unsigned mode,held,copies,drops,page_queries;
+static unsigned mode,held,copies,drops,page_queries,lease_ends;
+bool waffle_gpu_surface_read_end_one(waffle_gpu_surface_backing *b){assert(b->gpu_reading);lease_ends++;b->gpu_reading=false;return true;}
 struct Buffer {
  uint64_t capacity;
  uint64_t getCapacity(){return capacity;}
@@ -40,7 +41,7 @@ static MiniIOSurface *MiniIOSurfaceCopy(uint32_t id){copies++;if(id!=79)return n
 static void MiniIOSurfaceDrop(MiniIOSurface *s){assert(s==&surface && held==1);held--;drops++;}
 '''+ '\n'.join(function(s,sig) for sig in ['extern "C" uint64_t\nwaffle_gpu_surface_page(', 'extern "C" bool\nwaffle_gpu_surface_hold(', 'extern "C" bool\nwaffle_gpu_surface_release('])+r'''
 static void reset(){
- assert(!held);mode=copies=drops=page_queries=0;
+ assert(!held);mode=copies=drops=page_queries=lease_ends=0;
  surface={};surface.memory=&memory;surface.kbase=(uint8_t *)0x10000000;surface.kpixels=surface.kbase+PAGE_SIZE;
  surface.info={uint32_t(round_page_64(3008*1624)),0,3008,750,1624,0x42475241,0,4};memory.capacity=PAGE_SIZE+surface.info.allocSize;
 }
@@ -57,8 +58,9 @@ int main(){
   assert(page_queries==b.bytes/4096 && waffle_gpu_surface_page(&b,0)==0x1000000 && waffle_gpu_surface_page(&b,4096)==0x1002000);
   assert(!waffle_gpu_surface_page(&b,1) && !waffle_gpu_surface_page(&b,b.bytes));
   auto original=b;assert(!waffle_gpu_surface_hold(79,&b) && !memcmp(&b,&original,sizeof(b)) && held==1);
+  b.gpu_reading=true;assert(!waffle_gpu_surface_release(&b,false) && b.gpu_reading && !lease_ends);
   b.published=true;assert(!waffle_gpu_surface_release(&b,false) && held==1 && !drops && b.object);
-  assert(waffle_gpu_surface_release(&b,true) && !held && drops==1 && !b.object && !b.published);
+  assert(waffle_gpu_surface_release(&b,true) && !held && drops==1 && !b.object && !b.published && lease_ends==1);
   assert(waffle_gpu_surface_release(&b,false) && drops==1);
  }
  for(unsigned n=1;n<=4;n++){

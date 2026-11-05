@@ -4,6 +4,7 @@
 #include <IOKit/IOUserClient.h>
 #include <IOKit/IOBufferMemoryDescriptor.h>
 #include "MiniDrivers.h"
+#include "../../bsd/sys/waffle_surface_access.h"
 #define MINISURF_MAX_PLANES 4
 #define MINISURF_RESULT_MAX 0xa68
 struct minisurf_plane {
@@ -97,13 +98,16 @@ public:
  struct minisurf_plane planes[MINISURF_MAX_PLANES];
  OSDictionary * values;
  uint32_t useCount[2];
+ struct waffle_surface_access access; /* Kernel-only CPU writer / GPU reader state. */
  uint32_t displayUses;
  uint32_t purgeable;
  bool traced;
  virtual bool
  init(void) APPLE_KEXT_OVERRIDE
  {
-  return OSObject::init();
+  if (!OSObject::init()) return false;
+  access = {};
+  return true;
  }
  virtual void free(void) APPLE_KEXT_OVERRIDE;
  struct minisurf_shared *

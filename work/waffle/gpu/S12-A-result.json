@@ -1,0 +1,17 @@
+{
+  "experiment": "S12-A IOSurface lock trap audit admission",
+  "passed": false,
+  "run": "20261105T075016Z",
+  "auto_run": "20261105T074952Z",
+  "original_runner_exit": 1,
+  "android_confirmed": true,
+  "XNU_started": false,
+  "GPU_started": false,
+  "evidence": [
+    "waffle: unsupported RAM test request",
+    "result: not-started 0 0"
+  ],
+  "first_proven_reason": "loader/waffle.h rejects unknown waffle_surface_lock_audit=1 token before entering XNU",
+  "classification": "Loader policy admission failure, not GPU or IOSurface behavior evidence",
+  "kernel_log_sha256": "63badcc093d4227f641c179dc57dc2baed5a5d1d0792f65d14c2183a829dad6b"
+}

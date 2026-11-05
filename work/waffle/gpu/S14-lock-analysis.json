@@ -1,0 +1,205 @@
+{
+  "record_count": 21,
+  "bounded_log_full": false,
+  "writer_locks": 8,
+  "writer_unlocks": 8,
+  "reader_locks": 2,
+  "reader_unlocks": 2,
+  "failed_sequences": [
+    7
+  ],
+  "unmatched_unlock_sequences": [],
+  "open_brackets": [],
+  "records": [
+    {
+      "seq": 1,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 1,
+      "seed": 1,
+      "result": 0
+    },
+    {
+      "seq": 2,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 1,
+      "seed": 1,
+      "result": 0
+    },
+    {
+      "seq": 3,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 1,
+      "result": 0
+    },
+    {
+      "seq": 4,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 2,
+      "result": 0
+    },
+    {
+      "seq": 5,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 2,
+      "result": 0
+    },
+    {
+      "seq": 6,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 3,
+      "result": 0
+    },
+    {
+      "seq": 7,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 2,
+      "seed": 3,
+      "result": 3758097100
+    },
+    {
+      "seq": 8,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 1,
+      "seed": 3,
+      "result": 0
+    },
+    {
+      "seq": 9,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 1,
+      "seed": 3,
+      "result": 0
+    },
+    {
+      "seq": 10,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 3,
+      "result": 0
+    },
+    {
+      "seq": 11,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 4,
+      "result": 0
+    },
+    {
+      "seq": 12,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 4,
+      "result": 0
+    },
+    {
+      "seq": 13,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 5,
+      "result": 0
+    },
+    {
+      "seq": 14,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 5,
+      "result": 0
+    },
+    {
+      "seq": 15,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 6,
+      "result": 0
+    },
+    {
+      "seq": 16,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 6,
+      "result": 0
+    },
+    {
+      "seq": 17,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 7,
+      "result": 0
+    },
+    {
+      "seq": 18,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 7,
+      "result": 0
+    },
+    {
+      "seq": 19,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 8,
+      "result": 0
+    },
+    {
+      "seq": 20,
+      "pid": 1,
+      "sid": 1,
+      "unlock": false,
+      "options": 0,
+      "seed": 8,
+      "result": 0
+    },
+    {
+      "seq": 21,
+      "pid": 1,
+      "sid": 1,
+      "unlock": true,
+      "options": 0,
+      "seed": 9,
+      "result": 0
+    }
+  ],
+  "claim": "Observed trap traffic only; no CPU/GPU exclusion or lease qualification"
+}
