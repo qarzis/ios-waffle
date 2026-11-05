@@ -1381,3 +1381,26 @@ added to cc arguments; corrected wrapper, preserved failed log, rebuilding all.
 No hardware D17 attempt yet. Pair same qualified D16 UI root/E75 Mesa, test duration60s.
 
 D17B full required host/XNU/EFI/container build PASS after wrapper fix. Same exact D16 UI root and E75 pressure-qualified Mesa749e5d reused; no application/EAGL/shader code changes. Prepared/current/compiled snapshots and strict new loader token/source binding checked; guard and flip headers byte-identical D16. New runner captures display-completion.json before normal UI proof validation, preserving original failure if any. Hardware pending; no completion/FPS improvement claim.
+
+## D17B hardware observations — run20261105T091550Z
+Original runner1/auto successfalse/Android1, kernel returned1441823 0. Do not
+rewrite the failure as PASS. Final1.5MiB ring log lost the early completion banner;
+current final-only analyzer failed as expected. One complete earlier immutable
+snapshot kernel-124.log contains all67records, with source SHA preserved. Offline
+strict analysis passes; no stitched/invented rows. Collector fixed to locate one
+complete saved snapshot, tested against partial snapshots and final-log rollover.
+No hardware rerun merely to change a status. Normal full UI proof still depends on
+final early lifecycle records; not relaxed by this diagnostic fix.
+All67 samples valid, no counter crossed during capture. CTL scheduler remained1,
+so that value alone provides no fresh completion event. Raw autorefresh status
+changed0/1. Sequence1 showed busy0 with delta0 and flush3: idle alone can precede
+new-address latch and must not be treated as completion. In five observed short
+sequences, after flush cleared and MDP delta1, a busy-to-idle sample preceded the
+existing delta2 acceptance by1125.84–1165.00us (median1151.93us). Sparse ~1ms
+sampling is not a timing bound or release fence; no guard/pacing/IRQ change made.
+Final log shows585completed/restoredflips, GPU close2768commands/1882BOs,
+context_null1; no REBOOT REQUIRED or failed display commit. UI was idle and FPS
+numbers are not comparable with D16 active scrolling. Fresh Android confirmed.
+Next VSync gate: establish fresh transfer-done event / full split-path retirement
+semantics before consuming an earlier signal. Memory exchange and output readback
+remain separate dominant work; do not promise80–100fps from this sampled1ms gap.

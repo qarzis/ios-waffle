@@ -1062,7 +1062,7 @@ def main():
                 if args.gpu_ui:
                     if args.display_completion_audit:
                         import runpy
-                        completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze'](final_text)
+                        completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
                         (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
                     proof=validate_ui_workload_log(final_text)
                     (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")

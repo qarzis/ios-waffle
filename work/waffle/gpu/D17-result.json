@@ -1,0 +1,68 @@
+{
+  "experiment": "D17B unchanged guarded display retirement read-only observation",
+  "passed": false,
+  "original_runner_exit": 1,
+  "original_auto_success": false,
+  "hardware_observation_collected": true,
+  "diagnostic_trace_valid": true,
+  "run": "20261105T091550Z",
+  "auto_run": "20261105T091525Z",
+  "source_checkpoint": "8dcac96406507aeadbccb0b3cd601f743c2daa46",
+  "android_confirmed": true,
+  "kernel_return": "returned 1441823 0",
+  "GPU_close_completed": 2768,
+  "GPU_BO_count": 1882,
+  "display_flips_completed": 585,
+  "original_buffer_restored": true,
+  "sample_count": 67,
+  "sample_source": "kernel-124.log",
+  "sample_source_sha256": "c1d43f95a3a3eda5e51e6c8eebe1e3c33627d9d14d76b1fb43b2f08f6e9a8da8",
+  "scheduler_values": [
+    1
+  ],
+  "auto_status_values": [
+    0,
+    1
+  ],
+  "sampled_potential_early_idle": [
+    {
+      "sequence": 1,
+      "observed_idle_us": 10714.17,
+      "two_frame_sample_us": 11859.64,
+      "sampled_difference_us": 1145.47
+    },
+    {
+      "sequence": 3,
+      "observed_idle_us": 13194.58,
+      "two_frame_sample_us": 14346.51,
+      "sampled_difference_us": 1151.93
+    },
+    {
+      "sequence": 6,
+      "observed_idle_us": 13589.69,
+      "two_frame_sample_us": 14754.69,
+      "sampled_difference_us": 1165.0
+    },
+    {
+      "sequence": 7,
+      "observed_idle_us": 11701.09,
+      "two_frame_sample_us": 12826.93,
+      "sampled_difference_us": 1125.84
+    },
+    {
+      "sequence": 8,
+      "observed_idle_us": 10039.84,
+      "two_frame_sample_us": 11194.38,
+      "sampled_difference_us": 1154.54
+    }
+  ],
+  "median_sampled_difference_us": 1151.93,
+  "collector_failure": "Final-only analysis lost early trace after 1.5MiB kernel log rollover. Original failure retained. Complete earlier snapshot recovered offline; run collector now requires one complete saved snapshot.",
+  "guard_changed": false,
+  "one_frame_retirement_qualified": false,
+  "limits": [
+    "Busy/idle observation is not a release fence or proof of safe one-frame scanout reuse",
+    "Sparse ~1ms polling and an idle UI; no active-scroll FPS comparison",
+    "Old full UI validator still depends on early lifecycle records in final log; not relaxed here"
+  ]
+}

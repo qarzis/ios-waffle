@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Analyze bounded read-only commit observations, never infer a release fence."""
 from pathlib import Path
-import re,json,argparse
+import re,json,argparse,hashlib
 
 def analyze(text):
  banners=re.findall(r'waffle-display-completion: records=(\d+) no_extra_writes=1 guard_frames=2 cntfrq=(\d+)',text)
@@ -33,5 +33,21 @@ def analyze(text):
  return {'record_count':count,'clock_hz':hz,'invalid_records':sum(not r['valid'] for r in ordered),'crossed_frame_records':sum(r['frame0']!=r['frame1'] for r in ordered if r['valid']),
          'scheduler_values':sorted({r['scheduler'] for r in ordered if r['valid']}),'auto_status_values':sorted({r['auto_status'] for r in ordered if r['valid']}),
          'sequences':sequences,'one_frame_retirement_qualified':False,'claim':'Read-only sparse observations around unchanged two-frame guard; no IRQ edge/fence or FPS proof','records':ordered}
+def analyze_run(directory):
+    """Use one complete immutable snapshot; never stitch conflicting epochs."""
+    directory=Path(directory)
+    logs=sorted((p for p in directory.glob('kernel-*.log') if p.stem.removeprefix('kernel-').isdigit()),
+                key=lambda p:int(p.stem.removeprefix('kernel-')))
+    logs.append(directory/'kernel-final.log')
+    for path in logs:
+        if not path.is_file():continue
+        raw=path.read_bytes()
+        if b'waffle-display-completion: records=' not in raw:continue
+        try:report=analyze(raw.decode(errors='replace'))
+        except ValueError:continue
+        report['source_log']=path.name;report['source_log_sha256']=hashlib.sha256(raw).hexdigest()
+        return report
+    raise ValueError('No complete completion trace in saved run snapshots')
+
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('log',type=Path);a=p.parse_args();print(json.dumps(analyze(a.log.read_text(errors='replace')),indent=2))
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('log',type=Path);a=p.parse_args();print(json.dumps(analyze_run(a.log) if a.log.is_dir() else analyze(a.log.read_text(errors='replace')),indent=2))
