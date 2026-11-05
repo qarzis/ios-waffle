@@ -42,5 +42,10 @@
   "irq_acknowledgement": false,
   "irq_enable_writes": false,
   "limits": "Status is latched; sampled high is not a fresh completion. Existing two-frame guard remains unchanged.",
-  "routing_limitation": "Two SSPP source halves do not by themselves establish two output pingpong engines. PP0/PP1 bits are observed as candidates; actual INTF_MUX/merge route is not qualified by D17."
+  "routing_limitation": "Two SSPP source halves do not by themselves establish two output pingpong engines. PP0/PP1 bits are observed as candidates; actual INTF_MUX/merge route is not qualified by D17.",
+  "native_read_semantics": {
+    "status_read": "sde_hw_intr_get_interrupt_status reads status then optionally writes separate clear address only if clear=true",
+    "dispatcher": "reads status and enable; writes clear then dispatches only enabled bits",
+    "freshness_requirement": "A high latched bit without a known clearing boundary cannot identify completion of the new commit"
+  }
 }

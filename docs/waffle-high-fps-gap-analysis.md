@@ -66,3 +66,40 @@ earlier snapshot contains all rows and is verified separately; the analyzer now
 locates one complete saved snapshot rather than stitching partial traces. The
 final log records 585 restored flips and a clean GPU close of 2,768 commands and
 1,882 BOs; Android returned. There was no active-scroll FPS comparison.
+
+
+## D18 native IRQ observation plan
+
+The live DT places the MDP top block at 0x1000 and INTF1 tear IRQ bank at
+0x36800. The matching pinned `sde_hwio.h`/interrupt sources define separate
+status, enable and clear addresses. Native interrupt dispatch explicitly clears
+latched status before invoking enabled callbacks. This means reading a high
+`PP_DONE` or `CTL_DONE` bit without a known clearing boundary does not identify
+which commit finished.
+
+D18 observes both raw status and enable masks around the existing guarded
+commits, with no writes to IRQ banks. PP0 and PP1 are candidates; two SSPP source
+halves alone do not establish output pingpong routing. `INTF_MUX` or equivalent
+routing evidence is required before using a particular completion mask.
+
+The diagnostic collector now reconstructs one run only through unambiguous
+4 KiB byte overlaps and matching payload headers, rejecting gaps. The guarded
+presenter proof requires both A/B targets, accepted copied commits without
+rollback, actual source reads and restoration after at least eight completions.
+This repairs stale verification assumptions without declaring a new VSync mode.
+
+
+D18 run `20261105T094305Z` collected 39 paired samples. Raw PP status stayed at
+0x100, CTL status at 0x200, and INTF1 tear status at 0x4f; all corresponding enable
+masks were zero and the active interface mask was 2. No completion edge was
+observed. These inherited raw flags are insufficient to identify a new commit;
+there was no IRQ acknowledgment or retirement-policy change.
+
+The original runner again exited 1: an early Dynamic BO check preceded stream
+recovery and therefore saw missing startup records. Recovery now precedes all
+GPU gates and its actual execution block is host-tested. Exact-overlap recovery
+and guarded UI verification pass offline on the preserved run; original exit
+codes remain unchanged. The final log shows 518 restored flips and a clean GPU
+close of 1,330 commands/1,176 BOs. Android returned. A future bounded fresh-event
+experiment needs the actual INTF mux route and a known clearing boundary before
+any earlier buffer retirement is considered.

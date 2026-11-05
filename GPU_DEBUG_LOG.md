@@ -1434,3 +1434,23 @@ be revalidated offline with these strict checks (2768fences/1882BOs/PID83), but
 originalD17 runner1 is preserved. No hardware rerun just for parser status.
 D18 hardware pending; collector changes are host-tested after kernel build and
 compiled kernel inputs remain bound, no GPU/display control changes introduced.
+
+## D18-A no-start / D18-B hardware observations
+A auto20261105T093937Z: phone absent, no RAM payload/kernel sent. Preserved
+D18-A-not-started.json. User reconnected; fresh Android1 then B auto094241Z/run094305Z.
+B originalrunner1/auto false/Android1; kernel returned1441823 0. Complete snapshot
+kernel-123.log has39valid/39paired IRQsamples: PPstatus100/enable0, CTLstatus200/
+enable0, TEstatus4f/enable0, activeINTFmask2. No sampled0-to-1 completion edges;
+raw flags cannot identify a particular commit. PP1done not observed; do not assume
+two SSPP source halves mean two outputPP engines. INTF_MUX routing remains a gate.
+Final518flips restored to d5100000; GPU close1330fences/1176BOs/contextnull, no
+REBOOT_REQUIRED. Full recovered UI proof passes offline with exact-overlap4KiB
+stream; all actual early main GPU prerequisite statements replayed offline PASS.
+Original runtime failure: main checked DynamicBO startup against final rolled log
+before reaching recovery block. Moved actual collection before every early GPU
+gate, tested that exact AST block with paired sample capture and JSON roundtrip.
+Also fixed literal backslash-n in its JSON writer; original failures not rewritten.
+No hardware rerun for collector-only changes. Next diagnostic should first read
+INTF_MUX and establish a known masked completion clearing boundary, then observe
+fresh transfer-done while retaining two-frame guard. No production IRQ/pacing
+change or FPS improvement claimed. Host fixes and hardware observations saved.

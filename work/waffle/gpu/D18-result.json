@@ -1,0 +1,63 @@
+{
+  "experiment": "D18 pinned PP/CTL/TE raw IRQ status observation",
+  "passed": false,
+  "original_runner_exit": 1,
+  "original_auto_success": false,
+  "hardware_observation_collected": true,
+  "diagnostic_trace_valid": true,
+  "run": "20261105T094305Z",
+  "auto_run": "20261105T094241Z",
+  "source_checkpoint": "c50871522d7ea8bf1dd4b656da55fb3b8109c647",
+  "android_confirmed": true,
+  "kernel_return": "result: returned 1441823 0",
+  "GPU_close_completed": 1330,
+  "GPU_BO_count": 1176,
+  "display_flips_completed": 518,
+  "original_buffer_restored": true,
+  "sample_source": "kernel-123.log",
+  "sample_source_sha256": "f283ca1cb6485b184dcad75c6049ac5e6a6c92fa982076dd7f9a60acd5abeae9",
+  "samples": 39,
+  "irq_samples": 39,
+  "irq_values": {
+    "top_status": [
+      256
+    ],
+    "top_enable": [
+      0
+    ],
+    "ctl_status": [
+      512
+    ],
+    "ctl_enable": [
+      0
+    ],
+    "tear_status": [
+      79
+    ],
+    "tear_enable": [
+      0
+    ],
+    "active": [
+      2
+    ]
+  },
+  "observed_rising_edges": {
+    "pp0_done": [],
+    "pp1_done": [],
+    "ctl0_done": [],
+    "tear_autorefresh_done": []
+  },
+  "no_extra_MMIO_writes": true,
+  "IRQ_acknowledgements": 0,
+  "IRQ_enable_writes": 0,
+  "guard_changed": false,
+  "collector_failure": "Early Dynamic BO prerequisites were checked against the final rolled log before the stream recovery block. Recovery moved before all GPU gates and actual capture block/JSON roundtrip tested. Original exit1 preserved.",
+  "offline_full_UI_proof": true,
+  "offline_pre_UI_GPU_gates_passed": true,
+  "limits": [
+    "A constant sampled raw status cannot identify completion of a particular new commit",
+    "Two SSPP source halves do not determine PP/INTF mux routing",
+    "No IRQ polling/acknowledgment protocol or one-frame retirement qualified",
+    "No active-scroll FPS comparison"
+  ]
+}

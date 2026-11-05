@@ -1011,6 +1011,16 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            if args.display_completion_audit:
+                import runpy
+                completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
+                if b'waffle-display-irq:' in args.kernel.read_bytes() and completion['irq_record_count']!=completion['record_count']:
+                    raise RuntimeError('Compiled IRQ observation lacks paired samples')
+                (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
+                log_stream=runpy.run_path(str(ROOT/'tools/waffle_log_stream.py'))
+                stream,stream_proof=log_stream['merge_run_logs'](out)
+                (out/'kernel-stream-proof.json').write_text(json.dumps(stream_proof,indent=2)+'\n')
+                final_text=stream.decode(errors='replace')
             image_pixels=None
             if args.gpu_session and not args.gpu_compute and not all(marker in final_text for marker in (
                     "SESSION OOB ownership transferred; init returned with GX retained",
@@ -1076,16 +1086,6 @@ def main():
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
                 if args.gpu_ui:
-                    if args.display_completion_audit:
-                        import runpy
-                        completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
-                        if b'waffle-display-irq:' in args.kernel.read_bytes() and completion['irq_record_count']!=completion['record_count']:
-                            raise RuntimeError('Compiled IRQ observation lacks paired samples')
-                        (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
-                        log_stream=runpy.run_path(str(ROOT/'tools/waffle_log_stream.py'))
-                        stream,stream_proof=log_stream['merge_run_logs'](out)
-                        (out/'kernel-stream-proof.json').write_text(json.dumps(stream_proof,indent=2)+'\n')
-                        final_text=stream.decode(errors='replace')
                     proof=validate_ui_workload_log(final_text,guarded_display=args.display_completion_audit)
                     (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")
                 else:
