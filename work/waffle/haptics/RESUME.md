@@ -1,3 +1,15 @@
+# H08 BUILT + PAIRED VALIDATOR PASS; no device access
+
+Artifact diagnostic-haptic-identity-h08. ExactH05XNUkernelreused, onlyEFIloaderproduct/haptics gatednode and fixeduserlandprobe changed. RebuiltUEFI/container/embeddedEFI/kernel/XNUP/stockDTBchecksPASS; actualidentityblock/PCMwriter/SPMIadaptertestsPASS. Sourcebindingincludesloader.c/waffle.h andnativehapticheaders. h08rootusescorrectarraybound+mainentrymarkers. HardwareNOTtested; noUSBcommands whileuserhasphone. NeedactualMGcapability1 plusHALPCM, neverinferfromsuccessfulcompile.
+
+# H08 host identity fix; PHONE UNAVAILABLE15MIN
+
+User tookphone; no USB requests or newhardwareboots untilavailable. Found exactcapabilitysourcechain and missingproduct/hapticsnode inloader; H08-identity-diagnosis.md recordsaddresses/keyhash/nativeexistingidentity. Minimalservice-onlytreepatch+actualDTblock/policytestsPASS. Bothgeneratedidentitypropsalreadyexist; notfabricatedAPI/capabilityhook. Need rebuiltloader/UEFI+fixedclientroot (build-h08-root.log), pairvalidation, then actualcapability+HALsampleproof. H07B historicalsuccessisPCMcomponentonly; systemroutepending. Newtestsourceboundsfixed; no furtherhardwareyet. PublicGitdocs fba59b2alreadyuploadedviafork.
+
+# H07B independent PCM PASS; CoreHaptics capability gap confirmed
+
+Run210631Z original0/Android1. Direct3tap/stoprestorepass,active16936/17003/16238us. CoreHaptics_supports0,engine/playerreturnsplay1/error0,NOHALActuatorsamples. This proves userlandrequest acceptance butNOTphysicalsystemfeedback. H07B-result.json/rawSHA. Stop repeated system-sound boots after H05request-only/H06completion/H07Core tests: review capability/profile/HAL contracts before next hardware. ExistingD22andGenericHapticprofiles bothpresent locally; GenericonlyAudio layers, D22hasHaptic. Need actualselectedprofile/route evidence, neverforcecapabilitytrue. Coretestone-elementArray/two-iteration defectfixedbeforefurtherbuild; no completion_register marker inretainedtrace, so unexecutedloopdoesnotinvalidateearlierPCM/capabilityproof. Addmainentrymarkers andcorrectarraybounds; H07kernel/root artifact remains immutablehistorical. PhoneAndroid1,nohardwareowner.
+
 # H06 system-client setup unresolved; H07B independent processes
 
 H06run210208Z original1/Android1; controller serviceREADY, systemclientPID83spawned, but no system_begin/direct_begin/pulse, noresultbeforeboundedreturn. FirstH06stageprint followedCFRunLoopGetCurrent/AddSystemSoundCompletion, so exactblockedcallunknown; doNOTcallthismotorfailure or successfulsystemrequest. H06-result.json preservesnegativeoutcome. H07initialCoreclientonlyhostbuilt (notbooted). H07B usespublicSDKCoreHaptics methods with pre-callprint, separatedirect-onlyjob at47s (systemprobe35s) so a blockedframeworkcall cannotpreventbaseline. Rootbuilding, kernelH05reusedunchanged withproofs. NewrootdoesNOTalterhardwaredriver. Userunavailable/noTelegram; automatedlogs only.

@@ -39,12 +39,13 @@ static void core_haptic_probe(void)
 }
 int main(int argc,char **argv)
 {
+ printf("waffle-haptic-client: main_entered=1\n");fflush(stdout);
  bool direct_only=argc>1 && !strcmp(argv[1],"--direct-only");
  sleep(direct_only?47:35);
  if(!direct_only) {
  core_haptic_probe();
  const SystemSoundID sounds[]={kSystemSoundID_Vibrate};
- for(unsigned i=0;i<2;i++) {
+ for(unsigned i=0;i<sizeof(sounds)/sizeof(sounds[0]);i++) {
   completed=false;
   printf("waffle-haptic-client: completion_register_begin=%u\n",(unsigned)sounds[i]);fflush(stdout);
   OSStatus status=AudioServicesAddSystemSoundCompletion(sounds[i],CFRunLoopGetCurrent(),kCFRunLoopCommonModes,finished,NULL);

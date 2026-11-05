@@ -173,6 +173,23 @@ static inline int waffle_cmdline_allowed(const char *line)
         (!image || (image==1 && compute==1 && dynamic_bo==1 && session==1 && gpu_count==1 && native94)) &&
         (!soak || (soak==1 && returns==1 && native94 && gl_image==1));
 }
+/* Publish the PCM actuator identity only with the qualified, explicit service
+ * test. Historical diagnostics/default boots must not advertise a missing sink. */
+static inline int waffle_haptic_service_requested(const char *line)
+{
+#if defined(WAFFLE_USERLAND) && defined(WAFFLE_HAPTIC_PULSE_TEST)
+    if(!waffle_cmdline_allowed(line))return 0;
+    while(*line) {
+        while(*line==' ')line++;
+        const char *end=line;while(*end && *end!=' ')end++;
+        if(waffle_token_equal(line,(size_t)(end-line),"waffle_haptic_test=2"))return 1;
+        line=end;
+    }
+#else
+    (void)line;
+#endif
+    return 0;
+}
 static inline int waffle_pll_control_requested(const char *line)
 {
     while (*line) {

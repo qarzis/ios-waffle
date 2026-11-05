@@ -26,3 +26,6 @@ H07initialclientcompiledonly, notbooted. H07BusespublicSDKCoreHaptics query/init
 
 ## Other work
 A18 host MAP44/UNMAP28 matches actual pinned Linux bytes; not transmitted/DMAunqualified. Corvette3848a296 pinned audit indicates sameSM8650/Adreno750 GPU but oldredwoodaudio/haptics; externalMetalbinarypairnotinrepo/localenv. No blindmerge.
+
+## H07B result and H08 revised architecture
+H07Boriginal0/Android1,3baselinePCMpasses,CoreHaptics_supports0/play1/noHALsamples. Sourceauditfound exactMGGetBoolAnswer(DeviceSupportsClosedLoopHaptics) andmissingproduct/hapticsnode, despitegeneratedidentityalreadyexisting. Thus threeprobesreplacedbyarchitecturecheck, no blindretry. H08service-onlynodehosttests+loaderUEFIbuild+pairedvalidatorPASS, notbootedbecauseuserborrowedphone. KernelH05unchanged. Probeone-elementarrayboundcorrectedbeforeH08. EvidenceH07B-result.json,H08-identity-diagnosis.md,rebuild-h08.py/build-h08.log.

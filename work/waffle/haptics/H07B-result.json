@@ -1,0 +1,20 @@
+{
+  "run": "20261105T210631Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "direct_taps": 3,
+  "direct_stops_restores": 3,
+  "active_us": [
+    16936,
+    17003,
+    16238
+  ],
+  "CoreHaptics_supports": 0,
+  "CoreHaptics_play_return": 1,
+  "CoreHaptics_play_error": 0,
+  "HAL_actuator_PCM_observed": false,
+  "system_haptics_qualified": false,
+  "source": "work/waffle/runs/20261105T210631Z/kernel-final.log",
+  "source_sha256": "e499d6c8225bc8f132d2f5a9a873b2ba14b0d5558fd223456a34daf37fbf0005",
+  "client_defect": "Core test sound array had one element with a two-iteration loop; no completion_register marker observed, so this loop was not reached in retained trace. Fixed loop bound before further builds. Does not invalidate prior direct-only branch/three pulses or earlier capabilities/play return markers."
+}
