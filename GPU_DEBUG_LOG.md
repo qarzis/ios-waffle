@@ -1406,3 +1406,31 @@ semantics before consuming an earlier signal. Memory exchange and output readbac
 remain separate dominant work; do not promise80–100fps from this sampled1ms gap.
 
 S15/D17 source, tests and honest hardware/collector results published to qarzis/ios-waffle waffle/gpu-bringup commit ca51c80d1e9b15584644c490d5da479356d7c8c1. Public worktree representative host sanitizer/CLI/log tests pass; remote SHA verified. Main index preserved. Phone Android confirmed, no active phone runner.
+
+## D18 IRQ status observation candidate
+Pinned native sde_hwio.h/interrupts.h/util.h fetched from the same OnePlus revision
+and verified against exact Git blob IDs in cached modules-tree. LiveDT qcom,sde-off
+is0x1000 and INTF1 tear IRQ base0x36800. Native status/enable offsets give
+PP1014/1010, CTL100c/1008, TE36804/36800; CTL0 interface-active160f4. Status reads
+are not read-to-clear; native dispatcher explicitly writes a separate CLEAR reg.
+Most supported hypothesis: inherited raw done flags are latched, not fresh per
+frame without explicit servicing. Competing possibilities: firmware/another owner
+clears them, or active output routing differs from guessed PP0/PP1. Observe masks,
+raw flags and active interface alongside existing D17 timing, with no IRQ clear,
+enable or guard change. PP0/PP1 are candidates, not asserted equivalents of the two
+SSPP source halves; source split alone does not prove output-engine routing.
+D18 adds7readonly registers per bounded sample, separate paired IRQ row logs.
+Host tests execute16real capture reads/allfailures; parser pairs every IRQ row,
+rejects missing/conflicting pairs, distinguishes sticky high from observed low/high
+without qualifying any fence. Full required host/XNU/EFI build and paired container
+validation pass; current/prepared/compiled/source bindings verified. Exact D16 UI
+root/E75 pressure-qualified Mesa reused; gold EAGL6797...unchanged.
+Collector defects repaired separately in Python (host-tested): full UI journal
+recovered only with unambiguous4096byte exact overlaps, identical payload header,
+no gaps; missing/ambiguous overlap rejects. Guarded presenter proof requires both
+A/B targets, accepted copied commits/no rollback, actual source reads and restored
+quiesce after8+completions. Legacy non-guarded UI proof remains unchanged. D17 can
+be revalidated offline with these strict checks (2768fences/1882BOs/PID83), but
+originalD17 runner1 is preserved. No hardware rerun just for parser status.
+D18 hardware pending; collector changes are host-tested after kernel build and
+compiled kernel inputs remain bound, no GPU/display control changes introduced.

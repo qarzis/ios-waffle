@@ -121,6 +121,8 @@ static void waffleDisplayCompletionLog(WaffleDisplayFlipContext *c)
   redwood_tl("waffle-display-completion: row=%u seq=%u stage=%u ticks=%llu valid=%u frame0=%u frame1=%u flush=%x scheduler=%x auto_status=%x write_line=%u read_line=%u address0=%x address1=%x\n",
       i, r->sequence, r->stage, (unsigned long long)r->ticks, r->valid, v->frame_before, v->frame_after,
       v->flush, v->scheduler, v->auto_status, v->write_line, v->read_line, v->address0, v->address1);
+  redwood_tl("waffle-display-irq: row=%u top_status=%x top_enable=%x ctl_status=%x ctl_enable=%x tear_status=%x tear_enable=%x active=%x\n",
+      i, v->irq_top, v->irq_top_enable, v->irq_ctl, v->irq_ctl_enable, v->irq_tear, v->irq_tear_enable, v->ctl_active);
  }
 }
 

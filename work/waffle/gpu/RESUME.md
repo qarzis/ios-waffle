@@ -1,3 +1,7 @@
+# ACTIVE — D18 IRQ observation image ready
+
+Artifactdiagnostic-display-irq-d18 fullhost/XNU/EFI/containerPASS, exactD16UI/E75rootreused. Headercompletion adds7read-only PP/CTL/TEstatus+enable+CTLactive fields; pairedirqrowsbounded128first8, noack/enable/guardwrites. PinnednativeheadersverifiedGitblobs; liveDTtop1000/TEirq36800. MostsupportedstickyflagsH1 vsfirmwareclearH2 vsroutingunknownH3; PP0/1notassertedtosourcehalves. Collector repaired withstrict4KiBbyte-overlap+identity+nogaps; guardedUIproof actualA/B/source/restore required. D17offlineproofnowpasses butoriginalrunner1unchanged. NewPythonhosttestsPASSafterkernelbuild; kernel/current/preparedsnapshotbindingverified. Readycheckpointthenauto --double-buffer --hardware-vsync --display-completion-audit plusboundedGPUUI. PhoneAndroid/noactiveowner. Latestprivate892d2a..., publica51? actualpublicca51c80. Noagents/noflash/indexpreserve.
+
 # D17 checkpoint published
 
 Public fork waffle/gpu-bringup ca51c80d1e9b15584644c490d5da479356d7c8c1 includes S15+read-onlyD17 code/results, actualrunnerfailurepreserved. No VSyncguardorFPSclaim. Privateprepublication346adf967b8798a9ee4953d54484015b32fc654d. PhoneAndroid/noactiveowner. NextfreshTXdone/splitretirementproof; do notuseconstantscheduler1 or rawidlealone.
