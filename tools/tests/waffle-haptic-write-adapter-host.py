@@ -40,7 +40,8 @@ int main(void){struct waffle_haptic_bus_context c={.peripheral={{0x7f0,1,true,tr
  writes=0;assert(!waffle_haptic_bus_write(&c,0x7f2,0x46,0)&&!writes);assert(!waffle_haptic_bus_write(&c,0x7f0,0x48,0)&&!writes);assert(!waffle_haptic_bus_write(&c,0x1ee,0x46,0)&&!writes);
  bad_owner=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1)&&!writes);bad_owner=false;bad_map=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1)&&!writes);bad_map=false;
  denied=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1));denied=false;bad_read=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1));assert(!locked);
- bad_read=false;writes=0;haptic_pulse_context=c;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&writes==4);writes=0;waffle_haptic_quiesce();assert(!writes);
+ bad_read=false;writes=0;level=3;haptic_test=2;assert(waffle_haptic_bus_write(&c,0x7f0,0x4c,1)&&writes==2);level=1;haptic_test=1;
+ writes=0;haptic_pulse_context=c;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&writes==4);writes=0;waffle_haptic_quiesce();assert(!writes);
  haptic_active=true;haptic_test=2;leaving=false;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&writes==4);
  puts("PASS actual haptic writer: four opt-in gates, CFG/PTN allowlist, firmware HBST/flash refused, owner+PPID checked under bus lock, denied/readback mismatch reject. Host MMIO only.");}
 '''

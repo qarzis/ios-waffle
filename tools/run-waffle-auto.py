@@ -139,6 +139,7 @@ def main():
     parser.add_argument('--cpu-ui-test', action='store_true', help='Bounded softpipe iOS boot testing PSCI cores, without GPU startup')
     parser.add_argument('--cpus', type=int, choices=range(1,8), help='XNU cores for an explicit UI test (GPU UI default: 7); resident loader owns the eighth core')
     parser.add_argument('--cpu-seconds', type=int, choices=(60,90,180,240), default=60, help='Bounded CPU/UI observation window')
+    parser.add_argument('--haptic-ui-test',action='store_true',help='H10 dedicated GPU UI with native haptic and torch services, CPU1')
     parser.add_argument('--haptic-service-test',action='store_true',help='H05 bounded iOS PCM actuator bridge; isolated CPU1')
     parser.add_argument('--haptic-pulse',action='store_true',help='Dedicated H04 native haptic16ms transaction; isolated CPU1 only')
     parser.add_argument('--torch-readonly', action='store_true', help='Separate Waffle flash module identification without PMIC writes')
@@ -182,11 +183,13 @@ def main():
     if args.battery_report_test and not args.battery_readonly:parser.error('--battery-report-test requires --battery-readonly')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and any(getattr(args, name) for name in (
-            'cpu_ui_test','cpus','haptic_service_test','haptic_pulse','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
+            'cpu_ui_test','cpus','haptic_ui_test','haptic_service_test','haptic_pulse','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
             'measure_clocks','lpac_cp_init','gl_context','mapped','mesa_transport','msm','user_va','glsl',
             'data_bo','user_copy','worker','copy_jobs','image_present','image_copy','image','compute',
             'dynamic_bo','session','ib','writeback','zap','lpac_map','ui_workload','ui_long_test','ui_soak_test')):
         parser.error('--audio-preflight must run separately from other diagnostics')
+    if args.haptic_ui_test and (not args.ui_workload or not args.gl_context or not args.double_buffer or not args.hardware_vsync or not args.torch_service or args.cpus!=1 or args.haptic_service_test or args.haptic_pulse or args.ui_long_test or args.ui_soak_test or args.audio_preflight or args.cpu_ui_test):
+        parser.error('--haptic-ui-test requires dedicated short guarded GPU UI/torch/CPU1')
     if args.haptic_service_test and (not args.cpu_ui_test or args.cpus!=1 or args.cpu_seconds!=60 or args.haptic_pulse or args.torch_readonly or args.torch_pulse or args.torch_service or args.ui_workload or args.audio_preflight or args.prepare_gpu or args.lpac_cp_init or args.gl_context or args.compute or args.dynamic_bo):
         parser.error('--haptic-service-test requires isolated CPU1/60sec without other device modes')
     if args.haptic_pulse and (not args.cpu_ui_test or args.cpus!=1 or args.cpu_seconds!=60 or args.torch_readonly or args.torch_pulse or args.torch_service or args.ui_workload or args.audio_preflight or args.prepare_gpu or args.lpac_cp_init or args.gl_context or args.compute or args.dynamic_bo):
@@ -293,7 +296,8 @@ def main():
             digest=bindings.get(name)
             if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('Haptic readonly source binding mismatch: '+name)
 
-    if args.haptic_pulse or args.haptic_service_test:
+    if args.haptic_pulse or args.haptic_service_test or args.haptic_ui_test:
+        if args.haptic_ui_test and not manifest.get('haptic_ui_test'):parser.error('Artifact lacks bound joint service test')
         if args.haptic_service_test and not manifest.get('haptic_service_test'):parser.error('Artifact lacks H05 bounded service capability')
         if hashlib.sha256((artifact/'kernel').read_bytes()).hexdigest()!=manifest.get('kernel_sha256'):parser.error('Native haptic kernel hash mismatch')
         if not manifest.get('haptic_pulse_loader'):parser.error('Artifact lacks dedicated native haptic loader policy')
@@ -431,6 +435,7 @@ def main():
             requests=output/'capture-requests'
             requests.mkdir()
             items=[sys.executable,'scripts/run_waffle_ios.py','--seconds',str(args.cpu_seconds),'--cpus',str(args.cpus or 2),'--kernel',str(artifact/'kernel'),'--root',str(cpu_root),'--fastboot',args.fastboot,'--capture-requests',str(requests)]
+            if args.haptic_ui_test:items.append('--haptic-ui-test')
             if args.haptic_service_test:items.append('--haptic-service-test')
             if args.haptic_pulse:items.append('--haptic-pulse')
             if args.torch_readonly:items.append('--torch-readonly')
@@ -450,6 +455,7 @@ def main():
                 '--collect', '--wait-seconds', '60'], cwd=ROOT,
                 stdout=recovery_log, stderr=subprocess.STDOUT)
             items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '94' if args.lpac_cp_init else '93', str(artifact)]
+            if args.haptic_ui_test:items.append('--haptic-ui-test')
             if args.haptic_service_test:items.append('--haptic-service-test')
             if args.haptic_pulse:items.append('--haptic-pulse')
             if args.torch_readonly:items.append('--torch-readonly')

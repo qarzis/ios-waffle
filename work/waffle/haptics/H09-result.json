@@ -1,0 +1,96 @@
+{
+  "source": "work/waffle/runs/20261105T214121Z/kernel-final.log",
+  "source_sha256": "9264472d39608fade5e4252b795b763188abe4b4b4a81c45dee4242f00d0e285",
+  "capabilities": [
+    1
+  ],
+  "player_returns": [
+    [
+      "1",
+      "0"
+    ]
+  ],
+  "completed_pulses": 5,
+  "confirmed_stop_restore": 5,
+  "active_us": [
+    17087,
+    16145,
+    16996,
+    16993,
+    17006
+  ],
+  "direct_client_results": [
+    [
+      "3",
+      "0"
+    ]
+  ],
+  "HAL_actuator_samples": [
+    {
+      "frames": 256,
+      "peak": 12,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 7122,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 1541,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 6261,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17694,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17683,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17694,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 17695,
+      "sink_available": true
+    }
+  ],
+  "fault_or_quarantine": false,
+  "system_route_claim": "Requires capability plus actual HAL samples with available sink; player success alone insufficient",
+  "trace_component_consistent": true,
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "worker_regression_pass": true
+}

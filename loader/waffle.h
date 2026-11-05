@@ -72,7 +72,7 @@ static inline int waffle_cmdline_allowed(const char *line)
 {
     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
-    unsigned haptic=0,haptic_cpu1=0,haptic_torch1=0,haptic_budget=0;
+    unsigned haptic=0,haptic_cpu1=0,haptic_torch1=0,haptic_budget=0,haptic_torch3=0,haptic_service=0,haptic_ui_budget=0;
     unsigned battery_readonly=0,battery_boot=0,surface_lock_audit=0;
     unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0,audio=0,audio_budget=0,display_survey=0,hardware_vsync=0,display_flush=0,display_flip=0,display_present=0,display_completion=0,display_irq_probe=0;
     while (*line) {
@@ -86,6 +86,9 @@ static inline int waffle_cmdline_allowed(const char *line)
         cpus+=waffle_cpu_token_allowed(line,size);
         haptic_cpu1+=waffle_token_equal(line,size,"cpus=1");
         haptic_torch1+=waffle_token_equal(line,size,"waffle_torch=1");
+        haptic_torch3+=waffle_token_equal(line,size,"waffle_torch=3");
+        haptic_service+=waffle_token_equal(line,size,"waffle_haptic_test=2");
+        haptic_ui_budget+=waffle_number(line,size,"loader_return_after=",1,180);
         haptic_budget+=waffle_number(line,size,"loader_return_after=",1,90);
 #if defined(WAFFLE_USERLAND) && defined(WAFFLE_HAPTIC_PULSE_TEST)
         haptic+=waffle_number(line,size,"waffle_haptic_test=",1,2);
@@ -149,10 +152,19 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
     }
-    if(haptic>1 || (haptic && (haptic_cpu1!=1 || cpus!=1 || haptic_torch1!=1 || torch!=1 ||
-        returns!=1 || haptic_budget!=1 || gpu_count || audio || surface_lock_audit ||
-        display_present || display_flip || display_flush || display_completion ||
-        display_irq_probe || display_survey || hardware_vsync || soak)))return 0;
+    if(haptic>1)return 0;
+    if(haptic) {
+        int isolated=haptic_cpu1==1 && cpus==1 && haptic_torch1==1 && torch==1 &&
+            returns==1 && haptic_budget==1 && !gpu_count && !audio && !surface_lock_audit &&
+            !display_present && !display_flip && !display_flush && !display_completion &&
+            !display_irq_probe && !display_survey && !hardware_vsync && !soak;
+        int ui=haptic_service==1 && haptic_cpu1==1 && cpus==1 && haptic_torch3==1 && torch==1 &&
+            returns==1 && haptic_ui_budget==1 && gpu_count==1 && native94 && gl_image==1 &&
+            display_present==1 && hardware_vsync==1 && !audio && !surface_lock_audit &&
+            !display_flip && !display_flush && !display_completion && !display_irq_probe &&
+            !display_survey && !soak;
+        if(!isolated && !ui)return 0;
+    }
     if (battery_readonly > 1 || (battery_readonly && (battery_boot != 1 || audio != 1))) return 0;
     if(display_irq_probe>1 || (display_irq_probe && display_completion!=1))return 0;
     if(display_completion>1 || (display_completion && (display_present!=1 || hardware_vsync!=1 || display_survey || display_flip || display_flush || audio || soak || surface_lock_audit || gpu_count!=1 || !native94 || gl_image!=1 || returns!=1)))return 0;

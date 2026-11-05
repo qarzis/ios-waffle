@@ -54,6 +54,7 @@ def main():
  parser.add_argument('--process-cpu-profile',action='store_true',help='Bounded once-per-second backboardd CPU accounting; no GL hooks or clock changes')
  parser.add_argument('--mesa-library',type=Path,help='Use an explicitly bound candidate Mesa library')
  parser.add_argument('--reclaim-on-oom',action='store_true',help='Opt in to one bounded BO-cache purge/retry in candidate Mesa')
+ parser.add_argument('--haptic-ui-test',action='store_true',help='H10 public haptic probe plus independent PCM baseline')
  args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)
  if args.animation_probe and not args.service_audit:parser.error('--animation-probe requires --service-audit')
  if args.slider_control and not args.slider_monitor:parser.error('--slider-control requires --slider-monitor')
@@ -168,6 +169,13 @@ def main():
  for path in sorted((ROOT/'work/waffle/gpu/e45-gl-contexts/fw').iterdir()):
   pf.add_file(tree,'fw/'+path.name,str(path));firmware[path.name]=hashlib.sha256(path.read_bytes()).hexdigest()
  assert len(firmware)==4
+ if args.haptic_ui_test:
+  client=out/'waffle_haptic_client'
+  run([cc,'-arch','arm64','-isysroot',str(sdk),'-O2','-Wall','-Wextra','-fobjc-arc','-framework','Foundation','-framework','CoreHaptics','-framework','AudioToolbox','-framework','CoreFoundation',str(ROOT/'userland/src/waffle_haptic_core_client.m'),'-o',str(client)])
+  pf.add_file(tree,'bin/waffle_haptic_client',str(client),mode=0o100755)
+  for name,arguments in [('system',[]),('direct',['--direct-only'])]:
+   job={'Label':'org.waffle.haptic-'+name,'ProgramArguments':['/redwood/bin/waffle_haptic_client']+arguments,'RunAtLoad':True,'KeepAlive':False,'StandardOutPath':'/dev/console','StandardErrorPath':'/dev/console'}
+   path=scratch/('haptic-'+name+'.plist');path.write_bytes(plistlib.dumps(job));pf.add_file(tree,'LaunchDaemons/org.waffle.haptic-'+name+'.plist',str(path))
  root=out/'root.packfs';pf.pack(tree,str(root),zstd=15,raw=pf.sources_under(tree,'fw'))
  assert root.stat().st_size+16*1024*1024<0x03f00000,'UI payload exceeds RAM loader limit'
  sources=['userland/src/inject.c','userland/src/waffle_ui_init.c','tools/build-waffle-ui-probe.py','userland/mkjobs.py','tools/assemble.py']
@@ -181,7 +189,8 @@ def main():
  if args.animation_probe:sources.append('userland/src/waffle_ui_animation_probe.m')
  if args.poster_inventory:sources.append('userland/src/waffle_poster_inventory.m')
  if args.ios16_wallpaper:sources.append('userland/src/inject_waffle_wallpaper.m')
- manifest=dict(experiment='E46 first actual backboardd GPU workload; no UI success claim',hardware_tested=False,RAM_only=True,normal_image_mutated=False,GPU_process='backboardd',GPU_process_uid=501,device_mode='0600',process_stop_seconds=30,job_KeepAlive=False,other_processes_softpipe=True,root_sha256=hashlib.sha256(root.read_bytes()).hexdigest(),root_bytes=root.stat().st_size,inject_sha256=hashlib.sha256(inject.read_bytes()).hexdigest(),hook_sha256=hashlib.sha256(hook.read_bytes()).hexdigest(),mesa_sha256=hashlib.sha256(mesa.read_bytes()).hexdigest(),firmware=firmware,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources})
+ if args.haptic_ui_test:sources.append('userland/src/waffle_haptic_core_client.m')
+ manifest=dict(haptic_ui_test=args.haptic_ui_test,experiment='E46 first actual backboardd GPU workload; no UI success claim',hardware_tested=False,RAM_only=True,normal_image_mutated=False,GPU_process='backboardd',GPU_process_uid=501,device_mode='0600',process_stop_seconds=30,job_KeepAlive=False,other_processes_softpipe=True,root_sha256=hashlib.sha256(root.read_bytes()).hexdigest(),root_bytes=root.stat().st_size,inject_sha256=hashlib.sha256(inject.read_bytes()).hexdigest(),hook_sha256=hashlib.sha256(hook.read_bytes()).hexdigest(),mesa_sha256=hashlib.sha256(mesa.read_bytes()).hexdigest(),firmware=firmware,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources})
  manifest['process_stop_seconds']=args.stop_seconds
  manifest['posterboard_providers']=args.posterboard_providers
  manifest['service_audit']=args.service_audit

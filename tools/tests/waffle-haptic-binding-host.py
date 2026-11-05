@@ -5,7 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 root=Path(__file__).resolve().parents[2]
 t=ast.parse((root/'tools/run-waffle-auto.py').read_text())
-blocks=[n for n in ast.walk(t) if isinstance(n,ast.If) and ast.unparse(n.test)=='args.haptic_pulse or args.haptic_service_test' and any(isinstance(x,ast.Constant) and x.value=='haptic_pulse_test' for x in ast.walk(n))]
+blocks=[n for n in ast.walk(t) if isinstance(n,ast.If) and ast.unparse(n.test)=='args.haptic_pulse or args.haptic_service_test or args.haptic_ui_test' and any(isinstance(x,ast.Constant) and x.value=='haptic_pulse_test' for x in ast.walk(n))]
 assert len(blocks)==1
 code=compile(ast.fix_missing_locations(ast.Module(body=[blocks[0]],type_ignores=[])),'actual-pulse-admission','exec')
 class Parser:
@@ -28,7 +28,7 @@ with tempfile.TemporaryDirectory() as d:
   if case==12:(a/'source'/names[3]).write_bytes(b'changed')
   if case==13:
    (a/'kernel').write_bytes(b'no-pulse-code');m['kernel_sha256']=hashlib.sha256((a/'kernel').read_bytes()).hexdigest()
-  try:exec(code,{'args':SimpleNamespace(haptic_pulse=True,haptic_service_test=False),'artifact':a,'ROOT':r,'manifest':m,'parser':Parser(),'hashlib':hashlib})
+  try:exec(code,{'args':SimpleNamespace(haptic_pulse=True,haptic_service_test=False,haptic_ui_test=False),'artifact':a,'ROOT':r,'manifest':m,'parser':Parser(),'hashlib':hashlib})
   except ValueError:assert case!=0
   else:assert case==0
 print('PASS actual haptic pre-USB admission: bound positive; capability, all current/snapshot sources, missing header and kernel tamper refused. No USB.')

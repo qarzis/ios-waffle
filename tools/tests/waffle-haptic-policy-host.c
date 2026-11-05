@@ -5,6 +5,8 @@ int main(void){
  const char *good="-v bootcpu=7 cpus=1 loader_return_after=60 waffle_torch=1 waffle_haptic_test=1";
 #if defined(WAFFLE_USERLAND) && defined(WAFFLE_HAPTIC_PULSE_TEST)
  assert(waffle_cmdline_allowed(good));
+ const char *ui="bootcpu=7 cpus=1 loader_return_after=120 waffle_torch=3 waffle_haptic_test=2 waffle_vsync=1 waffle_display_present=1 waffle_gpu=94 waffle_lpac_map=1 waffle_zap=1 waffle_writeback=1 waffle_ib=1 waffle_session=1 waffle_dynamic_bo=1 waffle_compute=2 waffle_image=13";
+ assert(waffle_cmdline_allowed(ui)&&waffle_haptic_service_requested(ui));
  assert(!waffle_haptic_service_requested(good));
  assert(waffle_haptic_service_requested("bootcpu=7 cpus=1 loader_return_after=60 waffle_torch=1 waffle_haptic_test=2"));
  assert(waffle_cmdline_allowed("bootcpu=7 cpus=1 loader_return_after=60 waffle_torch=1 waffle_haptic_test=2"));

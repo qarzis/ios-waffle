@@ -332,7 +332,7 @@ static bool
 waffle_haptic_bus_read(void *context,uint16_t ppid,uint8_t reg,uint8_t *value)
 {
  struct waffle_haptic_bus_context *c=context;
- if(!waffle_arb || level!=1 || !waffle_haptic_read_allowed(ppid,reg))return false;
+ if(!waffle_arb || (level!=1 && !(level==3 && haptic_test==2)) || !waffle_haptic_read_allowed(ppid,reg))return false;
  for(unsigned i=0;i<3;i++)if(c->peripheral[i].id==ppid)
   return spmi_read(&c->peripheral[i],reg,value,1)==NULL;
  return false;
@@ -343,7 +343,7 @@ static bool
 waffle_haptic_bus_write(void *context,uint16_t ppid,uint8_t reg,uint8_t value)
 {
  struct waffle_haptic_bus_context *c=context;
- if(!waffle_arb || level!=1 || (haptic_test!=1 && haptic_test!=2) || !haptic_active ||
+ if(!waffle_arb || (level!=1 && !(level==3 && haptic_test==2)) || (haptic_test!=1 && haptic_test!=2) || !haptic_active ||
     !waffle_haptic_pulse_write_allowed(ppid,reg))return false;
  for(unsigned i=0;i<2;i++) {
   const struct peripheral *p=&c->peripheral[i];
@@ -477,9 +477,15 @@ waffle_haptic_service(struct waffle_haptic_bus_context *context)
  say("haptic-waffle-service: frames=%llu onsets=%llu\n",frames,onsets);
 }
 static void
+waffle_haptic_service_thread(__unused void *parameter,__unused wait_result_t result)
+{
+ waffle_haptic_service(&haptic_pulse_context);
+ thread_terminate(current_thread());
+}
+static void
 waffle_haptic_bus_survey(uint32_t channels)
 {
- if(!waffle_arb || level!=1)return;
+ if(!waffle_arb || (level!=1 && !(level==3 && haptic_test==2)))return;
  struct waffle_haptic_bus_context c={.peripheral={
   {.name="PM8550B haptic CFG",.id=0x7f0},
   {.name="PM8550B haptic PTN",.id=0x7f1},
@@ -501,7 +507,13 @@ waffle_haptic_bus_survey(uint32_t channels)
       state.direct,state.period[0],state.period[1],state.period[2],state.period[3]);
  }
  if(ok && haptic_test==1)(void)waffle_haptic_bus_pulse(&c);
- if(ok && haptic_test==2)waffle_haptic_service(&c);
+ if(ok && haptic_test==2) {
+  haptic_pulse_context=c;
+  thread_t worker;
+  if(kernel_thread_start(waffle_haptic_service_thread,NULL,&worker)==KERN_SUCCESS)
+   thread_deallocate(worker);
+  else say("haptic-waffle-service: worker_start_failed=1\n");
+ }
 }
 static void
 show_registers(void)
@@ -742,7 +754,7 @@ torch_thread(__unused void *parameter, __unused wait_result_t result)
  say("torch: platform=%s arbiter=%x APIDs=%u level=%u\n",waffle_arb ? "waffle-v7" : "macan-v8",version,channels,level);
  find_channel(&flash, channels);
  find_channel(&alarm, channels);
- if(waffle_arb && level==1)waffle_haptic_bus_survey(channels);
+ if(waffle_arb && (level==1 || haptic_test==2))waffle_haptic_bus_survey(channels);
  if (!flash.found || spmi_read(&flash, FLASH_TYPE, id, 2) != NULL || spmi_read(&flash, FLASH_REVISION1, &revision, 1) != NULL) {
   say("torch: the flash module cannot be read\n");
   goto out;
@@ -833,7 +845,7 @@ macan_torch_init(void)
   level=0;
   PE_parse_boot_argn("waffle_torch",&level,sizeof(level));
   PE_parse_boot_argn("waffle_haptic_test",&haptic_test,sizeof(haptic_test));
-  if(haptic_test && (haptic_test>2 || level!=1))return;
+  if(haptic_test && (haptic_test>2 || (level!=1 && !(level==3 && haptic_test==2))))return;
   /* Modes1/2 identified this module and verified the bounded pulse and
    * darkness on Waffle; mode3 exposes the same checked path to iOS. */
   if (level<1 || level>3) return;

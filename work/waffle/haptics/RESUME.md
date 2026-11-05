@@ -1,3 +1,15 @@
+# USER STOP AFTER LAST TEST + GIT + POWER OFF
+
+Userrequestsstop/saveGit/shutdown, thenurgesfastexitduelimits. No newtestsbeyondalreadyactiveH10auto214633Z/run214657Z. SoleUSBownerouterrunner (session44105). AwaitautomaticAndroidreturnbeforepoweroff. Publichapticdriver+tests/docscommit758574d pushforkinprogress; H10jointresultpending, notclaimedworking. Saveallresultsafterrunner. sudo-nrequirespassword; try normaldesktopsession systemctlpoweroffwithoutpassword AFTERAndroidandGit. CurrentnewH10loader/outer/inner/wrapper/UIrootgateshostbuilt/validated; runtimepending. KeepS20host-onlywipnotpublic.
+
+# H09 threaded service PASS; H10 joint GPU/torch packaging
+
+H09run214121Z original0/Android1,CoreHapticscap1/HALPCM/5pulsesstoprestorepass. Threadedworkerpreservessystemrouteanddoesnotblocktorchinit. H09-result.json. H10CPU1-onlyguardedGPUUI+torch3+haptic2candidate: loaderrequirescomplete94/compute2/image13/display_present/vsync/bounded<=180chain; defaultsunchanged. ActualpolicyvalidchainandnegativegatesPASS. Newouter/inner/wrapper--haptic-ui-test gating; hostASTbinding/inneroptionsPASS. UIrootfromcurrenthookrebuildSHAad3505...fe64d EXACTequalsqualifiedS19binary,E75unchanged; avoidsstaleprobe-sourcebindingwithoutweakeningchecks. Includesqualifiedslider/providers/wallpaper+publichapticclientanddirectbaseline,stop60. H10loader-onlyrepackkernelH09sourcebyteidentical buildingpackage-h10.py/build-h10.log. Needvalidator/admission thenonejointtest, no parallelUSBowners.
+
+# H09 worker integration BUILDING — continue, do not stop
+
+UserexplicitlyrequestscontinuousworkafterH08pass. Hapticmode2nowspawnsseparateworkerwithpersistentcontextinsteadblockingtorchinit. Runtimegatespreparedfortorchlevel3+mode2,butloaderstillonlyadmitsisolatedCPU1level1: jointGPUUIunqualified/defaultoff. ActualspawnblockfixturePASS retainingcontext/modegate/failurewithoutblocking. Existingreadonlyobserver/actualwriterquiescefixturesPASS. Fullbuilddiagnostic-haptic-worker-h09 ongoing build-h09.log, session86511. Nohardwareowner;H08returnedAndroid0success. Need finishbuild/packagefixedH08root/bindnewkernel/checksource/proofvalidate, thenisolatedregressionbefore wideningGPUUIloaderpolicy. Do not reuseH08oldkernelwithcurrenttorchsourceasifcompiled.
+
 # H08 SYSTEM HAPTICS PATH PASS
 
 Run213436Z/auto213412Z original0/Android1. Existingproduct/hapticsnode enablesactualMGcapability: CoreHaptics_supports1(previous0),publicplayer1/error0,actualHALActuatorPCMwithavailabledevice,onequalifiedpulsebeforebaseline. SystemVibrate4095thencompletion callback,secondqualifiedpulsebeforebaseline. Three independentdirecttapsfollow. Total5pulse/stop/restores/emergency0. Active16328/16506/16081/16123/16075us. H08-result.json/analysisrawhash. Nohumanfeedbackneeded: nativeHALPCM+workerproof. PhysicalmotoralreadyfeltH04C/H05. This qualifiesboundedPCMtapapproximation, NOTfullwaveform/intensity/longvibration. OrdinaryGPUUIdoesnotyetenablemode2. NextintegratequalifiedservicewithGPUUIandflashlightwithoutblockingtorchthread, thenactualUIfeedbackcheck. PhoneAndroid,noowner.
