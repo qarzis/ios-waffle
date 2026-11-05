@@ -714,6 +714,7 @@ def main():
     parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
     parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
+    parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
     args = parser.parse_args()
     if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -799,7 +800,10 @@ def main():
         raise RuntimeError("Expected the waffle loader; select Boot iOS in the PJD110 UEFI menu")
     if "kernel-supported: software-userland-test" not in command("getvar", "kernel-supported"):
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
+    if args.surface_lock_audit and (not args.gpu_gl_context or args.gpu_ui):parser.error("Surface lock audit requires isolated GL")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
+    if args.surface_lock_audit:
+        arguments += " waffle_surface_lock_audit=1"
     if args.hardware_vsync:
         arguments += " waffle_vsync=1"
     if args.double_buffer:

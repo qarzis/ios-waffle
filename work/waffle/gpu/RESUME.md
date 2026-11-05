@@ -1,3 +1,7 @@
+# ACTIVE — explicit resume; S12 actual IOSurface framework lock audit ready
+
+2026-11-05 userresumedGPU; oldshutdownalreadyelapsed/notpresent. PhonefreshAndroidboot_completed1, noactiveowner. S11qualifiedfullEAGLnativeinput/draw/3updates1024pixels; productionCPUwriter/GPUreadleasegapremains. Beforeimplementingcounts, S12tracesACTUALframeworkLock/Unlocktraps; don'tassumetheyarepairedorkernelcalledoneveryAPIcall. Opt-inwaffle_surface_lock_audit=1 logsstartupenable+bounded128sid/pid/options/seed/sequence scalarsaftergSurfaceLockrelease; nofunctionalchanges. Fullrequiredhosts/XNU/EFI/pairedvalidator/currentcompiledsnapshotidentityPASS. ExactS11root/Mesareused. Artifactdiagnostic-surface-lock-audit-s12; CLI--surface-lock-auditforwardedauto->work/gpu/run-publish-test->scripts/run_waffle_ios. Hostbridgeadmission+seedcontract/auditbounded+traceanalyzerPASS. NextsavecheckpointandRAMtestS12; verifyoriginalGL/Androidandseparatelyanalyzetracevia tools/analyze-waffle-surface-locks.py. Zero/unmatchedtrapsarepossibleevidenceofframeworkfastpath, notproofofleases. Noagents/goals; noproductionenable/FPSclaim.
+
 # STOPPED — S11 passed, shutdown requested; no new tests
 
 USERlatestrequestedfinishin10minutesandpoweroff. OSshutdownscheduled2026-11-04T22:13:57Z /2026-11-05 01:13:57Europe/Minsk via shutdown --no-wall -P +10, /run/systemd/shutdown/scheduled verifiedUID1000. Do NOT resume GPU/phone work without new explicit user instruction. Do notcancelshutdownunlessrequested.

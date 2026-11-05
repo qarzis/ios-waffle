@@ -75,6 +75,8 @@ static uint32_t gSurfacesMade, gSurfacesFreed;
 static uint64_t gSurfaceLogged[2];
 static TUNABLE(uint32_t, gSurfaceTrace, "surftrace", 24);
 static TUNABLE(uint32_t, gWaffleSurfaceAudit, "waffle", 0);
+static TUNABLE(uint32_t, gWaffleSurfaceLockAudit, "waffle_surface_lock_audit", 0);
+static uint32_t gWaffleSurfaceLockRows; /* Protected by gSurfaceLock, bounded128. */
 static volatile SInt32 gWaffleLargeSurfaces;
 static uint32_t gSurfaceTraced;
 static char gSurfaceTraceOf[32];
@@ -806,6 +808,9 @@ MiniIOSurfaceStart(IOService * provider)
  IOCoreSurfaceRoot * root;
  gSurfaceLock = IOLockAlloc();
  gSurfaceKeptLock = IOLockAlloc();
+ if (gWaffleSurfaceLockAudit) {
+  loader_log_line("waffle-surface-lock: audit_enabled=1 max_records=128\n");
+ }
  if (!PE_parse_boot_arg_str("surftrace_of", gSurfaceTraceOf, sizeof(gSurfaceTraceOf))) {
   gSurfaceTraceOf[0] = 0;
  }
@@ -1618,7 +1623,8 @@ IOReturn
 IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t seedOut, bool unlocking)
 {
  struct minisurf_client_ref * ref;
- uint32_t seed = 0;
+ uint32_t seed = 0, audit_sequence = 0;
+ bool audit = false;
  IOLockLock(gSurfaceLock);
  ref = findRef(sid, false);
  if (ref != NULL) {
@@ -1629,8 +1635,20 @@ IOSurfaceRootUserClient::lockCommon(uint32_t sid, uint32_t options, user_addr_t 
    sh->seed++;
   }
   seed = sh->seed;
+  if (gWaffleSurfaceLockAudit && gWaffleSurfaceLockRows < 128) {
+   audit_sequence = ++gWaffleSurfaceLockRows;
+   audit = true;
+  }
  }
  IOLockUnlock(gSurfaceLock);
+ /* Log copied scalars after releasing the surface lock; never retain a
+  * client-ref pointer across a concurrent close merely for diagnostics. */
+ if (audit) {
+  char line[192];
+  snprintf(line, sizeof(line), "waffle-surface-lock: seq=%u pid=%d sid=%u unlock=%u options=%x seed=%u\n",
+      audit_sequence, proc_selfpid(), sid, unlocking, options, seed);
+  loader_log_line(line);
+ }
  if (ref == NULL) {
   return kIOReturnNotFound;
  }

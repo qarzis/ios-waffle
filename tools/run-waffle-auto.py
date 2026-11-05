@@ -77,6 +77,7 @@ def main():
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--battery-readonly',action='store_true',help='With isolated --audio-boot: one native read-only battery sample')
     parser.add_argument('--battery-report-test',action='store_true',help='With --battery-readonly: three samples into the native power-source bridge')
+    parser.add_argument('--surface-lock-audit',action='store_true',help='Bounded read-only trace of actual IOSurface lock/unlock traps in isolated GL test')
     parser.add_argument('--hardware-vsync',action='store_true',help='Opt-in hardware panel TE timestamps for iOS callbacks')
     parser.add_argument('--double-buffer',action='store_true',help='Opt-in complete-frame buffered scanout')
     parser.add_argument('--display-flip-probe',action='store_true',help='Bounded reserved-framebuffer pattern flip and restoration')
@@ -173,6 +174,8 @@ def main():
     if args.session and not args.ib:
         parser.error('--session requires --ib')
     manifest = json.loads((artifact / 'manifest.json').read_text())
+    if args.surface_lock_audit and (not args.gl_context or args.ui_workload or not manifest.get('surface_lock_audit')):
+        parser.error('Surface lock audit requires a bound isolated GL artifact')
     if args.audio_preflight:
         if args.audio_boot:
             for name in ('A06-result.json','A07-result.json'):
@@ -360,6 +363,7 @@ def main():
             items = [sys.executable, 'work/waffle/gpu/run-publish-test.py', '94' if args.lpac_cp_init else '93', str(artifact)]
             if args.torch_readonly:items.append('--torch-readonly')
             if args.torch_pulse:items.append('--torch-pulse')
+            if args.surface_lock_audit:items.append('--surface-lock-audit')
             if args.hardware_vsync:items.append('--hardware-vsync')
             if args.double_buffer:items.append('--double-buffer')
             if args.display_flip_probe:items.append('--display-flip-probe')

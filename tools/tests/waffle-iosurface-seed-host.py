@@ -14,11 +14,15 @@ h=r'''
 #include <cassert>
 #include <cstdint>
 #include <cstring>
+#include <cstdio>
 using IOReturn=int;
 using user_addr_t=uintptr_t;
 constexpr int kIOReturnSuccess=0,kIOReturnNotFound=1;
 constexpr uint32_t kSurfaceLockReadOnly=1;
 static bool held;
+static uint32_t gWaffleSurfaceLockAudit,gWaffleSurfaceLockRows,logs;
+static int proc_selfpid(){return 1;}
+static void loader_log_line(const char *line){assert(!held && strstr(line,"waffle-surface-lock: seq="));logs++;}
 static int lock;
 static int *gSurfaceLock=&lock;
 static void IOLockLock(int *){assert(!held);held=true;}
@@ -53,7 +57,12 @@ int main(){
  target.state.seed=UINT32_MAX;
  assert(lock(1,0)==0 && seed==UINT32_MAX);
  assert(unlock(1,0)==0 && seed==0);
- assert(!held);
+ assert(!held && !logs);
+ gWaffleSurfaceLockAudit=1;
+ assert(lock(1,0)==0 && seed==0);assert(unlock(1,0)==0 && seed==1);
+ for(unsigned i=0;i<200;i++){assert(lock(1,1)==0);assert(unlock(1,1)==0);}
+ assert(logs==128 && gWaffleSurfaceLockRows==128 && seed==1 && !held);
+ assert(lock(2,0)==kIOReturnNotFound && logs==128);
 }
 '''
 with tempfile.TemporaryDirectory() as directory:
