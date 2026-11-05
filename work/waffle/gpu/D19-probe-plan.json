@@ -3,7 +3,10 @@
   "native_revision": "38d50357db2728300a61b6f757f2d3a09651c155",
   "native_intf_source_sha256": "1f1133dde46f487a3d653e0c08f5ddb4f1aec2209ecd3f8274e6271cf2f0167e",
   "route_read": "0x3625c",
-  "admitted_mux": 0,
+  "admitted_mux": [
+    0,
+    983040
+  ],
   "refused_split_link_mux": 65536,
   "allowed_clear_offset": "0x1018",
   "allowed_clear_mask": "0x100",
@@ -15,5 +18,7 @@
     "Raw autorefresh is busy, PP0_DONE old bit present, whole PP IRQ enable mask zero",
     "Re-read version a0000000, INTF1_MUX=0, enable=0, busy/flush/addresses/frame immediately before clear"
   ],
-  "claim": "Only explicit diagnostic clear; fresh reassertion is observed but never used to bypass original two-frame guard"
+  "claim": "Only explicit diagnostic clear; fresh reassertion is observed but never used to bypass original two-frame guard",
+  "native_mux_derivation": "Normal bind preserves upper fields: (0xf000f & ~0xf) | PP0 = 0xf0000; splitlink0x10000 remains refused",
+  "compact_BO_proof": "Explicit !wbo:v1! typed records, each <64 bytes and one existing loader_log_line lock chunk; default off"
 }

@@ -8,6 +8,7 @@ def decl(name,text=src):return re.search(r'struct '+name+r' \{.*?\n?\};',text,re
 gmu=(root/'kernel/files/bsd/sys/waffle_gmu.h').read_text()
 h=r'''
 #include <assert.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -61,6 +62,7 @@ static bool PE_parse_boot_argn(const char *name,void *out,unsigned size){
  return found;
 }
 static void log_line(const char *fmt,...){(void)fmt;}
+static void loader_log_line(const char *line){(void)line;assert(0);}
 static void loader_return(void){}
 static uintptr_t ml_io_map(uint64_t pa,unsigned size){
  ++mmio_maps;

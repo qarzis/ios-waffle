@@ -90,6 +90,7 @@ def check_display_completion_binding(root,artifact,manifest):
     bindings=manifest.get('display_completion_source_sha256',{})
     required=('loader/waffle.h','kernel/files/iokit/Kernel/MiniIOMobileFramebuffer.cpp',
               'kernel/files/bsd/sys/waffle_display_completion.h','kernel/files/bsd/sys/waffle_display_present.h')
+    if manifest.get('compact_bo_log'):required+=('kernel/files/bsd/dev/waffle_smmu.c','kernel/files/osfmk/arm64/loader_return.c')
     if manifest.get('display_irq_probe'):required+=('kernel/files/bsd/sys/waffle_display_irq_probe.h',)
     for name in required:
         if name not in bindings:raise ValueError('Display completion source binding missing')

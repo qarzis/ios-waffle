@@ -17,7 +17,7 @@ static bool waffleDisplayRead(void *p,uint32_t off,uint32_t *v){assert(p==mem &&
 t=r'''
 int main(){
  WaffleDisplayFlipContext c{};WaffleDisplayCompletionRecord records[128]{};c.dpu=(uintptr_t)mem;c.owner=&c;c.audit=records;c.auditSequence=1;
- mem[0]=0xa0000000;mem[0x360a4/4]=9;mem[0x5014/4]=mem[0x7014/4]=WAFFLE_DISPLAY_FRONT;mem[0x160f4/4]=2;mem[0x362c0/4]=1;mem[0x1014/4]=0x101;
+ mem[0]=0xa0000000;mem[0x3625c/4]=0xf0000;mem[0x360a4/4]=9;mem[0x5014/4]=mem[0x7014/4]=WAFFLE_DISPLAY_FRONT;mem[0x160f4/4]=2;mem[0x362c0/4]=1;mem[0x1014/4]=0x101;
  c.auditStage=2;waffleDisplayCompletionObserve(&c,2);
  mem[0x5014/4]=mem[0x7014/4]=WAFFLE_DISPLAY_TEST;mem[0x16018/4]=3;waffleDisplayCompletionObserve(&c,3);
  c.auditStage=1;mem[0x360a4/4]=10;mem[0x16018/4]=0;waffleDisplayCompletionObserve(&c,1);

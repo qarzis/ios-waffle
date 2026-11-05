@@ -26,6 +26,7 @@ int main(void){
  const uint32_t offsets[]={0,0x3625c,0x1010,0x362c0,0x16018,0x5014,0x7014,0x360a4};
  for(unsigned n=0;n<8;n++){setup();uint32_t off=offsets[n],saved=mem[off/4];mem[off/4]=off==0x362c0?0:saved+1;r=waffle_display_irq_probe_step(&io,&state,1,&sample);assert(r.action==3 && !writes);}
  for(unsigned n=1;n<=9;n++){setup();fail_read=n;r=waffle_display_irq_probe_step(&io,&state,1,&sample);assert(r.action==4 && !state.armed && writes==(n==9));}
+ setup();mem[0x3625c/4]=0xf0000;r=waffle_display_irq_probe_step(&io,&state,1,&sample);assert(r.action==1 && writes==1 && r.mux==0xf0000);
  setup();write_fail=true;r=waffle_display_irq_probe_step(&io,&state,1,&sample);assert(r.action==4 && !writes && !state.armed);
  setup();uncleared=true;r=waffle_display_irq_probe_step(&io,&state,1,&sample);assert(r.action==4 && writes==1 && !state.armed);
  setup();state.baseline=UINT32_MAX;sample.frame_before=sample.frame_after=0;mem[0x360a4/4]=0;r=waffle_display_irq_probe_step(&io,&state,1,&sample);assert(r.action==1);

@@ -1,0 +1,55 @@
+{
+  "experiment": "D19-A exact-zero mux admission test",
+  "passed": false,
+  "original_runner_exit": 1,
+  "run": "20261105T101140Z",
+  "auto_run": "20261105T101116Z",
+  "android_confirmed": true,
+  "records": 54,
+  "irq_records": 54,
+  "probe": {
+    "enabled": true,
+    "writes": 0,
+    "fresh_events": 0,
+    "actions": [
+      {
+        "row": 14,
+        "seq": 3,
+        "action": 3,
+        "wrote": 0,
+        "status_after": 0,
+        "mux": 983040,
+        "version": 2684354560
+      },
+      {
+        "row": 33,
+        "seq": 7,
+        "action": 3,
+        "wrote": 0,
+        "status_after": 0,
+        "mux": 983040,
+        "version": 2684354560
+      },
+      {
+        "row": 44,
+        "seq": 8,
+        "action": 3,
+        "wrote": 0,
+        "status_after": 0,
+        "mux": 983040,
+        "version": 2684354560
+      }
+    ]
+  },
+  "observed_mux": "f0000",
+  "source_checkpoint": "949f13f5ecafa0046b4371f5dd7bde0906e6d76f",
+  "kernel_return": "result: returned 1441823 0",
+  "GPU_close_completed": 1415,
+  "GPU_BO_count": 1186,
+  "display_flips_completed": 529,
+  "original_buffer_restored": true,
+  "controller_clear_writes": 0,
+  "collector_failure": "One verbose BO publication (index1009) interleaved with launchd text; raw bytes preserved, strict parser expected1009 but saw1010. No metadata invented to pass it.",
+  "new_evidence": "Native bind_pingpong_blk preserves upper mux fields: disabled f000f bound to PP0 becomes f0000. Split-link10000 remains a distinct refused route.",
+  "next_variant": "D19B admits 0/f0000 only and adds <=64byte diagnostic BO proof records through existing loader_log_line; unchanged logger lock bound/normal off mode."
+}

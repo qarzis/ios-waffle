@@ -254,6 +254,9 @@ def validate_surface_lease_log(text):
 
 def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     """Track unique publications/revocations across console replay duplicates."""
+    if '!wbo' in text:
+        import runpy
+        text=runpy.run_path(str(ROOT/'tools/waffle_bo_log.py'))['normalize'](text)
     if any(x in text for x in ('SURFACE_READ_', 'waffle-gl-surface-read:')):
         if any(x in text for x in ('SURFACE_WRITE_', 'waffle-gl-surface-write:','private_surface_write=1')):
             raise RuntimeError('Mixed surface read/write audits are not qualified')
@@ -1028,6 +1031,8 @@ def main():
                 stream,stream_proof=log_stream['merge_run_logs'](out)
                 (out/'kernel-stream-proof.json').write_text(json.dumps(stream_proof,indent=2)+'\n')
                 final_text=stream.decode(errors='replace')
+                if args.display_irq_probe and b'!wbo:v1!' in args.kernel.read_bytes() and '!wbo:v1!' not in final_text:
+                    raise RuntimeError('Compiled compact BO proof protocol was not enabled')
             image_pixels=None
             if args.gpu_session and not args.gpu_compute and not all(marker in final_text for marker in (
                     "SESSION OOB ownership transferred; init returned with GX retained",

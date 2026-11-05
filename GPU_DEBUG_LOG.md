@@ -1479,3 +1479,28 @@ write accounting/clear-before-fresh parser checks pass. Fullhost/XNU/EFI/contain
 build PASS. DedicatedD19artifact reuses exactD16UI/E75Mesa; gold EAGLunchanged.
 No D19 hardware result yet. Collector fixes from D18 are before all early GPU
 proof gates; no rerun merely to replace D18's original failed exit.
+
+## D19-A routing refusal and verification architecture review
+Run20261105T101140Z/auto101116Z originalrunner1/Android1. Kernelreturned0,
+GPUclose1415fences/1186BOs and529restoredflips. 54paired trace rows; three eligible
+wait samples refused muxf0000, no clear write. Native bind_pingpong_blk explicitly
+preserves upper mux fields: (f000f & ~f) | PP0 = f0000; splitlink is10000. Thus
+D19B can admit the two known native PP0 encodings0/f0000 without wildcard routing.
+Full proof failed at serial1009 although raw publication exists. Exact raw text
+contains launchd bytes inside the publication fields. No forensic repair or parser
+relaxation permitted. Review of verification architecture after repeated collector
+refusals: SMMU log_line emits each byte separately; console writers can interleave
+inside individual fields. Existing loader_log_line holds a lock per<=64bytes.
+D19B emits compact publication/reclaim records shorter than64bytes through that
+existing API, only under private IRQ probe boot opt-in. No longer interrupt-disabled
+log section, allocation/mapping/reclaim/VA budget or normal rendering changes.
+Protocol is explicit!wbo:v1!, overflow/missing records fail; old verbose events are
+not used as proof in compact mode. All original generation/range/permissions/budget/
+reclaim/full-stop checks still execute on directly decoded compact kernel metadata.
+Actual formatter max-bound/default-off tests and reused generation/lifecycle
+positive+missing-record fixtures PASS; old SMMU registry/reclaim/surface tests PASS.
+Base dynamic/owner host harnesses extended only with stdio/log API mocks; first
+D19B build stopped in an independent owner fixture missing these declarations,
+fixed fixture and retained failure log. D19B fullbuild running again, nohardwareyet.
+
+D19B full mandatory host/XNU/EFI/container build PASS after owner harness declarations fixed. Seven current/prepared/compiled source bindings (including unchanged64-byte logger) verified; exact D16 UI/E75 Mesa reused. No guard/flip/EAGL changes. Source/probe ledger parsing and compact emitters tested; no unsupported transcript repair. Ready for hardware with explicit IRQ probe flag.

@@ -4,7 +4,7 @@
 #include "waffle_display_flip.h"
 /* Diagnostic only: observe a fresh masked PP0 flag under the unchanged guard.
  * PP0 clear=top(0x1000)+INTR_CLEAR(0x18), mask=BIT8, pinned sde_hwio.h.
- * Only non-split INTF1_MUX=PP0 is admitted. No IRQ mask/mode/address write. */
+ * Only native single-link PP0 mux encodings 0 and 0xf0000 are admitted. No IRQ mask/mode/address write. */
 struct waffle_display_irq_probe_io {struct waffle_display_io read;bool (*write32)(void *,uint32_t,uint32_t);};
 struct waffle_display_irq_probe_state {uint32_t sequence,baseline,target;bool baseline_valid,committed,attempted,armed,fresh;};
 struct waffle_display_irq_probe_result {uint32_t action,status_after,mux,version;bool wrote;};
@@ -37,7 +37,7 @@ static inline struct waffle_display_irq_probe_result waffle_display_irq_probe_st
     !waffle_display_read(&io->read,0x1010,&enable) || !waffle_display_read(&io->read,0x362c0,&busy) ||
     !waffle_display_read(&io->read,0x16018,&flush) || !waffle_display_read(&io->read,0x5014,&a) ||
     !waffle_display_read(&io->read,0x7014,&b) || !waffle_display_read(&io->read,0x360a4,&frame)){r.action=4;return r;}
- if(r.version!=0xa0000000u || r.mux || enable || !busy || flush || a!=s->target || b!=s->target || frame!=v->frame_before){r.action=3;return r;}
+ if(r.version!=0xa0000000u || (r.mux && r.mux!=0xf0000u) || enable || !busy || flush || a!=s->target || b!=s->target || frame!=v->frame_before){r.action=3;return r;}
  if(!io->write32 || !io->write32(io->read.context,0x1018,0x100)){r.action=4;return r;}
  r.wrote=true;
  if(!waffle_display_read(&io->read,0x1014,&r.status_after) || (r.status_after&0x100u)){r.action=4;return r;}

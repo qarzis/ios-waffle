@@ -116,7 +116,7 @@ static bool waffleDisplayIRQProbeWrite(void *p,uint32_t offset,uint32_t value)
      c->probeWrites >= 8 || !c->probeState.committed || !c->probeState.attempted || offset != 0x1018 || value != 0x100) return false;
  uint32_t version,mux,enable;
  if (!waffleDisplayRead((void *)c->dpu,0,&version) || version != 0xa0000000 ||
-     !waffleDisplayRead((void *)c->dpu,0x3625c,&mux) || mux ||
+     !waffleDisplayRead((void *)c->dpu,0x3625c,&mux) || (mux && mux != 0xf0000) ||
      !waffleDisplayRead((void *)c->dpu,0x1010,&enable) || enable) return false;
  *(volatile uint32_t *)(c->dpu + offset) = value;
  __asm__ volatile("dsb sy" ::: "memory");c->probeWrites++;return true;

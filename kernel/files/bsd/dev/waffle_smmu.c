@@ -20,6 +20,7 @@
 extern vm_offset_t ml_io_map(vm_offset_t, vm_size_t);
 extern uint64_t kvtophys(vm_offset_t);
 extern void loader_log_putc(char);
+extern void loader_log_line(const char *);
 extern void loader_return(void);
 void waffle_smmu_probe(vm_offset_t, uint32_t, uint32_t, uint32_t, uint32_t, unsigned);
 #define FSR_FAULT_MASK 0xc00001feu
@@ -806,6 +807,28 @@ static bool smmu_registry_unmap_page(void *context,uint64_t address,uint64_t pa,
     return true;
 }
 /* All leaves and both context-bank TLBs belong to this retained owner. */
+/* Diagnostic proof records fit one existing <=64-byte loader-log lock hold.
+ * Normal per-character console text can interleave with userspace logging. */
+static bool smmu_compact_bo_enabled(void)
+{
+    static int enabled=-1;
+    if(enabled<0){uint32_t flag=0;enabled=PE_parse_boot_argn("waffle_display_irq_probe",&flag,sizeof(flag)) && flag==1;
+        if(enabled)loader_log_line("!wbo:v1!\n");}
+    return enabled!=0;
+}
+static void smmu_compact_bo_new(const struct waffle_gpu_memory *bo)
+{
+    if(!smmu_compact_bo_enabled())return;
+    char line[64];int n=snprintf(line,sizeof(line),"!wbo+%x/%llx/%x/%x/%x/%x!\n",bo->serial,
+        (unsigned long long)bo->gpu_va,bo->bytes,bo->allocation_bytes,bo->flags,bo->allocation_bytes/4096);
+    loader_log_line(n>0 && n<(int)sizeof(line)?line:"!wbo:error!\n");
+}
+static void smmu_compact_bo_retired(uint32_t index,uint64_t va,uint32_t bytes,uint32_t used)
+{
+    if(!smmu_compact_bo_enabled())return;
+    char line[64];int n=snprintf(line,sizeof(line),"!wbo-%x/%llx/%x/%x!\n",index,(unsigned long long)va,bytes,used);
+    loader_log_line(n>0 && n<(int)sizeof(line)?line:"!wbo:error!\n");
+}
 static bool smmu_registry_reclaim(struct smmu_owner *s,struct waffle_gpu_memory *bo,bool cpu_unmapped)
 {
     if(!s || s->compute_image!=13 || !s->child ||
@@ -813,7 +836,10 @@ static bool smmu_registry_reclaim(struct smmu_owner *s,struct waffle_gpu_memory 
     const struct waffle_gpu_registry_ops base={smmu_registry_idle,smmu_registry_vacant,
         smmu_registry_page,smmu_registry_clean,smmu_registry_tlb,s};
     const struct waffle_gpu_reclaim_ops ops={&base,smmu_registry_owns_page,smmu_registry_unmap_page};
-    return waffle_gpu_registry_reclaim(&s->registry,&ops,bo,cpu_unmapped);
+    uint32_t index=bo?bo->serial:0,bytes=bo?bo->allocation_bytes:0;uint64_t va=bo?bo->gpu_va:0;
+    bool ok=waffle_gpu_registry_reclaim(&s->registry,&ops,bo,cpu_unmapped);
+    if(ok)smmu_compact_bo_retired(index,va,bytes,s->registry.used);
+    return ok;
 }
 static void smmu_registry_release_storage(uintptr_t address,uint32_t bytes)
 {
@@ -844,6 +870,7 @@ static struct waffle_gpu_memory *smmu_registry_new(struct smmu_owner *s,uint64_t
         log_line("waffle-iommu: GENERAL_BO publication failed index=%u bytes=%llu tables=%u limit=%u\n",s->registry.issued,bytes,s->pool.count,TABLE_LIMIT);
         smmu_owner_stop("general BO publication incomplete; retain backing and tables");
     }
+    if(bo)smmu_compact_bo_new(bo);
     if(bo)log_line("waffle-iommu: GENERAL_BO published index=%u VA=%llx bytes=%u allocated=%u flags=%x pages=%u\n",
         bo->serial,bo->gpu_va,bo->bytes,bo->allocation_bytes,bo->flags,bo->allocation_bytes/4096);
     return bo;

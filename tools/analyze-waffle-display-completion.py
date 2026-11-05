@@ -53,7 +53,7 @@ def analyze(text):
    commit=next((row for row in ordered if row['seq']==v['seq'] and row['stage']==3 and row['row']<index),None)
    if v['wrote'] and v['action'] not in (1,4):raise ValueError('Impossible IRQ write action')
    if v['wrote']:
-    if not commit or sample['address0'] not in (0xd5100000,0xd6270000) or sample['address0']!=sample['address1'] or sample['address0']!=commit['address0'] or v['seq'] in written or delta!=1 or sample['flush'] or not sample['auto_status'] or irq['top_enable'] or not irq['top_status']&0x100 or irq['active']!=2 or v['mux'] or v['version']!=0xa0000000:
+    if not commit or sample['address0'] not in (0xd5100000,0xd6270000) or sample['address0']!=sample['address1'] or sample['address0']!=commit['address0'] or v['seq'] in written or delta!=1 or sample['flush'] or not sample['auto_status'] or irq['top_enable'] or not irq['top_status']&0x100 or irq['active']!=2 or v['mux'] not in (0,0xf0000) or v['version']!=0xa0000000:
      raise ValueError('IRQ probe wrote without a new masked PP0 transfer')
     written.add(v['seq'])
    if v['action']==1:

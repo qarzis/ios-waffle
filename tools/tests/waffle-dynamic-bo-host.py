@@ -8,6 +8,7 @@ mapping = source[source.index('#define TABLE_LIMIT'):source.index('static bool p
 dynamic = source[source.index('static bool dynamic_bo_vacant('):source.index('struct waffle_smmu_owner {')]
 harness = r'''
 #include <assert.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -43,6 +44,8 @@ static uint64_t kvtophys(uintptr_t p){for(unsigned i=0;i<allocated;i++)if(p>=(ui
 static void clean(uintptr_t address){assert(live && address && after_start_allocs==1);cleans++;}
 static bool tlb_sync(uintptr_t cb){assert(live && cleans && (cb==1 || cb==2));tlbs++;return !(mode==7 && cb==2);}
 static void log_line(const char *fmt,...){(void)fmt;}
+static bool PE_parse_boot_argn(const char *name,void *value,int bytes){(void)name;(void)value;(void)bytes;return false;}
+static void loader_log_line(const char *line){(void)line;assert(0);}
 static void smmu_owner_stop(const char *reason){assert(reason);longjmp(reset_trap,1);}
 '''
 types = r'''
