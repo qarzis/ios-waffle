@@ -1,0 +1,1 @@
+PASS actual BO relocation: chosen VA, all leaves, collision/alignment/range/CPU-map refusal, idle/ownership/unmap/TLB/map failure retention, neighbors and reclaim; host only

@@ -16,6 +16,7 @@ h+=r'''
 #define Z_ZERO 2
 static unsigned snapshot_live,snapshot_fail;
 static unsigned live_reclaims,reclaim_fail;
+static unsigned relocations;
 static void *kalloc_data(size_t bytes,unsigned flags){assert(held && bytes<=16384 && flags==3);if(snapshot_fail)return NULL;void *p=calloc(1,bytes);assert(p);snapshot_live++;return p;}
 static void kfree_data(void *p,size_t bytes){assert(held && p && bytes<=16384 && snapshot_live);snapshot_live--;free(p);}
 static struct waffle_gpu_memory storage[WAFFLE_GPU_BO_LIMIT];static unsigned stored,mapped;
@@ -47,6 +48,7 @@ struct waffle_gpu_memory *waffle_gpu_context_memory_new(struct waffle_gpu_contex
 bool waffle_gpu_memory_map(const struct waffle_gpu_memory *b,bool ro,uint64_t *va,uintptr_t *token){(void)ro;assert(held && !*token && b->memory);*va=b->memory;*token=b->memory;mapped++;return true;}
 bool waffle_gpu_context_memory_reclaim(struct waffle_gpu_context *c,struct waffle_gpu_memory *b,bool cpu_unmapped){assert(held && c==&context && cpu_unmapped && b->object);if(reclaim_fail)return false;free((void *)b->memory);memset(b,0,sizeof(*b));live_reclaims++;return true;}
 bool waffle_gpu_map_revoke(uintptr_t *token){assert(held);if(*token){assert(mapped);mapped--;*token=0;}return true;}
+bool waffle_gpu_context_memory_relocate(struct waffle_gpu_context *c,struct waffle_gpu_memory *bo,uint64_t va,bool unmapped){assert(held && c==&context && bo && unmapped);if(va==WAFFLE_GPU_BO_VA_BASE)return false;bo->gpu_va=va;relocations++;return true;}
 bool waffle_gpu_context_submit(struct waffle_gpu_context *c,struct waffle_gpu_submit_job *job){assert(held && c==&context && job->count==1 && job->commands[0].bytes==1240);job->fence=++context.fence;copies++;return true;}
 bool waffle_gpu_context_end(struct waffle_gpu_context **c){assert(held && *c==&context && !mapped);for(unsigned i=0;i<stored;i++)free((void *)storage[i].memory);stored=0;*c=NULL;return true;}
 '''
@@ -103,6 +105,13 @@ t+=r'''
  a.align_log2=12;a.bytes=4097;memcpy(u.payload,&a,sizeof(a));assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EINVAL && !stored);
  a.bytes=4096;memcpy(u.payload,&a,sizeof(a));assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner));
  uint64_t first;memcpy(&first,u.payload,8);assert(first && drm_buffer(first));
+ struct waffle_unixnu_map map={first,WAFFLE_GPU_BO_VA_BASE+0x100000,3,0,2,0};
+ u.method=3;u.input_bytes=sizeof(map);u.output_bytes=8;
+ map.writeback=1;memcpy(u.payload,&map,sizeof(map));assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==ENOTSUP && !relocations);
+ map.writeback=0;memcpy(u.payload,&map,sizeof(map));assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner) && relocations==1 && drm_buffer(first)->memory->gpu_va==map.iova);
+ memcpy(u.payload,&map,sizeof(map));assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EBUSY && relocations==1);
+ memcpy(u.payload,&first,8);
+
  u.method=4;u.input_bytes=8;u.output_bytes=0;
  assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner) && !drm_buffer(first));
  assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EINVAL);

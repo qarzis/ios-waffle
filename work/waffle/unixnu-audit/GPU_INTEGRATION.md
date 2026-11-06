@@ -27,3 +27,7 @@ Host ASan/UBSan actual-cdev test passed: normal 13-BO Mesa submission regression
 | Other methods | Refused | Translate only after individual contract evidence |
 
 IOKit client creation and Turnip/Metal publication remain absent; the cdev is an isolated adapter qualification transport, not a replacement for upstream IOKit discovery.
+
+## U03 chosen IOVA candidate
+
+Owned BO relocation now wired through actual serialized service/parent/SMMU; method3 accepts RW, noncacheable outer-shareable and16KiB addresses within256MiB backend aperture. Other valid formats explicitly unsupported. Preflight old/new PTE ownership before mutation; two clean/dual-context TLBI+idle stages, retained backing and poisoned context on uncertainty. Host actual helper+owner/cdev regressions pass; fullkernel+Darwinprobe+pairedvalidator pass. Hardware U03 running after explicit manual Boot iOS. No GPU read/write at chosen address or Metal claim until separate command proof.

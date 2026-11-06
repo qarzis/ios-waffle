@@ -1,3 +1,9 @@
+# ACTIVE U03 chosen IOVA hardware test
+
+User continues UniXNU integration. New registry_relocate helper in waffle_gpu_reclaim.h prevalidates old ownership/new vacancies, idle, unmaps old/clean/dualTLBI/idle, maps new/clean/dualTLBI/idle. Only after success changes gpu_va/unpoisons. Mutationfailure retains backing/poisons; submitrefusespoisoned. Context/service/parent/SMMU gates wired. CdevNativeBoMap ownedBO only,16KiBVA,permissions3/WB0/SH2,onceonly/noCPUmap. NativeFree rejectsnon-native handles. OrdinaryGEMautoVAunchanged. Actualhelper12failuremodes/actualservice+parentmutex/cdevlayout+normalMesa testsPASS. Fullbuildretry2PASS; earlier2fixturesmissingmockfixed. FullpairedvalidatorPASS. Rootbuilt bindsheaderscurrent; kernelcompiled9sourcebindingsverified. U03artifact diagnostic-unixnu-gpu-u03/rootgpu/unixnu-u03-root.
+
+Active soleUSBowner auto session63879/loggpu/auto-unixnu-u03.log/auto20261106T101007Z/run20261106T101034Z. Explicit --manual-boot-selection; imageRAMloaded, userselectedBootiOS, platformwaffleverified. WaitAndroid/endbeforeotherUSB. Requires marker waffle-unixnu-map relocated2/chosenVA10f000000/remaprefused2,BO2free+stale andFD750256pixelswrong0. NotyetU03hardwarePASS. This isPTE/lifetimeproof, notGPUreadatnewVA. Nextsubmit/fence/APIclientwork remains. No Metal/FPSclaim. Mainindexpreserve/noflash/noagents.
+
 # U02 PASS — owned UniXNU BO allocation/free
 
 Run20261106T100106Z original0/Android1. 2alloc/2free/2stale refusals/distinct handles, FD750 GL checked256/wrong0. See U02-result.json. SoleUSBowner finished, Android restored. Boot was MANUAL after auto095813Z menu timeout; no automatic-loader claim. Next: client-chosen IOVA mapping, per-task IOKit and submission/fences; all currently refused. No Metal/FPS claim.

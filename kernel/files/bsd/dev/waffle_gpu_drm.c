@@ -26,6 +26,7 @@ struct drm_bo {
  uintptr_t user_map;
  uint64_t user_address;
  bool live;
+ bool unixnu_owned,unixnu_mapped;
  uint32_t handle;
  uint32_t surface; /* Nonzero only for isolated retained native imports. */
  bool surface_manual_lease;
@@ -418,8 +419,8 @@ static int drm_free(struct waffle_msm_close *r)
   redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=0\n",r->handle,bytes);
  return 0;
 }
-/* U02: owned BO lifetime only. Client-selected IOVA and submission stay refused.
- * The existing backend supplies noncontiguous 16KiB backing and auto VA. */
+/* U03: owned BO lifetime and one client-chosen VA relocation.
+ * Submission stays refused. Backend backing/alignment is 16KiB. */
 static int drm_unixnu(struct waffle_unixnu_call *r)
 {
  if(r->version!=2 || r->input_bytes>WAFFLE_UNIXNU_ABI_BYTES || r->output_bytes>WAFFLE_UNIXNU_ABI_BYTES)return EINVAL;
@@ -431,13 +432,30 @@ static int drm_unixnu(struct waffle_unixnu_call *r)
   if(a.align_log2>14 || a.contiguous)return ENOTSUP;
   struct waffle_msm_gem_new n={.size=a.bytes,.flags=WAFFLE_GPU_BO_WC};
   int error=drm_new(&n);if(error)return error;
+  drm_buffer(n.handle)->unixnu_owned=true;
   uint64_t handle=n.handle;memcpy(r->payload,&handle,sizeof(handle));return 0;
+ }
+ if(r->method==3){
+  struct waffle_unixnu_map m;
+  if(r->input_bytes!=sizeof(m) || r->output_bytes!=8)return EINVAL;
+  memcpy(&m,r->payload,sizeof(m));
+  if(!m.handle || m.handle>UINT32_MAX || !(m.permissions&1) || (m.permissions&~3u) || m.writeback>1 ||
+     (m.shareability!=2 && m.shareability!=3) || m.reserved || (m.iova&4095))return EINVAL;
+  struct drm_bo *bo=drm_buffer((uint32_t)m.handle);
+  if(!bo || !bo->unixnu_owned)return EINVAL;
+  if(bo->unixnu_mapped || bo->user_map)return EBUSY;
+  /* Qualified owned WC backing uses RW, non-cacheable outer-shareable PTEs. */
+  if(m.permissions!=3 || m.writeback || m.shareability!=2 || (m.iova&16383))return ENOTSUP;
+  if(!waffle_gpu_context_memory_relocate(drm_context,bo->memory,m.iova,true))return EIO;
+  bo->unixnu_mapped=true;memcpy(r->payload,&m.iova,8);return 0;
  }
  if(r->method==4){
   uint64_t handle;
   if(r->input_bytes!=8 || r->output_bytes)return EINVAL;
   memcpy(&handle,r->payload,sizeof(handle));
   if(!handle || handle>UINT32_MAX)return EINVAL;
+  struct drm_bo *bo=drm_buffer((uint32_t)handle);
+  if(!bo || !bo->unixnu_owned)return EINVAL;
   struct waffle_msm_close c={.handle=(uint32_t)handle};return drm_free(&c);
  }
  unsigned result=waffle_unixnu_query(r,WAFFLE_GPU_BO_MAX_BYTES);

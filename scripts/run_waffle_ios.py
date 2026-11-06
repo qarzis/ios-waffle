@@ -1103,6 +1103,9 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            if args.gpu_gl_context and b'waffle-unixnu-map: relocated=2' in args.root.read_bytes():
+                if 'waffle-unixnu-map: relocated=2 chosen_VA=10f000000 remap_refused=2' not in final_text:
+                    raise RuntimeError('UniXNU chosen IOVA relocation proof missing')
             if args.gpu_gl_context and b'waffle-unixnu-bo: allocated=2' in args.root.read_bytes():
                 if 'waffle-unixnu-bo: allocated=2 freed=2 stale_refused=2 distinct_handles=1' not in final_text:
                     raise RuntimeError('UniXNU BO lifetime proof missing')

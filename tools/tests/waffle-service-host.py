@@ -72,6 +72,7 @@ static bool aop_gpu_owner_end(struct aop_gpu_owner *);
 static bool waffle_smmu_owner_copy(struct waffle_smmu_owner *,struct waffle_gpu_copy_job *);
 static bool waffle_smmu_owner_buffers(struct waffle_smmu_owner *,struct waffle_gpu_buffer [2]);
 static struct waffle_gpu_memory *waffle_smmu_owner_memory_adopt(struct waffle_smmu_owner *,struct waffle_gpu_memory *);
+static bool waffle_smmu_owner_memory_relocate(struct waffle_smmu_owner *s,struct waffle_gpu_memory *b,uint64_t va,bool u){(void)s;(void)b;(void)va;(void)u;return false;}
 static struct waffle_gpu_memory *waffle_smmu_owner_memory_new(struct waffle_smmu_owner *,uint64_t,uint32_t);
 static bool waffle_smmu_owner_memory_reclaim(struct waffle_smmu_owner *,struct waffle_gpu_memory *,bool);
 static bool waffle_smmu_owner_submit(struct waffle_smmu_owner *,struct waffle_gpu_submit_job *);

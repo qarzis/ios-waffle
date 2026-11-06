@@ -1,0 +1,4 @@
+waffle-gpu: full GPU owner returned live to init caller; no mutex held
+waffle-gpu: SERVICE begin root_live=1 serialized=1
+waffle-gpu: SERVICE end consumed=1 result=1
+PASS actual relocation service/parent: mutex, current context/board ownership, CPU-map gate and SMMU failure propagation; SMMU modeled

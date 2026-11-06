@@ -129,6 +129,7 @@ def main():
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--battery-readonly',action='store_true',help='With isolated --audio-boot: one native read-only battery sample')
     parser.add_argument('--battery-report-test',action='store_true',help='With --battery-readonly: three samples into the native power-source bridge')
+    parser.add_argument('--manual-boot-selection',action='store_true',help='Wait without timeout for user Boot iOS selection after RAM boot; do not claim automatic entry')
     parser.add_argument('--surface-lock-audit',action='store_true',help='Bounded read-only trace of actual IOSurface lock/unlock traps in isolated GL test')
     parser.add_argument('--hardware-vsync',action='store_true',help='Opt-in hardware panel TE timestamps for iOS callbacks')
     parser.add_argument('--double-buffer',action='store_true',help='Opt-in complete-frame buffered scanout')
@@ -356,7 +357,7 @@ def main():
         gl_manifest=json.loads((artifact/'gl-probe/manifest.json').read_text())
         if gl_manifest.get('unixnu_query_test'):
             if args.ui_workload or not manifest.get('unixnu_query_test'):parser.error('UniXNU bootstrap requires a dedicated non-UI artifact')
-            for name in ('kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/sys/waffle_unixnu_gpu.h'):
+            for name in ('kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/sys/waffle_unixnu_gpu.h','kernel/files/bsd/dev/waffle_gpu_service.c','kernel/files/bsd/sys/waffle_gpu_service.h','kernel/files/bsd/dev/waffle_adreno.c','kernel/files/bsd/dev/waffle_smmu.c','kernel/files/bsd/sys/waffle_smmu.h','kernel/files/bsd/sys/waffle_gpu_reclaim.h'):
                 digest=manifest.get('unixnu_source_sha256',{}).get(name)
                 if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('UniXNU current/compiled source mismatch: '+name)
             for name,digest in gl_manifest['source_sha256'].items():
@@ -368,7 +369,7 @@ def main():
 
     if args.mapped and not manifest.get('mapped_bo'):parser.error('Artifact lacks mapped BO probe')
     if args.mesa_transport and not manifest.get('mesa_drm_shim'):parser.error('Artifact is not the Mesa transport probe')
-    if not manifest.get('automatic_usb_loader'):
+    if not manifest.get('automatic_usb_loader') and not args.manual_boot_selection:
         parser.error('Artifact does not declare automatic loader entry')
     if hashlib.sha256(image.read_bytes()).hexdigest() != manifest['boot_image_sha256']:
         parser.error('Boot image does not match manifest')
@@ -392,7 +393,7 @@ def main():
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
               'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image, 'image_copy':args.image_copy,'image_present':args.image_present,'copy_jobs':args.copy_jobs,'worker':args.worker,'user_copy':args.user_copy,'data_bo':args.data_bo,'glsl':args.glsl,'user_va':args.user_va,'msm':args.msm,'mesa_transport':args.mesa_transport,'mapped':args.mapped,'gl_context':args.gl_context,
-              'physical_boot_selection': False, 'android_confirmed': False}
+              'physical_boot_selection': args.manual_boot_selection, 'android_confirmed': False}
 
     def command(items, timeout=10):
         result = subprocess.run(items, capture_output=True, text=True, timeout=timeout, cwd=ROOT)
@@ -428,12 +429,17 @@ def main():
         p = command([args.fastboot, '-s', '1c62e9aa', 'boot', str(image)], timeout=30)
         if p.returncode:
             raise RuntimeError('RAM boot rejected')
-        if not wait_for(lambda: fastboot_has('xnuloader'), 60):
+        if args.manual_boot_selection:
+            print('RAM image loaded; waiting for manual Boot iOS without timeout',flush=True)
+            while not fastboot_has('xnuloader'):
+                time.sleep(1)
+        elif not wait_for(lambda: fastboot_has('xnuloader'), 60):
             raise RuntimeError('Automatic loader did not enumerate')
         p = command([args.fastboot, '-s', 'xnuloader', 'getvar', 'platform'])
         if p.returncode or 'platform: waffle' not in p.stdout + p.stderr:
             raise RuntimeError('Automatic loader platform mismatch')
-        report['automatic_loader_verified'] = True
+        report['automatic_loader_verified'] = not args.manual_boot_selection
+        report['loader_platform_verified'] = True
         if args.audio_preflight:
             if args.audio_boot or args.audio_iommu:
                 recovery_log=(output/'recovery.log').open('w')

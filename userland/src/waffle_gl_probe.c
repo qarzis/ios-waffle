@@ -584,11 +584,21 @@ int main(void)
    if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){close(fd);goto finish;}
    memcpy(&new_handle,call.payload,8);
    if(!new_handle || new_handle==old_handle){close(fd);goto finish;}
+   struct waffle_unixnu_map mapping={new_handle,0x10f000000ULL,3,0,2,0};
+   call.method=3;call.input_bytes=sizeof(mapping);call.output_bytes=8;memcpy(call.payload,&mapping,sizeof(mapping));
+   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){close(fd);goto finish;}
+   uint64_t mapped_va=0;memcpy(&mapped_va,call.payload,8);
+   if(mapped_va!=mapping.iova){close(fd);goto finish;}
+   memcpy(call.payload,&mapping,sizeof(mapping));
+   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)==0){close(fd);goto finish;}
+   memcpy(call.payload,&new_handle,8);
+
    call.method=4;call.input_bytes=8;call.output_bytes=0;
    if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call) || ioctl(fd,WAFFLE_UNIXNU_CALL,&call)==0){close(fd);goto finish;}
    old_handle=new_handle;
   }
   close(fd);
+  printf("waffle-unixnu-map: relocated=2 chosen_VA=10f000000 remap_refused=2\n");
   printf("waffle-unixnu-bo: allocated=2 freed=2 stale_refused=2 distinct_handles=1\n");
   if(params.version!=2 || params.input_bits!=39 || params.output_bits!=36 || params.flags || !params.max_bo_bytes || refused==0)goto finish;
   printf("waffle-unixnu: query=1 ABI=2 VA=39 PA=36 flags=0 submit_refused=1 Metal_published=0\n");
