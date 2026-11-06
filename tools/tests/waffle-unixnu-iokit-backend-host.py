@@ -18,7 +18,14 @@ int main(void){
  c.method=4;c.input_bytes=8;c.output_bytes=0;memcpy(c.payload,&handle,8);assert(waffle_gpu_iokit_call(cookie,&c)==EBUSY && !live_reclaims);
  c.method=14;c.input_bytes=16;struct waffle_unixnu_cpu_unmap u={handle,reply.token+1,0};memcpy(c.payload,&u,16);assert(waffle_gpu_iokit_call(cookie,&c)==EINVAL && drm_buffer(handle)->native_views==2);
  u.token=reply.token;memcpy(c.payload,&u,16);assert(!waffle_gpu_iokit_call(cookie,&c));assert(waffle_gpu_iokit_memory(cookie,reply.token));assert(!waffle_gpu_iokit_call(cookie,&c));assert(!waffle_gpu_iokit_memory(cookie,reply.token));assert(waffle_gpu_iokit_call(cookie,&c)==EINVAL);
+ struct waffle_unixnu_map map={handle,0x10f000000ULL,3,0,2,0};c.method=3;c.input_bytes=sizeof(map);c.output_bytes=8;memcpy(c.payload,&map,sizeof(map));assert(!waffle_gpu_iokit_call(cookie,&c));
+ for(unsigned n=0;n<300;n++){
+  struct waffle_unixnu_submit submit={.count=1,.wait_fence=n,.buffers={{handle,map.iova,1240}}};c.method=5;c.input_bytes=sizeof(submit);c.output_bytes=8;memcpy(c.payload,&submit,sizeof(submit));assert(!waffle_gpu_iokit_call(cookie,&c));uint64_t fence;memcpy(&fence,c.payload,8);assert(fence==n+1);
+ }
+ assert(!drm_native_count && drm_fence==300);
+ struct waffle_unixnu_wait wait={301,0};c.method=6;c.input_bytes=sizeof(wait);c.output_bytes=0;memcpy(c.payload,&wait,sizeof(wait));assert(waffle_gpu_iokit_call(cookie,&c)==EINVAL);wait.fence=1;memcpy(c.payload,&wait,sizeof(wait));assert(!waffle_gpu_iokit_call(cookie,&c));
  c.method=4;c.input_bytes=8;memcpy(c.payload,&handle,8);assert(!waffle_gpu_iokit_call(cookie,&c) && live_reclaims==1);
+ c.output_bytes=0;
  assert(waffle_gpu_iokit_close(other)==EPERM && drm_context);host_current=&foreign;assert(!waffle_gpu_iokit_close(cookie) && !drm_context && !drm_iokit_owner);assert(waffle_gpu_iokit_close(cookie)==EPERM);
  host_current=&owner;assert(!drm_open(0,0,0,&owner));assert(!drm_close(0,0,0,&owner));return 0;
 }

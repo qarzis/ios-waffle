@@ -1,7 +1,7 @@
 /* Experimental UniXNU wire ABI ingress for the existing A750 backend.
  * This is NOT an IOKit service or a Metal device. Stage1 exposes only the
  * version/limits query; the cdev adapter also translates owned allocation/free.
- * Mapping is limited to owned RW/noncacheable/outer-shareable 16KiB addresses;
+ * Owned BOs use 4KiB GPU IOVAs over 16KiB CPU backing, RO/RW outer-shareable;
  * bounded synchronous submit/wait and IOKit CPU leases use the same backend. Do not advertise imports or
  * coherence merely because upstream understands those capability flags. */
 #ifndef WAFFLE_UNIXNU_GPU_H
@@ -16,6 +16,13 @@ struct waffle_unixnu_call {
 };
 /* NativeAdrenoAbiParams exact upstream layout, verified by upstream-header
  * fixture. Kept as a byte protocol here to avoid user C++/IOKit dependencies. */
+/* PJD110 captured DTB UBWC4 + native gen7_9_1 core HBB16. Bank swizzle6
+ * and 8-channel macrotiles are Mesa's KGSL UBWC4 policy, not DDR channel count. */
+struct waffle_unixnu_device_info {
+ uint32_t chip_id,gmem_bytes;
+ uint64_t gmem_base,uche_trap_base,va_start,va_size;
+ uint32_t highest_bank_bit,ubwc_swizzle,macrotile_mode,ubwc_version,flags,reserved;
+};
 struct waffle_unixnu_cpu_reply {uint32_t token,reserved;uint64_t bytes;};
 struct waffle_unixnu_cpu_unmap {uint64_t handle;uint32_t token,reserved;};
 struct waffle_unixnu_ib {uint64_t handle,iova,bytes;};

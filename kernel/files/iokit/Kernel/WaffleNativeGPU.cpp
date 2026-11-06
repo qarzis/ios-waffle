@@ -84,7 +84,7 @@ public:
   if(!args || !gate_)return kIOReturnBadArgument;
   size_t in=0,out=0;
   /* Exact upstream method selectors/records. Unsupported capabilities stay
-   * unsupported; no successful DeviceInfo/status/queue placeholder. */
+   * unsupported; DeviceInfo comes from the pinned PJD110 profile. */
   switch(method){
   case 1:out=sizeof(waffle_unixnu_params);break;
   case 2:in=sizeof(waffle_unixnu_alloc);out=8;break;
@@ -94,6 +94,7 @@ public:
   case 6:in=sizeof(waffle_unixnu_wait);break;
   case 13:in=8;out=sizeof(waffle_unixnu_cpu_reply);break;
   case 14:in=sizeof(waffle_unixnu_cpu_unmap);break;
+  case 15:out=sizeof(waffle_unixnu_device_info);break;
   default:return kIOReturnUnsupported;
   }
   if(args->scalarInputCount || args->scalarOutputCount || args->structureInputDescriptor || args->structureOutputDescriptor ||

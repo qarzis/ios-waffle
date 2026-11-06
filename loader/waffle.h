@@ -73,7 +73,8 @@ static inline int waffle_cmdline_allowed(const char *line)
     unsigned matrix=0,measure=0,lpac=0,zap=0,writeback=0,ib=0,session=0,dynamic_bo=0,compute=0,image=0,repeated=0,glsl_prepare=0,prepare_count=0,present=0,dispatch=0,gpu_count=0;
     int prepare93=0,native94=0;
     unsigned haptic=0,haptic_cpu1=0,haptic_torch1=0,haptic_budget=0,haptic_torch3=0,haptic_service=0,haptic_ui_budget=0;
-    unsigned battery_readonly=0,battery_boot=0,surface_lock_audit=0;
+    unsigned unixnu_iokit=0,unixnu_budget=0;
+    unsigned battery_readonly=0,battery_boot=0,surface_lock_audit=0,audio_cb_access=0,audio_iommu=0;
     unsigned soak=0,returns=0,gl_image=0,cpus=0,torch=0,audio=0,audio_budget=0,display_survey=0,hardware_vsync=0,display_flush=0,display_flip=0,display_present=0,display_completion=0,display_irq_probe=0;
     while (*line) {
         while (*line == ' ') line++;
@@ -94,9 +95,13 @@ static inline int waffle_cmdline_allowed(const char *line)
         haptic+=waffle_number(line,size,"waffle_haptic_test=",1,2);
 #endif
 #if defined(WAFFLE_USERLAND)
+        unixnu_iokit+=waffle_token_equal(line,size,"waffle_unixnu_iokit=1");
+        unixnu_budget+=waffle_number(line,size,"loader_return_after=",1,90);
         surface_lock_audit+=waffle_token_equal(line,size,"waffle_surface_lock_audit=1");
         display_present+=waffle_token_equal(line,size,"waffle_display_present=1");
         battery_readonly+=waffle_number(line,size,"waffle_battery_readonly=",1,2);
+        audio_cb_access+=waffle_token_equal(line,size,"waffle_audio_cb_access=1");
+        audio_iommu+=waffle_token_equal(line,size,"adsp=8");
         battery_boot+=waffle_token_equal(line,size,"adsp=6");
         display_flip+=waffle_token_equal(line,size,"waffle_display_flip=1");
         display_flush+=waffle_token_equal(line,size,"waffle_display_flush=1");
@@ -137,6 +142,8 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_number(line,size,"waffle_haptic_test=",1,2) &&
 #endif
 #if defined(WAFFLE_USERLAND)
+            !waffle_token_equal(line,size,"waffle_unixnu_iokit=1") &&
+            !waffle_token_equal(line,size,"waffle_audio_cb_access=1") &&
             !waffle_token_equal(line,size,"waffle_surface_lock_audit=1") &&
             !waffle_token_equal(line,size,"waffle_display_present=1") &&
             !waffle_number(line,size,"waffle_battery_readonly=",1,2) &&
@@ -152,6 +159,10 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_gpu_token_allowed(line, size)) return 0;
         line = end;
     }
+    if(unixnu_iokit && (unixnu_iokit!=1 || unixnu_budget!=1 || returns!=1 || cpus!=1 || haptic_cpu1!=1 ||
+        gpu_count!=1 || !native94 || gl_image!=1 || audio || torch || haptic || surface_lock_audit ||
+        display_present || display_flip || display_flush || display_survey || hardware_vsync || display_completion || display_irq_probe || soak))return 0;
+    if(audio_cb_access && (audio_cb_access!=1 || audio_iommu!=1 || audio!=1 || returns!=1 || audio_budget!=1))return 0;
     if(haptic>1)return 0;
     if(haptic) {
         int isolated=haptic_cpu1==1 && cpus==1 && haptic_torch1==1 && torch==1 &&

@@ -435,6 +435,9 @@ static int drm_free(struct waffle_msm_close *r)
 static bool drm_native_completed(uint64_t fence)
 {
  if(!fence || fence>UINT32_MAX)return false;
+ /* An exclusive IOKit connection owns every submitted hardware timestamp.
+  * It needs no finite history table: all completed values belong to it. */
+ if(drm_iokit_owner)return fence<=drm_fence;
  for(unsigned i=0;i<drm_native_count;i++)if(drm_native_fences[i]==fence)return true;
  return false;
 }
@@ -447,7 +450,7 @@ static int drm_native_submit(struct waffle_unixnu_call *r)
  if(s->queue)return ENOTSUP; /* Only the implicit serialized queue exists. */
  if(s->wait_fence && !drm_native_completed(s->wait_fence))return EINVAL;
  if(!s->wait_fence && s->timeout_ns)return EINVAL;
- if(drm_native_count==256)return ENOSPC;
+ if(!drm_iokit_owner && drm_native_count==256)return ENOSPC;
  const unsigned count=s->count;
  struct waffle_gpu_command *roots=kalloc_data(count*sizeof(*roots),Z_WAITOK|Z_ZERO);
  if(!roots)return ENOMEM;
@@ -472,7 +475,7 @@ static int drm_native_submit(struct waffle_unixnu_call *r)
   drm_fence=job.fence;windows++;
   redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,s->count,job.count,words);
  }
- drm_native_fences[drm_native_count++]=drm_fence;
+ if(!drm_iokit_owner)drm_native_fences[drm_native_count++]=drm_fence;
  redwood_tl("waffle-gpu: UNIXNU_SUBMIT fence=%u roots=%u words=%u windows=%u synchronous=1\n",drm_fence,s->count,total,windows);
  {uint64_t fence=drm_fence;memcpy(r->payload,&fence,8);}
 done:
@@ -481,6 +484,12 @@ done:
 static int drm_unixnu(struct waffle_unixnu_call *r)
 {
  if(r->version!=2 || r->input_bytes>WAFFLE_UNIXNU_ABI_BYTES || r->output_bytes>WAFFLE_UNIXNU_ABI_BYTES)return EINVAL;
+ if(r->method==15){
+  if(r->input_bytes || r->output_bytes!=sizeof(struct waffle_unixnu_device_info))return EINVAL;
+  const struct waffle_unixnu_device_info info={0x43051401u,3u*1024u*1024u,
+   0x01000000ULL,0x1fffffffff000ULL,WAFFLE_GPU_BO_VA_BASE,WAFFLE_GPU_BO_VA_BYTES,16,6,1,4,1,0};
+  memcpy(r->payload,&info,sizeof(info));return 0;
+ }
  if(r->method==13 || r->method==14){
   if(!drm_iokit_owner)return ENOTSUP;
   uint64_t handle;
@@ -525,10 +534,10 @@ static int drm_unixnu(struct waffle_unixnu_call *r)
      (m.shareability!=2 && m.shareability!=3) || m.reserved || (m.iova&4095))return EINVAL;
   struct drm_bo *bo=drm_buffer((uint32_t)m.handle);
   if(!bo || !bo->unixnu_owned)return EINVAL;
-  if(bo->unixnu_mapped || bo->user_map)return EBUSY;
-  /* Qualified owned WC backing uses RW, non-cacheable outer-shareable PTEs. */
-  if(m.permissions!=3 || m.writeback || m.shareability!=2 || (m.iova&16383))return ENOTSUP;
-  if(!waffle_gpu_context_memory_relocate(drm_context,bo->memory,m.iova,true))return EIO;
+  if(bo->unixnu_mapped || bo->user_map || bo->native_views)return EBUSY;
+  /* Owned WC backing maps read-only or RW, non-cacheable and outer-shareable. */
+  if(m.writeback || m.shareability!=2)return ENOTSUP;
+  if(!waffle_gpu_context_memory_relocate(drm_context,bo->memory,m.iova,true,m.permissions==1))return EIO;
   bo->unixnu_mapped=true;memcpy(r->payload,&m.iova,8);return 0;
  }
  if(r->method==4){

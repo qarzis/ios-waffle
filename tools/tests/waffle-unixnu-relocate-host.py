@@ -15,7 +15,7 @@ int main(void){
   reset_phase();
   assert(!waffle_gpu_registry_relocate(&r,&ops,a,neighbor->gpu_va,true));
   assert(!waffle_gpu_registry_relocate(&r,&ops,a,target,false));
-  assert(!waffle_gpu_registry_relocate(&r,&ops,a,target+4096,true));
+  assert(!waffle_gpu_registry_relocate(&r,&ops,a,target+1,true));
   assert(!waffle_gpu_registry_relocate(&r,&ops,a,~0ULL-16383,true));
   assert(!cleared && !r.poisoned && a->gpu_va==old);
   reset_phase();maps=0;mode=failure;

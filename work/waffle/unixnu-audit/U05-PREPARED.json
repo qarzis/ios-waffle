@@ -1,0 +1,12 @@
+{
+  "date_utc": "2026-11-06T17:44:36.941191+00:00",
+  "kernel_build": true,
+  "paired_container_validation": true,
+  "runtime_root_build": true,
+  "offline_admission": true,
+  "synthetic_negative_cases": 20,
+  "hardware_tested": false,
+  "USB_used": false,
+  "Metal_frontend": false,
+  "artifact": "work/waffle/diagnostic-unixnu-iokit-4k"
+}

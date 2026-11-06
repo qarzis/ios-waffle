@@ -1,3 +1,27 @@
+# U05 runtime probe READY OFFLINE — phone not used
+
+2026-11-06: full kernel/loader/UEFI build diagnostic-unixnu-iokit-4k PASS;
+paired validator PASS using work/validate-venv/bin/python. New DeviceInfo15
+bound to saved PJD110 DTB + pinned Mesa (UBWC4/swizzle6/8-channel/highbank16).
+4KiB GPU spans over16KiB backing, RO/RW relocation and exact reclaim tested;
+exclusive IOKit completion tracking exceeds256 submissions (300 host jobs).
+Actual hardware for these changes NOT tested. Previous U04 remains last proof.
+
+Built actual C runtime probe + root: metal2vulkan Nmb API -> Turnip -> IOKit,
+GPU fills4064B with32guard bytes, wait and teardown required. NO Objective-C
+Metal frontend/system MTLDevice/SpringBoard claim. iOS17 _MTLDevice size536
+frontend gate remains unresolved and intentionally bypassed by C API probe.
+Source/program/bundle/root hashes bound; fresh prepared XNU/snapshot/current
+14 kernel inputs+loader match. tools/prepare-waffle-unixnu-runtime.py packages.
+Runtime log checker rejects20 synthetic corrupt/missing/out-of-order proofs.
+run-waffle-auto --check-only PASS/USB_used=false. No USB session active.
+
+Next command WHEN user supplies phone (currently work without it):
+python3 tools/run-waffle-auto.py --artifact work/waffle/diagnostic-unixnu-iokit-4k --unixnu-runtime --cpus 1 --manual-boot-selection --compute dispatch --dynamic-bo --session --ib --writeback --zap --lpac-cp-init --lpac-map
+This boot image declares automatic_usb_loader=false; manual Boot iOS may be
+needed. Never flash. Telegram readiness notification attempted; check delivery.
+Preserve main git index. Private checkpoints refs/heads/waffle/hakios-uefi.
+
 # IOKit adapter built, default OFF / hardware UNTESTED
 
 Latestusercontinue afterinterrupt; keepwithoutphone/TGwhenneeded. New WaffleNativeGPU.cpp includedbyexistingWaffleGPUMap.cpp; NativeAdrenoGpuPublished IOService gatewaffle_unixnu_iokit1/defaultOFF, directtype0/PID1exclusiveUserClient; ABI1-6 +13/14 realCPUleases/cacheidentity/dropmappings. Ccorewaffle_gpu_iokit_{open,call,memory,close} cookie/PID/cdevexclusion, nativeViews freegate. Coreexactcurrent/prepared/artifactsnapshot5sourcesagree. Fullkernel diagnostic-unixnu-iokit finalbuildPASS, pairedvalidatorPASS. ActualCbackend+actualC++adapter/frameworkmodel ASanPASS, upstreamCPUwirelayoutPASS. IOkitnotphone-tested; noUSBowner/noUSBcalls/userphoneoff. DeviceInfo15 stillunsupported; nextbindnativeprofilefacts andfix4KiBGPUVA vs16KiBphysicalallocation. DoNOTclaimnormalMetal/multi-client/FPS. User-facinglaststatus: foundUBWC4.0 inDTB/highestbank16 inactualcore, verifyingotherfields. NativeMesa KGSLtu_knl_kgsl.cc caseUBWC4 sets swizzle6/macrotile8-channel (NOT4 basedonDDRchannels). SourceIOKitremoveMappingForDescriptor actuallyexists16.5returnsOSPtr, whiletemporaryreleasecorrect. Snapshotinitialbuildredoneafterstart/registrationrollbackfix, finalallmatch. Preserveindex/noagents/noflash.

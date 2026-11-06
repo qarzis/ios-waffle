@@ -81,10 +81,10 @@ struct waffle_gpu_memory *waffle_gpu_context_memory_adopt(struct waffle_gpu_cont
         waffle_gpu_parent_memory_adopt(context->parent,prepared):NULL;
     lck_mtx_unlock(&service_lock);return bo;
 }
-bool waffle_gpu_context_memory_relocate(struct waffle_gpu_context *context,struct waffle_gpu_memory *bo,uint64_t va,bool cpu_unmapped)
+bool waffle_gpu_context_memory_relocate(struct waffle_gpu_context *context,struct waffle_gpu_memory *bo,uint64_t va,bool cpu_unmapped,bool readonly)
 {
  if(!context || !bo || !cpu_unmapped || !lck_mtx_try_lock(&service_lock))return false;
- bool ok=active_context==context && context->parent && waffle_gpu_parent_memory_relocate(context->parent,bo,va,cpu_unmapped);
+ bool ok=active_context==context && context->parent && waffle_gpu_parent_memory_relocate(context->parent,bo,va,cpu_unmapped,readonly);
  lck_mtx_unlock(&service_lock);return ok;
 }
 bool waffle_gpu_context_memory_reclaim(struct waffle_gpu_context *context,struct waffle_gpu_memory *bo,bool cpu_unmapped)

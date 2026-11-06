@@ -68,7 +68,7 @@ int main(){
  waffle_unixnu_cpu_unmap u{h,handle,0};assert(!call(c,14,&u,sizeof(u),nullptr,0)&&leases==1&&!unmaps);assert(!call(c,14,&u,sizeof(u),nullptr,0)&&!leases&&unmaps==2&&backing->refs==1);
  assert(c->clientMemoryForType(handle,&options,&second)==kIOReturnNotReady&&!second);
  assert(!call(c,4,&h,8,nullptr,0)&&descriptors_freed==1);
- assert(call(c,15,nullptr,0,nullptr,0)==kIOReturnUnsupported);
+ assert(call(c,7,nullptr,0,nullptr,0)==kIOReturnUnsupported);
  assert(call(c,2,&alloc,sizeof(alloc)-1,&h,8)==kIOReturnBadArgument);
  allocation_fail=true;assert(call(c,2,&alloc,sizeof(alloc),&h,8)==kIOReturnNoMemory);allocation_fail=false;
  handle+=WAFFLE_GPU_BO_LIMIT;assert(!call(c,2,&alloc,sizeof(alloc),&h,8));assert(!call(c,13,&h,8,&reply,sizeof(reply)));assert(!c->clientMemoryForType(handle,&options,&first));first->maps++;first->retain();first->release();

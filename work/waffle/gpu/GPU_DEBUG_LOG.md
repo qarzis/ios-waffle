@@ -46,3 +46,27 @@ Actualremainingruntimeblocker: dw_open_connection usesIOServiceOpen(IOAccelerato
 ## 2026-11-06 — NativeAdreno IOKit adapter compiled, hardware untested
 
 Reused upstream CPUview identity/drop ordering in XNU16.5 IOUserClient APIs (no17vtablecopy). Added direct NativeAdrenoGpuPublished service defaultOFF via waffle_unixnu_iokit1, exclusivePID1client; exactABI1-6/13-14 dispatch to qualifiedA750backend, heap requests offkernelstack, same cachedIOBuffer descriptor pertoken, WCmapping, lastlease/removeMappingForDescriptor beforebackingrelease. Cbackendcookie excludescdev/wrongPID/owner andpermitsworkeridentity-onlyteardown. BoFree refuses liveCPUleases. ActualbackendASan+adapterASanframeworkmodel pass repeatedmaps/twoleases/descriptoridentity/forcedunmap/generation/OOM/foreign/defaultoff/freeordering; actualfullkernel+pairedvalidatorPASS, exactcurrent/prepared/snapshot5sourceschecked. NoUSB/hardwaretest. Currentmethod15unsupported explicitly, nextDeviceInfo+4KiBVAcontract stillblockTurnip. NoMetalpublication.
+
+
+## 2026-11-06 — U05 complete runtime candidate, offline admission PASS
+
+Hypothesis: actual metal2vulkan C bridge and patched Turnip can submit a Vulkan
+buffer fill through the new PID1 IOKit transport. Prior U04 proved only private
+native cdev commands, not this full userspace path. DeviceInfo15 now derives
+UBWC4/swizzle6/eight-channel/highest-bank16 from saved DTB and pinned KGSL
+switch. 4KiB logical GPU spans retain16KiB physical backing; RO/RW and reclaim
+span are explicit. Exclusive IOKit fences use actual synchronous completed
+sequence rather than mixed-cdev256-entry history. Host tests passed300 jobs.
+
+Full kernel/loader/container build passed; paired validator passed. Probe is
+Mach-O iOS16.5, loads actual25.56MB runtime+17.87MB Turnip. Writes0x3c CPU
+initial bytes, runtime records GPU fill[16,4080) with0xa5, checks4096B/32guards,
+requires real hardware fences and context close after proof. No CPU fill fallback.
+No system Metal publication/Objective-C frontend/SpringBoard claim. Existing
+upstream _MTLDevice536-byte gate is a separate iOS16 ABI blocker still unresolved.
+
+New packager verifies current/prepared/snapshot sources and binds root/kernel/
+loader/system hashes. Offline controller admission passed with USB_used=false.
+Synthetic log checker rejected20 corrupt/missing/reordered cases. Hardware not
+run; no experiment result yet, no repetition of failed hardware hypothesis.
+User requested no phone until needed; Telegram readiness notification attempted.

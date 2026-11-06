@@ -151,6 +151,8 @@ def main():
     parser.add_argument('--access-matrix', action='store_true', help='Add existing E03 checks to probe93')
     parser.add_argument('--measure-clocks', action='store_true', help='Measure clocks on prepare-only probe93')
     parser.add_argument('--lpac-cp-init',action='store_true',help='E08 only: CP_INIT94 with validated LPAC mapping; may enter900e')
+    parser.add_argument('--unixnu-runtime',action='store_true',help='Dedicated NativeAdreno IOKit/metal2vulkan runtime probe, CPU1')
+    parser.add_argument('--check-only',action='store_true',help='Validate artifact/inputs and stop before USB')
     parser.add_argument('--gl-context',action='store_true',help='E36 actual Darwin OSMesa GL renderer')
     parser.add_argument('--mapped',action='store_true',help='E33 direct mapped BOs; requires --msm --mesa-transport')
     parser.add_argument('--mesa-transport',action='store_true',help='E32 actual Mesa DRM shim; requires --msm')
@@ -177,6 +179,11 @@ def main():
     parser.add_argument('--ui-long-test',action='store_true',help='Four-minute bounded UI with300-second kernel return; requires matching240-second UI root')
     parser.add_argument('--ui-soak-test',action='store_true',help='Ten-minute UI with660-second return; requires matching600-second root and generation handles')
     args = parser.parse_args()
+    if args.unixnu_runtime:
+        if args.cpus!=1 or args.ui_workload or args.ui_long_test or args.ui_soak_test or args.audio_preflight or args.cpu_ui_test or args.haptic_ui_test or args.torch_service or args.double_buffer or args.hardware_vsync or args.surface_lock_audit:
+            parser.error('--unixnu-runtime requires isolated CPU1 without UI/audio/device workloads')
+        args.gl_context=True  # reuse mode13 boot transport; report/runtime validator distinguish it
+
     if args.audio_power and not args.audio_preflight:parser.error('--audio-power requires --audio-preflight')
     if args.audio_survey and (not args.audio_preflight or args.audio_power):parser.error('--audio-survey requires isolated --audio-preflight and excludes --audio-power')
     if args.audio_boot and (not args.audio_preflight or args.audio_power or args.audio_survey):parser.error('--audio-boot requires isolated --audio-preflight')
@@ -200,7 +207,7 @@ def main():
     if args.torch_readonly and not (args.cpu_ui_test or args.ui_workload):parser.error('--torch-readonly requires a CPU or GPU UI workload')
     if args.torch_pulse and (args.torch_readonly or not args.gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
     if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.ui_workload):parser.error('--torch-service requires GPU UI and excludes probe modes')
-    if args.cpus is not None and not (args.cpu_ui_test or args.ui_workload):parser.error('--cpus requires a UI workload')
+    if args.cpus is not None and not (args.cpu_ui_test or args.ui_workload or args.unixnu_runtime):parser.error('--cpus requires a UI or native-runtime workload')
     if args.ui_workload and args.cpus is None:
         args.cpus=7
     if args.cpu_ui_test and any((args.prepare_gpu,args.lpac_cp_init,args.gl_context,args.ui_workload,args.compute,args.session,args.lpac_map,args.access_matrix,args.measure_clocks,args.image,args.image_copy,args.image_present,args.copy_jobs,args.worker,args.user_copy,args.data_bo,args.glsl,args.user_va,args.msm,args.mesa_transport,args.mapped,args.dynamic_bo,args.ib,args.writeback,args.zap,args.ui_long_test,args.ui_soak_test)):
@@ -355,6 +362,16 @@ def main():
             for block in iter(lambda:stream.read(16*1024*1024),b''):digest.update(block)
         if digest.hexdigest()!=manifest.get('gl_system_sha256'):parser.error('GL system image hash mismatch')
         gl_manifest=json.loads((artifact/'gl-probe/manifest.json').read_text())
+        if args.unixnu_runtime:
+            if not manifest.get('unixnu_runtime_probe') or not gl_manifest.get('unixnu_runtime_probe'):parser.error('Artifact is not a native-runtime probe')
+            for name,digest in manifest.get('unixnu_source_sha256',{}).items():
+                if hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('Native-runtime compiled source mismatch: '+name)
+            required={'kernel/files/iokit/Kernel/WaffleNativeGPU.cpp','kernel/files/iokit/Kernel/WaffleGPUMap.cpp','kernel/files/iokit/Kernel/WaffleGPUMemory.cpp','kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/bsd/dev/waffle_smmu.c','kernel/files/bsd/dev/waffle_gpu_service.c','kernel/files/bsd/dev/waffle_adreno.c','kernel/files/bsd/sys/waffle_gpu_memory.h','kernel/files/bsd/sys/waffle_gpu_reclaim.h','kernel/files/bsd/sys/waffle_gpu_iokit.h','kernel/files/bsd/sys/waffle_unixnu_gpu.h','kernel/files/bsd/sys/waffle_gpu_service.h','kernel/files/bsd/sys/waffle_smmu.h','kernel/files/bsd/sys/waffle_gpu_msm.h','loader/waffle.h'}
+            if not required<=manifest.get('unixnu_source_sha256',{}).keys():parser.error('Native-runtime source bindings incomplete')
+            for name,digest in gl_manifest['source_sha256'].items():
+                if hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest:parser.error('Native-runtime root source mismatch: '+name)
+        elif gl_manifest.get('unixnu_runtime_probe'):parser.error('Native-runtime artifact requires --unixnu-runtime')
+
         if gl_manifest.get('unixnu_query_test'):
             if args.ui_workload or not manifest.get('unixnu_query_test'):parser.error('UniXNU bootstrap requires a dedicated non-UI artifact')
             for name in ('kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/sys/waffle_unixnu_gpu.h','kernel/files/bsd/dev/waffle_gpu_service.c','kernel/files/bsd/sys/waffle_gpu_service.h','kernel/files/bsd/dev/waffle_adreno.c','kernel/files/bsd/dev/waffle_smmu.c','kernel/files/bsd/sys/waffle_smmu.h','kernel/files/bsd/sys/waffle_gpu_reclaim.h'):
@@ -387,12 +404,14 @@ def main():
             parser.error('Prepare runner requires the standard workspace platform-tools')
         if hashlib.sha256((artifact / 'kernel').read_bytes()).hexdigest() != manifest['kernel_sha256']:
             parser.error('Kernel does not match manifest')
+    if args.check_only:
+        print(json.dumps({'validated':True,'USB_used':False,'unixnu_runtime':args.unixnu_runtime}));return 0
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     output = ROOT / 'work/waffle/auto-runs' / stamp
     output.mkdir(parents=True, exist_ok=False)
     report = {'started_utc': stamp, 'flash_operations': False, 'gpu_raw': args.lpac_cp_init,
               'prepare_gpu': args.prepare_gpu, 'access_matrix': args.access_matrix,
-              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image, 'image_copy':args.image_copy,'image_present':args.image_present,'copy_jobs':args.copy_jobs,'worker':args.worker,'user_copy':args.user_copy,'data_bo':args.data_bo,'glsl':args.glsl,'user_va':args.user_va,'msm':args.msm,'mesa_transport':args.mesa_transport,'mapped':args.mapped,'gl_context':args.gl_context,
+              'measure_clocks': args.measure_clocks, 'lpac_map':args.lpac_map, 'lpac_cp_init':args.lpac_cp_init, 'zap':args.zap, 'writeback':args.writeback, 'ib':args.ib, 'session':args.session, 'dynamic_bo':args.dynamic_bo, 'compute':args.compute, 'image':args.image, 'image_copy':args.image_copy,'image_present':args.image_present,'copy_jobs':args.copy_jobs,'worker':args.worker,'user_copy':args.user_copy,'data_bo':args.data_bo,'glsl':args.glsl,'user_va':args.user_va,'msm':args.msm,'mesa_transport':args.mesa_transport,'mapped':args.mapped,'gl_context':args.gl_context and not args.unixnu_runtime,'unixnu_runtime':args.unixnu_runtime,
               'physical_boot_selection': args.manual_boot_selection, 'android_confirmed': False}
 
     def command(items, timeout=10):
@@ -527,6 +546,7 @@ def main():
                 items.append('--dynamic-bo')
             if args.compute:
                 items.append('--compute-'+args.compute)
+            if args.unixnu_runtime:items.append('--unixnu-runtime')
             if args.image:
                 items.append('--gl-context' if args.gl_context else '--msm' if args.msm else '--user-va' if args.user_va else '--glsl' if args.glsl else '--data-bo' if args.data_bo else '--user-copy' if args.user_copy else '--worker' if args.worker else '--copy-jobs' if args.copy_jobs else '--image-present' if args.image_present else '--image-copy' if args.image_copy else '--image')
             if args.mesa_transport:items.append('--mesa-transport')
