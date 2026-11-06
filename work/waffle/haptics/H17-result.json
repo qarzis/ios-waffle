@@ -1,0 +1,21 @@
+{
+  "original_runner_exit": 1,
+  "android_confirmed": true,
+  "initial_fill": 144,
+  "last_fill": 144,
+  "progress": false,
+  "drained": false,
+  "active_us": 30304,
+  "STOP_confirmed": true,
+  "clock_configuration_restored": true,
+  "emergency_disabled": false,
+  "FIFO_cleared_after_stop": true,
+  "SWR_input_quarantined": true,
+  "SWR_restored": false,
+  "HBST_writes": 0,
+  "coefficients": "144 zeros",
+  "trace_sha256": "70aca044d3b1a7ff34814f49a493ada44b46522a9160d5f90e99b1eee4659478",
+  "proven_blocker": "FIFO loaded but did not consume during30ms bounded PLAY attempt",
+  "root_cause_unproven": true,
+  "next_hypothesis": "H17 cleared SWR_PAT_RES_N alongside input; preserve reset/config and clear only input bit40"
+}

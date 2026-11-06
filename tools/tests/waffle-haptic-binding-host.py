@@ -13,7 +13,7 @@ class Parser:
 names=['kernel/files/bsd/dev/macan_torch.c','kernel/files/bsd/sys/waffle_haptic_readonly.h','kernel/files/bsd/sys/waffle_haptic_pulse.h','kernel/files/bsd/sys/waffle_haptic_events.h','loader/waffle.h']
 with tempfile.TemporaryDirectory() as d:
  p=Path(d);r=p/'root';a=p/'artifact'
- for case in range(24):
+ for case in range(32):
   for n in names:
    for x in [r/n,a/'source'/n]:x.parent.mkdir(parents=True,exist_ok=True);x.write_bytes(n.encode())
   (a/'kernel').write_bytes(b'haptic-waffle-pulse: passed=')
@@ -49,7 +49,22 @@ with tempfile.TemporaryDirectory() as d:
    if case==21:m['haptic_pulse_source_sha256'].pop(n)
    if case==22:(r/n).write_bytes(b'changed')
    if case==23:(a/'source'/n).write_bytes(b'changed')
+  if case>=24:
+   n='kernel/files/bsd/sys/waffle_haptic_fifo_play.h'
+   for x in [r/n,a/'source'/n]:x.parent.mkdir(parents=True,exist_ok=True);x.write_bytes(b'fifo-play')
+   (a/'kernel').write_bytes((a/'kernel').read_bytes()+b' haptic-fifo-play: passed=')
+   m['kernel_sha256']=hashlib.sha256((a/'kernel').read_bytes()).hexdigest()
+   m['haptic_fifo_zero_play_test']=True;m['haptic_fifo_rc_count']=574
+   m['haptic_pulse_source_sha256'][n]=hashlib.sha256((r/n).read_bytes()).hexdigest()
+   capture=a/'android-calibration-before-h17.txt';capture.write_bytes(b'574\n7692\n');m['haptic_calibration_capture_sha256']=hashlib.sha256(capture.read_bytes()).hexdigest()
+   if case==25:m['haptic_fifo_zero_play_test']=False
+   if case==26:m['haptic_fifo_rc_count']=573
+   if case==27:m['haptic_pulse_source_sha256'].pop(n)
+   if case==28:(r/n).write_bytes(b'changed')
+   if case==29:(a/'source'/n).write_bytes(b'changed')
+   if case==30:capture.write_bytes(b'changed')
+   if case==31:m.pop('haptic_calibration_capture_sha256')
   try:exec(code,{'args':SimpleNamespace(haptic_pulse=True,haptic_service_test=False,haptic_ui_test=False),'artifact':a,'ROOT':r,'manifest':m,'parser':Parser(),'hashlib':hashlib})
-  except ValueError:assert case not in (0,14,19)
-  else:assert case in (0,14,19)
+  except ValueError:assert case not in (0,14,19,24)
+  else:assert case in (0,14,19,24)
 print('PASS actual haptic pre-USB admission: bound positive; capability, all current/snapshot sources, missing header and kernel tamper refused. No USB.')

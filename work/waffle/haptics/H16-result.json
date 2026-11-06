@@ -1,0 +1,21 @@
+{
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "offline_current_actual_checks_passed": true,
+  "stream_bytes": 2182293,
+  "stream_sha256": "e97632a41ad7ffa62a0f14f3f9ce562e6feeaa3e182c7e80817600fb3a14009d",
+  "run": "work/waffle/runs/20261106T080956Z",
+  "fill_before": 0,
+  "fill_loaded": 144,
+  "fill_after_flush": 0,
+  "zero_data_commands": 36,
+  "selectors_restored": true,
+  "SWR_restored": true,
+  "driver_source_observed": 7,
+  "buffer_motor_started": false,
+  "HBST_writes": 0,
+  "baseline_active_us": [
+    16041
+  ],
+  "Crisp_waveform_played": false
+}

@@ -1439,12 +1439,20 @@ def main():
                     r'haptic-fifo-status: fill=0 capacity=1920 empty=[01] full=[01]',final_text):
                     raise RuntimeError(f'Native FIFO empty/status/selector restore proof incomplete; logs: {out}')
             if args.haptic_pulse and b'haptic-fifo-buffer: passed=' in args.kernel.read_bytes():
+                zero_record=('haptic-fifo-buffer: zeros=144 consumer=1 HBST_writes=0' if b'haptic-fifo-play: passed=' in args.kernel.read_bytes() else 'haptic-fifo-buffer: zeros=144 motor_STARTED=0 HBST_writes=0')
                 if not all(marker in final_text for marker in (
                     'haptic-fifo-buffer: passed=1 loaded=1 cleared=1',
                     'haptic-fifo-buffer: fill=144 final=0 commands=36',
-                    'haptic-fifo-buffer: zeros=144 motor_STARTED=0 HBST_writes=0')) or not re.search(
+                    zero_record)) or not re.search(
                     r'haptic-fifo-buffer: selectors=1 SWR_restored=1 source=[0-35-7]\b',final_text):
                     raise RuntimeError(f'Native zero FIFO transport/flush/restore proof incomplete; logs: {out}')
+            if args.haptic_pulse and b'haptic-fifo-play: passed=' in args.kernel.read_bytes():
+                timing=re.search(r'haptic-fifo-play: initial=144 last=0 active_us=(\d+)',final_text)
+                if not all(marker in final_text for marker in (
+                    'haptic-fifo-play: passed=1 progress=1 drained=1',
+                    'haptic-fifo-play: stopped=1 restored=1 emergency=0',
+                    'haptic-fifo-play: rate=24000 RC=574 zeros=144 HBST_writes=0')) or not timing or not 4500<=int(timing[1])<=30000:
+                    raise RuntimeError(f'Native zero FIFO execution/clock restore proof incomplete; logs: {out}')
             if args.torch_readonly and not all(s in final_text for s in (
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
                     'torch: waffle read-only module=', 'no PMIC writes')):

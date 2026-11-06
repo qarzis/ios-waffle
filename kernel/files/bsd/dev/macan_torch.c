@@ -15,6 +15,7 @@
 #include <sys/waffle_haptic_events.h>
 #include <sys/waffle_haptic_fifo_status.h>
 #include <sys/waffle_haptic_fifo_buffer.h>
+#include <sys/waffle_haptic_fifo_play.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
@@ -28,6 +29,7 @@ static bool haptic_active;
 static bool haptic_fifo_status_active;
 static struct waffle_haptic_fifo_status_result haptic_fifo_status_result;
 static bool haptic_fifo_buffer_active;
+static bool haptic_fifo_play_active;
 static LCK_GRP_DECLARE(haptic_event_group,"waffle-haptic-events");
 static LCK_MTX_DECLARE(haptic_event_lock,&haptic_event_group);
 static struct waffle_haptic_events haptic_events;
@@ -349,8 +351,9 @@ waffle_haptic_fifo_buffer_bus_read(void *context,uint16_t ppid,uint8_t reg,uint8
 {
  struct waffle_haptic_bus_context *c=context;
  if(!waffle_arb || level!=1 || haptic_test!=1 || !haptic_active ||
-    !haptic_fifo_buffer_active || !waffle_haptic_fifo_buffer_read_allowed(ppid,reg))return false;
- for(unsigned i=0;i<2;i++)if(c->peripheral[i].id==ppid && c->peripheral[i].found)
+    !haptic_fifo_buffer_active || !(waffle_haptic_fifo_buffer_read_allowed(ppid,reg) ||
+    (haptic_fifo_play_active && waffle_haptic_fifo_play_read_allowed(ppid,reg))))return false;
+ for(unsigned i=0;i<3;i++)if(c->peripheral[i].id==ppid && c->peripheral[i].found)
   return spmi_read(&c->peripheral[i],reg,value,1)==NULL;
  return false;
 }
@@ -359,7 +362,7 @@ waffle_haptic_fifo_bus_write4(void *context,uint16_t ppid,uint8_t reg,const uint
 {
  struct waffle_haptic_bus_context *c=context;
  if(!waffle_arb || level!=1 || haptic_test!=1 || !haptic_active ||
-    !haptic_fifo_buffer_active || ppid!=0x7f1 || reg!=0x20 || !bytes)return false;
+    !haptic_fifo_buffer_active || haptic_fifo_play_active || ppid!=0x7f1 || reg!=0x20 || !bytes)return false;
  const struct peripheral *p=&c->peripheral[1];
  if(p->id!=ppid || !p->found || !p->writable || !p->write)return false;
  uint32_t data=0;for(unsigned i=0;i<4;i++)data|=(uint32_t)bytes[i]<<(8*i);
@@ -395,7 +398,9 @@ waffle_haptic_bus_write(void *context,uint16_t ppid,uint8_t reg,uint8_t value)
       (haptic_fifo_status_active && level==1 && haptic_test==1 &&
        waffle_haptic_fifo_status_write_allowed(ppid,reg)) ||
       (haptic_fifo_buffer_active && level==1 && haptic_test==1 &&
-       waffle_haptic_fifo_buffer_write_allowed(ppid,reg))))return false;
+       waffle_haptic_fifo_buffer_write_allowed(ppid,reg)) ||
+      (haptic_fifo_play_active && haptic_fifo_buffer_active && level==1 && haptic_test==1 &&
+       waffle_haptic_fifo_play_write_allowed(ppid,reg))))return false;
  for(unsigned i=0;i<2;i++) {
   const struct peripheral *p=&c->peripheral[i];
   if(p->id!=ppid || !p->found || !p->writable || !p->write)continue;
@@ -420,6 +425,13 @@ waffle_haptic_quiesce(void)
  if(!waffle_arb || (haptic_test!=1 && haptic_test!=2))return;
  leaving=true;
  if(!haptic_active)return;
+ if(haptic_fifo_play_active){
+  bool stop=waffle_haptic_bus_write(&haptic_pulse_context,0x7f0,0x4c,0);
+  bool disabled=waffle_haptic_bus_write(&haptic_pulse_context,0x7f0,0x46,0);
+  haptic_fifo_play_active=haptic_fifo_buffer_active=haptic_active=false;
+  say("haptic-fifo-play: quiesce stop=%u disabled=%u\n",stop,disabled);
+  return;
+ }
  if(haptic_fifo_buffer_active){
   /* No motor START is possible in this phase. Do not re-enable inherited
    * SWR onto a possibly partially loaded FIFO during panic/return. Android
@@ -460,6 +472,28 @@ waffle_haptic_wait_us(__unused void *context,uint32_t us)
 {
  delay_for_interval(us,NSEC_PER_USEC);
 }
+struct waffle_haptic_zero_play_context {struct waffle_haptic_bus_context *bus;bool owned;};
+static bool
+waffle_haptic_zero_play(void *context)
+{
+ struct waffle_haptic_zero_play_context *c=context;
+ /* Private, device-specific qualification value freshly read via root on
+  * this phone (574, t_lra7692us). Not a general driver calibration default. */
+ const struct waffle_haptic_fifo_play_io io={
+  {{c->bus,waffle_haptic_fifo_buffer_bus_read},waffle_haptic_bus_write,
+   waffle_haptic_now_us,waffle_haptic_wait_us,c->owned},574};
+ struct waffle_haptic_fifo_play_result result;
+ haptic_fifo_play_active=true;
+ bool ok=waffle_haptic_fifo_play(&io,&result);
+ haptic_fifo_play_active=false;
+ say("haptic-fifo-play: passed=%u progress=%u drained=%u\n",ok,result.progress,result.drained);
+ say("haptic-fifo-play: stopped=%u restored=%u emergency=%u\n",result.stopped,result.restored,result.emergency_disabled);
+ say("haptic-fifo-play: initial=%u last=%u active_us=%llu\n",result.initial_fill,result.last_fill,result.active_us);
+ say("haptic-fifo-play: rate=24000 RC=574 zeros=144 HBST_writes=0\n");
+ say("haptic-fifo-play: SWR=%02x HPWR=%02x PLAY=%02x ready=%02x\n",result.swr,result.last_hpwr,result.last_play,result.last_ready);
+ say("haptic-fifo-play: power_seen=%u\n",result.power_seen);
+ return ok;
+}
 static bool
 waffle_haptic_bus_pulse(struct waffle_haptic_bus_context *c)
 {
@@ -497,13 +531,14 @@ waffle_haptic_bus_pulse(struct waffle_haptic_bus_context *c)
    {c,waffle_haptic_fifo_buffer_bus_read,waffle_haptic_bus_write,owned},
    waffle_haptic_fifo_bus_write4};
   struct waffle_haptic_fifo_buffer_result buffer;
+  struct waffle_haptic_zero_play_context play_context={c,owned};
   haptic_fifo_buffer_active=true;
-  bool buffer_ok=waffle_haptic_fifo_buffer(&buffer_io,&buffer);
+  bool buffer_ok=waffle_haptic_fifo_buffer_consume(&buffer_io,&buffer,waffle_haptic_zero_play,&play_context);
   haptic_fifo_buffer_active=false;
   say("haptic-fifo-buffer: passed=%u loaded=%u cleared=%u\n",buffer_ok,buffer.loaded,buffer.cleared);
   say("haptic-fifo-buffer: fill=%u final=%u commands=%u\n",buffer.loaded_fill,buffer.final_fill,buffer.data_commands);
   say("haptic-fifo-buffer: selectors=%u SWR_restored=%u source=%u\n",buffer.selectors_restored,buffer.swr_restored,buffer.source);
-  say("haptic-fifo-buffer: zeros=144 motor_STARTED=0 HBST_writes=0\n");
+  say("haptic-fifo-buffer: zeros=144 consumer=1 HBST_writes=0\n");
   if(!buffer_ok){haptic_active=false;return false;}
  }
  bool ok=waffle_haptic_pulse(&io,&result);

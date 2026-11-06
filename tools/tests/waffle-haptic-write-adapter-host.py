@@ -13,12 +13,14 @@ program=r'''
 #include "waffle_haptic_pulse.h"
 #include "waffle_haptic_fifo_status.h"
 #include "waffle_haptic_fifo_buffer.h"
+#include "waffle_haptic_fifo_play.h"
 typedef unsigned long vm_offset_t;
 struct peripheral {uint16_t id,channel;bool found,writable;vm_offset_t write;};
 struct waffle_haptic_bus_context {struct peripheral peripheral[3];};
 static bool waffle_arb,haptic_active,locked,bad_owner,bad_map,bad_read,denied;
 static bool haptic_fifo_status_active;
 static bool haptic_fifo_buffer_active;
+static bool haptic_fifo_play_active;
 static struct waffle_haptic_fifo_status_result haptic_fifo_status_result;
 static uint32_t level,haptic_test,arb_map=0x1000,arb_cnfg=0x2000;
 static unsigned writes;static uint8_t byte;
@@ -57,6 +59,7 @@ int main(void){struct waffle_haptic_bus_context c={.peripheral={{0x7f0,1,true,tr
  haptic_fifo_status_result.selection_attempted=true;haptic_fifo_status_result.selector=0x33;haptic_fifo_status_result.extension=0x12;
  waffle_haptic_quiesce();assert(leaving&&!haptic_active&&!haptic_fifo_status_active&&writes==4&&commands==2&&registers[0]==0x70&&registers[1]==0x71);
  writes=0;haptic_active=haptic_fifo_buffer_active=true;leaving=false;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&!haptic_fifo_buffer_active&&!writes);
+ writes=commands=0;haptic_active=haptic_fifo_buffer_active=haptic_fifo_play_active=true;leaving=false;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&!haptic_fifo_buffer_active&&!haptic_fifo_play_active&&writes==4&&registers[0]==0x4c&&registers[1]==0x46);
  puts("PASS actual haptic writer: four opt-in gates, CFG/PTN allowlist, firmware HBST/flash refused, owner+PPID checked under bus lock, denied/readback mismatch reject. Host MMIO only.");}
 '''
 with tempfile.TemporaryDirectory() as d:

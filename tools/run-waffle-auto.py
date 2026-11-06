@@ -316,6 +316,13 @@ def main():
             name='kernel/files/bsd/sys/waffle_haptic_fifo_buffer.h';digest=bindings.get(name)
             if not manifest.get('haptic_fifo_buffer_test') or not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:
                 parser.error('Native zero FIFO transport lacks bound current/compiled source')
+        if args.haptic_pulse and b'haptic-fifo-play: passed=' in (artifact/'kernel').read_bytes():
+            name='kernel/files/bsd/sys/waffle_haptic_fifo_play.h';digest=bindings.get(name)
+            if not manifest.get('haptic_fifo_zero_play_test') or manifest.get('haptic_fifo_rc_count')!=574 or not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:
+                parser.error('Native zero FIFO execution lacks device calibration/current/compiled source binding')
+            capture=artifact/'android-calibration-before-h17.txt'
+            if not capture.is_file() or hashlib.sha256(capture.read_bytes()).hexdigest()!=manifest.get('haptic_calibration_capture_sha256') or not capture.read_text().endswith('574\n7692\n'):
+                parser.error('Native zero FIFO execution calibration capture missing or changed')
 
     if args.torch_pulse and not manifest.get('torch_pulse_loader'):parser.error('Artifact lacks the bounded torch pulse policy')
     if args.torch_service and not manifest.get('torch_service_loader'):parser.error('Artifact lacks the iOS torch-service policy')

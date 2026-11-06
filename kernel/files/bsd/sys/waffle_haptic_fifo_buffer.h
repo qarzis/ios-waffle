@@ -1,6 +1,8 @@
 /* Isolated HAP525_HV memory transport experiment. Zeros only, no PLAY,
  * calibration, rate, voltage, module-enable or HBST writes. The native
- * e39bf703 non-refill flush is PTN2d=1,0; DIN20 takes four bytes. */
+ * e39bf703 non-refill flush is PTN2d=1,0; DIN20 takes four bytes. Optional
+ * consumer callback owns its separately bounded execution/restoration; this
+ * helper's own writes never start the motor or change its clock. */
 #ifndef WAFFLE_HAPTIC_FIFO_BUFFER_H
 #define WAFFLE_HAPTIC_FIFO_BUFFER_H
 #include "waffle_haptic_fifo_status.h"
@@ -24,9 +26,9 @@ static inline bool waffle_haptic_fifo_buffer_write_allowed(uint16_t p,uint8_t a)
  return waffle_haptic_fifo_status_write_allowed(p,a) ||
         (p==0x7f0 && a==0x4e) || (p==0x7f1 && a==0x2d);
 }
-static inline bool waffle_haptic_fifo_buffer(
+static inline bool waffle_haptic_fifo_buffer_consume(
  const struct waffle_haptic_fifo_buffer_io *io,
- struct waffle_haptic_fifo_buffer_result *r)
+ struct waffle_haptic_fifo_buffer_result *r,bool (*consume)(void *),void *consume_context)
 {
  if(!r)return false;
  *r=(struct waffle_haptic_fifo_buffer_result){0};
@@ -49,9 +51,10 @@ static inline bool waffle_haptic_fifo_buffer(
  r->source=source&7;
  if(!selected || !r->selectors_restored || r->source==4)return false;
  r->admitted=true;
- /* Native swr_slave_reg_disable masks all three input/config/reset bits.
+ /* H18: exclude the autonomous input only. Preserve native CONFIG_EN and
+  * RES_N; H17 held RES_N low and its FIFO never consumed a sample.
   * Mark the attempt dirty even if transport reports failure. */
- bool ok=s->write8(s->context,0x7f0,0x4e,r->saved_swr&~0xe0);
+ bool ok=s->write8(s->context,0x7f0,0x4e,r->saved_swr&~0x40);
  bool fifo_touched=false,known_clear=true;
  if(ok){
   fifo_touched=true;known_clear=false;
@@ -70,6 +73,8 @@ static inline bool waffle_haptic_fifo_buffer(
   r->selectors_restored=r->selectors_restored&&after.restored;
   ok=ok&&r->loaded;
  }
+ bool consumer_ok=true;
+ if(ok && consume){consumer_ok=consume(consume_context);ok=consumer_ok;}
  if(fifo_touched){
   /* Always attempt both flush edges after an ambiguous partial upload. */
   bool set=s->write8(s->context,0x7f1,0x2d,1);
@@ -84,8 +89,16 @@ static inline bool waffle_haptic_fifo_buffer(
  bool final_high=s->write8(s->context,0x7f0,0x71,before.extension);
  r->selectors_restored=final_low&&final_high;
  /* Never re-enable an inherited SWR producer onto an uncertain FIFO. */
- if(known_clear)r->swr_restored=s->write8(s->context,0x7f0,0x4e,r->saved_swr);
+ /* A failed consumer may also have failed clock/control restoration. Even
+  * an empty FIFO does not grant re-enabling SWR with unknown configuration. */
+ if(known_clear && consumer_ok)r->swr_restored=s->write8(s->context,0x7f0,0x4e,r->saved_swr);
  r->passed=ok&&r->loaded&&r->cleared&&r->selectors_restored&&r->swr_restored;
  return r->passed;
+}
+static inline bool waffle_haptic_fifo_buffer(
+ const struct waffle_haptic_fifo_buffer_io *io,
+ struct waffle_haptic_fifo_buffer_result *r)
+{
+ return waffle_haptic_fifo_buffer_consume(io,r,0,0);
 }
 #endif

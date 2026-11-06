@@ -20,14 +20,14 @@ static bool write8(void *context,uint16_t p,uint8_t a,uint8_t v)
  struct bus *b=context;assert(waffle_haptic_fifo_buffer_write_allowed(p,a));
  bool failed=++b->writes==b->fail_write;
  if(!failed || b->ambiguous){
-  if(p==0x7f0){if(a==0x4e && (v&0xe0))assert(!b->fill);b->cfg[a]=v;}
+  if(p==0x7f0){if(a==0x4e && (v&0x40))assert(!b->fill);b->cfg[a]=v;}
   else {assert(a==0x2d && v<=1);if(b->ptn[a]==1 && v==0)b->fill=0;b->ptn[a]=v;}
  }
  return !failed;
 }
 static bool write4(void *context,uint16_t p,uint8_t a,const uint8_t *v)
 {
- struct bus *b=context;assert(p==0x7f1&&a==0x20&&!b->ptn[0x2d]&&!(b->cfg[0x4e]&0xe0));
+ struct bus *b=context;assert(p==0x7f1&&a==0x20&&!b->ptn[0x2d]&&!(b->cfg[0x4e]&0x40));
  assert(!v[0]&&!v[1]&&!v[2]&&!v[3]);bool failed=++b->data==b->fail_data;
  if(!failed || b->ambiguous)b->fill+=4;
  return !failed;
@@ -48,11 +48,11 @@ int main(void)
  unsigned reads=b.reads,writes=b.writes;assert(b.cfg[0x4e]==0xe0&&b.cfg[0x70]==0x33&&b.cfg[0x71]==0x12&&!b.fill);
  for(unsigned n=1;n<=reads;n++){
   b=initial();b.fail_read=n;assert(!run(&b,&r));
-  if(b.fill)assert(!(b.cfg[0x4e]&0xe0));
+  if(b.fill)assert(!(b.cfg[0x4e]&0x40));
  }
  for(unsigned n=1;n<=writes;n++)for(unsigned uncertain=0;uncertain<2;uncertain++){
   b=initial();b.fail_write=n;b.ambiguous=uncertain;assert(!run(&b,&r));
-  if(b.fill)assert(!(b.cfg[0x4e]&0xe0));
+  if(b.fill)assert(!(b.cfg[0x4e]&0x40));
  }
  for(unsigned n=1;n<=36;n++)for(unsigned uncertain=0;uncertain<2;uncertain++){
   b=initial();b.fail_data=n;b.ambiguous=uncertain;assert(!run(&b,&r));

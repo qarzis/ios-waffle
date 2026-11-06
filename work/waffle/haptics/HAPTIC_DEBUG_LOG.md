@@ -78,3 +78,25 @@ Separate helper only in isolated test1: saved selector/idle/exclusive admission,
 ## Native style mapping advanced
 
 One normal Android CLICK (cmd synced prebaked0) produced actual aidl_vibrator log `perform effect1`, `findEffect vibStyle0,effectid1`, completed. Native JSON motor9999 def_style maps effect1 to ODM def/effect_1.bin@24000Hz,144bytes/6000us. This is evidence for native click selection/file configuration, not a live FIFO dump or iOS replay. Read-only actual binder getWaveformIndex returns640=-1,647=-1,type0=1; transaction IDs15/16/17 from local actual IVibratorManagerServiceStub. Private frameworkJAR decompiled methods confirm index is queried from system service. Androguard newer hidden-API domain flag4 retained numerically, instruction bytes/JAR untouched. Native-click mapping proof/ELF/JAR/waves stay private.
+
+
+## H16 hardware PASS
+
+Run20261106T080956Z / auto20261106T080933Z: original0/Android1. Actual status count0->144->0,36zero4Bcommands, loaded1/cleared1/selectors1/SWRrestored1. Native idle driver source7 observed (not source4/SWR). No FIFO PLAY/rate/cal/VMAX/HBST writes in H16 buffer phase; qualified16ms baseline followed. Recovered trace SHAe97632a41ad7ffa62a0f14f3f9ce562e6feeaa3e182c7e80817600fb3a14009d. Current strict actual acceptance blocks also PASS offline. H16-result.json preserves boundaries. Public docs checkpoint d58e692 records result without promoting pending code.
+
+## H17 zero FIFO engine (host PASS, rebuilding before hardware)
+
+Fresh root capture before H17 after user reconnect: RC574/t_lra7692us unchanged. Pure helper accepts explicit RC argument; only private diagnostic caller supplies574, not production/default calibration. H16 upload helper optional bounded consumer callback keeps SWR excluded while consumer runs. H17 consumer: fresh qualified HAP525/boostv2/VMAX<=2400mV/HPWRoff/PLAY1/fault0/SWRdisabled admission; save selector/FIFO rate/RC/CAL/autores, F24kHzlow10 preservinguppernibble, measuredRC574/manualCAL, autoresoff, PLAY80/sourceFIFO. Require144initial, monotonic intermediate counts, drain0 with4500..30000us timing. STOP0+HPWRdisabled, restore all changed settings and originalPLAY1. No VMXO/VMAX/HBST/data/flush writes from consumer. Fault/stale/stall/ambiguousstart alwaysSTOP; uncertainSTOP emergency module-disable with no restoration. Failed consumer keeps SWR disabled even if buffer subsequently clears, since clock restoration may be uncertain.
+
+Actual helper60readfailures/17writes*2ambiguity plus frozenclock/stalledFIFO/instantempty/refill/fault/stuckSTOP PASS. Combined actual upload+consumer+cleanup fixture passes normal execution and confirms failed consumer/SWR quarantine, emergencydisable/noSWRreenable. Actual adapters prohibitrefillwhileplayactive, PCMservice/defaultmode2 unchanged. Logging now explicitly says buffer consumer1 instead of stale H16 motor_started0; play phase separately reports actualcontrol/results. Initial H17 host build never ran on device; rebuilt after combined-fixture quarantine correction. Fullbuild-h17.log active session24713, freezecompiledinputs. Needpackage freshkernel/image +boundH16CPUroot, haptic_fifo_zero_play_test true/haptic_fifo_rc_count574/newplayheaderbinding, validate, thenCPU1/60/hapticpulse. No USBowner until test launched. Never claim this plays Crisp: coefficientsstillallzero.
+
+
+## H17 hardware FAIL (zero FIFO execution experiment1)
+
+Original1/Android1. Actual initial144/last144/progress0/drained0 across30304us; STOP1/restored1/emergency0. Buffer loaded144 then cleanupflush0/selectorsrestored, SWRinputretaineddisabled after failedconsumer. No realwave/HBSTwrites. H17-result.json/hash preserves exactstream. Proven first blocker is no FIFO consumption, not transport, flags, calibration identity or compilation. Why still unproven.
+
+At most three hypotheses: (1) strongest: clearing SWR_ACCESSe0 asserted SWR_PAT_RES_N(bit20) and disabledCONFIG_EN(bit80), potentially gating shared pattern engine; source names prove reset asserted, effect onFIFO is hypothesis. (2) FIFO power handshake/HPWRready absent (H17 lacked activeHPWR observation); nativeopen_loop_drive_config may require additional observedstate. (3) FIFO clock/manualRC mode doesn't run despite written rate; capturedRC574 and exactnativeenum10 makes randomcalibrationreplacement unsupported. Do not repeat or force boost.
+
+## H18 minimal experiment for hypothesis1 (building)
+
+Change only input exclusion e0->40 mask: SWRoriginale0 becomesa0, preservingCONFIG_EN/RES_N while inputbit40disabled. Playback admission now requires resetdeasserted20 and inputdisabled40. Add read-only activeHPWR/PLAY/FIFOready/power_seen and observedSWR to log. No other clock/voltage/data/handshake modifications. New81readfault cases/all17writeambiguity/stall/quarantine fixtures PASS. Nativeburst/owner/restoration regressions PASS. Fullbuild diagnostic-haptic-fifo-reset-h18 activebuild-h18.log session45163. PhoneAndroid, noUSBowner. Freezecompiledinputs; package/root/header/calbinding/validate thenisolatedCPU1/60test. If it fails, use observedHPWR/PLAY beforeanotherhypothesis; afterthreeunsuccessfulexecutionexperiments revisit architecture.

@@ -9,10 +9,12 @@ code=r'''
 #include <stddef.h>
 #include <stdio.h>
 #include "waffle_haptic_fifo_buffer.h"
+#include "waffle_haptic_fifo_play.h"
 typedef unsigned long vm_offset_t;
 struct peripheral {uint16_t id,channel;bool found,writable;vm_offset_t write;};
 struct waffle_haptic_bus_context {struct peripheral peripheral[3];};
 static bool waffle_arb,haptic_active,haptic_fifo_buffer_active,locked,bad_owner,bad_map,denied;
+static bool haptic_fifo_play_active;
 static unsigned level,haptic_test,writes,waits,reads;static uint32_t data,command;
 static vm_offset_t arb_map=0x1000,arb_cnfg=0x2000;
 #define ARB_CHANNEL(n) (4*(n))
@@ -38,6 +40,7 @@ int main(void){
   assert(waffle_haptic_fifo_buffer_bus_read(&c,0x7f0,0x4e,&v)==(bits==31));assert(reads==(bits==31));
  }
  assert(data==0x44332211&&command==0x203);
+ haptic_fifo_play_active=true;writes=waits=0;assert(!waffle_haptic_fifo_bus_write4(&c,0x7f1,0x20,bytes)&&!writes&&!waits);haptic_fifo_play_active=false;
  for(unsigned p=0;p<3;p++)for(unsigned a=0;a<256;a++){
   writes=waits=0;assert(waffle_haptic_fifo_bus_write4(&c,0x7f0+p,a,bytes)==(p==1&&a==0x20));
  }
