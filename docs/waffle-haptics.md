@@ -33,3 +33,12 @@ Root access supplied by the owner allowed read-only capture of the native motor 
 Torch diagnostics now use the existing bounded loader line writer instead of individually locked characters. H13 retained all service-ready records under seven-core GPU load. Its complete run remains failed: an unrelated GPU BO publication record was interrupted by concurrent output. No full-session pass or stability improvement is claimed for H13.
 
 A separate private PID1 GPU experiment, S20, passed native IOSurface output:1218000 pixels checked, zero mismatches, CPU reads directly after completion, no glReadPixels, backing restored, and automatic return to Android. This validates the isolated output transport, not SpringBoard integration or a measured FPS increase. Experimental native-output code is not promoted by this haptics update.
+
+
+## November 6: native FIFO transport qualified (H16)
+
+An isolated one-core RAM test completed with runner exit0 and confirmed Android recovery. The native FIFO counter changed0→144→0 after36 four-byte zero uploads and a native flush. Saved status selectors and SoundWire input configuration were restored. No FIFO playback, sample-clock/calibration change, voltage change or boost write occurred in this phase. The existing16ms direct-play baseline followed successfully.
+
+H15 established that zero count may coexist with cleared empty/full flags; the stock native driver uses the count. Its original run remains failed due to an ambiguous4KiB log overlap. A unique8KiB exact overlap recovered the evidence; the collector now expands the exact suffix instead of guessing or skipping bytes. H16 passed with the corrected collector.
+
+A normal Android CLICK was observed selecting native style0/effect1. The device JSON configures that entry as144 samples at24kHz. This identifies a candidate native click shape; it is not yet replayed by iOS. ColorOS Crisp playback and ordinary boot integration remain pending. This update records private diagnostic results and does not promote the experimental FIFO implementation.
