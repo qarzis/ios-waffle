@@ -1,0 +1,1 @@
+PASS actual U04 native fences1/2,4GPUvalues+2guards each and full256pixelGL; wrong/stalevalues, duplicatefence, missinghardware/summary and conflictingresults rejected

@@ -1,0 +1,26 @@
+{
+  "experiment": "U04",
+  "run": "20261106T101950Z",
+  "auto_run": "20261106T101858Z",
+  "original_runner_exit": 0,
+  "android_confirmed": true,
+  "manual_boot_selection": true,
+  "native_fences": [
+    1,
+    2
+  ],
+  "GPU_words_checked": 8,
+  "GPU_wrong_words": 0,
+  "guards_per_pass": 2,
+  "GL_pixels_checked": 256,
+  "GL_wrong_pixels": 0,
+  "kernel_log_sha256": "03be9015a2de1acfa3cfe5e2852d9fe78d730d736455876ec477d1d0992ea43e",
+  "scope": "NativeAdreno ABI2 owned submit and synchronous waits through A750 backend; CP_MEM_WRITE at client-chosen IOVA",
+  "limitations": [
+    "CPU access in test uses legacy MSM mapper, not IOKit memory tokens",
+    "IB contents snapshotted into existing private kernel command BO",
+    "implicit queue0 only; native completion history bounded to256 submissions",
+    "no per-task IOKit service or Turnip/Metal integration",
+    "no FPS measurement"
+  ]
+}

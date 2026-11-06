@@ -588,9 +588,29 @@ def validate_gl_queue_recycle_log(text,count):
         cursor=position+len(marker)
 
 
+def validate_unixnu_submit_log(text):
+    summary='waffle-unixnu-submit: completed=2 waited=2 future_refused=2 CPU_map=legacy_MSM Metal_published=0'
+    if summary not in text:raise RuntimeError('UniXNU submit/wait proof missing')
+    records={}
+    pattern=r'waffle-unixnu-submit: pass=([12]) fence=(\d+) checked=4 wrong=(\d+) guards=2 values=([0-9a-f/]+)'
+    for phase,fence,wrong,values in re.findall(pattern,text):
+        row=(int(fence),int(wrong),values)
+        if int(phase) in records and records[int(phase)]!=row:raise RuntimeError('Conflicting UniXNU GPU result')
+        records[int(phase)]=row
+    if set(records)!={1,2} or not 0<records[1][0]<records[2][0]:raise RuntimeError('Missing/invalid UniXNU fences')
+    completed=gl_completed_fences(text)
+    for fence,wrong,values in records.values():
+        if wrong or values!='57414646/4c454750/13579bdf/2468ace0' or fence>completed:
+            raise RuntimeError('Incorrect UniXNU chosen-IOVA GPU writes')
+        if f'UNIXNU_SUBMIT fence={fence} roots=1 words=8 windows=1 synchronous=1' not in text:
+            raise RuntimeError('UniXNU result lacks actual native submission')
+    return {phase:row[0] for phase,row in records.items()}
+
+
 def validate_gl_log(text):
     if "Library not loaded:" in text:
         raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
+    if 'waffle-unixnu-submit:' in text:validate_unixnu_submit_log(text)
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
     validate_gl_queue_recycle_log(text,count)
     if 'waffle-gl-surface-sample:' in text and count<3:raise RuntimeError('Shader sampling lacks an additional GPU submission')
