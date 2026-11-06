@@ -22,6 +22,14 @@ int main(){
  const char *bundle="/redwood/lib/NativeAdrenoMetal.bundle/NativeAdrenoMetal";
  void *library=dlopen(bundle,RTLD_NOW|RTLD_LOCAL);
  if(!library){std::printf("waffle-unixnu-runtime: dlopen_failed=%s\n",dlerror());return finish(false);}
+ /* Read-only frontend ABI inventory; never construct or publish a device here. */
+ auto getClass=reinterpret_cast<void *(*)(const char *)>(dlsym(RTLD_DEFAULT,"objc_getClass"));
+ auto instanceSize=reinterpret_cast<size_t (*)(void *)>(dlsym(RTLD_DEFAULT,"class_getInstanceSize"));
+ auto getProtocol=reinterpret_cast<void *(*)(const char *)>(dlsym(RTLD_DEFAULT,"objc_getProtocol"));
+ void *base=getClass?getClass("_MTLDevice"):nullptr;
+ std::printf("waffle-unixnu-runtime: frontend_inventory base=%u bytes=%zu SPI=%u published=0\n",
+             base!=nullptr,base&&instanceSize?instanceSize(base):0,
+             getProtocol&&getProtocol("MTLDeviceSPI")!=nullptr);
  LOAD(nmb_device_open);LOAD(nmb_device_release);LOAD(nmb_last_error);LOAD(nmb_device_name);
  LOAD(nmb_queue_new);LOAD(nmb_queue_release);LOAD(nmb_buffer_new);LOAD(nmb_buffer_contents);LOAD(nmb_buffer_release);
  LOAD(nmb_command_buffer_new);LOAD(nmb_command_buffer_release);LOAD(nmb_command_buffer_commit);

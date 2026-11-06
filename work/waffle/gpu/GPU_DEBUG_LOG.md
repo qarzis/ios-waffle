@@ -70,3 +70,14 @@ loader/system hashes. Offline controller admission passed with USB_used=false.
 Synthetic log checker rejected20 corrupt/missing/reordered cases. Hardware not
 run; no experiment result yet, no repetition of failed hardware hypothesis.
 User requested no phone until needed; Telegram readiness notification attempted.
+
+
+U05 follow-up: inspected upstream frontend native_bridge_metal_open. Its arm64
+branch explicitly requires _MTLDevice instance size536 (iPadOS17 target); class
+adds no ivars. Local HakiosMetal registerDevice uses runtime subclass creation.
+This suggests a reusable registration strategy, not proof of complete iOS16 ABI
+compatibility. Added read-only objc runtime inventory after bundle dlopen in U05:
+base presence, actual instance bytes, MTLDeviceSPI presence; no class/device
+registration. C runtime probe still independent of Objective-C frontend gate.
+Need actual phone inventory before selecting frontend adaptation. Telegram
+readiness message delivered successfully; phone has not been accessed.
