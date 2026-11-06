@@ -1,0 +1,1 @@
+PASS actual IOKit adapter: default-off/PID1/exclusive open, same descriptor for repeated CPU maps, two leases/last-unmap revocation, generation reuse, malformed/OOM/unsupported refusal, worker-close revokes maps before backing release; framework/backend modeled

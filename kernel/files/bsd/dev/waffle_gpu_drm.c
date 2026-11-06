@@ -9,6 +9,7 @@
 #include <sys/proc.h>
 #include <sys/systm.h>
 #include <sys/waffle_gpu_service.h>
+#include <sys/waffle_gpu_iokit.h>
 #include <sys/waffle_gpu_msm.h>
 #include <sys/waffle_gpu_map.h>
 #include <sys/waffle_gpu_registry.h>
@@ -27,6 +28,7 @@ struct drm_bo {
  uint64_t user_address;
  bool live;
  bool unixnu_owned,unixnu_mapped;
+ uint32_t native_views;
  uint32_t handle;
  uint32_t surface; /* Nonzero only for isolated retained native imports. */
  bool surface_manual_lease;
@@ -40,6 +42,7 @@ static unsigned drm_count,drm_issued,drm_fence;
 static uint32_t drm_native_fences[256],drm_native_count;
 static bool drm_native_lost;
 static int drm_pid;
+static void *drm_iokit_owner;
 static unsigned drm_surface_described;
 static uint32_t drm_queues;
 static uint32_t drm_queue_generations[32];
@@ -72,15 +75,19 @@ static void drm_unmap(struct drm_bo *bo)
  }
  bo->user_address=0;
 }
-static int drm_open(dev_t dev,int flags,int type,struct proc *p)
+static int drm_begin_locked(struct proc *p)
 {
- (void)dev;(void)flags;(void)type;lck_mtx_lock(&drm_lock);int error=0;
- if(drm_context){error=EBUSY;goto done;}
- drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
+ if(drm_context){return EBUSY;}
+ drm_context=waffle_gpu_context_begin();if(!drm_context){return ENXIO;}
  drm_native_count=0;drm_native_lost=false;
  drm_count=drm_issued=drm_fence=0;drm_queues=0;bzero(drm_queue_generations,sizeof(drm_queue_generations));drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
  redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u VA_bytes=%u generation_handles=1 queue_generations=1 object_max_bytes=%u\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES,WAFFLE_GPU_BO_VA_BYTES,WAFFLE_GPU_BO_MAX_BYTES);
-done:lck_mtx_unlock(&drm_lock);return error;
+ return 0;
+}
+static int drm_open(dev_t dev,int flags,int type,struct proc *p)
+{
+ (void)dev;(void)flags;(void)type;lck_mtx_lock(&drm_lock);
+ int error=drm_begin_locked(p);lck_mtx_unlock(&drm_lock);return error;
 }
 static int drm_param(struct waffle_msm_param *r)
 {
@@ -415,7 +422,7 @@ static int drm_free(struct waffle_msm_close *r)
 {
  struct drm_bo *bo=drm_buffer(r->handle);
   if(!bo || r->pad){return EINVAL;}
-  if(bo->surface_manual_lease){return EBUSY;}
+  if(bo->surface_manual_lease || bo->native_views){return EBUSY;}
   uint32_t bytes=bo->memory->allocation_bytes;
   drm_unmap(bo);
   if(!waffle_gpu_context_memory_reclaim(drm_context,bo->memory,!bo->user_map && !bo->user_address)){return EIO;}
@@ -474,6 +481,25 @@ done:
 static int drm_unixnu(struct waffle_unixnu_call *r)
 {
  if(r->version!=2 || r->input_bytes>WAFFLE_UNIXNU_ABI_BYTES || r->output_bytes>WAFFLE_UNIXNU_ABI_BYTES)return EINVAL;
+ if(r->method==13 || r->method==14){
+  if(!drm_iokit_owner)return ENOTSUP;
+  uint64_t handle;
+  if(r->input_bytes<8)return EINVAL;
+  memcpy(&handle,r->payload,8);
+  struct drm_bo *bo=handle && handle<=UINT32_MAX?drm_buffer((uint32_t)handle):NULL;
+  if(!bo || !bo->unixnu_owned || bo->memory->storage!=WAFFLE_GPU_STORAGE_OWNED)return EINVAL;
+  if(r->method==13){
+   if(r->input_bytes!=8 || r->output_bytes!=sizeof(struct waffle_unixnu_cpu_reply))return EINVAL;
+   if(bo->native_views==UINT32_MAX)return ENOSPC;
+   struct waffle_unixnu_cpu_reply reply={(uint32_t)handle,0,bo->memory->allocation_bytes};
+   bo->native_views++;memcpy(r->payload,&reply,sizeof(reply));return 0;
+  }
+  struct waffle_unixnu_cpu_unmap u;
+  if(r->input_bytes!=sizeof(u) || r->output_bytes)return EINVAL;
+  memcpy(&u,r->payload,sizeof(u));
+  if(u.reserved || u.token!=handle || !bo->native_views)return EINVAL;
+  bo->native_views--;return 0;
+ }
  if(r->method==5)return drm_native_submit(r);
  if(r->method==6){
   struct waffle_unixnu_wait w;
@@ -521,6 +547,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
 {
  (void)dev;(void)flags;lck_mtx_lock(&drm_lock);int error=0;
  if(!drm_context || proc_pid(p)!=drm_pid){error=EPERM;goto done;}
+ if(drm_iokit_owner){error=EPERM;goto done;}
  if(drm_native_lost){error=EIO;goto done;}
  if(command==WAFFLE_UNIXNU_CALL){
   /* Bootstrap is root PID1 only, within an already owned live GPU context.
@@ -590,15 +617,51 @@ done:
  if(error)redwood_tl("waffle-gpu: GENERAL ioctl_refused op=%x error=%d pid=%d\n",(unsigned)(command&255),error,proc_pid(p));
  lck_mtx_unlock(&drm_lock);return error;
 }
-static int drm_close(dev_t dev,int flags,int type,struct proc *p)
+static int drm_end_locked(void)
 {
- (void)dev;(void)flags;(void)type;(void)p;lck_mtx_lock(&drm_lock);
- if(!drm_context){lck_mtx_unlock(&drm_lock);return 0;}
+ if(!drm_context)return 0;
  for(unsigned i=0;i<drm_count;i++)drm_unmap(&drm_bos[i]);
  bool ok=waffle_gpu_context_end(&drm_context);
  if(drm_context){redwood_tl("waffle-gpu: REBOOT REQUIRED: general GPU context retained\n");loader_return();for(;;);}
  redwood_tl("waffle-gpu: GENERAL close passed=%u completed=%u buffers=%u context_null=1\n",ok,drm_fence,drm_issued);
- bzero(drm_bos,sizeof(drm_bos));drm_pid=0;lck_mtx_unlock(&drm_lock);return ok?0:EIO;
+ bzero(drm_bos,sizeof(drm_bos));drm_pid=0;return ok?0:EIO;
+}
+static int drm_close(dev_t dev,int flags,int type,struct proc *p)
+{
+ (void)dev;(void)flags;(void)type;(void)p;lck_mtx_lock(&drm_lock);
+ int error=drm_iokit_owner?EBUSY:drm_end_locked();lck_mtx_unlock(&drm_lock);return error;
+}
+int waffle_gpu_iokit_open(void *owner)
+{
+ struct proc *p=current_proc();if(!owner || proc_pid(p)!=1)return EPERM;
+ lck_mtx_lock(&drm_lock);int error=drm_begin_locked(p);
+ if(!error)drm_iokit_owner=owner;
+ lck_mtx_unlock(&drm_lock);return error;
+}
+int waffle_gpu_iokit_call(void *owner,struct waffle_unixnu_call *r)
+{
+ lck_mtx_lock(&drm_lock);
+ int error=!owner || owner!=drm_iokit_owner || proc_pid(current_proc())!=drm_pid || !drm_context?EPERM:
+     drm_native_lost?EIO:!r?EINVAL:drm_unixnu(r);
+ lck_mtx_unlock(&drm_lock);return error;
+}
+uintptr_t waffle_gpu_iokit_memory(void *owner,uint32_t token)
+{
+ lck_mtx_lock(&drm_lock);uintptr_t memory=0;
+ struct drm_bo *bo=drm_buffer(token);
+ if(owner && owner==drm_iokit_owner && proc_pid(current_proc())==drm_pid && drm_context &&
+    !drm_native_lost && bo && bo->unixnu_owned && bo->native_views && bo->memory->storage==WAFFLE_GPU_STORAGE_OWNED)
+  memory=bo->memory->object;
+ lck_mtx_unlock(&drm_lock);return memory;
+}
+int waffle_gpu_iokit_close(void *owner)
+{
+ lck_mtx_lock(&drm_lock);
+ /* Process death may close from a kernel worker. The unforgeable connection
+  * identity, not the current worker PID, authorizes teardown only. */
+ int error=!owner || owner!=drm_iokit_owner?EPERM:drm_end_locked();
+ if(owner && owner==drm_iokit_owner && !drm_context)drm_iokit_owner=NULL;
+ lck_mtx_unlock(&drm_lock);return error;
 }
 static const struct cdevsw drm_cdev={
  .d_open=drm_open,.d_close=drm_close,.d_read=eno_rdwrt,.d_write=eno_rdwrt,
@@ -611,5 +674,5 @@ bool waffle_gpu_drm_register(void)
  if(!devfs_make_node(makedev(major,0),DEVFS_CHAR,UID_ROOT,GID_WHEEL,0600,"waffle-gpu-drm")){
   cdevsw_remove(major,&drm_cdev);return false;
  }
- redwood_tl("waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=%u\n",WAFFLE_GPU_BO_LIMIT);return true;
+ redwood_tl("waffle-gpu: GENERAL registered root_only=1 gated=1 BO_limit=%u\n",WAFFLE_GPU_BO_LIMIT);return waffle_gpu_iokit_register();
 }

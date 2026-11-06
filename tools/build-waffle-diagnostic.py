@@ -353,6 +353,8 @@ def main():
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_cb_config.h", xnu / "bsd/sys/waffle_audio_cb_config.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_page_tables.h", xnu / "bsd/sys/waffle_audio_page_tables.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_unixnu_gpu.h", xnu / "bsd/sys/waffle_unixnu_gpu.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_gpu_iokit.h", xnu / "bsd/sys/waffle_gpu_iokit.h")
+    shutil.copyfile(ROOT / "kernel/files/iokit/Kernel/WaffleNativeGPU.cpp", xnu / "iokit/Kernel/WaffleNativeGPU.cpp")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_cb_access.h", xnu / "bsd/sys/waffle_audio_cb_access.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_inventory.h",
                     xnu / "bsd/sys/waffle_audio_smmu_inventory.h")
@@ -428,7 +430,7 @@ def main():
                      "tools/tests/waffle-audio-smmu-survey-host.c",
                      "kernel/files/bsd/sys/waffle_audio_smmu_inventory.h",
                      "kernel/files/bsd/sys/waffle_audio_cb_access.h",
-                     "kernel/files/bsd/sys/waffle_unixnu_gpu.h",
+                     "kernel/files/bsd/sys/waffle_unixnu_gpu.h", "kernel/files/bsd/sys/waffle_gpu_iokit.h", "kernel/files/iokit/Kernel/WaffleNativeGPU.cpp",
                      "kernel/files/bsd/sys/waffle_audio_cb_config.h",
                      "kernel/files/bsd/sys/waffle_audio_page_tables.h",
                      "tools/tests/waffle-audio-cb-access-host.c",

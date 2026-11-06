@@ -5,6 +5,8 @@
 #include "../../kernel/files/bsd/sys/waffle_unixnu_gpu.h"
 int main(){
  static_assert(NativeAdrenoAbiVersion==2 && NativeAdrenoMethodQuery==1,"pinned upstream protocol");
+ static_assert(sizeof(NativeAdrenoAbiBoCpuMapReply)==sizeof(waffle_unixnu_cpu_reply),"CPU map reply");
+ static_assert(sizeof(NativeAdrenoAbiBoCpuUnmap)==sizeof(waffle_unixnu_cpu_unmap),"CPU unmap record");
  static_assert(sizeof(NativeAdrenoAbiSubmit)==sizeof(waffle_unixnu_submit),"submit wire size");
  static_assert(offsetof(NativeAdrenoAbiSubmit,buffers)==offsetof(waffle_unixnu_submit,buffers),"submit layout");
  static_assert(sizeof(NativeAdrenoAbiWaitFence)==sizeof(waffle_unixnu_wait),"wait wire size");

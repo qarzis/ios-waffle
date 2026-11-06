@@ -1,0 +1,1 @@
+PASS actual IOKit backend: exclusive cookie/PID, cdev exclusion, two CPU leases, exact token, free blocked until last unmap, foreign call denial, cookie-only worker teardown and cdev reopening; GPU/IOKit objects mocked

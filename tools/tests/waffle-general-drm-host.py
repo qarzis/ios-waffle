@@ -21,6 +21,9 @@ static void *kalloc_data(size_t bytes,unsigned flags){assert(held && bytes<=1638
 static void kfree_data(void *p,size_t bytes){assert(held && p && bytes<=16384 && snapshot_live);snapshot_live--;free(p);}
 static struct waffle_gpu_memory storage[WAFFLE_GPU_BO_LIMIT];static unsigned stored,mapped;
 static int proc_pid(struct proc *p){return p->pid;}
+static struct proc *host_current=&owner;
+static struct proc *current_proc(void){return host_current;}
+bool waffle_gpu_iokit_register(void){return true;}
 static int cdevsw_add(int major,const struct cdevsw *sw){assert(major==-1 && sw);return 42;}
 static void cdevsw_remove(int major,const struct cdevsw *sw){assert(major==42 && sw);}
 static void *devfs_make_node(dev_t d,int t,unsigned u,unsigned g,unsigned perm,const char *n){assert(d==42*256 && t==1 && !u && !g && perm==0600 && !strcmp(n,"waffle-gpu-drm"));return (void *)1;}

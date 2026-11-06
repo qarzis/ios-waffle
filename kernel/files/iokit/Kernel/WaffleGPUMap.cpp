@@ -28,3 +28,6 @@ bool waffle_gpu_map_revoke(uintptr_t *token)
  if(map->unmap()!=kIOReturnSuccess)return false;
  map->release();*token=0;return true;
 }
+
+/* Shares this already-built translation unit; service publication is opt-in. */
+#include "WaffleNativeGPU.cpp"

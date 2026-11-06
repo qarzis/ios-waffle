@@ -2,8 +2,7 @@
  * This is NOT an IOKit service or a Metal device. Stage1 exposes only the
  * version/limits query; the cdev adapter also translates owned allocation/free.
  * Mapping is limited to owned RW/noncacheable/outer-shareable 16KiB addresses;
- * submission remains refused until translated
- * with per-client lifetime and fence semantics. Do not advertise imports or
+ * bounded synchronous submit/wait and IOKit CPU leases use the same backend. Do not advertise imports or
  * coherence merely because upstream understands those capability flags. */
 #ifndef WAFFLE_UNIXNU_GPU_H
 #define WAFFLE_UNIXNU_GPU_H
@@ -17,6 +16,8 @@ struct waffle_unixnu_call {
 };
 /* NativeAdrenoAbiParams exact upstream layout, verified by upstream-header
  * fixture. Kept as a byte protocol here to avoid user C++/IOKit dependencies. */
+struct waffle_unixnu_cpu_reply {uint32_t token,reserved;uint64_t bytes;};
+struct waffle_unixnu_cpu_unmap {uint64_t handle;uint32_t token,reserved;};
 struct waffle_unixnu_ib {uint64_t handle,iova,bytes;};
 struct waffle_unixnu_submit {uint32_t count,reserved;uint64_t queue,wait_fence,timeout_ns;struct waffle_unixnu_ib buffers[128];};
 struct waffle_unixnu_wait {uint64_t fence,timeout_ns;};

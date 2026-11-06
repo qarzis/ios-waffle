@@ -1,0 +1,21 @@
+{
+  "stage": "NativeAdreno direct IOKit adapter and CPU leases",
+  "kernel_build_passed": true,
+  "paired_validation_passed": true,
+  "hardware_tested": false,
+  "publication": "waffle_unixnu_iokit=1 only; default off",
+  "access": "exclusive PID1 only; no normal Metal publication",
+  "source_sha256": {
+    "kernel/files/bsd/dev/waffle_gpu_drm.c": "a7adfa8d4ce7c44139f6942e2c97888923e4c85aca85904d9dcfde752554b139",
+    "kernel/files/bsd/sys/waffle_gpu_iokit.h": "f5b4f79c5b5c5c038c74d30e807c2b2175550a63c7b1705bd84c67671d41f091",
+    "kernel/files/bsd/sys/waffle_unixnu_gpu.h": "a801904aed5a27e77feee5ca10c48e7126a88aab615eeedb65ecb0c81ed147df",
+    "kernel/files/iokit/Kernel/WaffleGPUMap.cpp": "094498d3f665ed618811fa965a6b89aa6453813550ec32a3546a5b0597868b08",
+    "kernel/files/iokit/Kernel/WaffleNativeGPU.cpp": "8f5c2d9f3298f5fa6239c54f4c14fa7fd575b15893e98c93fc153d36a43d02c2"
+  },
+  "missing": [
+    "DeviceInfo15",
+    "4KiB GPU VA contract",
+    "sustained native fences/metadata/status",
+    "normal multi-client rendering"
+  ]
+}
