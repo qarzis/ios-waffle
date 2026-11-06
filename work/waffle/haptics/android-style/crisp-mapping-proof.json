@@ -1,0 +1,26 @@
+{
+  "source_APK_sha256": "6dbcffc8c4ac20e8ef91d97cf67475541e62864c4181caa5f44bdfac103ff63f",
+  "label_resource": "clear_and_crisp_sound",
+  "Russian_label": "Хруст",
+  "English_label": "Crisp",
+  "preference_key": "key_clear_and_crisp_sound",
+  "setting": "touch_style_vibration_intensity",
+  "crisp_value": 0,
+  "soft_value": 1,
+  "controller": "com.oplus.settings.feature.sound.controller.HapticsStyleChooseController",
+  "dex": "classes8.dex",
+  "crisp_preview_effect_type": 640,
+  "soft_preview_effect_type": 647,
+  "preview_asset": "assets/haptics_style_crisp_preview.he",
+  "crisp_frequency_parameters": [
+    100,
+    70,
+    100,
+    100,
+    100
+  ],
+  "frequency_parameter_is_hz": false,
+  "capture_private": true,
+  "firmware_published": false,
+  "iOS_crisp_replay_implemented": false
+}

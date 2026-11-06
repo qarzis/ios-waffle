@@ -100,6 +100,9 @@ def main():
     run([output / "test-haptic-events"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-write-adapter-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-cli-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-haptic-worker-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-haptic-pcm-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-haptic-identity-host.py"])
     for variant,flags in (("base",[]),("user",["-DWAFFLE_USERLAND=1"]),("pulse",["-DWAFFLE_USERLAND=1","-DWAFFLE_HAPTIC_PULSE_TEST=1"])):
         run(["cc","-std=c11","-Wall","-Wextra","-Werror",*flags,
              ROOT / "tools/tests/waffle-haptic-policy-host.c","-o",output / f"test-haptic-policy-{variant}"])
@@ -107,6 +110,8 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-binding-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-adsp-scm-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-gpr-reply-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-surface-target-submit-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-surface-target-log-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-glink-intent-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-framebuffer-clipping-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-display-usecount-host.py"])

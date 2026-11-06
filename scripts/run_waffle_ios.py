@@ -242,14 +242,20 @@ def validate_surface_target_log(text):
     done=re.search(r'waffle-gl-surface-target: passed=1 checked=1218000 wrong=0 first=ffff0000 last=ff00ff00 CPU_direct=1 glReadPixels=0 restored=1 GL_error=0',text[start.end():])
     if not done or any(x in text for x in ('waffle-gl-surface-target: passed=0','SURFACE_TARGET invalidate_failed=1','SURFACE_LEASE uncertain=1')):raise RuntimeError('Native target pixels/cache/restore failed')
     interval=text[start.end():start.end()+done.start()]
-    prepare=re.search(rf'SURFACE_TARGET prepare=1 handle={handle} bytes=(\d+) CPU_clean=1 private_PID1=1',interval)
-    if not prepare or int(prepare[1])<4898816:raise RuntimeError('Native target lacks full source cache clean')
+    prepares=list(re.finditer(rf'SURFACE_TARGET prepare=1 handle={handle} bytes=(\d+) CPU_clean=1 private_PID1=1',interval))
     completions=list(re.finditer(rf'SURFACE_TARGET complete=1 handle={handle} fence=(\d+) CPU_invalidated=1',interval))
-    if not completions:raise RuntimeError('Native target CPU visibility not established')
-    for completion in completions:
+    if not prepares or len(prepares)!=len(completions):raise RuntimeError('Native target clean/invalidate count mismatch')
+    previous_end=0;previous_fence=0
+    for prepare,completion in zip(prepares,completions):
+        if int(prepare[1])<4898816 or not previous_end<=prepare.start()<prepare.end()<=completion.start():raise RuntimeError('Native target cache operation order/range invalid')
         fence=int(completion[1]);seq=gl_sequence(fence-1)
-        if f'GENERAL_SUBMIT done fence={fence} seq={seq} control={fence:08x} checked=4096 wrong_words=0' not in interval[:completion.start()]:raise RuntimeError('Native CPU invalidate precedes validated GPU completion')
-    if f'GENERAL gem_new handle={handle}' not in text[:start.start()] or not re.search(rf'GENERAL gem_new handle={handle} bytes=\d+ allocated=\d+ flags=80000 VA=',text[:start.start()]):raise RuntimeError('Native target mapping lacks actual cached writable flags')
+        if fence<=previous_fence:raise RuntimeError('Native target reused/stale completion fence')
+        segment=interval[prepare.end():completion.start()]
+        if f'GENERAL_SUBMIT done fence={fence} seq={seq} control={fence:08x} checked=4096 wrong_words=0' not in segment:raise RuntimeError('Native CPU invalidate lacks matching post-clean GPU completion')
+        previous_end=completion.end();previous_fence=fence
+    gem=re.search(rf'GENERAL gem_new handle={handle} bytes=(\d+) allocated=\d+ flags=80000 VA=',text[:start.start()])
+    if not gem or any(int(p[1])!=int(gem[1]) for p in prepares):raise RuntimeError('Native target clean size/mapping identity mismatch')
+
 
 
 def validate_surface_promotion_log(text):
@@ -860,7 +866,7 @@ def main():
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
-    if args.haptic_ui_test and (not args.gpu_ui or not args.gpu_gl_context or not args.double_buffer or not args.hardware_vsync or not args.torch_service or args.cpus!=1 or args.seconds>180 or args.haptic_pulse or args.haptic_service_test or args.audio_preflight):
+    if args.haptic_ui_test and (not args.gpu_ui or not args.gpu_gl_context or not args.double_buffer or not args.hardware_vsync or not args.torch_service or args.cpus not in range(1,8) or args.seconds>180 or args.haptic_pulse or args.haptic_service_test or args.audio_preflight):
         parser.error('--haptic-ui-test requires short guarded GPU UI/torch/CPU1')
     if args.haptic_service_test and (args.haptic_pulse or args.audio_preflight or args.gpu_probe is not None or args.cpus!=1 or args.seconds>90 or args.torch_readonly or args.torch_pulse or args.torch_service):
         parser.error('--haptic-service-test requires isolated CPU1, <=90seconds, no GPU/audio/flash')
@@ -1414,7 +1420,9 @@ def main():
                 if not all(s in final_text for s in required) or any(s in final_text for s in ('adsp: FAIL', 'adsp: WAFFLE PREFLIGHT FAIL', 'adsp: WAFFLE POWER_APPLY FAIL', 'adsp: PAS ', 'adsp: RPMh ')):
                     raise RuntimeError(f'ADSP firmware preflight evidence missing or hardware path reached; logs: {out}')
             if (args.haptic_service_test or args.haptic_ui_test) and not all(marker in final_text for marker in (
-                'haptic-waffle-service: ready=1 PCM=S16_mono',
+                'haptic-waffle-service: ready=1',
+                'haptic-waffle-service: format=S16_mono tap_us=16000',
+                'haptic-waffle-service: cooldown_us=80000',
                 'waffle-haptic-client: direct_taps=3 errors=0',
                 'haptic-waffle-pulse: passed=1 admitted=1 start=1',
                 'haptic-waffle-pulse: stopped=1 restored=1 emergency=0 writes=7')):

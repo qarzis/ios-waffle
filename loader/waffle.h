@@ -158,7 +158,7 @@ static inline int waffle_cmdline_allowed(const char *line)
             returns==1 && haptic_budget==1 && !gpu_count && !audio && !surface_lock_audit &&
             !display_present && !display_flip && !display_flush && !display_completion &&
             !display_irq_probe && !display_survey && !hardware_vsync && !soak;
-        int ui=haptic_service==1 && haptic_cpu1==1 && cpus==1 && haptic_torch3==1 && torch==1 &&
+        int ui=haptic_service==1 && cpus==1 && haptic_torch3==1 && torch==1 &&
             returns==1 && haptic_ui_budget==1 && gpu_count==1 && native94 && gl_image==1 &&
             display_present==1 && hardware_vsync==1 && !audio && !surface_lock_audit &&
             !display_flip && !display_flush && !display_completion && !display_irq_probe &&

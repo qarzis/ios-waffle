@@ -11,7 +11,7 @@ cpus=int(next(iter(cpu_options)).split('=')[1]) if cpu_options else None
 options-=cpu_options
 haptic_ui_test='--haptic-ui-test' in options
 options.discard('--haptic-ui-test')
-if haptic_ui_test:assert probe==94 and cpus==1 and {'--ui-workload','--gl-context','--double-buffer','--hardware-vsync','--torch-service'}<=options
+if haptic_ui_test:assert probe==94 and cpus in range(1,8) and {'--ui-workload','--gl-context','--double-buffer','--hardware-vsync','--torch-service'}<=options
 torch_readonly='--torch-readonly' in options
 options.discard('--torch-readonly')
 torch_pulse='--torch-pulse' in options

@@ -188,7 +188,7 @@ def main():
             'data_bo','user_copy','worker','copy_jobs','image_present','image_copy','image','compute',
             'dynamic_bo','session','ib','writeback','zap','lpac_map','ui_workload','ui_long_test','ui_soak_test')):
         parser.error('--audio-preflight must run separately from other diagnostics')
-    if args.haptic_ui_test and (not args.ui_workload or not args.gl_context or not args.double_buffer or not args.hardware_vsync or not args.torch_service or args.cpus!=1 or args.haptic_service_test or args.haptic_pulse or args.ui_long_test or args.ui_soak_test or args.audio_preflight or args.cpu_ui_test):
+    if args.haptic_ui_test and (not args.ui_workload or not args.gl_context or not args.double_buffer or not args.hardware_vsync or not args.torch_service or args.cpus not in range(1,8) or args.haptic_service_test or args.haptic_pulse or args.ui_long_test or args.ui_soak_test or args.audio_preflight or args.cpu_ui_test):
         parser.error('--haptic-ui-test requires dedicated short guarded GPU UI/torch/CPU1')
     if args.haptic_service_test and (not args.cpu_ui_test or args.cpus!=1 or args.cpu_seconds!=60 or args.haptic_pulse or args.torch_readonly or args.torch_pulse or args.torch_service or args.ui_workload or args.audio_preflight or args.prepare_gpu or args.lpac_cp_init or args.gl_context or args.compute or args.dynamic_bo):
         parser.error('--haptic-service-test requires isolated CPU1/60sec without other device modes')

@@ -1,0 +1,27 @@
+{
+  "original_runner_exit": 1,
+  "original_failure": "Native PCM haptic bridge proof incomplete: READY line torn during startup concurrent logging",
+  "android_confirmed": true,
+  "user_feedback": "Vibration worked",
+  "CoreHaptics_supports_1": true,
+  "system_completion": true,
+  "direct_client_3_no_errors": true,
+  "ready_line_complete": false,
+  "CPU_active": [
+    7
+  ],
+  "parallel_CPU_ratios": [
+    3.5
+  ],
+  "offline_GPU_proof": {
+    "actual_backboardd_pid": 85,
+    "GPU_fences": 5464,
+    "BO_count": 3274,
+    "actual_CoreAnimation_workload": true,
+    "full_GPU_teardown": true,
+    "pixel_correctness_verified": false,
+    "optical_visibility_verified": false
+  },
+  "trace": "work/waffle/runs/20261106T070152Z/haptic-analysis-stream.log",
+  "trace_sha256": "d4f166c82cee7f6b6d7b26d1d8b4d73239659105b2324fa15a1d3c3a89d5ee72"
+}
