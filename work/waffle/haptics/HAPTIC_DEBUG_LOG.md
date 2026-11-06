@@ -100,3 +100,25 @@ At most three hypotheses: (1) strongest: clearing SWR_ACCESSe0 asserted SWR_PAT_
 ## H18 minimal experiment for hypothesis1 (building)
 
 Change only input exclusion e0->40 mask: SWRoriginale0 becomesa0, preservingCONFIG_EN/RES_N while inputbit40disabled. Playback admission now requires resetdeasserted20 and inputdisabled40. Add read-only activeHPWR/PLAY/FIFOready/power_seen and observedSWR to log. No other clock/voltage/data/handshake modifications. New81readfault cases/all17writeambiguity/stall/quarantine fixtures PASS. Nativeburst/owner/restoration regressions PASS. Fullbuild diagnostic-haptic-fifo-reset-h18 activebuild-h18.log session45163. PhoneAndroid, noUSBowner. Freezecompiledinputs; package/root/header/calbinding/validate thenisolatedCPU1/60test. If it fails, use observedHPWR/PLAY beforeanotherhypothesis; afterthreeunsuccessfulexecutionexperiments revisit architecture.
+
+
+## H18 FAIL — reset-only hypothesis refuted
+
+Run084254Z/auto084230Z original1/Android1. initial144/last144/30015us/progress0/drain0. SWRa0 preservesCONFIG_EN/RES_N and excludesinput40; HPWR03/PLAY80/FIFOready01/powerseen1 prove power ready while no consumption. STOP/restored1/emergency0, cleanupcount0, SWRquarantined. Exactstreamhash H18-result.json. Do not repeat reset or absentHPWR hypotheses without new evidence.
+
+## H19 third execution experiment: native rate-before-upload order
+
+Pinned native haptics_set_fifo calls set_fifo_playrate BEFORE flush/upload; our H17/H18 called clocksetup only in consumer after loading. Minimalcandidate: for nonnull consumer saveFIFO rate, set low10 preservingupper beforeflush/upload, restore original afterconsumer+cleanup beforeSWRreenable. RC/CAL/autores/PLAY/HPWR sequence unchanged. Purebufferwithoutconsumer stays oldbehavior. Actual combinedhelper fixture asserts rateea at everydatawrite and restoresoriginale0 beforeSWR.127reads/43writes*2ambiguity faults PASS plus standalone81read/17write cases. FullbuildH19activebuild-h19.log session15969; freezeinputs. If no consumption again (thirdnegative executionexperiment), stop hardware variation and re-audit shared pattern/clock/source assumptions. Android returned, noUSBowner yet.
+
+
+## H19 FAIL — third execution experiment; architecture review entered
+
+Run084820Z/auto084757Z original1/Android1. Rate-before-upload did not help:144->144,31152us, HPWR03/PLAY80/ready01/SWRa0. STOP/configrestore1, cleanup0, SWRquarantined. H19-result.json immutabletracehash. Three failed execution experiments H17/H18/H19: stop hardware variation and re-audit. TransportH16 stillPASS. No waveform replay claim.
+
+## Architecture review: observed actual working Android PMIC sequence
+
+Root exposes tracefs SPMI events. Created isolated instance waffle_haptic_audit, filterSID7/rangef000..f1ff, enabled events only in that instance around one normal `cmd vibrator_manager synced prebaked0`, disabled/rmdir on EXIT. Verified isolatedinstancegone/globaltracingstill0. Did not clear/changeglobaltrace; did not manually writePMIC.142/142events retained. Private native-click-spmi-trace.txt/native-click-wire-proof.json.
+
+Actual upload is144bytes, byte-identical to ODM9999/def/effect_1.bin. Native rateea,RC02/3e,manualCAL08 precedeupload; START80 at46.233862, firstSTOP00 at46.240208 (6346us). StatusbeforeSTOP40/00 confirms empty. NativeHPWR03afterSTOPthen00 confirms natural powertrail. Critically VSET_CFGf068 changesd4->d7 beforeSTART andd7->d4 beforeSTOP. OurH17-H19 omitted this. Otherobservedsetup:headroomf067=14,VMAXf048=69 (doNOTcopy highvoltage), faultclearf066=07. NoSWR_ACCESSwrite inobservedclick; donotblindcopyallnativewrites.
+
+Pinned haptics_open_loop_drive_config OPLUS_FEATURE_RICHTAP_SUPPORT path calls force_vreg_ready(en) when notexternal and clamped_vmax==MAX_HV_VMAX_MV, including otherwise boost-disabled state. NativeVSETmask isFORCE_VREG_RDY_BIT|FORCE_VSET_ACK_BIT onHAP525. Previous blanket policy of neverforcingready was a diagnostic admission choice, not a complete native sequence. New strongesthypothesis: omittedCFG VSETack preventsFIFO consumption despiteHPWR3. Supportedbywiretrace, notyetcausalproof. BeforeH20 need establish actualclamp/externalpower state and qualifyboundedCFG-onlyhandshake/restore/faultcases; noHBSTwrites orVMAXincrease. Do notrerunoldreset/ratevariants. NoH20implementedorhardwaretested.

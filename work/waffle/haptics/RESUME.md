@@ -1,3 +1,19 @@
+# ACTIVE architecture re-audit after H19; no USB owner
+
+H19thirdexecutionexperimentfailed original1/Android1.144->144/31152us,HPWR03/PLAY80/ready01/SWRa0;STOP/configrestore1,cleanup0,SWRinputquarantine. H19-result.json saved. Rate-before-upload and reset hypothesesrefuted; nofourthblindhardwarevariation. H16transport0->144->0remainsPASS.
+
+NEW PRIMARY EVIDENCE: working Android ftraceSPMI isolatedinstance captured142/142events aroundoneCLICK. Uploaded144bytes exactlyODMdef/effect_1.bin; nativeSTART80->STOP00=6346us. NativeCFG VSETf068 d4->d7 beforeSTART, d7->d4 beforeSTOP, absentfromXNUtests. Nativeclockea/RC023e/CAL08 confirmed, noguess. Privateandroid-style/native-click-spmi-trace.txt/native-click-wire-proof.json. Traceinstancecleaned/globaltracing0unchanged, phoneAndroid/root, nosoleUSBowner. DoNOTpublishtracewavecontents/ELFs/JAR/APK.
+
+NextH20hypothesis(notimplemented): omittedCFG-onlyVSETready+ack handshake. PinnedOPLUS_RICHTAP open_loop_drive_config forcesready(en) ifnotexternal && clamped_vmax==MAXHV, evenwhenboostnotopenloop. Needestablishactualclamp/externalpowerconditionandhostqualifyboundedCFG68save/force/STOP/restore/faultbeforedevice. NEVERwriteHBSTorcopyobservednativeVMAX69/headroom14blindly. Othernativewrites includeFAULTCLR07; freshfault0meansdon'tclearwithoutreason. H18/H19kernelalreadybuilt/sourcecurrentlyH19. Publiclastd58e692; privatef26b54e thennewH19/result/traceproofnotcommitted. Userresumed, no shutdown request.
+
+# ACTIVE H19 building — third and final execution-order experiment before re-audit
+
+H18 run084254Z/auto084230Z failedoriginal1/Android1:144->144 across30015us, SWRa0/HPWR03/PLAY80/ready01/powerseen1; STOP/configrestore1, FIFOcleanup0/SWRinputquarantined. Resetgatehypothesisrefuted, absentHPWRalsorefuted. H18-result.json/exacttrace saved. No randomboost/calibrationfixes.
+
+H19 candidate matchesnativehaptics_set_fiforateBEFOREflush/upload. Onlynonnullconsumer savesrate/sets24kbeforeupload andrestoresaftercleanupbeforeSWRreenable; currentconsumerclock/RC574/CAL/manual/autores/PLAYunchanged. Combinedactualhelper127readfault/43writefault*2ambiguityPASS, assertsrateeatimedatall36datawrites andratee0restoredatSWRreenable. Standalone81read/17write faultscasesPASS. Fullbuilddiagnostic-haptic-fifo-order-h19 build-h19.log session15969 active/nearcompletion. Frozencompiledinputs. FreshAndroidcalibrationandroid-calibration-before-h19.txt574/7692.
+
+NextpackagefreshH19kernel/image/current+snapshotbindings withH18CPUroot; samemanifestcapsandrc574 capturealiasandroid-calibration-before-h17.txt; pairedvalidate thenoneCPU1/60/hapticpulsetest. Ifitfails(stop afterthirdnegativeexecutionexperimentH17/H18/H19), nofourthblindvariation; compareactualnativepattern/clock/registersequence. PhoneAndroid/noUSBowneratbuildtime. Publicd58e692 already pushed, privatecheckpointf26b54e; newH19buffer/tests/resultuncommitted. Mainindexpreserve; neverpublishprivateAPK/ELFs/JAR/waves. Userresumedafterstop, noshutdownrequest.
+
 # RESUMED H18 hardware active
 
 User explicitly resumed. H18 full build had completed before stop; verified current compiled snapshot hashes and fresh root/image/calibration bindings, paired validatorPASS. Android independentlybootcompleted1/RC574/t_lra7692 beforelaunch. H18 auto-h18.log session28342 running, soleUSBowner:CPU1/60/hapticpulse. Hypothesis: preserveSWRreset/configbitse0->a0 (onlyinput40off), observeactiveHPWR/PLAY/FIFOready/power_seen, nootherclock/powerchange. This iszeroFIFO engine test, notCrispwave. Do not issue extraUSB whileowneractive. Need retainoriginalresultandAndroidrecovery, parseobservationsbeforeanyfurtherexperiment.

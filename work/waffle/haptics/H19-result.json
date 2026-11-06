@@ -1,0 +1,21 @@
+{
+  "runner_exit": 1,
+  "initial_fill": 144,
+  "last_fill": 144,
+  "progress": false,
+  "drained": false,
+  "active_us": 31152,
+  "HPWR": 3,
+  "PLAY": 128,
+  "ready": 1,
+  "SWR": 160,
+  "STOP_confirmed": true,
+  "configuration_restored": true,
+  "FIFO_cleared": true,
+  "SWR_input_quarantined": true,
+  "rate_before_upload_hypothesis": "refuted for restoring execution",
+  "execution_experiment_failures": 3,
+  "next_action": "architecture re-audit; no fourth speculative hardware change",
+  "trace_sha256": "773760df83ec2072febe8936be6b5d98d5ee67d0ca7dabd9a75b759384ae83c2",
+  "android_confirmed": true
+}

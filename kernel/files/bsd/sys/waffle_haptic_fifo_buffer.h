@@ -19,12 +19,12 @@ struct waffle_haptic_fifo_buffer_result {
 static inline bool waffle_haptic_fifo_buffer_read_allowed(uint16_t p,uint8_t a)
 {
  return waffle_haptic_fifo_status_read_allowed(p,a) ||
-        (p==0x7f0 && a==0x4e) || (p==0x7f1 && a==0x2d);
+        (p==0x7f0 && a==0x4e) || (p==0x7f1 && (a==0x24 || a==0x2d));
 }
 static inline bool waffle_haptic_fifo_buffer_write_allowed(uint16_t p,uint8_t a)
 {
  return waffle_haptic_fifo_status_write_allowed(p,a) ||
-        (p==0x7f0 && a==0x4e) || (p==0x7f1 && a==0x2d);
+        (p==0x7f0 && a==0x4e) || (p==0x7f1 && (a==0x24 || a==0x2d));
 }
 static inline bool waffle_haptic_fifo_buffer_consume(
  const struct waffle_haptic_fifo_buffer_io *io,
@@ -37,7 +37,7 @@ static inline bool waffle_haptic_fifo_buffer_consume(
  const struct waffle_haptic_fifo_status_io *s=&io->status;
  struct waffle_haptic_fifo_status_result before,after;
  if(!waffle_haptic_fifo_status(s,&before) || before.fill || before.capacity<144)return false;
- uint8_t mem=0,source=0;
+ uint8_t mem=0,source=0,saved_rate=0;bool rate_dirty=false;
  if(!s->read8(s->context,0x7f0,0x4e,&r->saved_swr) ||
     !s->read8(s->context,0x7f1,0x2d,&mem) || mem)return false;
  /* Native is_swr_play_enabled uses HAP_DRV_STS selector0x0005.
@@ -56,6 +56,12 @@ static inline bool waffle_haptic_fifo_buffer_consume(
   * Mark the attempt dirty even if transport reports failure. */
  bool ok=s->write8(s->context,0x7f0,0x4e,r->saved_swr&~0x40);
  bool fifo_touched=false,known_clear=true;
+ /* H19 matches native haptics_set_fifo: rate is configured BEFORE the
+  * first flush/upload. Execution helper still owns RC/CAL and STOP. */
+ if(ok && consume){
+  ok=s->read8(s->context,0x7f1,0x24,&saved_rate);
+  if(ok){rate_dirty=true;ok=s->write8(s->context,0x7f1,0x24,(saved_rate&0xf0)|10);}
+ }
  if(ok){
   fifo_touched=true;known_clear=false;
   ok=s->write8(s->context,0x7f1,0x2d,1);
@@ -88,11 +94,12 @@ static inline bool waffle_haptic_fifo_buffer_consume(
  bool final_low=s->write8(s->context,0x7f0,0x70,before.selector);
  bool final_high=s->write8(s->context,0x7f0,0x71,before.extension);
  r->selectors_restored=final_low&&final_high;
+ bool rate_restored=!rate_dirty || s->write8(s->context,0x7f1,0x24,saved_rate);
  /* Never re-enable an inherited SWR producer onto an uncertain FIFO. */
  /* A failed consumer may also have failed clock/control restoration. Even
   * an empty FIFO does not grant re-enabling SWR with unknown configuration. */
- if(known_clear && consumer_ok)r->swr_restored=s->write8(s->context,0x7f0,0x4e,r->saved_swr);
- r->passed=ok&&r->loaded&&r->cleared&&r->selectors_restored&&r->swr_restored;
+ if(known_clear && consumer_ok && rate_restored)r->swr_restored=s->write8(s->context,0x7f0,0x4e,r->saved_swr);
+ r->passed=ok&&r->loaded&&r->cleared&&r->selectors_restored&&r->swr_restored&&rate_restored;
  return r->passed;
 }
 static inline bool waffle_haptic_fifo_buffer(

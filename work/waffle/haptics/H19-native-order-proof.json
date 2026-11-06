@@ -1,0 +1,8 @@
+{
+  "native_source_sha256": "c19ae5ecc0a112840207f798f78a2fc113ba8592b61fe816461df76765c2110f",
+  "function": "haptics_set_fifo",
+  "rate_call_offset": 326,
+  "upload_call_offset": 1278,
+  "rate_precedes_upload": true,
+  "hypothesis_not_hardware_proof": true
+}

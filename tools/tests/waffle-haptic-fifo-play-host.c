@@ -55,7 +55,7 @@ static bool run(struct bus *b,struct waffle_haptic_fifo_play_result *r)
 }
 struct consumer {struct bus *bus;struct waffle_haptic_fifo_play_result result;};
 static bool consume(void *context){struct consumer *c=context;return run(c->bus,&c->result);}
-static bool write4(void *context,uint16_t p,uint8_t a,const uint8_t *v){struct bus *b=context;assert(b->buffer_mode&&p==0x7f1&&a==0x20&&!b->playing&&!(b->reg[0][0x4e]&0x40)&&!v[0]&&!v[1]&&!v[2]&&!v[3]);b->queued+=4;b->data++;return true;}
+static bool write4(void *context,uint16_t p,uint8_t a,const uint8_t *v){struct bus *b=context;assert(b->reg[1][0x24]==0xea);assert(b->buffer_mode&&p==0x7f1&&a==0x20&&!b->playing&&!(b->reg[0][0x4e]&0x40)&&!v[0]&&!v[1]&&!v[2]&&!v[3]);b->queued+=4;b->data++;return true;}
 static void restored(struct bus *b){struct bus old=initial();assert(!memcmp(b->reg,old.reg,sizeof(b->reg))&&!b->playing);}
 int main(void)
 {
@@ -87,5 +87,20 @@ int main(void)
   if(mode==0)assert(buffer.cleared&&buffer.swr_restored&&b.reg[0][0x4e]==0xe0);
   else {assert(!buffer.swr_restored&&!(b.reg[0][0x4e]&0x40));if(mode==2)assert(c.result.emergency_disabled);}
  }
+ unsigned combined_reads,combined_writes;
+ b=initial();b.buffer_mode=true;b.reg[0][0x4e]=0xe0;
+ struct consumer good={.bus=&b};struct waffle_haptic_fifo_buffer_result result;
+ const struct waffle_haptic_fifo_buffer_io good_io={{&b,read8,write8,true},write4};
+ assert(waffle_haptic_fifo_buffer_consume(&good_io,&result,consume,&good));
+ combined_reads=b.reads;combined_writes=b.writes;
+ for(unsigned kind=0;kind<2;kind++)for(unsigned n=1;n<=(kind?combined_writes:combined_reads);n++)for(unsigned uncertain=0;uncertain<2;uncertain++){
+  b=initial();b.buffer_mode=true;b.reg[0][0x4e]=0xe0;b.ambiguous=uncertain;
+  if(kind)b.fail_write=n;else b.fail_read=n;
+  struct consumer c={.bus=&b};const struct waffle_haptic_fifo_buffer_io io={{&b,read8,write8,true},write4};
+  assert(!waffle_haptic_fifo_buffer_consume(&io,&result,consume,&c));
+  assert(!b.playing);
+  if(result.swr_restored)assert(b.reg[1][0x24]==0xe0&&!b.queued);
+ }
+ printf("PASS combined pre-upload rate/execution/cleanup:%u reads,%u writes x2 ambiguity; rate restored before SWR, no START before144 samples.\n",combined_reads,combined_writes);
  printf("PASS zero FIFO execution: %u read faults,%u writes x2 ambiguity; actual progress/time/drain required; stalled clock/FIFO/instant empty/refill/fault/stuck stop handled, config restored or emergency disabled. Mock only.\n",reads,writes);
 }

@@ -1,0 +1,20 @@
+{
+  "runner_exit": 1,
+  "android_confirmed": true,
+  "initial_fill": 144,
+  "last_fill": 144,
+  "progress": false,
+  "drained": false,
+  "active_us": 30015,
+  "SWR": 160,
+  "HPWR": 3,
+  "PLAY": 128,
+  "FIFO_ready": 1,
+  "power_seen": true,
+  "STOP_confirmed": true,
+  "configuration_restored": true,
+  "FIFO_cleared": true,
+  "SWR_quarantined": true,
+  "reset_hypothesis": "refuted: preserving RES_N/config did not restore consumption",
+  "trace_sha256": "d6c0aee83b83893ac12fd40920a817d1508f831517b986dc2d42fc767eb9ada4"
+}
