@@ -18,6 +18,7 @@
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern kern_return_t thread_terminate(thread_t thread);
 extern void loader_log_putc(char c);
+extern void loader_log_line(const char *line);
 static uint32_t level;
 static bool waffle_arb;
 static uint32_t haptic_test;
@@ -41,9 +42,8 @@ say(const char *format, ...)
  va_start(list, format);
  length = vsnprintf(line, sizeof(line), format, list);
  va_end(list);
- for (const char *c = line; *c != 0; c++) {
-  loader_log_putc(*c);
- }
+ /* Existing logger holds its shared lock across each <=64-byte chunk. */
+ loader_log_line(line);
  if (!leaving && ml_get_interrupts_enabled()) {
   printf("%s", line);
  }
@@ -455,7 +455,9 @@ waffle_haptic_service(struct waffle_haptic_bus_context *context)
   say("haptic-waffle-service: device_create_failed=1\n");return;
  }
  lck_mtx_lock(&haptic_event_lock);haptic_service_ready=true;lck_mtx_unlock(&haptic_event_lock);
- say("haptic-waffle-service: ready=1 PCM=S16_mono tap_us=16000 cooldown_us=80000\n");
+ say("haptic-waffle-service: ready=1\n");
+ say("haptic-waffle-service: format=S16_mono tap_us=16000\n");
+ say("haptic-waffle-service: cooldown_us=80000\n");
  unsigned taps=0;bool failed=false;
  while(!leaving) {
   lck_mtx_lock(&haptic_event_lock);
@@ -503,6 +505,8 @@ waffle_haptic_bus_survey(uint32_t channels)
       state.hpwr,state.fault,state.brake,state.cl_brake,state.autores,state.cal);
   say("haptic-waffle: vset=%02x follow=%02x boost_en=%02x clamp=%02x power_survey=1\n",
       state.vset,state.boost_follow,state.boost_enable,state.boost_clamp);
+  say("haptic-waffle: FIFO ready=%02x rate=%02x empty=%02x\n",state.fifo_ready,state.fifo_rate,state.fifo_empty);
+  say("haptic-waffle: FIFO depth=%02x map=%02x writes=0\n",state.fifo_depth,state.fifo_map);
   say("haptic-waffle: direct=%02x period1=%02x%02x period2=%02x%02x complete=1\n",
       state.direct,state.period[0],state.period[1],state.period[2],state.period[3]);
  }

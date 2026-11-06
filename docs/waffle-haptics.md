@@ -24,3 +24,12 @@ The missing `/product/haptics` node prevented MobileGestalt from selecting the P
 This verifies a bounded tap approximation, not full waveform fidelity, long vibrations or intensity control. The service uses a separate sleeping worker so torch initialization can continue. It remains opt-in; ordinary GPU boot integration is a separate H10 experiment and is not yet claimed working. The driver requires the existing native haptic identity only when its checked PCM service is selected. The staged source exposes `waffle_haptic_test=1` for a one-shot and `=2` for the PCM service; the accompanying loader policy must explicitly admit the requested bounded mode. Do not enable unrelated donor peripherals.
 
 H10 subsequently passed the first bounded joint test with guarded GPU desktop rendering, the threaded haptic PCM service and torch service, using one XNU core. Original runner exit 0 and Android return were confirmed. Its GPU window intentionally ended after 60 seconds. This does not establish multicore joint stability, indefinite runtime or a new FPS result. Further tests were stopped at the user's request.
+
+
+## November 6: calibration and diagnostic integrity
+
+Root access supplied by the owner allowed read-only capture of the native motor calibration: RC count574, open-loop7692us, closed-loop7550us and reported132Hz (motor9999). ColorOS Crisp is still in progress: the existing bridge emits bounded16ms taps, not the original shaped waveform. Native FIFO configuration was read without FIFO writes.
+
+Torch diagnostics now use the existing bounded loader line writer instead of individually locked characters. H13 retained all service-ready records under seven-core GPU load. Its complete run remains failed: an unrelated GPU BO publication record was interrupted by concurrent output. No full-session pass or stability improvement is claimed for H13.
+
+A separate private PID1 GPU experiment, S20, passed native IOSurface output:1218000 pixels checked, zero mismatches, CPU reads directly after completion, no glReadPixels, backing restored, and automatic return to Android. This validates the isolated output transport, not SpringBoard integration or a measured FPS increase. Experimental native-output code is not promoted by this haptics update.
