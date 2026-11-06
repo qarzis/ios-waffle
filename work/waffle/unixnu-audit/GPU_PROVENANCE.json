@@ -1,0 +1,11 @@
+{
+  "core": "e2fdae4312d0acc3d8a52bc457101e7918095e6a",
+  "components": {
+    "drivers/Adreno740": "6fa7bae2a5b3b523e790eb3e0348af4d98969e4d",
+    "drivers/AdrenoMetal": "6416a76e0a287d85afbcddda21192388460e155c",
+    "kits/AdrenoPM4": "282606b528b2595bc4274ea7490b62b323f35a5f",
+    "kits/AdrenoFirmware": "20ad3d7aca14bd46aecab6335c780f5413fa054b",
+    "kits/ArmSmmu4K": "83969cd874503e65997ff7639f7dcf3d0a92cd17"
+  },
+  "imported_only": "NativeAdrenoABI.h/MIT license; A740 hardware code not transplanted"
+}

@@ -69,7 +69,7 @@ static void crash_log(int sig,siginfo_t *info,void *context)
  raw_call(55,8,0,0);for(;;){}
 }
 #define printf direct_log
-#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
+#if defined(WAFFLE_GL_UNIXNU_QUERY) || defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include "waffle_gpu_msm.h"
@@ -77,7 +77,7 @@ static void crash_log(int sig,siginfo_t *info,void *context)
 #ifdef WAFFLE_GL_RECYCLE_BO
 #include "waffle_gl_recycle_probe.h"
 #endif
-#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
+#if defined(WAFFLE_GL_UNIXNU_QUERY) || defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 static int existing_gpu_fd(void)
 {
  struct stat device;
@@ -213,17 +213,22 @@ static bool check_surface_reuse(GLuint texture)
 #ifdef WAFFLE_GL_SURFACE_PROMOTION_TEST
 #include "waffle_surface_promotion_probe.h"
 #endif
+#ifdef WAFFLE_GL_SURFACE_TARGET_TEST
+#include "waffle_surface_target_probe.h"
+#endif
 #ifdef WAFFLE_GL_SURFACE_RESOURCE_TEST
 static bool check_surface_resource(void)
 {
  void (*image_target)(GLenum,void *)=(void (*)(GLenum,void *))OSMesaGetProcAddress("glEGLImageTargetTexture2DOES");
  if(!image_target)return false;
  GLuint textures[2]={0};GLint previous=0;unsigned checked=0,gpu_access=0;bool ok=false;
-#ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
+#if defined(WAFFLE_GL_SURFACE_SAMPLE_TEST) || defined(WAFFLE_GL_SURFACE_TARGET_TEST)
  gpu_access=1;
 #endif
  glGetIntegerv(GL_TEXTURE_BINDING_2D,&previous);
-#ifdef WAFFLE_GL_SURFACE_SAMPLE_TEST
+#ifdef WAFFLE_GL_SURFACE_TARGET_TEST
+ const char *audit_env="WAFFLE_GPU_SURFACE_TARGET_AUDIT";
+#elif defined(WAFFLE_GL_SURFACE_SAMPLE_TEST)
  const char *audit_env="WAFFLE_GPU_SURFACE_SAMPLE_AUDIT";
 #else
  const char *audit_env="WAFFLE_GPU_SURFACE_IMPORT_AUDIT";
@@ -278,7 +283,11 @@ static bool check_surface_resource(void)
  if(ok)ok=check_surface_reuse(textures[0]);
 #endif
 #else
+#ifdef WAFFLE_GL_SURFACE_TARGET_TEST
+ ok=check_surface_target(textures[0]);
+#else
  ok=true;
+#endif
 #endif
  done:
  unsetenv(audit_env);
@@ -559,8 +568,20 @@ int main(void)
  ctx=OSMesaCreateContextAttribs(attrs,NULL);
  direct_log("waffle-gl-diag: after_create_context ptr=%p\n",ctx);
  if(!ctx){printf("waffle-gl-user: context failed\n");goto finish;}
+
+
  for(unsigned i=0;i<256;i++)pixels[i]=0xdead0000u+i;
  if(!OSMesaMakeCurrent(ctx,pixels,GL_UNSIGNED_BYTE,16,16)){printf("waffle-gl-user: makecurrent failed\n");goto finish;}
+#ifdef WAFFLE_GL_UNIXNU_QUERY
+ {
+  int fd=existing_gpu_fd();struct waffle_unixnu_call call={.version=2,.method=1,.output_bytes=sizeof(struct waffle_unixnu_params)};
+  if(fd<0 || ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){if(fd>=0)close(fd);goto finish;}
+  struct waffle_unixnu_params params;memcpy(&params,call.payload,sizeof(params));
+  call.method=5;int refused=ioctl(fd,WAFFLE_UNIXNU_CALL,&call);close(fd);
+  if(params.version!=2 || params.input_bits!=39 || params.output_bits!=36 || params.flags || !params.max_bo_bytes || refused==0)goto finish;
+  printf("waffle-unixnu: query=1 ABI=2 VA=39 PA=36 flags=0 submit_refused=1 Metal_published=0\n");
+ }
+#endif
 #endif
  const char *renderer=(const char *)glGetString(GL_RENDERER);
  printf("waffle-gl-user: renderer=%s version=%s\n",renderer?renderer:"NULL",glGetString(GL_VERSION));

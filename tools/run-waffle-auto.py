@@ -124,6 +124,7 @@ def main():
     parser.add_argument('--audio-power', action='store_true', help='With --audio-preflight: qualify native RPMh upvotes, retain until Android reset')
     parser.add_argument('--audio-survey', action='store_true', help='With --audio-preflight: read-only SMEM/SMP2P/GLINK state survey')
     parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
+    parser.add_argument('--audio-cb-access',action='store_true',help='Isolated disabled context control-access/restore test, no DMA or DSP')
     parser.add_argument('--audio-boot', action='store_true', help='With --audio-preflight: bounded ADSP firmware boot/GPR query/shutdown, no PCM')
     parser.add_argument('--audio-graph', action='store_true', help='With --audio-boot: open/close shared-memory endpoint graph; no DMA/PCM')
     parser.add_argument('--battery-readonly',action='store_true',help='With isolated --audio-boot: one native read-only battery sample')
@@ -181,6 +182,7 @@ def main():
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
     if args.battery_readonly and (not args.audio_boot or args.audio_graph):parser.error('--battery-readonly requires isolated --audio-boot and excludes graph')
     if args.battery_report_test and not args.battery_readonly:parser.error('--battery-report-test requires --battery-readonly')
+    if args.audio_cb_access and not args.audio_iommu:parser.error('--audio-cb-access requires --audio-iommu')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and any(getattr(args, name) for name in (
             'cpu_ui_test','cpus','haptic_ui_test','haptic_service_test','haptic_pulse','torch_readonly','torch_pulse','torch_service','prepare_gpu','access_matrix',
@@ -326,6 +328,13 @@ def main():
 
     if args.torch_pulse and not manifest.get('torch_pulse_loader'):parser.error('Artifact lacks the bounded torch pulse policy')
     if args.torch_service and not manifest.get('torch_service_loader'):parser.error('Artifact lacks the iOS torch-service policy')
+    if args.audio_cb_access:
+        names=('kernel/files/bsd/dev/macan_adsp.c','kernel/files/bsd/sys/waffle_audio_cb_access.h','kernel/files/bsd/sys/waffle_audio_smmu_inventory.h','loader/waffle.h')
+        if not manifest.get('audio_cb_access_test'):parser.error('Artifact lacks disabled audio CB access capability')
+        if b'adsp: AUDIO_CB_CONFIG passed=' in (artifact/'kernel').read_bytes():names+=('kernel/files/bsd/sys/waffle_audio_cb_config.h','kernel/files/bsd/sys/waffle_audio_page_tables.h')
+        for name in names:
+            digest=manifest.get('audio_cb_access_source_sha256',{}).get(name)
+            if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('Audio CB access current/compiled source mismatch: '+name)
     if args.cpu_ui_test:
         if not manifest.get('multicore_loader'):
             parser.error('Artifact lacks the opt-in multicore loader policy')
@@ -345,6 +354,13 @@ def main():
             for block in iter(lambda:stream.read(16*1024*1024),b''):digest.update(block)
         if digest.hexdigest()!=manifest.get('gl_system_sha256'):parser.error('GL system image hash mismatch')
         gl_manifest=json.loads((artifact/'gl-probe/manifest.json').read_text())
+        if gl_manifest.get('unixnu_query_test'):
+            if args.ui_workload or not manifest.get('unixnu_query_test'):parser.error('UniXNU bootstrap requires a dedicated non-UI artifact')
+            for name in ('kernel/files/bsd/dev/waffle_gpu_drm.c','kernel/files/bsd/sys/waffle_gpu_msm.h','kernel/files/bsd/sys/waffle_unixnu_gpu.h'):
+                digest=manifest.get('unixnu_source_sha256',{}).get(name)
+                if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('UniXNU current/compiled source mismatch: '+name)
+            for name,digest in gl_manifest['source_sha256'].items():
+                if hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest:parser.error('UniXNU probe source mismatch: '+name)
         try:
             check_surface_metadata_binding(ROOT,artifact,manifest,gl_manifest,args.ui_workload)
         except (ValueError,OSError) as error:
@@ -428,6 +444,7 @@ def main():
             if args.audio_power:items.append('--audio-power')
             if args.audio_survey:items.append('--audio-survey')
             if args.audio_iommu:items.append('--audio-iommu')
+            if args.audio_cb_access:items.append('--audio-cb-access')
             if args.audio_boot:items.append('--audio-boot')
             if args.audio_graph:items.append('--audio-graph')
             if args.battery_readonly:items.append('--battery-readonly')

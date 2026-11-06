@@ -1,0 +1,1 @@
+PASS actual private cached target: PID/ordinary/mixed/multiple/root/readonly refusal, full clean before GPU and invalidate after all windows; uncertain GPU/cache failure retains backing, mock hardware only

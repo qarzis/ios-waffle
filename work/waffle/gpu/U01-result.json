@@ -1,0 +1,20 @@
+{
+  "experiment": "U01",
+  "scope": "UniXNU ABI2 query through private PID1 cdev; existing A750 OpenGL regression",
+  "success": true,
+  "android_confirmed": true,
+  "auto_run": "20261106T095006Z",
+  "kernel_run": "20261106T095030Z",
+  "kernel_log_sha256": "7e0e0d11791bf58eae8c7a3f8471d4698ba0b7d7aa4b6f73b8201cd69fceea25",
+  "markers": [
+    "waffle-unixnu: query=1 ABI=2 VA=39 PA=36 flags=0 submit_refused=1 Metal_published=0",
+    "waffle-gl-user: renderer=FD750",
+    "waffle-gl-user: checked=256 wrong=0 filled=128 GL_error=0"
+  ],
+  "not_implemented": [
+    "IOKit UserClient",
+    "UniXNU BO mapping/submission/fences",
+    "Darwin Turnip and Metal integration"
+  ],
+  "fps_measured": false
+}

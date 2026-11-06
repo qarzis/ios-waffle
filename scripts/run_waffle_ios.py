@@ -828,6 +828,7 @@ def main():
     parser.add_argument("--audio-power", action="store_true", help="With --audio-preflight: bounded native RPMh upvotes retained until Android reset; no DSP boot")
     parser.add_argument("--audio-survey", action="store_true", help="With --audio-preflight: read-only native SMEM/SMP2P/GLINK state survey")
     parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
+    parser.add_argument('--audio-cb-access',action='store_true',help='Isolated disabled context control-access/restore test, no DMA or DSP')
     parser.add_argument("--audio-boot", action="store_true", help="With --audio-preflight: bounded native ADSP boot, GPR state query and shutdown; no PCM")
     parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
     parser.add_argument("--battery-readonly", action="store_true", help="With isolated --audio-boot: query seven native battery/USB properties once; no charger writes")
@@ -863,6 +864,7 @@ def main():
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
     if args.battery_readonly and (not args.audio_boot or args.audio_graph):parser.error('--battery-readonly requires isolated --audio-boot and excludes graph')
     if args.battery_report_test and not args.battery_readonly:parser.error('--battery-report-test requires --battery-readonly')
+    if args.audio_cb_access and not args.audio_iommu:parser.error('--audio-cb-access requires --audio-iommu')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
@@ -958,6 +960,7 @@ def main():
     if args.audio_preflight:
         arguments += " adsp=8" if args.audio_iommu else " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
         if args.battery_readonly:arguments += " waffle_battery_readonly="+('2' if args.battery_report_test else '1')
+    if args.audio_cb_access:arguments += " waffle_audio_cb_access=1"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
     if args.haptic_ui_test:
@@ -1100,6 +1103,9 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            if args.gpu_gl_context and b'waffle-unixnu: query=1' in args.root.read_bytes():
+                if 'waffle-unixnu: query=1 ABI=2 VA=39 PA=36 flags=0 submit_refused=1 Metal_published=0' not in final_text:
+                    raise RuntimeError('UniXNU ABI ingress diagnostic missing; not qualified')
             if args.display_completion_audit:
                 import runpy
                 completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
@@ -1376,10 +1382,12 @@ def main():
             if args.audio_preflight:
                 if args.audio_iommu:
                     required=('waffle-audio-probe: PID1 ready', 'adsp: AUDIO_SMMU ids=',
-                              'adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes')
+                              ('adsp: WAFFLE AUDIO_CB_ACCESS OK: disabled bank restored; no DSP, DMA or route writes' if args.audio_cb_access else 'adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes'))
                     forbidden=('adsp: PAS ', 'adsp: RPMh ', 'adsp: POWER_APPLY ', 'adsp: FAIL', 'AUDIO_IOMMU FAIL')
                     if not all(x in final_text for x in required) or any(x in final_text for x in forbidden):
                         raise RuntimeError(f'Audio IOMMU read-only survey failed; logs: {out}')
+                    if args.audio_cb_access and (not re.search(r'AUDIO_CB_ACCESS passed=1 admitted=1 changed=1 restored=1 cb=\d+',final_text) or 'M_enable=0 route_writes=0 DSP=0' not in final_text):raise RuntimeError('Disabled audio context control-access/restore proof missing')
+                    if args.audio_cb_access and b'adsp: AUDIO_CB_CONFIG passed=' in args.kernel.read_bytes() and (not re.search(r'AUDIO_CB_CONFIG passed=1 configured=1 restored=1 writes=16 cb=\d+',final_text) or 'AUDIO_CB_CONFIG own_tables=1 pages=4 IOVA=0x10001000 M_enable=0 route_writes=0 DSP=0' not in final_text):raise RuntimeError('Disabled audio table configuration/restore proof missing')
                     print('Read-only Apps SMMU snapshot captured; DMA ownership unqualified',flush=True)
                     return
                 if args.audio_boot:
@@ -1447,6 +1455,8 @@ def main():
                     r'haptic-fifo-buffer: selectors=1 SWR_restored=1 source=[0-35-7]\b',final_text):
                     raise RuntimeError(f'Native zero FIFO transport/flush/restore proof incomplete; logs: {out}')
             if args.haptic_pulse and b'haptic-fifo-play: passed=' in args.kernel.read_bytes():
+                if b'haptic-fifo-play: VSET_force=' in args.kernel.read_bytes() and 'haptic-fifo-play: VSET_force=1 VSET_restored=1' not in final_text:
+                    raise RuntimeError(f'Native FIFO VSET handshake/restore proof incomplete; logs: {out}')
                 timing=re.search(r'haptic-fifo-play: initial=144 last=0 active_us=(\d+)',final_text)
                 if not all(marker in final_text for marker in (
                     'haptic-fifo-play: passed=1 progress=1 drained=1',

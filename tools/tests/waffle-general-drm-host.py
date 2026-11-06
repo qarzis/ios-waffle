@@ -11,6 +11,7 @@ h+=r'''
 #include "waffle_gpu_surface_read.h"
 #include "waffle_gpu_handles.h"
 #include "waffle_gpu_va.h"
+#include "waffle_unixnu_gpu.h"
 #define Z_WAITOK 1
 #define Z_ZERO 2
 static unsigned snapshot_live,snapshot_fail;
@@ -57,6 +58,12 @@ t='static const uint32_t actual_root[]={'+','.join(hex(w)+'u' for w in words)+'}
 t+=r'''
 int main(void){
  assert(waffle_gpu_drm_register());assert(!drm_open(0,0,0,&owner));assert(drm_open(0,0,0,&owner)==EBUSY);
+ struct waffle_unixnu_call native={.version=2,.method=1,.output_bytes=24};
+ assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&native,0,&owner));
+ struct waffle_unixnu_params np;memcpy(&np,native.payload,sizeof(np));assert(np.version==2&&np.input_bits==39&&np.output_bits==36&&!np.flags&&np.max_bo_bytes==WAFFLE_GPU_BO_MAX_BYTES);
+ native.method=5;assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&native,0,&owner)==ENOTSUP);
+ native.method=1;native.version=1;assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&native,0,&owner)==EINVAL);
+
  struct waffle_msm_param param={.pipe=0x10,.param=3};assert(!drm_ioctl(0,WAFFLE_MSM_PARAM,(char *)&param,0,&owner) && param.value==0x43051401);
  param.param=6;assert(!drm_ioctl(0,WAFFLE_MSM_PARAM,(char *)&param,0,&owner) && param.value==0x01000000);
  param.param=5;assert(drm_ioctl(0,WAFFLE_MSM_PARAM,(char *)&param,0,&owner)==ENOTSUP);

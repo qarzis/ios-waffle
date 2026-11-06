@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/UniXNU/Adreno740",
+  "revision": "6fa7bae2a5b3b523e790eb3e0348af4d98969e4d",
+  "files": {
+    "NativeAdrenoABI.h": "d1c8a27d6e61787073c2c56a779ff4d5c43d86f2d23ac0c0fba0368af8dcdeae"
+  },
+  "scope": "Unmodified wire ABI header only. A740 hardware initialization is not imported."
+}

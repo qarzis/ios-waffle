@@ -2,6 +2,9 @@
 #define WAFFLE_GPU_MSM_H
 #include <stdint.h>
 #include <sys/ioccom.h>
+#include "waffle_unixnu_gpu.h"
+/* Private diagnostic ingress, not an upstream UniXNU ioctl. */
+#define WAFFLE_UNIXNU_CALL _IOWR('W',0x61,struct waffle_unixnu_call)
 /* Exact legacy MSM UAPI layouts used by MacanGPU.cpp and Mesa drm-shim.
  * E31 supports two owned16KiB BOs and one audited191word compute IB only.
  * Upload/download is a diagnostic extension, not GEM mmap or a full DRM fd. */
@@ -45,6 +48,8 @@ struct waffle_msm_report { uint32_t version,checks,wrong,fence,negative; };
 /* Private isolated PID1 map/unmap audit, not a Mesa import request. */
 #define WAFFLE_MSM_SURFACE_LEASE_TEST _IOWR('W',0x5a,struct waffle_msm_surface_lease)
 #define WAFFLE_MSM_SURFACE_SAMPLE_IMPORT _IOWR('W',0x59,struct waffle_msm_surface)
+/* Private PID1 exclusive-surface shader target experiment; never ordinary PRIME. */
+#define WAFFLE_MSM_SURFACE_TARGET_IMPORT _IOWR('W',0x5b,struct waffle_msm_surface)
 #define WAFFLE_MSM_SURFACE_IMPORT_TEST _IOWR('W',0x58,struct waffle_msm_surface)
 #define WAFFLE_MSM_SURFACE_READ_TEST _IOWR('W',0x57,struct waffle_msm_surface)
 #define WAFFLE_MSM_SURFACE_WRITE_TEST _IOWR('W',0x56,struct waffle_msm_surface)

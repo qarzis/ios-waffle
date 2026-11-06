@@ -87,6 +87,15 @@ def main():
          "-o", output / "test-audio-smmu-inventory"])
     run([output / "test-audio-smmu-inventory"])
     run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+         "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-audio-cb-access-host.c",
+         "-o", output / "test-audio-cb-access"])
+    run([output / "test-audio-cb-access"])
+    run([sys.executable, ROOT / "tools/tests/waffle-audio-cb-adapter-host.py"])
+    for flags in ([], ["-DWAFFLE_USERLAND=1"]):
+        run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", *flags,
+             ROOT / "tools/tests/waffle-audio-cb-policy-host.c", "-o", output / "test-audio-cb-policy"])
+        run([output / "test-audio-cb-policy"])
+    run(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
          "-I", ROOT / "kernel/files/bsd/sys", ROOT / "tools/tests/waffle-haptic-readonly-host.c",
          "-o", output / "test-haptic-readonly"])
     run([output / "test-haptic-readonly"])
@@ -341,6 +350,10 @@ def main():
     # the source included in the artifact snapshot, rather than stale copies.
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
                     xnu / "bsd/sys/waffle_audio_smmu_survey.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_cb_config.h", xnu / "bsd/sys/waffle_audio_cb_config.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_page_tables.h", xnu / "bsd/sys/waffle_audio_page_tables.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_unixnu_gpu.h", xnu / "bsd/sys/waffle_unixnu_gpu.h")
+    shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_cb_access.h", xnu / "bsd/sys/waffle_audio_cb_access.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_audio_smmu_inventory.h",
                     xnu / "bsd/sys/waffle_audio_smmu_inventory.h")
     shutil.copyfile(ROOT / "kernel/files/bsd/sys/waffle_haptic_readonly.h",
@@ -414,6 +427,11 @@ def main():
     for relative in ("kernel/files/bsd/sys/waffle_display_source.h", "tools/tests/waffle-display-source-host.c", "kernel/files/bsd/sys/waffle_display_present.h", "tools/tests/waffle-display-present-host.c", "kernel/files/bsd/sys/waffle_display_flip.h", "tools/tests/waffle-display-flip-host.c", "kernel/files/bsd/sys/waffle_display_flush.h", "tools/tests/waffle-display-flush-host.c", "kernel/files/bsd/sys/waffle_display_smmu.h", "tools/tests/waffle-display-smmu-host.c", "kernel/files/bsd/sys/waffle_vsync_phase.h", "tools/tests/waffle-vsync-phase-host.c", "kernel/files/bsd/sys/waffle_display_survey.h", "tools/tests/waffle-display-survey-host.c", "kernel/files/bsd/sys/waffle_audio_smmu_survey.h",
                      "tools/tests/waffle-audio-smmu-survey-host.c",
                      "kernel/files/bsd/sys/waffle_audio_smmu_inventory.h",
+                     "kernel/files/bsd/sys/waffle_audio_cb_access.h",
+                     "kernel/files/bsd/sys/waffle_unixnu_gpu.h",
+                     "kernel/files/bsd/sys/waffle_audio_cb_config.h",
+                     "kernel/files/bsd/sys/waffle_audio_page_tables.h",
+                     "tools/tests/waffle-audio-cb-access-host.c",
                      "tools/tests/waffle-audio-smmu-inventory-host.c",
                      "kernel/files/bsd/sys/waffle_haptic_readonly.h",
                      "kernel/files/bsd/sys/waffle_haptic_pulse.h",
