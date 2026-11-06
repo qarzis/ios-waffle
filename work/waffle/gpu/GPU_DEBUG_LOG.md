@@ -81,3 +81,18 @@ base presence, actual instance bytes, MTLDeviceSPI presence; no class/device
 registration. C runtime probe still independent of Objective-C frontend gate.
 Need actual phone inventory before selecting frontend adaptation. Telegram
 readiness message delivered successfully; phone has not been accessed.
+
+U05 attempt174656Z: RAM boot/menu selected, platformwaffle confirmed. Inner
+runner assertion cpus!=None required UI before runtime command/payload upload;
+no GPU test executed. Recovery rebooted Android/boot_completed1. Corrected
+assertion to exempt already-validated native_runtime CPU1; executed actual
+argument-admission prefix offline successfully. User requested latest HakiOS
+UEFI; rebuilt mu-hakios with bound current EFI and packaged separate artifact
+ diagnostic-unixnu-u05-hakios. Paired validation and check-only passed. No new
+phone boot yet; prior failure is orchestration, not a GPU hypothesis result.
+
+U05 HakiOS auto175257Z/run175321Z: automatic entry PASS, runtime loaded; device refused: loader and cache are required. Probe passed null cache, corrected to /tmp/waffle-native-cache. No GPU submission occurred. Actual frontend inventory base1 bytes528 SPI1. Android recovered confirmed.
+
+U05 cache175629Z: ShaderCache AlreadyExists in read-only test root, GPU not opened. Upstream shader_cache/store.rs explicitly supports METAL2VULKAN_SHADER_CACHE_OPTIONAL for unwritable processes; enable for isolated buffer fill (no shader compilation). Not a GPU fallback.
+
+U05 optional-cache175946Z: GENERAL open then close0/noBO, IOServiceOpen returnede00002d8; no DeviceInfo/submit proof. Earlier description “opened GPU” refers internal context only, not successful IOKit connection. Added exact backend_error/live + newUserClient success logs to distinguish client start from connection registration. Kernel rebuild required before next hardware experiment.

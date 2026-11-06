@@ -1,3 +1,27 @@
+# ACTIVE U05 optional-cache hardware run
+
+Sole runner39731 auto175922Z/run175946Z. HakiOS automatic platform verified, payload sent. Prior cache test failed before GPU: ShaderCache AlreadyExists; now uses upstream optional-cache env. Wait original runner+Android recovery. No new GPU result yet.
+
+# ACTIVE U05 HakiOS automatic hardware run
+
+Sole USB runner session58789 auto20261106T175257Z/run20261106T175321Z. HakiOS auto xnuloader/platformwaffle verified without menu. Payload58324KB stage+oemramdisk OK. Wait original runner and Android recovery; do not compete USB. Log gpu/auto-unixnu-u05-hakios.log. No result yet.
+
+# U05 HakiOS automatic UEFI prepared
+
+Use artifact diagnostic-unixnu-u05-hakios, NOT old manual-menu iokit-4k image.
+Rebuilt latest work/waffle/mu-hakios with current U05 loader EFI; HACKIOS_ONEPLUS12
+BootManager auto-enters XnuLoaderMain unless volume-up/menu requested.
+Paired container validation and outer --check-only passed. Actual inner runner
+argument admission now passed after fixing cpus1 native-runtime UI-only assertion.
+Previous auto20261106T174656Z failed BEFORE kernel upload with that assertion;
+recovery rebooted Android and confirmed boot_completed1. No GPU hardware result.
+User objected to reboot, then asked use latest HakiOS UEFI. New artifact has not
+been booted. No active USB owner. Next test use same flags WITHOUT manual selection.
+
+# U05 RAM loaded — waiting for manual Boot iOS
+
+Sole USB runner session6804, auto20261106T174656Z, log gpu/auto-unixnu-u05.log. Android boot_completed1 before reboot. Fastboot RAM boot succeeded. Wait indefinitely for xnuloader; user prompt sent. Do not start competing USB commands. U05 runtime candidate hardware NOT yet tested. After selection runner executes probe and returns Android.
+
 # U05 runtime probe READY OFFLINE — phone not used
 
 2026-11-06: full kernel/loader/UEFI build diagnostic-unixnu-iokit-4k PASS;

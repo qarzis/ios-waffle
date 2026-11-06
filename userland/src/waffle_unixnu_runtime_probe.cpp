@@ -19,6 +19,7 @@ int main(){
  std::printf("waffle-unixnu-runtime: begin PID=%d CPU_fallback=0\n",getpid());
  setenv("TU_DARWIN_SERVICE","NativeAdrenoGpuPublished",1);setenv("TU_DARWIN_OPEN_TYPE","0",1);
  setenv("TU_DEBUG","sysmem",1);
+ setenv("METAL2VULKAN_SHADER_CACHE_OPTIONAL","1",1);
  const char *bundle="/redwood/lib/NativeAdrenoMetal.bundle/NativeAdrenoMetal";
  void *library=dlopen(bundle,RTLD_NOW|RTLD_LOCAL);
  if(!library){std::printf("waffle-unixnu-runtime: dlopen_failed=%s\n",dlerror());return finish(false);}
@@ -39,7 +40,7 @@ int main(){
  NmbCommandBuffer *command=nullptr;NmbEncoder *encoder=nullptr;
  bool ok=false,uncertain=false;const char *stage="device";
  do {
-  device=p_nmb_device_open("/redwood/lib/NativeAdrenoMetal.bundle/libvulkan_freedreno.dylib",nullptr);
+  device=p_nmb_device_open("/redwood/lib/NativeAdrenoMetal.bundle/libvulkan_freedreno.dylib","/tmp/waffle-native-cache");
   if(!device)break;
   char name[128]={};p_nmb_device_name(device,name,sizeof(name));std::printf("waffle-unixnu-runtime: device=%s\n",name);
   stage="queue";queue=p_nmb_queue_new(device);if(!queue)break;

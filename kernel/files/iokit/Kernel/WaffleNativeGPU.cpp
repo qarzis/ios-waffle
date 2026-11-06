@@ -49,7 +49,8 @@ public:
  }
  bool start(IOService *provider) override {
   if(!IOUserClient::start(provider))return false;
-  live_=waffle_gpu_iokit_open(this)==0;
+  int open_error=waffle_gpu_iokit_open(this);live_=open_error==0;
+  redwood_tl("waffle-unixnu-iokit: client_start backend_error=%d live=%u\n",open_error,live_);
   if(!live_)IOUserClient::stop(provider);return live_;
  }
  IOReturn clientClose() override {
@@ -124,7 +125,7 @@ public:
   if(!client)return kIOReturnNoMemory;
   if(!client->initWithTask(task,security,type,properties) || !client->attach(this)) {client->release();return kIOReturnNotReady;}
   if(!client->start(this)){client->detach(this);client->release();return kIOReturnNotReady;}
-  *handler=client;return kIOReturnSuccess;
+  *handler=client;redwood_tl("waffle-unixnu-iokit: newUserClient success=1\n");return kIOReturnSuccess;
  }
 };
 OSDefineMetaClassAndStructors(NativeAdrenoGpuPublished,IOService);

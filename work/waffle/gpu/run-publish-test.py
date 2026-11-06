@@ -48,7 +48,7 @@ torch_service='--torch-service' in options
 options.discard('--torch-service')
 if torch_service:assert '--ui-workload' in options and not (torch_pulse or torch_readonly)
 assert not (torch_pulse and torch_readonly)
-if torch_readonly or cpus is not None:assert '--ui-workload' in options
+if torch_readonly or (cpus is not None and not native_runtime):assert '--ui-workload' in options
 if torch_pulse:assert '--gl-context' in options
 assert options<={'--ui-soak-test','--ui-long-test','--ui-workload','--gl-context','--mapped','--mesa-transport','--msm','--user-va','--glsl','--data-bo','--user-copy','--worker','--copy-jobs','--image-present','--image-copy','--image','--compute-prepare','--compute-dispatch','--dynamic-bo','--access-matrix','--measure-clocks','--lpac-map','--zap','--writeback','--ib','--session'}
 if '--ui-long-test' in options:assert {'--ui-workload','--gl-context'}<=options
