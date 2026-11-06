@@ -460,8 +460,28 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             raise RuntimeError('Surface GPU write lacks independent value/restore proof')
         if any(x in text for x in ('SURFACE_WRITE_TEST passed=0','SURFACE_WRITE_TEST uncertain=1','SURFACE_WRITE_TEST command_revoke_failed=1','waffle-gl-surface-write: passed=0')):
             raise RuntimeError('Surface GPU write reported a failure')
+    relocation=r"UNIXNU_BO relocate passed=(\d+) old=([0-9a-f]+) new=([0-9a-f]+) poisoned=(\d+)"
+    relocated={}
     buffers={};active={};seen={};used=0;retired=0;retired_indices=set();surface_indices=set();append_end=0x100000000
-    for event in re.finditer(f"(?P<publication>{publication})|(?P<surface>{surface_publication})|(?P<reclaim>{reclaim})",text):
+    for event in re.finditer(f"(?P<publication>{publication})|(?P<surface>{surface_publication})|(?P<reclaim>{reclaim})|(?P<relocation>{relocation})",text):
+        if event.group('relocation'):
+            values=re.fullmatch(relocation,event.group(0)).groups()
+            if values[0]!='1' or values[3]!='0':raise RuntimeError('GL BO relocation failed or poisoned context')
+            if event.start()>release.start() and values in relocated.values():continue
+            old,new=int(values[1],16),int(values[2],16)
+            candidates=[i for i,a in active.items() if a[0]==old]
+            if not candidates:
+                if values in relocated.values():continue  # repeated kernel console export
+                raise RuntimeError('GL BO relocation has no live source')
+            if len(candidates)!=1 or event.start()>release.start():raise RuntimeError('Ambiguous or late GL BO relocation')
+            index=candidates[0];a=active[index]
+            if index in relocated or index in surface_indices:raise RuntimeError('Repeated or imported GL BO relocation')
+            if new&16383 or new<0x100000000 or new+a[2]>0x100000000+va_budget:
+                raise RuntimeError('GL BO relocation out of range')
+            if any(i!=index and new<v[0]+v[2] and v[0]<new+a[2] for i,v in active.items()):
+                raise RuntimeError('GL BO relocation overlaps live backing')
+            active[index]=(new,*a[1:]);relocated[index]=values
+            continue
         kind='surface' if event.group('surface') else 'publication' if event.group('publication') else 'reclaim'
         pattern=surface_publication if kind=='surface' else publication if kind=='publication' else reclaim
         values=re.fullmatch(pattern,event.group(0)).groups()
@@ -499,6 +519,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             if tuple(map(int,values[3:6]))!=(1,1,1):raise RuntimeError("GL BO revocation lacks CPU/GPU/TLB proof")
             used-=allocated;active.pop(index);retired+=1;retired_indices.add(index)
             if int(values[6])!=used:raise RuntimeError("GL reclaim physical budget mismatch")
+    if relocated and ('waffle-unixnu-map: relocated=2 chosen_VA=10f000000 remap_refused=2' not in text or len(relocated)!=2):raise RuntimeError('Missing complete UniXNU relocation proof')
     if not buffers:raise RuntimeError("Missing GL BO publication")
     remaining=int(release[1]);earlier=int(release[2]) if release[2] else 0
     total=int(release[3]) if release[3] else remaining

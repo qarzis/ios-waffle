@@ -1,0 +1,1 @@
+PASS actual U03 full GL validation; U01/U02 regressions; relocation failure/poison/source/range/alignment/missing events/missing proof rejected. Original U03 runner failure preserved, no hardware replay.

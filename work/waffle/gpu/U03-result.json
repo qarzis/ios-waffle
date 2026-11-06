@@ -1,0 +1,16 @@
+{
+  "experiment": "U03",
+  "run": "20261106T101034Z",
+  "auto_run": "20261106T101007Z",
+  "original_runner_exit": 1,
+  "original_error": "GL BO revocation has no matching live publication",
+  "offline_validation_passed": true,
+  "validation_fix": "Account for validated chosen-IOVA relocation before reclaim; retain original publication for generation validation",
+  "hardware_proof": "two owned BO relocations to 0x10f000000 and reclaim, repeated map/stale handle refusal, FD750 GL256pixels wrong0",
+  "kernel_log_sha256": "7fd8573e5915d1a3345ccaefe9d6c0e662110551a3db93997be9b1b97fa67a50",
+  "android_confirmed": true,
+  "manual_boot_selection": true,
+  "GPU_access_at_new_VA_tested": false,
+  "Metal_published": false,
+  "fps_measured": false
+}
