@@ -20,7 +20,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | Buttons | ✅ | Power, volume up, volume down |
 | Alert Slider | ✅ | Do Not Disturb / vibrate mode / ring; native iOS banners |
 | Wi-Fi | ❌ | |
-| Vibration | ⚠️ | CoreHaptics and system vibration tested; normal boot integration pending |
+| Vibration | ✅ | CoreHaptics and system vibration tested; ColorOS Crisp effect pending |
 | Flashlight | ✅ | On/off from Control Center |
 | Battery | ❌ | Native readings reach iOS power source; live UI percentage pending |
 | Packages | ⚪ | Sileo and tweaks unverified |
