@@ -19,5 +19,6 @@
   "Crisp_waveform_tested": false,
   "offline_GPU_proof": {
     "offline_validation_error": "Missing GL BO publication"
-  }
+  },
+  "original_failure": "Missing GL BO publication"
 }

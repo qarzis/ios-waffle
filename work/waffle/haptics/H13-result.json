@@ -1,0 +1,14 @@
+{
+  "original_runner_exit": 1,
+  "original_failure": "Missing GL BO publication",
+  "android_confirmed": true,
+  "ready_record_complete": true,
+  "format_record_complete": true,
+  "cooldown_record_complete": true,
+  "trace_sha256": "4c3ed3295ab2adc93de3fab6bcb229a4856e22a4a8e06b33b482de87dfcc145f",
+  "Crisp_waveform_tested": false,
+  "complete_publication_count": 2202,
+  "missing_publication_indices": [
+    731
+  ]
+}

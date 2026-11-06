@@ -1,0 +1,24 @@
+{
+  "source": "work/waffle/haptics/android-root-calibration.txt",
+  "sha256": "56f4696226eb13e38e38f202f6343b7222a7316580ae4a4a8c74cb4db7d57269",
+  "read_only": true,
+  "device": "OnePlus12 PJD110 motor9999",
+  "values": {
+    "lra_cal_rc_clk_cal_count": 574,
+    "t_lra_us": 7692,
+    "lra_frequency_hz": 132,
+    "fifo_vmax": 7900,
+    "lra_cal_cl_t_lra_us": 7550,
+    "vmax": 2400,
+    "cl_vmax": 2400,
+    "vibrator_type": 9999
+  },
+  "hypothetical_native_fields": {
+    "RC_CLK_CAL_COUNT_MSB": 2,
+    "RC_CLK_CAL_COUNT_LSB": 62,
+    "FIFO_F24KHZ_enum": 10,
+    "preserve_rate_upper_nibble": true
+  },
+  "registers_written": false,
+  "FIFO_waveform_played": false
+}

@@ -38,3 +38,10 @@ Original runner exit1, automatic Android recovery confirmed. Exact overlapping s
 ## H13: bounded record atomicity hypothesis (host PASS; hardware pending)
 
 Use existing loader log lock once for <=64-byte chunks via existing loader_log_line; torch say() no longer locks separately per character. Interrupt-disabled maximum remains64 input bytes. No waveform or power change. Actual extracted formatter/wrapper sanitizer test proves short READY records use one write, long messages remain bounded/truncated correctly. Full build pending; do not mark test passed from host compilation.
+
+
+## H13 result and three-run instrumentation review
+
+Original runner1/Android1. READY, format and cooldown now complete; actual formatter change worked. Overall failure is `Missing GL BO publication` (also the actual first failure in H12, correcting the earlier attribution to haptic READY). Missing parsed publication731 is visibly split by launchd output; 730 and732 intact. waffle_smmu.c still logs ordinary BO messages per character. No GPU hardware-fault claim from this failed parser result. No fourth repeat of the same noisy seven-core CPU-proof combined test. Reassess evidence channel: use existing compact bounded BO records for future workload tests, and isolate native-output transport from CPU/haptic workload.
+
+Root enabled by user: read-only calibration574/7692us/7550us/132Hz; motor9999, fifo_vmax7900mV and direct/cl2400mV captured. No register write, calibration action or motor playback performed. High native FIFO voltage is observation, not authorized test configuration.

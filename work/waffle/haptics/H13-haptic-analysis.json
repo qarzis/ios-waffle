@@ -1,0 +1,118 @@
+{
+  "source": "work/waffle/haptics/H13-analysis-stream.log",
+  "source_sha256": "4c3ed3295ab2adc93de3fab6bcb229a4856e22a4a8e06b33b482de87dfcc145f",
+  "capabilities": [
+    1
+  ],
+  "player_returns": [
+    [
+      "1",
+      "0"
+    ]
+  ],
+  "completed_pulses": 30,
+  "confirmed_stop_restore": 30,
+  "active_us": [
+    16258,
+    16128,
+    16247,
+    16000,
+    16070,
+    16939,
+    17029,
+    16106,
+    16091,
+    16081,
+    16118,
+    16071,
+    16037,
+    17130,
+    17022,
+    17107,
+    17043,
+    16076,
+    16095,
+    16048,
+    16018,
+    16049,
+    16053,
+    16075,
+    17143,
+    16111,
+    16160,
+    16095,
+    16100,
+    16148
+  ],
+  "direct_client_results": [
+    [
+      "3",
+      "0"
+    ]
+  ],
+  "HAL_actuator_samples": [
+    {
+      "frames": 256,
+      "peak": 13049,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32363,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32508,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 20422,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 7816,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 28135,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32508,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 20422,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 440,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 3178,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 20084,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32508,
+      "sink_available": true
+    }
+  ],
+  "fault_or_quarantine": false,
+  "system_route_claim": "Requires capability plus actual HAL samples with available sink; player success alone insufficient",
+  "trace_component_consistent": true
+}

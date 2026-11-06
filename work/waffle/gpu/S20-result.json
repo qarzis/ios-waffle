@@ -1,0 +1,17 @@
+{
+  "runner_exit": 0,
+  "android_confirmed": true,
+  "run": "work/waffle/runs/20261106T073152Z",
+  "trace_sha256": "f79e1b71f3932bb03f12b5a047fbe9337ba00d76b62638f7a144556d9c2285cf",
+  "native_GPU_output": true,
+  "checked_pixels": 1218000,
+  "wrong_pixels": 0,
+  "glReadPixels_used": false,
+  "CPU_direct_read": true,
+  "restored": true,
+  "surface": 1,
+  "handle": 28,
+  "fence": 206,
+  "production_UI_enabled": false,
+  "FPS_gain_measured": false
+}
