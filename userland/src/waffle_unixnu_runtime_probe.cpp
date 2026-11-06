@@ -19,6 +19,7 @@ int main(){
  std::printf("waffle-unixnu-runtime: begin PID=%d CPU_fallback=0\n",getpid());
  setenv("TU_DARWIN_SERVICE","NativeAdrenoGpuPublished",1);setenv("TU_DARWIN_OPEN_TYPE","0",1);
  setenv("TU_DEBUG","sysmem",1);
+ setenv("TU_DARWIN_SINGLE_SESSION","1",1);
  setenv("METAL2VULKAN_SHADER_CACHE_OPTIONAL","1",1);
  const char *bundle="/redwood/lib/NativeAdrenoMetal.bundle/NativeAdrenoMetal";
  void *library=dlopen(bundle,RTLD_NOW|RTLD_LOCAL);

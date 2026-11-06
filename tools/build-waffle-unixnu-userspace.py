@@ -54,7 +54,12 @@ if a.stage == 'turnip':
     pins = json.loads((U/'scripts/data/adreno-compiler-inputs.json').read_text())
     source = U/'.cache/mesa-work'
     assert git(source, 'rev-parse', 'HEAD') == pins['mesa']['commit']
+    local_patch = ROOT/'work/waffle/unixnu-audit/TURNIP_SINGLE_SESSION.patch'
+    if subprocess.run(['git','apply','--reverse','--check',str(local_patch)],cwd=source,
+                      stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode == 0:
+        subprocess.run(['git','apply','--reverse',str(local_patch)],cwd=source,check=True)
     validate_recorded_patches(U, source, pins)
+    subprocess.run(['git','apply',str(local_patch)],cwd=source,check=True)
     cross = OUT/'ios16.cross'
     # The existing qualified Darwin cross configuration supplies the local
     # cctools linker and libc++ ABI flags. Only its dependency search changes.

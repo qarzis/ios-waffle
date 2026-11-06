@@ -96,3 +96,21 @@ U05 HakiOS auto175257Z/run175321Z: automatic entry PASS, runtime loaded; device 
 U05 cache175629Z: ShaderCache AlreadyExists in read-only test root, GPU not opened. Upstream shader_cache/store.rs explicitly supports METAL2VULKAN_SHADER_CACHE_OPTIONAL for unwritable processes; enable for isolated buffer fill (no shader compilation). Not a GPU fallback.
 
 U05 optional-cache175946Z: GENERAL open then close0/noBO, IOServiceOpen returnede00002d8; no DeviceInfo/submit proof. Earlier description “opened GPU” refers internal context only, not successful IOKit connection. Added exact backend_error/live + newUserClient success logs to distinguish client start from connection registration. Kernel rebuild required before next hardware experiment.
+
+U06 run180617Z: first client_start backend_error0 live1/newUserClient success1;
+then second client_start backend_error6 live0. Actual Turnip enumeration
+ tu_physical_device_init -> dw_close_connection line1761 closes first connection;
+ darwin_device_init then reopens. Backend full teardown marks native RSC reset
+required, so second begin ENXIO. This is the first proved lifecycle mismatch,
+not DeviceInfo/BO failure. Next minimal experiment: opt-in single-device connection
+handoff across successful enumeration; retain normal device_finish close and
+close on enumeration error, account for instance destroyed without CreateDevice.
+Do not simply remove all closes or advertise general multi-device support.
+Android recovery confirmed. No GPU submit in U06.
+
+U07 candidate: TURNIP_SINGLE_SESSION.patch keeps connection only after successful
+enumeration when opt-in env set; device_finish and enum failure still close;
+DestroyInstance adds TU_HAS_DARWIN cleanup after physical-device destruction.
+Actual Turnip compile/link and full bundle+probe/root build PASS. Upstream
+patch identity verified before local patch, source identity includes local diff.
+U07 hardware runner51743 gpu/auto-unixnu-u07.log active; no result yet.

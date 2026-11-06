@@ -1,0 +1,37 @@
+--- a/src/freedreno/vulkan/tu_knl_darwin.cc
++++ b/src/freedreno/vulkan/tu_knl_darwin.cc
+@@ -1758,7 +1758,8 @@
+ 
+    result = tu_physical_device_init(device, instance);
+    /* The enumeration probe only needed the facts; the device takes the slot again in device_init. */
+-   dw_close_connection();
++   if (result != VK_SUCCESS || !getenv("TU_DARWIN_SINGLE_SESSION"))
++      dw_close_connection();
+    if (result != VK_SUCCESS) {
+       mesa_loge("NativeAdreno: tu_physical_device_init failed (%d)", result);
+       vk_free(&instance->vk.alloc, device);
+@@ -1768,3 +1769,11 @@
+    list_addtail(&device->vk.link, &instance->vk.physical_devices.list);
+    return VK_SUCCESS;
+ }
++
++/* Waffle isolated single-device diagnostic: clean up enumeration-only instances. */
++void
++tu_darwin_single_session_finish(void)
++{
++   if (getenv("TU_DARWIN_SINGLE_SESSION"))
++      dw_close_connection();
++}
+--- a/src/freedreno/vulkan/tu_device.cc
++++ b/src/freedreno/vulkan/tu_device.cc
+@@ -2009,6 +2009,10 @@
+    driDestroyOptionInfo(&instance->drirc.available_options);
+ 
+    vk_instance_finish(&instance->vk);
++#ifdef TU_HAS_DARWIN
++   extern void tu_darwin_single_session_finish(void);
++   tu_darwin_single_session_finish();
++#endif
+    vk_free(&instance->vk.alloc, instance);
+ }
+ 

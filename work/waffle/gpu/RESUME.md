@@ -1,3 +1,19 @@
+# ACTIVE U07 hardware runner51743
+
+Turnip single-session patch+bundle+root built PASS. Artifact diagnostic-unixnu-u06-iokit updated U07 userspace, HakiOS auto1. Log gpu/auto-unixnu-u07.log. Wait original runner and Android before other USB. No result yet.
+
+# U07 Turnip single-session build ACTIVE
+
+Session98970 stage turnip, log gpu/u07-turnip-build.log. Added opt-in TU_DARWIN_SINGLE_SESSION preserve successful enum connection, device_finish/error still close, DestroyInstance closes enum-only via TU_HAS_DARWIN hook. Patch unixnu-audit/TURNIP_SINGLE_SESSION.patch; recipe reverses local patch before upstream identity guard then reapplies, hashes include local diff. Probe enables flag. Need inspect build/link then stage bundle, runtime-root rebuild/prepare (restore HakiOS automatic flag), admission then hardware. No U07 hardware result.
+
+# U06 proved enumeration/reopen lifecycle mismatch
+
+Run180617Z first IOkit open succeeds backend0/live1/newUserClient1; second open ENXIO6. Turnip closes after enumeration line1761 then device_init reopens. Native backend full collapse requires Android reset before retry. Need scoped opt-in single-device handoff, device_finish+enumerationfailure+instance-withoutdevice cleanup. Do not remove all close calls. Android confirmed, no active runner/no submission.
+
+# ACTIVE U06 IOKit diagnostic hardware run
+
+Kernel+HakiOS full build PASS, paired validation PASS. Artifact diagnostic-unixnu-u06-iokit. Sole runner70309, log gpu/auto-unixnu-u06.log. New client_start backend_error/live and newUserClient success markers. Wait original runner and Android recovery before competing USB. Prior U05 optional-cache failed IOServiceOpene00002d8, no BO/submit.
+
 # ACTIVE U05 optional-cache hardware run
 
 Sole runner39731 auto175922Z/run175946Z. HakiOS automatic platform verified, payload sent. Prior cache test failed before GPU: ShaderCache AlreadyExists; now uses upstream optional-cache env. Wait original runner+Android recovery. No new GPU result yet.
