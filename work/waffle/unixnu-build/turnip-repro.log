@@ -1,0 +1,3 @@
+Running: /home/qarzis/unixnu-reference/.cache/mesa-venv/bin/meson → /home/qarzis/ios-macan/work/waffle/unixnu-build/turnip-configure-final.log
+Running: /home/qarzis/unixnu-reference/.cache/mesa-venv/bin/ninja → /home/qarzis/ios-macan/work/waffle/unixnu-build/turnip-build-final.log
+Build stage finished: turnip ; hardware not tested

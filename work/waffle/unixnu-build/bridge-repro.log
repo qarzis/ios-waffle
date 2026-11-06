@@ -1,0 +1,3 @@
+Running: python3 → /home/qarzis/ios-macan/work/waffle/unixnu-build/bridge-prepare.log
+Running: /home/qarzis/ios-macan/work/waffle/unixnu-build/toolchain/cargo/bin/cargo → /home/qarzis/ios-macan/work/waffle/unixnu-build/bridge-build-final.log
+Build stage finished: bridge ; hardware not tested

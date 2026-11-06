@@ -1,0 +1,4 @@
+Running: /home/qarzis/ios-macan/xnu-deps/host/bin/xnu-clang++ → /home/qarzis/ios-macan/work/waffle/unixnu-build/frontend/NativeBridgeMetalFrontend-build.log
+Running: /home/qarzis/ios-macan/xnu-deps/host/bin/xnu-clang++ → /home/qarzis/ios-macan/work/waffle/unixnu-build/frontend/NativeAdrenoMetalPlugin-build.log
+Running: /home/qarzis/ios-macan/xnu-deps/host/bin/xnu-clang → /home/qarzis/ios-macan/work/waffle/unixnu-build/frontend/pm4-build.log
+Build stage finished: frontend ; hardware not tested

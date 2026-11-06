@@ -1,0 +1,112 @@
+{
+  "hardware_tested": false,
+  "installed": false,
+  "signed_for_device": false,
+  "target": "OnePlus12 A750 / iOS16.5, userspace build only",
+  "components": {
+    "drivers/AdrenoMetal": "6416a76e0a287d85afbcddda21192388460e155c",
+    "drivers/Adreno740": "6fa7bae2a5b3b523e790eb3e0348af4d98969e4d",
+    "drivers/GopFramebuffer": "e47c1b8de169cd2bd0b885c7d85e433010e3cdf2",
+    "kits/AdrenoPM4": "282606b528b2595bc4274ea7490b62b323f35a5f"
+  },
+  "bridge": {
+    "translator_pin": "624bab3918de5b978e1101517abca2b4fa426565",
+    "patched_tree": "012f1ac53d182b739eaf43e2d9d3980a39d22da9",
+    "runtime_id": "96f68cb0d9d425259a54797a6c0a53ce",
+    "deployment": "16.5",
+    "final_rebuild_required": false
+  },
+  "turnip": {
+    "source_id": "57b519c11623abb33ca8371f995f8a42b85e3d05f3a54836de909d7d0c59cecf",
+    "profile": {
+      "revision": "85fda3b36405bcaea8bffc64aa4f2651dc90770d",
+      "options": [
+        "-Dgallium-drivers=",
+        "-Dvulkan-drivers=freedreno",
+        "-Dfreedreno-kmds=darwin",
+        "-Dtu-darwin-abi-dir=/home/qarzis/unixnu-reference/drivers/Adreno740",
+        "-Dplatforms=macos",
+        "-Dglx=disabled",
+        "-Degl=disabled",
+        "-Dgbm=disabled",
+        "-Dopengl=false",
+        "-Dgles1=disabled",
+        "-Dgles2=disabled",
+        "-Dllvm=disabled",
+        "-Dshared-glapi=disabled",
+        "-Dxmlconfig=disabled",
+        "-Dshader-cache=enabled",
+        "-Dtools=",
+        "-Dbuild-tests=false",
+        "-Dvideo-codecs=",
+        "-Dvulkan-layers=",
+        "-Dlibunwind=disabled",
+        "-Dlmsensors=disabled",
+        "-Dvalgrind=disabled",
+        "-Dexpat=disabled",
+        "-Dzstd=disabled",
+        "-Dbuildtype=release",
+        "-Db_ndebug=true"
+      ],
+      "diff_sha256": "e5a97c5749441e4cee717cb54d9a4b6f7e3ac32b13a1952752cffc735b314c07",
+      "extra_sources": {
+        "src/freedreno/vulkan/tu_builtin_cache.cc": "ec56464c03c9a7e9dda8ca6fd7887445c7c9a277c9aca7654ba07fef3671bfbd",
+        "src/freedreno/vulkan/tu_builtin_cache.h": "4019dbc884f9a8c51d3ad6d71f46738303e5888b4ee5e65c1c820ec77977a151",
+        "src/freedreno/vulkan/tu_frame_diagnostic.h": "d0138aedbbc1960ddd8b5fd829511ad1e74a58c5275a6d006794b07fae31bb66",
+        "src/freedreno/vulkan/tu_knl_darwin.cc": "6ad9536910d2771a7f2eab46e1edf2feb9e3391a5d4b32ae048851a861e696cf"
+      },
+      "cross_sha256": "76cb8e47b9f07e56fea008055e75bd8388c5fbc4bcd5a2f7475165bb13f62547",
+      "compiler": "clang version 23.1.4\nTarget: arm64-apple-ios16.5\nThread model: posix\nInstalledDir: /usr/bin\n",
+      "sdk": "16.5"
+    },
+    "hardware_tested": false
+  },
+  "artifacts": {
+    "NativeAdrenoMetal": {
+      "bytes": 25561256,
+      "sha256": "af2ace65ccd217ea99b2d766e0c75b1756232d00106f8ea284cab15c62935fee",
+      "build_versions": [
+        {
+          "platform": 2,
+          "minos": 1049856,
+          "sdk": 1049856
+        }
+      ],
+      "dependencies": [
+        "/usr/lib/libobjc.A.dylib",
+        "/System/Library/Frameworks/Foundation.framework/Foundation",
+        "/System/Library/Frameworks/Metal.framework/Metal",
+        "/System/Library/Frameworks/IOSurface.framework/IOSurface",
+        "/usr/lib/libc++.1.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation"
+      ]
+    },
+    "libvulkan_freedreno.dylib": {
+      "bytes": 17865960,
+      "sha256": "91a1e9aad35872db5ec03539a143b7e94aff5a966ac39833e02a8c73af8af728",
+      "build_versions": [
+        {
+          "platform": 2,
+          "minos": 1049856,
+          "sdk": 1049856
+        }
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libz.1.dylib",
+        "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+        "/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics",
+        "/System/Library/Frameworks/QuartzCore.framework/QuartzCore",
+        "/System/Library/Frameworks/Metal.framework/Metal",
+        "/usr/lib/libc++.1.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation",
+        "/usr/lib/libobjc.A.dylib"
+      ]
+    }
+  },
+  "runtime_blocker": "Existing port has private PID1 cdev ABI, not NativeAdreno IOKit UserClient/memory tokens/device info expected by Turnip",
+  "build_recipe_sha256": "702575f70e6e294f72de5a6c06f0b875297543b55385b05eb88825315d76449b",
+  "ios16_source_patch_sha256": "6c791358d5f5a9cc34ce89e04ff89b4f27a612eef27194aad6fae6b3676c9253",
+  "compatibility_declaration_sha256": "4fbed541112991933dfc16c40f7918c62062a8e695cdfcd6d0cb99e439821e88"
+}

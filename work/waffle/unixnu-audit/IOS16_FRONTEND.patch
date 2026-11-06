@@ -1,0 +1,22 @@
+--- a/NativeBridgeMetalFrontend.mm
++++ b/NativeBridgeMetalFrontend.mm
+@@ -819,7 +819,7 @@
+ }
+ static NSString *compileArguments(MTLCompileOptions *options) {
+  NSMutableArray<NSString *> *arguments=[NSMutableArray arrayWithObjects:@"--driver-mode=metal",@"-x",@"metal",nil];
+- const NSUInteger version=options && options.languageVersion?(NSUInteger)options.languageVersion:(NSUInteger)MTLLanguageVersion3_1;
++ const NSUInteger version=options && options.languageVersion?(NSUInteger)options.languageVersion:(NSUInteger)MTLLanguageVersion3_0;
+  const unsigned major=(unsigned)(version>>16),minor=(unsigned)(version&0xffff);
+  [arguments addObject:[NSString stringWithFormat:major>=3?@"-std=metal%u.%u":@"-std=ios-metal%u.%u",major,minor]];
+  const BOOL fast=options?((BOOL (*)(id,SEL))objc_msgSend)(options,sel_registerName("fastMathEnabled")):YES;
+--- a/bridge/FrontendChecks.h
++++ b/bridge/FrontendChecks.h
+@@ -379,7 +379,7 @@
+                 }
+                 CHECK(!dispatch_semaphore_wait(notified, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) && heard >= 3,
+                       "listener notification %llu", (unsigned long long)heard);
+-                CHECK([event waitUntilSignaledValue:3 timeoutMS:10], "waitUntilSignaledValue");
++                CHECK([(id)event waitUntilSignaledValue:3 timeoutMS:10], "waitUntilSignaledValue");
+             }
+         }
+         step(r, 0x660b);
