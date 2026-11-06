@@ -1,3 +1,9 @@
+# ACTIVE U04 native submit/wait hardware pending
+
+CurrentusercontinueUniXNU. ABI2 methods5/6 translate fixed3120Bsubmit/16Bwait into actualservice jobs. All128roots prevalidated,owned+mappedhandle/full64bit/ranges; queue0only, nativefencehistory256explicitbound, actualcompletiononly/futureforeignrefused. Windows16roots/1536words. Savecountbeforeoverwritingpayloadfence. Hardwarefailuremarkslostblocksallioctls. Hostactualcdev+layouts+normal13BO PASS,fullkernel+Darwinroot+pairedvalidatorPASS,9compiled/current/preparedbindingssame. U04 root2BO16384relocate10f000000,legacyMSMCPUmap writes8dwordCP_MEM_WRITE packet to4valuesatVA+4096, guards; nativeSubmit/Wait/dependency2ndpass/futurewaitrefusal,2free/stale,oldGLproof. NOTnativeIOKitCPUmap,notGPUfetchrootIB,notMetal/FPS.
+
+Activeauto session5200/loggpu/auto-unixnu-u04.log/auto20261106T101858Z soleUSBowner,explicitmanualBootiOS waiting; askuseronceloaderimageRAMsent. NoU04hardwarePASSyet. PhonewasAndroidbeforeboot. Waitoriginalrunner/AndroidbeforeotherUSB. Artifactdiagnostic-unixnu-gpu-u04/rootgpu/unixnu-u04-root. Needcandidatecheckpointthenresult. Mainindexpreserve/noflash/noagents.
+
 # U03 qualified offline — chosen IOVA mapping and lifetime
 
 Run20261106T101034Z/auto101007Z originalrunner1 due oldvalidatorunsupportedrelocation, Android1/manualboot1. Rawhardware2relocatepassed/poison0 +rootmaps2/remaprefused2/BO2free+stale +FD750checked256wrong0. Strictparserextended andactualfullrawlogPASSoffline,7corruptionsrejected/U01U02regressionPASS. Originalfailedautoresultpreserved, see U03-result.json. SoleUSBowner ended; phoneAndroid. No needrepeatU03withoutnewexperiment. U03 only PTE relocation/lifetime, NOTGPUreadatnewVA. NextNativeSubmit/Waitfence andGPUreadnewaddress, then per-taskIOKitandTurnip/Metal. NoFPSclaim. Candidatecheckpoint8eadd778+resultscheckpointnext. Explicit--manual-boot-selection on auto tool waitsindefinitely; thisartifactautomaticfalse. Mainindexpreserve/noflash/noagents.

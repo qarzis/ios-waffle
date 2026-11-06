@@ -36,6 +36,9 @@ struct drm_bo {
 static struct drm_bo drm_bos[WAFFLE_GPU_BO_LIMIT];
 static struct waffle_gpu_context *drm_context;
 static unsigned drm_count,drm_issued,drm_fence;
+/* Diagnostic ABI ingress: bounded native fence history, separate from Mesa. */
+static uint32_t drm_native_fences[256],drm_native_count;
+static bool drm_native_lost;
 static int drm_pid;
 static unsigned drm_surface_described;
 static uint32_t drm_queues;
@@ -74,6 +77,7 @@ static int drm_open(dev_t dev,int flags,int type,struct proc *p)
  (void)dev;(void)flags;(void)type;lck_mtx_lock(&drm_lock);int error=0;
  if(drm_context){error=EBUSY;goto done;}
  drm_context=waffle_gpu_context_begin();if(!drm_context){error=ENXIO;goto done;}
+ drm_native_count=0;drm_native_lost=false;
  drm_count=drm_issued=drm_fence=0;drm_queues=0;bzero(drm_queue_generations,sizeof(drm_queue_generations));drm_pid=proc_pid(p);bzero(drm_bos,sizeof(drm_bos));
  redwood_tl("waffle-gpu: GENERAL open pid=%d BO_limit=%u heap_bytes=%u VA_bytes=%u generation_handles=1 queue_generations=1 object_max_bytes=%u\n",drm_pid,WAFFLE_GPU_BO_LIMIT,WAFFLE_GPU_BO_HEAP_BYTES,WAFFLE_GPU_BO_VA_BYTES,WAFFLE_GPU_BO_MAX_BYTES);
 done:lck_mtx_unlock(&drm_lock);return error;
@@ -421,9 +425,61 @@ static int drm_free(struct waffle_msm_close *r)
 }
 /* U03: owned BO lifetime and one client-chosen VA relocation.
  * Submission stays refused. Backend backing/alignment is 16KiB. */
+static bool drm_native_completed(uint64_t fence)
+{
+ if(!fence || fence>UINT32_MAX)return false;
+ for(unsigned i=0;i<drm_native_count;i++)if(drm_native_fences[i]==fence)return true;
+ return false;
+}
+static int drm_native_submit(struct waffle_unixnu_call *r)
+{
+ if(r->input_bytes!=sizeof(struct waffle_unixnu_submit) || r->output_bytes!=8)return EINVAL;
+ /* The ioctl payload is already a kernel snapshot; never follow user pointers. */
+ const struct waffle_unixnu_submit *s=(const void *)r->payload;
+ if(!s->count || s->count>128 || s->reserved)return EINVAL;
+ if(s->queue)return ENOTSUP; /* Only the implicit serialized queue exists. */
+ if(s->wait_fence && !drm_native_completed(s->wait_fence))return EINVAL;
+ if(!s->wait_fence && s->timeout_ns)return EINVAL;
+ if(drm_native_count==256)return ENOSPC;
+ const unsigned count=s->count;
+ struct waffle_gpu_command *roots=kalloc_data(count*sizeof(*roots),Z_WAITOK|Z_ZERO);
+ if(!roots)return ENOMEM;
+ int error=0;unsigned total=0;
+ for(unsigned i=0;i<s->count;i++){
+  const struct waffle_unixnu_ib *ib=&s->buffers[i];
+  struct drm_bo *bo=ib->handle && ib->handle<=UINT32_MAX?drm_buffer((uint32_t)ib->handle):NULL;
+  if(!bo || !bo->unixnu_owned || !bo->unixnu_mapped || ib->iova<bo->memory->gpu_va ||
+     ib->iova-bo->memory->gpu_va>bo->memory->bytes || ib->bytes>UINT32_MAX){error=EINVAL;goto done;}
+  roots[i]=(struct waffle_gpu_command){bo->memory,(uint32_t)(ib->iova-bo->memory->gpu_va),(uint32_t)ib->bytes};
+  if(!waffle_gpu_command_valid(&roots[i]) || ib->bytes/4>WAFFLE_GPU_SUBMIT_WORDS){error=EINVAL;goto done;}
+  total+=roots[i].bytes/4;
+ }
+ if(drm_fence>UINT32_MAX-s->count){error=ENOSPC;goto done;}
+ __asm__ volatile("dsb sy":::"memory");
+ unsigned cursor=0,windows=0;
+ while(cursor<s->count){
+  unsigned first=cursor,words=0;
+  while(cursor<s->count && cursor-first<WAFFLE_GPU_SUBMIT_COMMANDS && roots[cursor].bytes/4<=WAFFLE_GPU_SUBMIT_WORDS-words){words+=roots[cursor].bytes/4;cursor++;}
+  struct waffle_gpu_submit_job job={.commands=roots+first,.count=cursor-first};
+  if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){drm_native_lost=true;error=EIO;goto done;}
+  drm_fence=job.fence;windows++;
+  redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,s->count,job.count,words);
+ }
+ drm_native_fences[drm_native_count++]=drm_fence;
+ redwood_tl("waffle-gpu: UNIXNU_SUBMIT fence=%u roots=%u words=%u windows=%u synchronous=1\n",drm_fence,s->count,total,windows);
+ {uint64_t fence=drm_fence;memcpy(r->payload,&fence,8);}
+done:
+ kfree_data(roots,count*sizeof(*roots));return error;
+}
 static int drm_unixnu(struct waffle_unixnu_call *r)
 {
  if(r->version!=2 || r->input_bytes>WAFFLE_UNIXNU_ABI_BYTES || r->output_bytes>WAFFLE_UNIXNU_ABI_BYTES)return EINVAL;
+ if(r->method==5)return drm_native_submit(r);
+ if(r->method==6){
+  struct waffle_unixnu_wait w;
+  if(r->input_bytes!=sizeof(w) || r->output_bytes)return EINVAL;
+  memcpy(&w,r->payload,sizeof(w));return drm_native_completed(w.fence)?0:EINVAL;
+ }
  if(r->method==2){
   struct waffle_unixnu_alloc a;
   if(r->input_bytes!=sizeof(a) || r->output_bytes!=8)return EINVAL;
@@ -465,6 +521,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
 {
  (void)dev;(void)flags;lck_mtx_lock(&drm_lock);int error=0;
  if(!drm_context || proc_pid(p)!=drm_pid){error=EPERM;goto done;}
+ if(drm_native_lost){error=EIO;goto done;}
  if(command==WAFFLE_UNIXNU_CALL){
   /* Bootstrap is root PID1 only, within an already owned live GPU context.
    * Main Mesa ABI and all hardware programming remain unchanged. */

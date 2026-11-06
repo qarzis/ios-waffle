@@ -1124,6 +1124,12 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
+            if args.gpu_gl_context and b'waffle-unixnu-submit: completed=2' in args.root.read_bytes():
+                if 'waffle-unixnu-submit: completed=2 waited=2 future_refused=2 CPU_map=legacy_MSM Metal_published=0' not in final_text:
+                    raise RuntimeError('UniXNU submit/wait proof missing')
+                proofs=re.findall(r'waffle-unixnu-submit: pass=([12]) fence=(\d+) checked=4 wrong=0 guards=2 values=57414646/4c454750/13579bdf/2468ace0',final_text)
+                if {int(p) for p,f in proofs}!={1,2} or len({int(f) for p,f in proofs})!=2:
+                    raise RuntimeError('UniXNU chosen IOVA GPU writes missing or conflicting')
             if args.gpu_gl_context and b'waffle-unixnu-map: relocated=2' in args.root.read_bytes():
                 if 'waffle-unixnu-map: relocated=2 chosen_VA=10f000000 remap_refused=2' not in final_text:
                     raise RuntimeError('UniXNU chosen IOVA relocation proof missing')

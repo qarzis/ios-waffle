@@ -1,0 +1,1 @@
+PASS exact upstream UniXNU ABI2 Query -> existing A750 limits; unsupported methods/capabilities refused; host only, no Metal/IOKit/hardware claim.

@@ -1,0 +1,1 @@
+Actual general cdev:board params,13 real GL-sized BOs/maps,root310words,bounds/duplicates/foreign PID/future fence refusals,queues; GEM_CLOSE revokes mapping then calls modeled owner reclaim; host only

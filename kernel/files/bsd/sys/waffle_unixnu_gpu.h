@@ -17,6 +17,9 @@ struct waffle_unixnu_call {
 };
 /* NativeAdrenoAbiParams exact upstream layout, verified by upstream-header
  * fixture. Kept as a byte protocol here to avoid user C++/IOKit dependencies. */
+struct waffle_unixnu_ib {uint64_t handle,iova,bytes;};
+struct waffle_unixnu_submit {uint32_t count,reserved;uint64_t queue,wait_fence,timeout_ns;struct waffle_unixnu_ib buffers[128];};
+struct waffle_unixnu_wait {uint64_t fence,timeout_ns;};
 struct waffle_unixnu_map {uint64_t handle,iova;uint32_t permissions,writeback,shareability,reserved;};
 struct waffle_unixnu_alloc {uint64_t bytes;uint32_t align_log2,contiguous;};
 struct waffle_unixnu_params {uint32_t version,input_bits,output_bits,flags;uint64_t max_bo_bytes;};
