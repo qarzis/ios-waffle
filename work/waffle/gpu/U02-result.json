@@ -1,0 +1,23 @@
+{
+  "probe": 94,
+  "started_at": "2026-11-06T10:01:06.562359+00:00",
+  "variant": "E36-actual-Darwin-OSMesa-GL",
+  "runner_exit": 0,
+  "runs": [
+    "work/waffle/runs/20261106T100106Z"
+  ],
+  "hardware_tested": true,
+  "kernel_probe_started": true,
+  "fastboot_after": "xnuloader\t fastboot\n",
+  "android_reboot_sent": true,
+  "android_confirmed": true,
+  "experiment": "U02",
+  "boot_selection": "manual by user after automatic enumeration timeout",
+  "markers": [
+    "waffle-unixnu-bo: allocated=2 freed=2 stale_refused=2 distinct_handles=1",
+    "waffle-gl-user: checked=256 wrong=0 filled=128 GL_error=0"
+  ],
+  "kernel_log_sha256": "5ab60460b88cac3fbc0d53b9d97b24884b1a23ce0aef7a4aff5c2b527249b3ed",
+  "Metal_published": false,
+  "fps_measured": false
+}

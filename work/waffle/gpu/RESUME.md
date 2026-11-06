@@ -1,3 +1,11 @@
+# U02 PASS — owned UniXNU BO allocation/free
+
+Run20261106T100106Z original0/Android1. 2alloc/2free/2stale refusals/distinct handles, FD750 GL checked256/wrong0. See U02-result.json. SoleUSBowner finished, Android restored. Boot was MANUAL after auto095813Z menu timeout; no automatic-loader claim. Next: client-chosen IOVA mapping, per-task IOKit and submission/fences; all currently refused. No Metal/FPS claim.
+
+# U02 hardware running after MANUAL Boot iOS
+
+Auto095813Z RAMboot sentcorrectU02 image but menu waited; user manuallyselected BootiOS, xnuloader/platformwaffle verified. Directrun-publish-test.py94 diagnostic-unixnu-gpu-u02 session61936/loggpu/hardware-unixnu-u02.log soleUSBowner. WaitAndroid/end beforeotherUSB. Newkernel+root alreadyfullbuilt/pairedvalidated, checkpoint6fc3820. NeedfinalBOmarker+GLpixelproof. DoNOTclaimautomaticloader: freshbuilder usesmenu, imagealiasAUTOdoesnotmakeautomatic. Initialautoresultfailedmustremain.
+
 # ACTIVE U02 — owned UniXNU BO lifetime, hardware pending
 
 Current user: continue UniXNU GPU integration. U02 source translates ABI2 alloc/free into shared existing GEM helpers; query retained; map/submit/allothermethods refused. PID1 only, same live context/lock. Noncontiguous align12..14/4KiB-multiple sizes only; handles64checked before narrowing/generation stale guards. Actual cdev negative and ordinary13BO submission host tests PASS, upstreamalloc layout PASS, fullkernel/16.5rootbuild PASS, pairedvalidator PASS via /tmp/waffle-image-validation-venv. Artifact diagnostic-unixnu-gpu-u02/root gpu/unixnu-u02-root. Auto session79378/log gpu/auto-unixnu-u02.log/auto20261106T095813Z sole USB owner, Android hadbooted then rebootbootloader requested; waiting loader. Wait result/Android before other USB. Hardware proof requires new waffle-unixnu-bo marker (2alloc/2free/2stale/distinct) and old FD750 checked256/wrong0. Do not claim full UniXNU/Metal/FPS. U01was hardware PASS and checkpoint8228008. Need U02checkpoint after result. No agents/flash; preserve mainindex. Sound paused by userGPUrequest.
