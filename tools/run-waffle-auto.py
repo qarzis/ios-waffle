@@ -307,6 +307,15 @@ def main():
             digest=bindings.get(name)
             if not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:parser.error('Haptic pulse source binding mismatch: '+name)
         if b'haptic-waffle-pulse: passed=' not in (artifact/'kernel').read_bytes():parser.error('Native haptic pulse code absent from bound kernel')
+        if args.haptic_pulse and b'haptic-fifo-status: passed=' in (artifact/'kernel').read_bytes():
+            name='kernel/files/bsd/sys/waffle_haptic_fifo_status.h'
+            digest=bindings.get(name)
+            if not manifest.get('haptic_fifo_status_test') or not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:
+                parser.error('Native FIFO selector diagnostic lacks bound current/compiled source')
+        if args.haptic_pulse and b'haptic-fifo-buffer: passed=' in (artifact/'kernel').read_bytes():
+            name='kernel/files/bsd/sys/waffle_haptic_fifo_buffer.h';digest=bindings.get(name)
+            if not manifest.get('haptic_fifo_buffer_test') or not digest or hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=digest or hashlib.sha256((artifact/'source'/name).read_bytes()).hexdigest()!=digest:
+                parser.error('Native zero FIFO transport lacks bound current/compiled source')
 
     if args.torch_pulse and not manifest.get('torch_pulse_loader'):parser.error('Artifact lacks the bounded torch pulse policy')
     if args.torch_service and not manifest.get('torch_service_loader'):parser.error('Artifact lacks the iOS torch-service policy')

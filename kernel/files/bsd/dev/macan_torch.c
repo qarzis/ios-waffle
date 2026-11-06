@@ -13,6 +13,8 @@
 #include <sys/waffle_haptic_readonly.h>
 #include <sys/waffle_haptic_pulse.h>
 #include <sys/waffle_haptic_events.h>
+#include <sys/waffle_haptic_fifo_status.h>
+#include <sys/waffle_haptic_fifo_buffer.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
@@ -23,6 +25,9 @@ static uint32_t level;
 static bool waffle_arb;
 static uint32_t haptic_test;
 static bool haptic_active;
+static bool haptic_fifo_status_active;
+static struct waffle_haptic_fifo_status_result haptic_fifo_status_result;
+static bool haptic_fifo_buffer_active;
 static LCK_GRP_DECLARE(haptic_event_group,"waffle-haptic-events");
 static LCK_MTX_DECLARE(haptic_event_lock,&haptic_event_group);
 static struct waffle_haptic_events haptic_events;
@@ -340,11 +345,57 @@ waffle_haptic_bus_read(void *context,uint16_t ppid,uint8_t reg,uint8_t *value)
 /* Dedicated opt-in transaction; the read-only survey never selects this path. */
 static struct waffle_haptic_bus_context haptic_pulse_context;
 static bool
+waffle_haptic_fifo_buffer_bus_read(void *context,uint16_t ppid,uint8_t reg,uint8_t *value)
+{
+ struct waffle_haptic_bus_context *c=context;
+ if(!waffle_arb || level!=1 || haptic_test!=1 || !haptic_active ||
+    !haptic_fifo_buffer_active || !waffle_haptic_fifo_buffer_read_allowed(ppid,reg))return false;
+ for(unsigned i=0;i<2;i++)if(c->peripheral[i].id==ppid && c->peripheral[i].found)
+  return spmi_read(&c->peripheral[i],reg,value,1)==NULL;
+ return false;
+}
+static bool
+waffle_haptic_fifo_bus_write4(void *context,uint16_t ppid,uint8_t reg,const uint8_t *bytes)
+{
+ struct waffle_haptic_bus_context *c=context;
+ if(!waffle_arb || level!=1 || haptic_test!=1 || !haptic_active ||
+    !haptic_fifo_buffer_active || ppid!=0x7f1 || reg!=0x20 || !bytes)return false;
+ const struct peripheral *p=&c->peripheral[1];
+ if(p->id!=ppid || !p->found || !p->writable || !p->write)return false;
+ uint32_t data=0;for(unsigned i=0;i<4;i++)data|=(uint32_t)bytes[i]<<(8*i);
+ lock();
+ bool owned=arb_ppid(rd(arb_map+ARB_CHANNEL(p->channel)))==ppid &&
+     (rd(arb_cnfg+ARB_OWNER(p->channel))&7)==ARB_SYSTEM;
+ const char *problem="ownership changed";
+ if(owned){
+  wr(p->write+CHANNEL_WDATA0,data);
+  wr(p->write+CHANNEL_COMMAND,COMMAND_WRITE|(uint32_t)reg<<4|3u);
+  problem=wait_done(p->write);
+ }
+ unlock();
+ /* Exactly one attempt, no FIFO data-port readback or ambiguous retry. */
+ return problem==NULL;
+}
+static bool
+waffle_haptic_fifo_status_bus_read(void *context,uint16_t ppid,uint8_t reg,uint8_t *value)
+{
+ struct waffle_haptic_bus_context *c=context;
+ if(!waffle_arb || level!=1 || haptic_test!=1 || !haptic_active ||
+    !haptic_fifo_status_active || !waffle_haptic_fifo_status_read_allowed(ppid,reg))return false;
+ for(unsigned i=0;i<2;i++)if(c->peripheral[i].id==ppid && c->peripheral[i].found)
+  return spmi_read(&c->peripheral[i],reg,value,1)==NULL;
+ return false;
+}
+static bool
 waffle_haptic_bus_write(void *context,uint16_t ppid,uint8_t reg,uint8_t value)
 {
  struct waffle_haptic_bus_context *c=context;
  if(!waffle_arb || (level!=1 && !(level==3 && haptic_test==2)) || (haptic_test!=1 && haptic_test!=2) || !haptic_active ||
-    !waffle_haptic_pulse_write_allowed(ppid,reg))return false;
+    !(waffle_haptic_pulse_write_allowed(ppid,reg) ||
+      (haptic_fifo_status_active && level==1 && haptic_test==1 &&
+       waffle_haptic_fifo_status_write_allowed(ppid,reg)) ||
+      (haptic_fifo_buffer_active && level==1 && haptic_test==1 &&
+       waffle_haptic_fifo_buffer_write_allowed(ppid,reg))))return false;
  for(unsigned i=0;i<2;i++) {
   const struct peripheral *p=&c->peripheral[i];
   if(p->id!=ppid || !p->found || !p->writable || !p->write)continue;
@@ -369,6 +420,28 @@ waffle_haptic_quiesce(void)
  if(!waffle_arb || (haptic_test!=1 && haptic_test!=2))return;
  leaving=true;
  if(!haptic_active)return;
+ if(haptic_fifo_buffer_active){
+  /* No motor START is possible in this phase. Do not re-enable inherited
+   * SWR onto a possibly partially loaded FIFO during panic/return. Android
+   * reinitializes it; retained-disabled input is the quarantine state. */
+  haptic_fifo_buffer_active=haptic_active=false;
+  say("haptic-fifo-buffer: quiesce quarantine=1 no_START=1\n");
+  return;
+ }
+ if(haptic_fifo_status_active){
+  /* This phase never starts the motor. Restore only saved selectors; do not
+   * turn a status-only panic into power/reset writes. Other cores are stopped
+   * by loader_return before peripheral quiesce. */
+  bool restored=true;
+  if(haptic_fifo_status_result.selection_attempted){
+   bool low=waffle_haptic_bus_write(&haptic_pulse_context,0x7f0,0x70,haptic_fifo_status_result.selector);
+   bool high=waffle_haptic_bus_write(&haptic_pulse_context,0x7f0,0x71,haptic_fifo_status_result.extension);
+   restored=low&&high;
+  }
+  haptic_fifo_status_active=haptic_active=false;
+  say("haptic-fifo-status: quiesce restored=%u\n",restored);
+  return;
+ }
  /* Panic/return uses the same bounded, ownership-checked writer as flash;
   * leaving skips taking a mutex that a stopped core might own. */
  leaving=true;
@@ -405,6 +478,34 @@ waffle_haptic_bus_pulse(struct waffle_haptic_bus_context *c)
   .exclusive_owned=owned};
  struct waffle_haptic_pulse_result result;
  haptic_active=true;
+ if(haptic_test==1){
+  const struct waffle_haptic_fifo_status_io status_io={
+   c,waffle_haptic_fifo_status_bus_read,waffle_haptic_bus_write,owned};
+  haptic_fifo_status_active=true;
+  bool status_ok=waffle_haptic_fifo_status(&status_io,&haptic_fifo_status_result);
+  haptic_fifo_status_active=false;
+  say("haptic-fifo-status: passed=%u restored=%u writes=%u\n",status_ok,
+      haptic_fifo_status_result.restored,haptic_fifo_status_result.writes);
+  say("haptic-fifo-status: fill=%u capacity=%u empty=%u full=%u\n",
+      haptic_fifo_status_result.fill,haptic_fifo_status_result.capacity,
+      haptic_fifo_status_result.empty,haptic_fifo_status_result.full);
+  say("haptic-fifo-status: FIFO_writes=0 motor_started=0\n");
+  say("haptic-fifo-status: raw=%02x%02x count_authoritative=1\n",
+      haptic_fifo_status_result.status_high,haptic_fifo_status_result.status_low);
+  if(!status_ok){haptic_active=false;return false;}
+  const struct waffle_haptic_fifo_buffer_io buffer_io={
+   {c,waffle_haptic_fifo_buffer_bus_read,waffle_haptic_bus_write,owned},
+   waffle_haptic_fifo_bus_write4};
+  struct waffle_haptic_fifo_buffer_result buffer;
+  haptic_fifo_buffer_active=true;
+  bool buffer_ok=waffle_haptic_fifo_buffer(&buffer_io,&buffer);
+  haptic_fifo_buffer_active=false;
+  say("haptic-fifo-buffer: passed=%u loaded=%u cleared=%u\n",buffer_ok,buffer.loaded,buffer.cleared);
+  say("haptic-fifo-buffer: fill=%u final=%u commands=%u\n",buffer.loaded_fill,buffer.final_fill,buffer.data_commands);
+  say("haptic-fifo-buffer: selectors=%u SWR_restored=%u source=%u\n",buffer.selectors_restored,buffer.swr_restored,buffer.source);
+  say("haptic-fifo-buffer: zeros=144 motor_STARTED=0 HBST_writes=0\n");
+  if(!buffer_ok){haptic_active=false;return false;}
+ }
  bool ok=waffle_haptic_pulse(&io,&result);
  haptic_active=false;
  say("haptic-waffle-pulse: passed=%u admitted=%u start=%u\n",ok,result.admitted,result.start_attempted);

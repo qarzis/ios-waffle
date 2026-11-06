@@ -13,7 +13,7 @@ class Parser:
 names=['kernel/files/bsd/dev/macan_torch.c','kernel/files/bsd/sys/waffle_haptic_readonly.h','kernel/files/bsd/sys/waffle_haptic_pulse.h','kernel/files/bsd/sys/waffle_haptic_events.h','loader/waffle.h']
 with tempfile.TemporaryDirectory() as d:
  p=Path(d);r=p/'root';a=p/'artifact'
- for case in range(14):
+ for case in range(24):
   for n in names:
    for x in [r/n,a/'source'/n]:x.parent.mkdir(parents=True,exist_ok=True);x.write_bytes(n.encode())
   (a/'kernel').write_bytes(b'haptic-waffle-pulse: passed=')
@@ -28,7 +28,28 @@ with tempfile.TemporaryDirectory() as d:
   if case==12:(a/'source'/names[3]).write_bytes(b'changed')
   if case==13:
    (a/'kernel').write_bytes(b'no-pulse-code');m['kernel_sha256']=hashlib.sha256((a/'kernel').read_bytes()).hexdigest()
+  if case>=14:
+   n='kernel/files/bsd/sys/waffle_haptic_fifo_status.h'
+   for x in [r/n,a/'source'/n]:x.parent.mkdir(parents=True,exist_ok=True);x.write_bytes(b'fifo-status')
+   (a/'kernel').write_bytes(b'haptic-waffle-pulse: passed= haptic-fifo-status: passed=')
+   m['kernel_sha256']=hashlib.sha256((a/'kernel').read_bytes()).hexdigest()
+   m['haptic_fifo_status_test']=True
+   m['haptic_pulse_source_sha256'][n]=hashlib.sha256((r/n).read_bytes()).hexdigest()
+   if case==15:m['haptic_fifo_status_test']=False
+   if case==16:m['haptic_pulse_source_sha256'].pop(n)
+   if case==17:(r/n).write_bytes(b'changed')
+   if case==18:(a/'source'/n).write_bytes(b'changed')
+  if case>=19:
+   n='kernel/files/bsd/sys/waffle_haptic_fifo_buffer.h'
+   for x in [r/n,a/'source'/n]:x.parent.mkdir(parents=True,exist_ok=True);x.write_bytes(b'fifo-buffer')
+   (a/'kernel').write_bytes((a/'kernel').read_bytes()+b' haptic-fifo-buffer: passed=')
+   m['kernel_sha256']=hashlib.sha256((a/'kernel').read_bytes()).hexdigest()
+   m['haptic_fifo_buffer_test']=True;m['haptic_pulse_source_sha256'][n]=hashlib.sha256((r/n).read_bytes()).hexdigest()
+   if case==20:m['haptic_fifo_buffer_test']=False
+   if case==21:m['haptic_pulse_source_sha256'].pop(n)
+   if case==22:(r/n).write_bytes(b'changed')
+   if case==23:(a/'source'/n).write_bytes(b'changed')
   try:exec(code,{'args':SimpleNamespace(haptic_pulse=True,haptic_service_test=False,haptic_ui_test=False),'artifact':a,'ROOT':r,'manifest':m,'parser':Parser(),'hashlib':hashlib})
-  except ValueError:assert case!=0
-  else:assert case==0
+  except ValueError:assert case not in (0,14,19)
+  else:assert case in (0,14,19)
 print('PASS actual haptic pre-USB admission: bound positive; capability, all current/snapshot sources, missing header and kernel tamper refused. No USB.')

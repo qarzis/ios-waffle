@@ -11,12 +11,18 @@ program=r'''
 #include <stddef.h>
 #include <stdio.h>
 #include "waffle_haptic_pulse.h"
+#include "waffle_haptic_fifo_status.h"
+#include "waffle_haptic_fifo_buffer.h"
 typedef unsigned long vm_offset_t;
 struct peripheral {uint16_t id,channel;bool found,writable;vm_offset_t write;};
 struct waffle_haptic_bus_context {struct peripheral peripheral[3];};
 static bool waffle_arb,haptic_active,locked,bad_owner,bad_map,bad_read,denied;
+static bool haptic_fifo_status_active;
+static bool haptic_fifo_buffer_active;
+static struct waffle_haptic_fifo_status_result haptic_fifo_status_result;
 static uint32_t level,haptic_test,arb_map=0x1000,arb_cnfg=0x2000;
 static unsigned writes;static uint8_t byte;
+static unsigned commands;static uint8_t registers[64];
 #define ARB_CHANNEL(n) (4*(n))
 #define ARB_OWNER(n) (4*(n))
 #define ARB_SYSTEM 0
@@ -27,7 +33,7 @@ static uint32_t arb_ppid(uint32_t v){return (v>>8)&0xfff;}
 static void lock(void){assert(!locked);locked=true;}
 static void unlock(void){assert(locked);locked=false;}
 static uint32_t rd(vm_offset_t a){assert(locked);if(a>=0x2000)return bad_owner?3:0;return (bad_map?0x7f2:0x7f0)<<8;}
-static void wr(vm_offset_t a,uint32_t v){assert(locked);writes++;if((a&255)==0x10)byte=v;}
+static void wr(vm_offset_t a,uint32_t v){assert(locked);writes++;if((a&255)==0x10)byte=v;else {assert(commands<64);registers[commands++]=v>>4;}}
 static const char *wait_done(vm_offset_t a){assert(locked&&a==0x300);return denied?"denied":NULL;}
 static const char *spmi_read(const struct peripheral *p,uint8_t a,uint8_t *v,uint32_t n){assert(!locked&&p->id==0x7f0&&n==1);(void)a;*v=bad_read?byte^1:byte;return NULL;}
 '''+body+r'''
@@ -41,8 +47,16 @@ int main(void){struct waffle_haptic_bus_context c={.peripheral={{0x7f0,1,true,tr
  bad_owner=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1)&&!writes);bad_owner=false;bad_map=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1)&&!writes);bad_map=false;
  denied=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1));denied=false;bad_read=true;assert(!waffle_haptic_bus_write(&c,0x7f0,0x4c,1));assert(!locked);
  bad_read=false;writes=0;level=3;haptic_test=2;assert(waffle_haptic_bus_write(&c,0x7f0,0x4c,1)&&writes==2);level=1;haptic_test=1;
+ writes=0;assert(!waffle_haptic_bus_write(&c,0x7f0,0x70,5)&&!writes);
+ haptic_fifo_status_active=true;assert(waffle_haptic_bus_write(&c,0x7f0,0x70,5)&&writes==2);
+ writes=0;level=3;haptic_test=2;assert(!waffle_haptic_bus_write(&c,0x7f0,0x70,5)&&!writes);
+ level=1;haptic_test=1;haptic_fifo_status_active=false;
  writes=0;haptic_pulse_context=c;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&writes==4);writes=0;waffle_haptic_quiesce();assert(!writes);
  haptic_active=true;haptic_test=2;leaving=false;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&writes==4);
+ writes=commands=0;haptic_active=haptic_fifo_status_active=true;haptic_test=level=1;leaving=false;
+ haptic_fifo_status_result.selection_attempted=true;haptic_fifo_status_result.selector=0x33;haptic_fifo_status_result.extension=0x12;
+ waffle_haptic_quiesce();assert(leaving&&!haptic_active&&!haptic_fifo_status_active&&writes==4&&commands==2&&registers[0]==0x70&&registers[1]==0x71);
+ writes=0;haptic_active=haptic_fifo_buffer_active=true;leaving=false;waffle_haptic_quiesce();assert(leaving&&!haptic_active&&!haptic_fifo_buffer_active&&!writes);
  puts("PASS actual haptic writer: four opt-in gates, CFG/PTN allowlist, firmware HBST/flash refused, owner+PPID checked under bus lock, denied/readback mismatch reject. Host MMIO only.");}
 '''
 with tempfile.TemporaryDirectory() as d:

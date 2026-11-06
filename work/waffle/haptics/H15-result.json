@@ -1,0 +1,18 @@
+{
+  "original_runner_exit": 1,
+  "original_failure": "ValueError: Missing/ambiguous exact snapshot overlap: kernel-173.log",
+  "android_confirmed": true,
+  "offline_actual_haptic_checks_passed": true,
+  "collector_fix": "use unique exact suffix 8192 bytes when 4096 is repeated; no invented/skipped bytes",
+  "stream_bytes": 2175303,
+  "stream_sha256": "242f0937abda6befc18c1a1d0166d49d72261b5019f7508f995295eb09f5cb06",
+  "fill": 0,
+  "capacity": 1920,
+  "status_raw": "0000",
+  "selectors_restored": true,
+  "selector_writes": 4,
+  "FIFO_writes": 0,
+  "baseline_active_us": 16115,
+  "baseline_stop_restore": true,
+  "Crisp_waveform_played": false
+}

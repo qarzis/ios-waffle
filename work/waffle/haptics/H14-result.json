@@ -1,0 +1,18 @@
+{
+  "original_runner_exit": 1,
+  "original_failure": "Native bounded haptic pulse/stop/restore proof failed",
+  "cause": "Survey refused zero fill with empty flag zero; baseline deliberately not attempted",
+  "status_result": false,
+  "selectors_restored": true,
+  "selector_writes": 4,
+  "fill": 0,
+  "capacity": 1920,
+  "empty_flag": false,
+  "full_flag": false,
+  "FIFO_writes": 0,
+  "motor_started": false,
+  "android_confirmed": true,
+  "trace_sha256": "c9a768ad4664f844d4799c321bb34cc1c0755845bd6480e51dd2308baa6ebfee",
+  "inherited_SWR_ACCESS": 224,
+  "native_source_recheck": "haptics_get_available_fifo_memory uses count, not empty/full flag equality"
+}
