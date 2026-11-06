@@ -101,6 +101,7 @@ def main():
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-write-adapter-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-cli-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-worker-host.py"])
+    run([sys.executable, ROOT / "tools/tests/waffle-haptic-log-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-pcm-host.py"])
     run([sys.executable, ROOT / "tools/tests/waffle-haptic-identity-host.py"])
     for variant,flags in (("base",[]),("user",["-DWAFFLE_USERLAND=1"]),("pulse",["-DWAFFLE_USERLAND=1","-DWAFFLE_HAPTIC_PULSE_TEST=1"])):

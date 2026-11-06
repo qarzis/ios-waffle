@@ -29,3 +29,12 @@ A18 host MAP44/UNMAP28 matches actual pinned Linux bytes; not transmitted/DMAunq
 
 ## H07B result and H08 revised architecture
 H07Boriginal0/Android1,3baselinePCMpasses,CoreHaptics_supports0/play1/noHALsamples. Sourceauditfound exactMGGetBoolAnswer(DeviceSupportsClosedLoopHaptics) andmissingproduct/hapticsnode, despitegeneratedidentityalreadyexisting. Thus threeprobesreplacedbyarchitecturecheck, no blindretry. H08service-onlynodehosttests+loaderUEFIbuild+pairedvalidatorPASS, notbootedbecauseuserborrowedphone. KernelH05unchanged. Probeone-elementarrayboundcorrectedbeforeH08. EvidenceH07B-result.json,H08-identity-diagnosis.md,rebuild-h08.py/build-h08.log.
+
+
+## H12: readonly FIFO survey, logging failure preserved
+
+Original runner exit1, automatic Android recovery confirmed. Exact overlapping snapshot stream SHA2084d902ecfb3db0e7387254933ac68948655d69c3afe9ac55a5c42c60637970. PTN08=01,24=e0,2a=00,2b=10,a0=8f: native FIFO present, capacity1920 samples. No FIFO writes. CoreHaptics supports1/play1 and direct client3/errors0 retained; no exact Crisp waveform claim. READY and format survived but cooldown text interleaved at character granularity. Root cause found in actual torch say() per-character loader_log_putc calls; reducing line size does not provide atomicity.
+
+## H13: bounded record atomicity hypothesis (host PASS; hardware pending)
+
+Use existing loader log lock once for <=64-byte chunks via existing loader_log_line; torch say() no longer locks separately per character. Interrupt-disabled maximum remains64 input bytes. No waveform or power change. Actual extracted formatter/wrapper sanitizer test proves short READY records use one write, long messages remain bounded/truncated correctly. Full build pending; do not mark test passed from host compilation.

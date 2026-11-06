@@ -1,0 +1,23 @@
+{
+  "original_runner_exit": 1,
+  "android_confirmed": true,
+  "ready_record_complete": true,
+  "format_record_complete": true,
+  "cooldown_record_complete": false,
+  "cooldown_corruption": "mohapdutic-waffle-service: cooldown_us=80000",
+  "root_cause": "torch say emitted each character under a separate loader-log lock; other CPU records can interleave inside even short lines",
+  "FIFO_readonly": {
+    "ready": 1,
+    "rate": 224,
+    "empty_threshold": 0,
+    "depth": 16,
+    "map": 143,
+    "native_capacity_samples": 1920,
+    "fifo_writes": 0
+  },
+  "trace_sha256": "2084d902ecfb3db0e7387254933ac68948655d69c3afe9ac55a5c42c60637970",
+  "Crisp_waveform_tested": false,
+  "offline_GPU_proof": {
+    "offline_validation_error": "Missing GL BO publication"
+  }
+}

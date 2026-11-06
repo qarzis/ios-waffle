@@ -1,0 +1,119 @@
+{
+  "source": "work/waffle/haptics/H12-analysis-stream.log",
+  "source_sha256": "2084d902ecfb3db0e7387254933ac68948655d69c3afe9ac55a5c42c60637970",
+  "capabilities": [
+    1
+  ],
+  "player_returns": [
+    [
+      "1",
+      "0"
+    ]
+  ],
+  "completed_pulses": 31,
+  "confirmed_stop_restore": 31,
+  "active_us": [
+    16204,
+    16171,
+    16190,
+    16057,
+    16067,
+    16118,
+    16108,
+    16084,
+    17118,
+    16063,
+    16100,
+    16163,
+    16047,
+    16087,
+    16923,
+    17097,
+    17030,
+    16129,
+    16184,
+    16075,
+    16122,
+    17118,
+    16072,
+    16057,
+    16058,
+    17106,
+    16195,
+    16042,
+    16034,
+    16012,
+    16206
+  ],
+  "direct_client_results": [
+    [
+      "3",
+      "0"
+    ]
+  ],
+  "HAL_actuator_samples": [
+    {
+      "frames": 256,
+      "peak": 13049,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32363,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32508,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 20422,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 7816,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 28135,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32508,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 20422,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 440,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 3178,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 20084,
+      "sink_available": true
+    },
+    {
+      "frames": 256,
+      "peak": 32508,
+      "sink_available": true
+    }
+  ],
+  "fault_or_quarantine": false,
+  "system_route_claim": "Requires capability plus actual HAL samples with available sink; player success alone insufficient",
+  "trace_component_consistent": true
+}
