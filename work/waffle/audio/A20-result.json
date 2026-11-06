@@ -1,0 +1,34 @@
+{
+  "Android_observation_only": true,
+  "context_bank": 46,
+  "asid": 46,
+  "iommu_physical_base": "0x15000000",
+  "numpage": 128,
+  "pgshift": 12,
+  "stage": 0,
+  "stage_meaning": "native enum stage1",
+  "ttbr0": "0x2e0008f5ca1000",
+  "ttbr1": "0x2e000000000000",
+  "tcr": [
+    "0x80351c",
+    "0x38011"
+  ],
+  "mair": [
+    "0xf404ff44",
+    "0xefe4"
+  ],
+  "cached_sctlr": "0xa5f10e7",
+  "input_address_bits": 36,
+  "output_address_bits": 36,
+  "XNU_bank_ownership_established": false,
+  "SCTLR_live_MMIO_verified": false,
+  "cached_values_are_not_register_readback": true,
+  "traces_sha256": {
+    "A20-native-context-trace.txt": "37d0247f940da887dd4e0cee4f0f746b6ea8e7626dca46d0de868f2635f47151",
+    "A20-native-context-verify-trace.txt": "7d830085d12b0a555263fd47965a877dec2b29e537f71c874f94d3e0652ea1b3",
+    "A20-native-geometry-trace.txt": "b73ce7dd4811379e40baba686f775aa85982f20f8bb567c902a6814f388595b9",
+    "A20-native-cached-cb-trace.txt": "0dca4c227be95f6af695c3f43b84432781af739421438e594c054a7233f1f26f"
+  },
+  "layout_source": "pinned OnePlus arm-smmu.h config-independent prefixes; host static_assert offsets corroborated by native page174=128+46 and physical base15000000",
+  "last_attempt": "cfg bitfield observer not registered: adb disconnected beforehand"
+}

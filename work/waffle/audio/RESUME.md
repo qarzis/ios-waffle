@@ -1,3 +1,25 @@
+# ACTIVE A21 native SCTLR consistency PASS; phone reconnected
+
+UserconnectedAndroid,independentboot1/rootKSUconfirmed. Nohardwaretestowner. A21actualnativeown4KiBDMAimport/unmap0/privatekprobecontextprovescb46/asid46/cfg_sctlr77da/cbar1/fmt1/stage0. Actualpinnedfunctionarm_smmu_lpae_sctlr+definescompiledandmatches0a5f10e7cachedSCTLRexactly; highbitsarenativecacheattributesnotrandom. a20-native-domain/sctlr-proof.py PASS, A21-result.json/hash. Androidprofilecompleteenoughforstage1config,NOTXNUbankownership. Allownkprobe/instancesremoved/globaltracing0.
+
+NextA22needsimplementboundeddisabled-CBcontrol-accessprobe: freshcompleteinventoryexcludeallvalidroutes/enabledorphan/choosecandidate/perbootexclusiveclaim,snapshot,changeonlydormantfaultbitwithM0,readback,restore; noSMR/DMA/DSP. ExistingA15candidatealoneNOTpermission. Header/transactionnotyetimplemented. DoNOTcopyAndroidphysicalTTBRorassumeCB46reservedforallboots. NativeTCR/MAIR/SCTLRderivedandconfirmedfromliveconfiguration;useownnewtablesaftermappingqualified. Noactivebuild. Userprioritysound,Crispdeferred/H20notdevice-tested. PublicVibration✅f65c9dbpushed; periodicpublicdocsallowed; privateAndroidtraceaddresses/binariesnotpublish. NeedprivatesaveA19/A20/A21newsource/results/logswithouttouchmainindex.
+
+# ACTIVE sound A20 native domain captured; phone disconnected
+
+Prioritysound,userdeferredCrisp. H20hapticbuildexistsbutNEVERdevice-tested. PublicREADMEVibration✅commitf65c9dbpushed. Noactivebuild/USBowner.
+
+A20Androidrootread-onlykprobesonactualmodulefunctionsconfirmCB46/ASID46/stage1/AppsSMMUphysical15000000/numpage128/pgshift12. Nativeown4KiBDMAimport/unmap0onallruns. ActualTLBpage174=128+46, USB47distinct. NativecachedCBstateTTBR0002e0008f5ca1000/TTBR1002e000000000000,TCR0080351c/TCR200038011,MAIRf404ff44/efe4,SCTLRcached0a5f10e7. DecodeIAS36/OAS36/4Kpages. NOTliveMMIOreadback; cachedSCTLRnotyetverifiedandAndroidphysicalTTBRmustNEVERbecopied. Layoutproofa20-native-domain/layout-proof.c staticassertsprefixcfg48/stage72/smmuio16/numpage24/cbs80/cbstride48PASS, fieldsphysbase/pages/ASIDcrossvalidateobservations. A20-result.json+4tracesrecordhashes. Address/contextobservationsprivate.
+
+Allisolatedinstances/kprobesremovedaftereachrun,globaltracing0. LastattemptcfgbitfieldprobeFAILEDpre-registrationbecauseADBdevicegone. Noorphanprobe. PhoneUSBcurrentlydisconnected; donotclaimready. ContinuehostimplementationwithoutUSB. Next: boundedperbootSMMUbankreservation/candidateclaimexcludeinheritedroutes/enabledorphans/rollback; previousA15M0onlyNOTownership. NeedqualifieddisabledbankcontrolaccessbeforebindingaudioSIDorDSPmap. NofixedCB46constant/donor1801/rawPAsubstitute/globalreset. A18APMMAPABIhostPASSstillnottransmitted.
+
+# ACTIVE AUDIO priority — user deferred Crisp, vibration marked working
+
+User explicitly wants sound now; stopCrisp/H20 device work. H20fullbuildcompleted,nohardwaretest. PublicREADMEVibration✅ CoreHaptics/system tested, Crisp pending; commitf65c9db pushedfork/waffle/gpu-bringup.
+
+A19 NEW actualAndroidDMAproof: userrootADBavailable, /dev/msm_audio_ion nativeimport/unmap ioctls frompinnedUAPIblob96cdc6908e5f38e8b45a4f406412f1c9ffab2857 (pathinclude/uapi/audio/linux/msm_audio.h, revision38d503...). ScalarFDargument confirmedactualdriver. FreestandingARM64android-dma-import-probe.c allocatesown4096BsystemDMAheapbuffer, importsMAP40046161,UNMAP40046162, closesFDs, noHYP/DSP/PCM/mixer. Exit0/import0/unmap0. Isolatedtracefsinstancefilteredgroupmsm-audio-ion captured2/2events:map_pages/unmap_pages sameIOVA1fff7000,size1000,group`soc:spf_core_platform:qcom,msm-audio-ion`. A19-result.json/trace. Domainpreexists,soCBnumber/ownershipnotyetproven; noXNUDMAqualificationorclaimedvoice. NativeIOVAfallingneartopconfirmsactualpooladdress,notrawPA. Nextobserveactualnativedomain/stream/CBattachmentorreadnativepage-tablecontext withroot; donotpickfreebankblindly. A18MAPpacketstillhostonly/untransmitted.
+
+Tracefsdebugfsmountedread-onlyobservationpurposeviaordinarymount; noMMIOregisterwrites. Created/removedprivateinstanceswaffle_audio_audit/waffle_audio_dma, globaltracingoffuntouched. Firstsystemsoundquerycreatednoaudiomaps(inconclusivenegative);directownDMAprobeispositive. PhoneAndroid/noUSBowner. Rootcapturesandaddressesprivate,nouploadneeded. No shutdownrequest.
+
 # A18 host ABI PASS, DMA ownership still next blocker
 
 2026-11-06: waffle_apm_memory.h serializes one native taggedIOVA MAP44 and UNMAP28 without GRAPH_OPEN's16-byte command header. Actual Linux functions compiled/bytecompared10size/SIDcases and negativeoutofpool/rawPA/unaligned/overflow/invalidinput testsPASS. No integration/transmission toDSP, noDMA/PCM. Corvette3848a296 audio reviewed and stillAPR/ASMstream1801, notWaffleGPR/APM1001/1061. HapticsH05nativePCMtapbridgepassed separately; no speakersoundclaim. Publicdocs fba59b2 published toqarzis/ios-waffle waffle/gpu-bringup.

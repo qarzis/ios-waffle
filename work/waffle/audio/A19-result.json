@@ -1,0 +1,20 @@
+{
+  "Android_only": true,
+  "probe_exit": 0,
+  "native_audio_import": 0,
+  "native_audio_unmap": 0,
+  "group": "soc:spf_core_platform:qcom,msm-audio-ion",
+  "IOVA": 536834048,
+  "bytes": 4096,
+  "trace_events": 2,
+  "trace_events_dropped": 0,
+  "trace_sha256": "e4fd54e07941369ebdf2a68a65bdb8e22b1932f3dfdbc523cfa7901d3212c8b0",
+  "uapi_blob": "96cdc6908e5f38e8b45a4f406412f1c9ffab2857",
+  "MAP_ioctl": "0x40046161",
+  "UNMAP_ioctl": "0x40046162",
+  "argument_is_scalar_fd": true,
+  "DSP_commands": 0,
+  "HYP_assignment_calls": 0,
+  "PCM_playback": false,
+  "XNU_DMA_qualified": false
+}

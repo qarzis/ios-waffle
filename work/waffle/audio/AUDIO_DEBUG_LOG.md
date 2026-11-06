@@ -194,3 +194,26 @@ Native qsmmuv500_device_group selects DT qcom,actlr by smr_is_subset; init_cb wr
 
 ## A18 host-only native MAP/UNMAP serialization — 2026-11-05
 Added waffle_apm_memory.h, not connected to DSP transport yet. Actual pinned Linux allocator/map/unmap functions compiled and byte-compared: MAP44 and UNMAP28 (NO GRAPH_OPEN's16-byte APM command header). Native DT audio pool10000000..20000000; SID1001/1061 low4bits atbit32; first step one page-aligned contiguous region, SHMEM8_4Kpool3, property0. DonorSID1801/rawPA/out-of-pool/unaligned/zero/overflow/small capacity refused without modifying output. Ten sizes/SID cases pass ASanUBSan. This proves packet bytes only, NOT domain ownership, DSP map ACK, DMA or sound. Preserve earlier fixture compile failures A18-memory-host*.log; final pass A18-memory-host-final.log. Next transport integration requires qualified SMMU mapping and correlated returned map handle; never send these bytes using raw PA as substitute.
+
+
+## A19 native Android DMA import/unmap observed — not XNU playback
+
+User prioritizes sound; Crisp deferred. Root unlocks native observational route. Actual IOMMUgroup52device soc:spf_core_platform:qcom,msm-audio-ion and tracefseventsexist. First volume0soundeffectquery producednoaudiomap, so no DMA inference fromit. Nativeaudioimportdriveralreadyhas ioctl scalarfdMAP/UNMAP. Retrieved pinnedUAPIpathinclude/uapi/audio/linux/msm_audio.h blob96cdc6908e5f38e8b45a4f406412f1c9ffab2857/Gitblobhashverified; MAP_IOW(a,97,int)=40046161,UNMAP98=40046162. NoHYPioctls109+.
+
+Compiled freestandingARM64Androidsyscallprobe ownsone4096BsystemDMAheapbuffer. Heapallocate0/audioimport0/audiounmap0/exit0. IsolatedSMMUtrace2/2events map/unmap sameaudio group/iova1fff7000/size1000; noothergrouptrace, noFIFO/DSPcommand/amp/PCM. A19-result.json/hash. NativeDMAoperationpositive; nativeaudioIOVApoolconfirmed. Contextbanknumber/securityownershipstillunknown: preexistingAndroiddomain doesnotgrantfreeUEFIbank. Nextderiveactualnativedomainallocation/attach beforeXNUwrites. Do notmistake nativepassforiOSsound.
+
+
+## A20 actual native audio context observed through bounded kprobes
+
+User continued sound. Root tracefs supports module-symbol kprobes. No MMIO write or SMMU reprogramming by probe. First probe on __arm_smmu_tlb_sync captures actual args: audio-own-buffer unmap followed in SAME task/PID by page174/sync2032/status2036; unrelatedUSB usespage175. Native macroCB(s,n)=numpage+n. Follow-up arm_smmu_tlb_sync_context fields from config-independent exactsourceprefix confirmaudioCB46/IRQ46/ASID46, USB47, sameSMMUobject. Third observation independently confirms physicalioaddr15000000/numpage128/pgshift12/stage0(S1). Each nativeimport/unmap0/probeexit0; maps inpool1fff4000..1fff6000.
+
+Fourth read-onlyprobe captures Linux cachedCB46 state via cbs pointer80/stride48 derivedfrompinnedlayout:TTBR0=002e0008f5ca1000,TTBR1=002e000000000000,TCR0=0080351c,TCR2=00038011,MAIR0=f404ff44,MAIR1=0000efe4,cachedSCTLR=0a5f10e7. These are cached kernel fields, NOT liveMMIOreadback. DoNOTcopyTTBRphysicaladdress orcachedSCTLRblindly. TCRlowPASIZE1->36bitoutput, T0SZ28->36bitinput,4Kpages; ASIDTTBRhigh46consistent. Hoststatic_assert exactprefixoffsets andcachedCBstridePASS; actualpage/physicalgeometrycorroborateslayout. A20-result.json recordstracehashes andscope. This provesnativeconfiguration/observation, NOTXNUbankallocationorwritability/DMA.
+
+Each isolatedinstance+ownkprobe removedaftercapture/globaltracingremainedoff. A final cfgbitfieldcrosscheck didNOTexecute: phoneUSBdisconnectedbeforekproberegistration, so noorphanprobecreated. rootreadstopped, continuehostaudit. Criticalremainingimplementation: perbootbankreservation excludingallinheritedroutes/enabledorphans + boundedexclusive claim/rollback ofoneknown-disabledbank, thennewownpagetables/nativeattributes, streambinding/TLB, ACKbeforePCM. AndroidCB46isnotfixedboardABIorownershipgrant.
+
+
+## A21 native configuration corroboration after reconnect
+
+Androidboot1/rootKSUconfirmed/noexistingkprobes. ResumedpreviousincompletecfgobserverinprivateinstancefilteredCB46. Own4KiBDMAimport/unmap0/exit0, nativecontextcb46/asid46/cfg_sctlr77da/cbar1/fmt1/stage0. Compiled ACTUAL pinned arm_smmu_lpae_sctlr function andregisterdefines withcfgbitfield77da/cbar1: produces0a5f10e7exactlymatchingpreviouscachedvalue. ThuscachedSCTLR'shighbitsarevalidnativecacheattributes,notrandomunexplainedvalues. DecodeWACFG2/RACFG2/SHCFG1/MTCFG1/MEMATTR15/CFCFG1/CFRE1/M1/HUPCF0, AArch64stage1. Exacthostfunction/proof a20-native-domain/sctlr-proof.py/PASS; A21-result.json/hash. ClearMbuilderalsoverifiedwithoutchangingcache/faultbits. NoSMMUMMIOwrites/DSP/PCM. Probeinstanceandownkproberemoved,globaltracing0preserved.
+
+NextminimalXNUexperimentmustqualifycontrolaccesswithoutDMA: freshinventory/oneunreferencedM0context/perbootsoftwareexclusiveguard, alteronlydormantfaultconfigurationbitwithMremaining0, verifyreadback/restoresnapshot, neverbindstreamoroverwriteactivebank. Read-onlyinventoryM0isnotsufficientbyitself. A22notimplementedornotrunyet; doNOTclaimXNUdomainworksfromAndroidprofile. A18APMMAP remainswirepacket-onlyuntilownIOVAmappingqualified.
