@@ -93,7 +93,26 @@ t+=r'''
  assert(!drm_ioctl(0,WAFFLE_MSM_SUBMIT,(char *)&request,0,&owner) && request.fence==1 && mapped==13);
  struct waffle_msm_wait wait={.fence=1,.queueid=2};assert(!drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner));wait.fence=2;assert(drm_ioctl(0,WAFFLE_MSM_WAIT,(char *)&wait,0,&owner)==EINVAL);
  for(unsigned i=1;i<=13;i++){struct waffle_msm_close r={.handle=i};assert(!drm_ioctl(0,WAFFLE_MSM_CLOSE,(char *)&r,0,&owner));}
- assert(!mapped && stored==13);assert(!drm_close(0,0,0,&owner) && !stored && !drm_context);return 0;
+ assert(!mapped && stored==13);assert(!drm_close(0,0,0,&owner) && !stored && !drm_context);
+ assert(!drm_open(0,0,0,&owner));
+ struct waffle_unixnu_call u={.version=2,.method=2,.input_bytes=16,.output_bytes=8};
+ struct waffle_unixnu_alloc a={4096,12,0};memcpy(u.payload,&a,sizeof(a));
+ assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&foreign)==EPERM && !stored);
+ a.contiguous=1;memcpy(u.payload,&a,sizeof(a));assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==ENOTSUP && !stored);
+ a.contiguous=0;a.align_log2=15;memcpy(u.payload,&a,sizeof(a));assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==ENOTSUP && !stored);
+ a.align_log2=12;a.bytes=4097;memcpy(u.payload,&a,sizeof(a));assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EINVAL && !stored);
+ a.bytes=4096;memcpy(u.payload,&a,sizeof(a));assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner));
+ uint64_t first;memcpy(&first,u.payload,8);assert(first && drm_buffer(first));
+ u.method=4;u.input_bytes=8;u.output_bytes=0;
+ assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner) && !drm_buffer(first));
+ assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EINVAL);
+ u.method=2;u.input_bytes=16;u.output_bytes=8;memcpy(u.payload,&a,16);
+ assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner));uint64_t second;memcpy(&second,u.payload,8);assert(second!=first && drm_buffer(second));
+ u.method=4;u.input_bytes=8;u.output_bytes=0;memcpy(u.payload,&first,8);assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EINVAL && drm_buffer(second));
+ uint64_t oversized=second+(1ULL<<32);memcpy(u.payload,&oversized,8);assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EINVAL && drm_buffer(second));
+ memcpy(u.payload,&second,8);reclaim_fail=1;assert(drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner)==EIO && drm_buffer(second));reclaim_fail=0;
+ assert(!drm_ioctl(0,WAFFLE_UNIXNU_CALL,(char *)&u,0,&owner) && !drm_buffer(second));
+ assert(!drm_close(0,0,0,&owner) && !stored && !drm_context);return 0;
 }
 '''
 source=strip((root/'kernel/files/bsd/dev/waffle_gpu_drm.c').read_text()).replace('__asm__ volatile("dsb sy":::"memory");','')

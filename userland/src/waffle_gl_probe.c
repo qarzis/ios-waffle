@@ -577,7 +577,19 @@ int main(void)
   int fd=existing_gpu_fd();struct waffle_unixnu_call call={.version=2,.method=1,.output_bytes=sizeof(struct waffle_unixnu_params)};
   if(fd<0 || ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){if(fd>=0)close(fd);goto finish;}
   struct waffle_unixnu_params params;memcpy(&params,call.payload,sizeof(params));
-  call.method=5;int refused=ioctl(fd,WAFFLE_UNIXNU_CALL,&call);close(fd);
+  call.method=5;int refused=ioctl(fd,WAFFLE_UNIXNU_CALL,&call);
+  struct waffle_unixnu_alloc alloc={4096,12,0};uint64_t old_handle=0,new_handle=0;
+  for(unsigned pass=0;pass<2;pass++){
+   call.method=2;call.input_bytes=sizeof(alloc);call.output_bytes=8;memcpy(call.payload,&alloc,sizeof(alloc));
+   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){close(fd);goto finish;}
+   memcpy(&new_handle,call.payload,8);
+   if(!new_handle || new_handle==old_handle){close(fd);goto finish;}
+   call.method=4;call.input_bytes=8;call.output_bytes=0;
+   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call) || ioctl(fd,WAFFLE_UNIXNU_CALL,&call)==0){close(fd);goto finish;}
+   old_handle=new_handle;
+  }
+  close(fd);
+  printf("waffle-unixnu-bo: allocated=2 freed=2 stale_refused=2 distinct_handles=1\n");
   if(params.version!=2 || params.input_bits!=39 || params.output_bits!=36 || params.flags || !params.max_bo_bytes || refused==0)goto finish;
   printf("waffle-unixnu: query=1 ABI=2 VA=39 PA=36 flags=0 submit_refused=1 Metal_published=0\n");
  }

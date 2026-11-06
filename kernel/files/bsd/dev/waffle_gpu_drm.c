@@ -376,6 +376,73 @@ static int drm_surface_lease_test(struct waffle_msm_surface_lease *r)
  if(r->operation!=3 || r->waiting_writers)redwood_tl("waffle-gpu: SURFACE_LEASE_TEST op=%u handle=%u active=%u waiting=%u manual_no_GPU=1\n",r->operation,r->handle,r->active,r->waiting_writers);
  return 0;
 }
+static int drm_new(struct waffle_msm_gem_new *r)
+{
+  if(r->handle || !waffle_gpu_registry_flags(r->size,r->flags)){
+   /* Record rejected sizes/flags too: these otherwise become an unexplained
+    * Mesa allocation failure without reaching the registry-pressure log. */
+   drm_allocation_refused(r->size,r->flags,r->handle?"input_handle":
+    !r->size?"zero_size":r->size>WAFFLE_GPU_BO_MAX_BYTES?"object_size":"flags");
+   return EINVAL;
+  }
+  unsigned slot=WAFFLE_GPU_BO_LIMIT;uint32_t handle=0;
+  for(unsigned i=0;i<drm_count;i++)if(!drm_bos[i].live &&
+      (handle=waffle_gpu_handle_next(drm_bos[i].handle,i))){slot=i;break;}
+  if(slot==WAFFLE_GPU_BO_LIMIT && drm_count<WAFFLE_GPU_BO_LIMIT){
+   slot=drm_count;handle=waffle_gpu_handle_next(0,slot);
+  }
+  if(slot==WAFFLE_GPU_BO_LIMIT || drm_issued==UINT32_MAX){
+   drm_allocation_refused(r->size,r->flags,"slots");
+   return ENOSPC;
+  }
+  struct waffle_gpu_memory *bo=waffle_gpu_context_memory_new(drm_context,r->size,r->flags);
+  if(!bo){
+   drm_allocation_refused(r->size,r->flags,"registry");
+   return ENOMEM;
+  }
+  drm_bos[slot]=(struct drm_bo){.memory=bo,.live=true,.handle=handle};
+  if(slot==drm_count)drm_count++;
+  drm_issued++;r->handle=handle;
+  redwood_tl("waffle-gpu: GENERAL gem_new handle=%u bytes=%u allocated=%u flags=%x VA=%llx\n",r->handle,bo->bytes,bo->allocation_bytes,bo->flags,(unsigned long long)bo->gpu_va);
+ return 0;
+}
+static int drm_free(struct waffle_msm_close *r)
+{
+ struct drm_bo *bo=drm_buffer(r->handle);
+  if(!bo || r->pad){return EINVAL;}
+  if(bo->surface_manual_lease){return EBUSY;}
+  uint32_t bytes=bo->memory->allocation_bytes;
+  drm_unmap(bo);
+  if(!waffle_gpu_context_memory_reclaim(drm_context,bo->memory,!bo->user_map && !bo->user_address)){return EIO;}
+  bo->live=false;bo->memory=NULL;
+  redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=0\n",r->handle,bytes);
+ return 0;
+}
+/* U02: owned BO lifetime only. Client-selected IOVA and submission stay refused.
+ * The existing backend supplies noncontiguous 16KiB backing and auto VA. */
+static int drm_unixnu(struct waffle_unixnu_call *r)
+{
+ if(r->version!=2 || r->input_bytes>WAFFLE_UNIXNU_ABI_BYTES || r->output_bytes>WAFFLE_UNIXNU_ABI_BYTES)return EINVAL;
+ if(r->method==2){
+  struct waffle_unixnu_alloc a;
+  if(r->input_bytes!=sizeof(a) || r->output_bytes!=8)return EINVAL;
+  memcpy(&a,r->payload,sizeof(a));
+  if(!a.bytes || (a.bytes&4095) || a.bytes>WAFFLE_GPU_BO_MAX_BYTES || a.align_log2<12 || a.align_log2>24 || a.contiguous>1)return EINVAL;
+  if(a.align_log2>14 || a.contiguous)return ENOTSUP;
+  struct waffle_msm_gem_new n={.size=a.bytes,.flags=WAFFLE_GPU_BO_WC};
+  int error=drm_new(&n);if(error)return error;
+  uint64_t handle=n.handle;memcpy(r->payload,&handle,sizeof(handle));return 0;
+ }
+ if(r->method==4){
+  uint64_t handle;
+  if(r->input_bytes!=8 || r->output_bytes)return EINVAL;
+  memcpy(&handle,r->payload,sizeof(handle));
+  if(!handle || handle>UINT32_MAX)return EINVAL;
+  struct waffle_msm_close c={.handle=(uint32_t)handle};return drm_free(&c);
+ }
+ unsigned result=waffle_unixnu_query(r,WAFFLE_GPU_BO_MAX_BYTES);
+ return result==WAFFLE_UNIXNU_OK?0:result==WAFFLE_UNIXNU_INVALID?EINVAL:ENOTSUP;
+}
 static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc *p)
 {
  (void)dev;(void)flags;lck_mtx_lock(&drm_lock);int error=0;
@@ -384,8 +451,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   /* Bootstrap is root PID1 only, within an already owned live GPU context.
    * Main Mesa ABI and all hardware programming remain unchanged. */
   if(proc_pid(p)!=1){error=EPERM;goto done;}
-  unsigned result=waffle_unixnu_query((void *)data,WAFFLE_GPU_BO_MAX_BYTES);
-  error=result==WAFFLE_UNIXNU_OK?0:result==WAFFLE_UNIXNU_INVALID?EINVAL:ENOTSUP;
+  error=drm_unixnu((void *)data);
  }else if(command==WAFFLE_MSM_SURFACE_LEASE_TEST){
   error=proc_pid(p)==1?drm_surface_lease_test((void *)data):EPERM;
  }else if(command==WAFFLE_MSM_SURFACE_IMPORT_TEST || command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT || command==WAFFLE_MSM_SURFACE_TARGET_IMPORT){
@@ -400,33 +466,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
       r->surface,(unsigned long long)r->size,r->offset,r->row_bytes,r->width,r->height,r->pixel_format,r->planes);
  }else if(command==WAFFLE_MSM_PARAM){error=drm_param((void *)data);
  }else if(command==WAFFLE_MSM_NEW){
-  struct waffle_msm_gem_new *r=(void *)data;
-  if(r->handle || !waffle_gpu_registry_flags(r->size,r->flags)){
-   /* Record rejected sizes/flags too: these otherwise become an unexplained
-    * Mesa allocation failure without reaching the registry-pressure log. */
-   drm_allocation_refused(r->size,r->flags,r->handle?"input_handle":
-    !r->size?"zero_size":r->size>WAFFLE_GPU_BO_MAX_BYTES?"object_size":"flags");
-   error=EINVAL;goto done;
-  }
-  unsigned slot=WAFFLE_GPU_BO_LIMIT;uint32_t handle=0;
-  for(unsigned i=0;i<drm_count;i++)if(!drm_bos[i].live &&
-      (handle=waffle_gpu_handle_next(drm_bos[i].handle,i))){slot=i;break;}
-  if(slot==WAFFLE_GPU_BO_LIMIT && drm_count<WAFFLE_GPU_BO_LIMIT){
-   slot=drm_count;handle=waffle_gpu_handle_next(0,slot);
-  }
-  if(slot==WAFFLE_GPU_BO_LIMIT || drm_issued==UINT32_MAX){
-   drm_allocation_refused(r->size,r->flags,"slots");
-   error=ENOSPC;goto done;
-  }
-  struct waffle_gpu_memory *bo=waffle_gpu_context_memory_new(drm_context,r->size,r->flags);
-  if(!bo){
-   drm_allocation_refused(r->size,r->flags,"registry");
-   error=ENOMEM;goto done;
-  }
-  drm_bos[slot]=(struct drm_bo){.memory=bo,.live=true,.handle=handle};
-  if(slot==drm_count)drm_count++;
-  drm_issued++;r->handle=handle;
-  redwood_tl("waffle-gpu: GENERAL gem_new handle=%u bytes=%u allocated=%u flags=%x VA=%llx\n",r->handle,bo->bytes,bo->allocation_bytes,bo->flags,(unsigned long long)bo->gpu_va);
+  error=drm_new((void *)data);
  }else if(command==WAFFLE_MSM_INFO){
   struct waffle_msm_gem_info *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
   if(!bo || r->pad){error=EINVAL;goto done;}
@@ -469,14 +509,7 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
   if(!r->id || !drm_queue_valid(r->id) || r->param || r->pad || r->len!=8){error=EINVAL;goto done;}
   if(copyout(&zero,r->data,8))error=EFAULT;
  }else if(command==WAFFLE_MSM_CLOSE){
-  struct waffle_msm_close *r=(void *)data;struct drm_bo *bo=drm_buffer(r->handle);
-  if(!bo || r->pad){error=EINVAL;goto done;}
-  if(bo->surface_manual_lease){error=EBUSY;goto done;}
-  uint32_t bytes=bo->memory->allocation_bytes;
-  drm_unmap(bo);
-  if(!waffle_gpu_context_memory_reclaim(drm_context,bo->memory,!bo->user_map && !bo->user_address)){error=EIO;goto done;}
-  bo->live=false;bo->memory=NULL;
-  redwood_tl("waffle-gpu: GENERAL bo_retired handle=%u bytes=%u backing_retained=0\n",r->handle,bytes);
+  error=drm_free((void *)data);
  }else error=ENOTTY;
 done:
  if(error)redwood_tl("waffle-gpu: GENERAL ioctl_refused op=%x error=%d pid=%d\n",(unsigned)(command&255),error,proc_pid(p));
