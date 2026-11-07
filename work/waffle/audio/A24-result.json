@@ -1,0 +1,14 @@
+{
+  "run": "20261107T082650Z",
+  "android_confirmed": true,
+  "configured": false,
+  "restored": true,
+  "read_mask": 255,
+  "mismatch_mask": 1,
+  "TCR2_expected": "00038011",
+  "TCR2_actual": "00038071",
+  "difference": "00000060",
+  "interpretation": "TBI0/TBI1 (Arm IHI0062D.c section16.5.39); not reserved bits",
+  "next": "Inspect CBA2R VA64/CBAR format while disabled; do not mask readback mismatch",
+  "DSP_started": false
+}

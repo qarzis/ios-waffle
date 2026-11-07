@@ -1,3 +1,27 @@
+# A27 PASS readonly; architecture ownership blocker
+
+Run20261107T090834Z 65candidatesallread1/CBAR0/CBA2R0. No preformattedstage1V8Lcandidate. Originalrunner0/success1; checkAndroidfieldinlatestautolog. A26rollbackCBAR0abort retainedseparately and directformatwritesREMOVEDfromactivecode. Active8tabletestrequirespreexistingstage1VA64beforewrites(host28read/32writefailPASS). NoactiveUSBtest. Next nativeAndroid context ownership/programming path versus actualGR1virtualization; no moreblindbankformat experiments. A27-format-inventory.json stores65records. SoundstillnoPCM.
+
+# ACTIVE A27 readonly format inventory build99339
+
+A26run090316Z panic strw1[x0] at CBARoffset1018 value0 DURING RESTORE, not provenfirsttargetwrite. Androidconfirmedtrue. Directformatexperimentremoved from activecode; noCBAR/CBAwritesallowed. A26-result.json+patchsaved. Header nowrequires preexistingstage1CBARtype1+VA641before8tablewrites; host28read/32writefail+badformatzerowritePASS. macan_adsp.c adds readonlyAUDIO_BANK_FORMAT per candidate. Build99339 logaudio/build-a27.log. Next root/validate then run --audio-preflight --audio-iommu WITHOUT --audio-cb-access (readonly) toinventory allformats. DoNOTretestA26/formatwrites or claimownershipfromM0. Needrevisearchitectureafter3experimentsA24/25/26.
+
+# ACTIVE A26 format programming hardware runner57851
+
+Artifact diagnostic-audio-format-a26 fullbuild/root/pairedvalidationPASS. Log audio/auto-a26.log. Header now10fields: original8 plusCBARindex8/CBA2Rindex9; order9,8,0..7 and immediateformatreadback, reverseall/restoresnapshot. Strictwriteronlyexactselectedformataddresses andsaved/target. M0/routes/DSPunchanged. Nativearm-smmu.c CBA2Rfirst1 thenCBARstage1+WB/NSH=1f300. Host34read/40writefailuresPASS+modeledA24TBIcoercionPASS. Needactualresult/AndroidbeforeotherUSB.
+
+# A25 confirms inherited bank format mismatch
+
+Run20261107T083357Z CB6CBAR0/CBA2R0/VA640/TCR240028063. Afterrollbackunchanged1. NoV8L despiteV8Ltargetprofile. Next qualify CBARstage1/CBA2RVA64 setup whileM0 with reverseformat+table rollback and exactreadback, extendstrictwriteronlyselectedbank. Notyetimplemented. Runner11777 Androidrecovery maystillactive; waitbeforeUSB.
+
+# ACTIVE A25 format inventory build
+
+Session30059 log audio/build-a25.log. Onlyreadonly added to macan_adsp.c: before/after GR1CBAR1000+4cb, CBA2R1800+4cb,TCR2cb+10. NativeArmSMMUdefines CBA2R800 withinGR1/VA64bit0; before/after checks unchanged. No format writes. HypothesisA24TBI60mismatch could reflect VA64=0, unproven until read. Next package/root/validate/run same A24 --audio-preflight --audio-iommu --audio-cb-access.
+
+# A24 RESULT — only TCR2 bits6/5 mismatch
+
+Run20261107T082650Z auto082626Z Androidtrue. Access1/configured0/restored1/writes16,readmaskff/mismatch01. TCR2expected38011 actual38071; sevenotherregistersexact. Bits6/5TBI1/TBI0 per local ArmIHI0062D.c16.5.39, NOTreserved. Next disabledbankCBA2R.VA64/CBAR format proof; do not maskreadback or guesswriteorder. NoactiveUSBowner/DSP/DMA/playback.
+
 # A24 READY — audio priority, phone unavailable
 
 2026-11-07 fullbuild+firmwareroot+pairedcontainerPASS. Artifact diagnostic-audio-readback-a24. Eight AUDIO_CB_FIELD expected/actual/read/mismatch outputs, no write-order change. ASan/UBSan hostPASS, exactcurrent/snapshotbindings verified. ADBdevices empty; async request pending. No USBtestowner. Next: python3 tools/run-waffle-auto.py --artifact work/waffle/diagnostic-audio-readback-a24 --audio-preflight --audio-iommu --audio-cb-access . Phone will reboot/test/Androidreturn. Do not claim DSP/playback. UniXNU workingintegration removed; historicalGit retained.

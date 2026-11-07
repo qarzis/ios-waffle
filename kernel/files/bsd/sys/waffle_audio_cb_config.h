@@ -25,6 +25,11 @@ static inline bool waffle_audio_cb_config(const struct waffle_audio_cb_access_io
     !access->restored || (access->original&1) || access->bank>=71 ||
     access->offset!=0x80000+access->bank*4096 || !waffle_audio_table_pa(root_pa))return false;
  r->bank=access->bank;r->base=access->offset;
+ uint32_t cbar,cba2r;
+ if(!waffle_audio_smmu_read(&io->read,0x1000+4*r->bank,&cbar) ||
+    !waffle_audio_smmu_read(&io->read,0x1800+4*r->bank,&cba2r) ||
+    ((cbar>>16)&3)!=1 || !(cba2r&1))return false;
+
  uint32_t sctlr;
  if(!waffle_audio_smmu_read(&io->read,r->base,&sctlr) || sctlr!=access->original)return false;
  for(unsigned n=0;n<8;n++)if(!waffle_audio_smmu_read(&io->read,r->base+waffle_audio_cb_config_offset(n),&r->saved[n]))return false;

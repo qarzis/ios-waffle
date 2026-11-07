@@ -2548,6 +2548,11 @@ waffle_audio_iommu_survey(void)
   for (unsigned i = 0; i < inventory->banks; i++) {
    printf("adsp: AUDIO_BANK cb=%u referenced=%u sctlr=%#x candidate=%u\n",
        i, inventory->referenced[i], inventory->sctlr[i], inventory->candidate[i]);
+   if(inventory->candidate[i]){
+    uint32_t cbar=0,cba2r=0;
+    bool read=waffle_audio_smmu_read(&io,0x1000+4*i,&cbar) && waffle_audio_smmu_read(&io,0x1800+4*i,&cba2r);
+    printf("adsp: AUDIO_BANK_FORMAT cb=%u read=%u CBAR=%08x CBA2R=%08x stage1=%u VA64=%u readonly=1\n",i,read,cbar,cba2r,((cbar>>16)&3)==1,cba2r&1);
+   }
   }
  } else {
   printf("adsp: AUDIO_INVENTORY FAIL ownership=0\n");
@@ -2566,6 +2571,11 @@ waffle_audio_iommu_survey(void)
    printf("adsp: AUDIO_CB_ACCESS passed=%u admitted=%u changed=%u restored=%u cb=%u\n",access_valid,result.admitted,result.changed,result.restored,result.bank);
    printf("adsp: AUDIO_CB_ACCESS original=%#x test=%#x M_enable=0 route_writes=0 DSP=0\n",result.original,result.test_value);
    if(access_valid){
+    uint32_t cbar=0,cba2r=0,tcr2=0;
+    bool format_read=waffle_audio_smmu_read(&io,0x1000+4*result.bank,&cbar) &&
+        waffle_audio_smmu_read(&io,0x1800+4*result.bank,&cba2r) &&
+        waffle_audio_smmu_read(&io,result.offset+0x10,&tcr2);
+    printf("adsp: AUDIO_CB_FORMAT before read=%u cb=%u CBAR=%08x CBA2R=%08x VA64=%u TCR2=%08x\n",format_read,result.bank,cbar,cba2r,cba2r&1,tcr2);
     vm_offset_t memory=0;
     bool allocated=kmem_alloc(kernel_map,&memory,0x4000,KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)==KERN_SUCCESS;
     bool tables_ok=false;
@@ -2580,6 +2590,11 @@ waffle_audio_iommu_survey(void)
       audio_cb_config_active=false;
       printf("adsp: AUDIO_CB_CONFIG passed=%u configured=%u restored=%u writes=%u cb=%u\n",access_valid,audio_cb_config_state.configured,audio_cb_config_state.restored,audio_cb_config_state.writes,result.bank);
       for(unsigned n=0;n<8;n++)printf("adsp: AUDIO_CB_FIELD index=%u offset=%x expected=%08x actual=%08x read=%u mismatch=%u\n",n,waffle_audio_cb_config_offset(n),audio_cb_config_state.target[n],audio_cb_config_state.actual[n],(audio_cb_config_state.read_mask>>n)&1,(audio_cb_config_state.mismatch_mask>>n)&1);
+      uint32_t final_cbar=0,final_cba2r=0,final_tcr2=0;
+      bool format_after=waffle_audio_smmu_read(&io,0x1000+4*result.bank,&final_cbar) &&
+          waffle_audio_smmu_read(&io,0x1800+4*result.bank,&final_cba2r) &&
+          waffle_audio_smmu_read(&io,result.offset+0x10,&final_tcr2);
+      printf("adsp: AUDIO_CB_FORMAT after read=%u CBAR=%08x CBA2R=%08x TCR2=%08x unchanged=%u\n",format_after,final_cbar,final_cba2r,final_tcr2,format_read&&format_after&&cbar==final_cbar&&cba2r==final_cba2r&&tcr2==final_tcr2);
       printf("adsp: AUDIO_CB_CONFIG own_tables=1 pages=4 IOVA=0x10001000 M_enable=0 route_writes=0 DSP=0\n");
      }else access_valid=false;
      if(!tables_ok || audio_cb_config_state.restored || !audio_cb_config_state.admitted)kmem_free(kernel_map,memory,0x4000);

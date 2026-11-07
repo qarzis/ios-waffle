@@ -1,0 +1,12 @@
+{
+  "run": "20261107T090316Z",
+  "android_confirmed": true,
+  "kernel_abort": true,
+  "fault_offset": "0x1018",
+  "write_value": 0,
+  "machine_instruction": "str w1,[x0]",
+  "during": "CBAR original zero restoration per saved-value branch disassembly",
+  "restoration_verified": false,
+  "format_write_experiment_removed": true,
+  "next": "Read-only formats inventory; no direct CBAR writes"
+}

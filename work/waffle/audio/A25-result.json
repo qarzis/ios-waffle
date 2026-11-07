@@ -1,0 +1,11 @@
+{
+  "run": "20261107T083357Z",
+  "CBAR": 0,
+  "CBA2R": 0,
+  "VA64": false,
+  "TCR2_before": "40028063",
+  "format_unchanged_after": true,
+  "configuration_passed": false,
+  "conclusion": "Selected disabled bank is not configured for V8L; target tables/profile require AArch64. Does not prove changing format alone fixes TBI readback.",
+  "next": "Qualify CBAR stage1 + CBA2R VA64 programming and reverse rollback while SCTLR.M=0, no stream/DSP"
+}

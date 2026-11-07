@@ -241,3 +241,15 @@ A23 minimalcurrenthardwarestep isDISABLEDtableprofileonly. NewhelperafterA22succ
 Freshfullbuilddiagnostic-audio-cb-config-a23 build-a23.log session70104running, noUSBowner. Freshroota23-rootbuilt/currentadspbound. Freezecompiledinputs, finishbuild/packagekernel/currentcompiledheaders/rootimage/automaticflag, pairedvalidate thenoneisolated60secaudio-cb-accessrun. NohardwareA23resultyet. Userrequestscontinuoussound, notCrisp.
 
 2026-11-07 A24 candidate: user cancelled UniXNU GPU integration and resumed audio. A23 first cause not proven; per-register expected/actual/read/mismatch instrumentation added. Preserves writes/rollback and all8reads recorded. Host ASan/UBSan failures/restorePASS. No new hardware result.
+
+A24 run20261107T082650Z: accessPASS,configured0,restored1,writes16. All8reads valid; onlyTCR2 offset10 expected38011 actual38071 differs60. SevenTTBR/TCR/MAIR fields exact. ArmIHI0062D.c16.5.39 defines bits6/5 TBI1/TBI0, NOTreserved. Do not mask. Next inspect disabled CB CBA2R.VA64/CBAR format and resetTCR2 before changingwriteorder. Android confirmedtrue, noDSP/DMA.
+
+A25 candidate hypothesis: inherited disabled bank may be VA64=0 while tables/nativeTCRtarget V8L. ArmIHI0062D.c CBA2RVA64 bit0 selects V8L. Add before/after read-only CBAR/CBA2R/TCR2 log, no additional writes; compare unchanged state after A23 rollback. A24 alone does not prove format mismatch.
+
+A25 run083357Z: beforeCBAR0/CBA2R0/VA640/TCR240028063; afteridentical unchanged1. Confirms bankformatnotV8L. TableprofilestillTCR2mismatch60. Next implement owned-disabled format setup+restore; CBAR0 also is not requestedstage1encoding. Do not claim format change alone solvesTBI. NoDSP/DMA.
+
+A26: nativeformatsetup CBA2RVA641 thenCBAR1f300,immediateexactreadbacks,8tablewords,reverse10wordrollback. Targetvaluesderivednativearm-smmu.c notAndroidbankconstants. Host34readfail/40ambiguouswritefails+formatcoercionPASS. Fullbuild/root/pairedvalidationPASS. Runner57851active,hardwareunqualified.
+
+A26run090316Z FAILEDkernelabort: PCwr strw1[x0], FARoffset1018CBAR6,value0. LRbranch comparedsavedvalue -> rollbackwrite. Initialformatprogrammingnotprovenrefused. Androidtrue. Restorationnotqualified. Removeddirectformatwrites; activeconfigrequirespreexistingstage1/V8Lbeforetablemutation. A27READONLYcandidateformatinventory buildactive. Architecturalreview: M0/unreferenced isnotownership, CBARzeroStage2restorationnotusable. No moredirectformatwrites basedonfreebankassumption.
+
+A27run090834Z READONLYPASS(originalrunner0):65candidateformatsread1 allCBAR0/CBA2R0. No existingStage1V8Lbank. Rulesoutsimpleswitchbank. NeednativeAndroid allocation/programming/HYPmediationaudit beforemorewrites. ArchitectureassumptionfreeM0bankimpliesusablecontext rejected.
