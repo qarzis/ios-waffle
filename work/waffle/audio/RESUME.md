@@ -1,3 +1,27 @@
+# A24 READY — audio priority, phone unavailable
+
+2026-11-07 fullbuild+firmwareroot+pairedcontainerPASS. Artifact diagnostic-audio-readback-a24. Eight AUDIO_CB_FIELD expected/actual/read/mismatch outputs, no write-order change. ASan/UBSan hostPASS, exactcurrent/snapshotbindings verified. ADBdevices empty; async request pending. No USBtestowner. Next: python3 tools/run-waffle-auto.py --artifact work/waffle/diagnostic-audio-readback-a24 --audio-preflight --audio-iommu --audio-cb-access . Phone will reboot/test/Androidreturn. Do not claim DSP/playback. UniXNU workingintegration removed; historicalGit retained.
+
+# ACTIVE audio resumed; UniXNU integration removed by user request
+
+2026-11-07: removed UniXNU GPU working integration/binaries/reference repos; pre-integration GPU restored, shared files restored from A23 source where present. Historical Git commits retained. Removal manifest UNIXNU_REMOVAL.json. Current audio blocker remains A23 disabled CB table readback, restored1/configured0. Added actual/read/mismatch fields for all8 registers and AUDIO_CB_FIELD output; no register sequence/value change. Host sanitizer tests PASS26read/32write failures+restore. Next full build and bounded A24 readback diagnosis, not DSP playback yet.
+
+# ACTIVE UniXNU audit after A23 failure; phone returned Android
+
+Userprovidedhttps://github.com/UniXNU/UniXNU. Pinnedlocalreferencee2fdae4312d0acc3d8a52bc457101e7918095e6a, ArmSmmu4K83969cd, PaganiSM8750board25b1109, actualaudioforkShad0w23333drivers3d570b7. Readwork/waffle/unixnu-audit/AUDIT.md+provenance.json. UsefulACTUALmodernGPR/APM/PaganiReach+PaganiAudioHALreference andArmSmmu4Kownedcontext/rollback; NOTAPR-only. DonorSpeakerhost-only/neverdevice, SMMUpassthrough+rawphysicald0000000NOToursnativeDMA, noaddresscopy/binary17.7offsetpatch. CoreSM8550/A740notA750qualification.
+
+A23testcompleted original1/Android1;CB6configured0/restored1/writes16, noM/SID/DSP. All8tablefieldswrittenbutatleastonereadbackfailed; missingperregisterinstrumentation. Root causeNOTyetproven. NativeUniXNUProgram.c ordersCBAR/CBA2R +TCR2/TCRbefore64bitTTBR; oursA23TTBRbeforeTCRand32bitsplit/nocontextformatsetup. NEXT: minimalperregisterexpected/actual/mismatchlogging(nohardwarebehaviorchange) thenoneisolatedrun; donotjustreordermultiplethingsorcopydonorregisterliterals. NativeCB_ATOSunsupported(ID0ATOSNS1), ECATSviaLPASSQTB0x7b3000; SIDrange1000..1400/iovawidth32/interconnectvotes; routefileA24-native-tbu-route.json. DoNOTrunATS1PR.
+
+NoactiveUSBowner/build. PhoneAndroidafterA23confirmed. A22controlaccessPASS0/Android1. A23tablesnativeattributehostPASS(f47prot7quirks0), buthardwareconfigurationNOTpassed. Currentkernel/sourcesA23newheadersuncommitted; preservemainindex/privatecheckpointworkflow. UpdateHAPTICworknotpriority, userwantssoundcontinuous. Publiclastf65c9db. No shutdownrequest.
+
+# ACTIVE A22 hardware control-access test
+
+SoleUSBownerauto-a22.log session96397/auto20261106T092339Z. Fullfreshartifactdiagnostic-audio-cb-access-a22 +a22-root, kernelsources/imagepairedvalidated; firstpreUSBmanifestrefusalpreservedthenautomaticUSBflagcorrected. Runouter --audio-preflight --audio-iommu --audio-cb-access. NoextraADBuntilcomplete.
+
+Kernelmode8explicitwaffle_audio_cb_access1only: freshfullinventory/rereadglobal/routes, choosefirstcandidateunreferencedM0, toggleONLYCFCFG80whileM0,readback,restoreincludingambiguousfailure,reroutescheck. NoSMR/table/TLB/DSP/DMA/ampwrites. Writerexactbase/offset/twovalues/5gates,stoprestoreonly,panicpersistentsnapshotrestore. Helperreadfault16/writefault4/denied/route/active/isolationtestsPASS, actualwriterfixturePASS, loaderpolicydefaultvsuser8negativesPASS,CLIflagmissingparentrefusedbeforeUSB. ReadbacksuccessONLYprovescontrolaccess,NOTsecureownership/DMA. Actualpostcheckerrequirespassed/admitted/changed/restored andM_enable0route_writes0DSP0. NeedresultsafterautoAndroid1; retainoriginalfailureifany.
+
+A21nativeprofileCB46ASID46/stage1/4K/IAS36/OAS36/TCR80351c/TCR238011/MAIRf404ff44+efe4/SCTLR0a5f10e7confirmedactualnativebuildercfg77da. DoNOThardcodeAndroidCB46orcopyphysicalTTBR. A18MAPpacketuntx. Userprioritysound,Crispdeferred. H20notdevice-tested. PublicVibration✅f65c9db. Mainindexpreserve/privatecheckpointlast a7a60b38; newA22filesuncommitted. No shutdownrequest.
+
 # ACTIVE A21 native SCTLR consistency PASS; phone reconnected
 
 UserconnectedAndroid,independentboot1/rootKSUconfirmed. Nohardwaretestowner. A21actualnativeown4KiBDMAimport/unmap0/privatekprobecontextprovescb46/asid46/cfg_sctlr77da/cbar1/fmt1/stage0. Actualpinnedfunctionarm_smmu_lpae_sctlr+definescompiledandmatches0a5f10e7cachedSCTLRexactly; highbitsarenativecacheattributesnotrandom. a20-native-domain/sctlr-proof.py PASS, A21-result.json/hash. Androidprofilecompleteenoughforstage1config,NOTXNUbankownership. Allownkprobe/instancesremoved/globaltracing0.

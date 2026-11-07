@@ -217,3 +217,27 @@ Each isolatedinstance+ownkprobe removedaftercapture/globaltracingremainedoff. A 
 Androidboot1/rootKSUconfirmed/noexistingkprobes. ResumedpreviousincompletecfgobserverinprivateinstancefilteredCB46. Own4KiBDMAimport/unmap0/exit0, nativecontextcb46/asid46/cfg_sctlr77da/cbar1/fmt1/stage0. Compiled ACTUAL pinned arm_smmu_lpae_sctlr function andregisterdefines withcfgbitfield77da/cbar1: produces0a5f10e7exactlymatchingpreviouscachedvalue. ThuscachedSCTLR'shighbitsarevalidnativecacheattributes,notrandomunexplainedvalues. DecodeWACFG2/RACFG2/SHCFG1/MTCFG1/MEMATTR15/CFCFG1/CFRE1/M1/HUPCF0, AArch64stage1. Exacthostfunction/proof a20-native-domain/sctlr-proof.py/PASS; A21-result.json/hash. ClearMbuilderalsoverifiedwithoutchangingcache/faultbits. NoSMMUMMIOwrites/DSP/PCM. Probeinstanceandownkproberemoved,globaltracing0preserved.
 
 NextminimalXNUexperimentmustqualifycontrolaccesswithoutDMA: freshinventory/oneunreferencedM0context/perbootsoftwareexclusiveguard, alteronlydormantfaultconfigurationbitwithMremaining0, verifyreadback/restoresnapshot, neverbindstreamoroverwriteactivebank. Read-onlyinventoryM0isnotsufficientbyitself. A22notimplementedornotrunyet; doNOTclaimXNUdomainworksfromAndroidprofile. A18APMMAP remainswirepacket-onlyuntilownIOVAmappingqualified.
+
+
+## A22 disabled-bank control access experiment (hardware running)
+
+User requested continuous sound work. NativeCB46profileisnotallocationpermission. New helper uses freshfullinventory, rereadsCR0/ACR/IDs/everySMR/S2CR, chooses firstunreferencedcandidateM0outsideNUMS2CB, exactSCTLRsnapshotmatch. ChangesONLYdormantSCTLR.CFCFGbit7withMremaining0; immediatelyreadbackandrestoreoriginalevenambiguouswrite, verifiesroutesunchanged. NoSMR/S2CR/global/TLB/table/DSP/DMAwrite. Resultmeanscontrolaccessonly,notsecurebankownership.
+
+Actualkernelwriter5gatesrequiresmode8/Waffle/bootoptin/active/contextbase+exactoffset; onlyoriginalororiginal^80accepted, bothM0. Shutdownpermitsrestoreonly; panicrestoreusespersistentsnapshot. Host16readfailures/4ambiguouswritecases/denied/changedroutes/active/referenced/noisolationPASS; actualadapterboundaryfixturePASS. Loaderpolicyallowsnewtokenonlyisolatedadsp8/return<=60, defaultbuilddenies, unknown/duplicate/GPU/multicorerefused. CLIflagrequiresaudioiommuanddedicatedsourceboundmanifestbeforeUSB. FullA22kernelbuild/currentcompiledsources/rootimagehashespairedvalidationPASS. FirstpreUSBmissingautomaticloaderdeclarationrefused,nophoneaction; preservedauto-a22-preusb-manifest-refusal.log. CorrectedmanifestforalreadyautomaticMuimage; auto-a22.log session96397 runningauto20261106T092339Z soleUSBowner. NootherphoneaccessuntilreturnAndroid. NoA22PASSclaimbeforeactualreadback+restore+Androidrecovery.
+
+
+## A22 actual XNU PASS: disabled context control access
+
+Run20261106T092403Z/auto092339Z runner0/success1/Android1. FreshinventorychoosesCB6, unreferencedM0; original05c9a70e->test05c9a78e->original, changed1/restored1. NoMenable/routes/DSP/DMA/TLB/globalwrites. Actualhardwarecontrolaccessconfirmed, nosecure/permanentownershipclaim. A22-result.json exacttracehash. FirstpreUSBmanifestrefusalpreserved. NoUIaudiooutputclaim.
+
+## A23 tables and native attribute proof; disabled table profile building
+
+AndroidownDMAmapkprobeactualprot7(READ|WRITE|CACHE),4KiB,domainquirks0. Actual pinnedqcom-io-pgtable-arm.c protectionfunctioncompiled producesf44attributes/PAGE3=>f47exactly. Newwaffle_audio_page_tables.h acceptsdistinctown36bit/4Ktable+dataPAsandinteriornativepoolIOVA, createsonlythreepresententriesL1/L2/L3, onepage andbothguardsunmapped. CPUmodeltestsrefusealiases/overflow/outofpool/alignmentbeforedestinationmutation. NativefunctioncomparisonPASS, noGPUABIcopied.
+
+IMPORTANT: ID04c017e6bhasATOSNSbit26set. NativeTRANS_OPSrequiresNOTATOSNS, soordinaryCBATS1PRhardwarewalknotavailable. Nativeqsmmuv500overrideusesTBUhalt/power+ECATS; doNOTinventordinaryATOSsupport orclaimsoftwarewalkashardwaretranslation. NeedqualifyTBUroutebeforenexttranslationprobe.
+
+A23 minimalcurrenthardwarestep isDISABLEDtableprofileonly. NewhelperafterA22successfulclaim savesTCR2/TTBR0/TTBR1/TCR/MAIR(two32bitwordsperTTBR), writesnativeprofilepointingOWNnewtables, readsall8words, reverserestore+readall, checksM0unchanged. NeverwritesSCTLR/SMR/CBA/TLB/ATOS/DSP. Host26readfaults/32ambiguouswritefaults/deniedreadback/refusalPASS. Actualkernelwriterallowsonlyexpected8offsetsandsaved/targetvalueswhenprofileactive, shutdownrestoreonly. Persistentsnapshotpanicrestore, incompleteconfigrestore retainsbackingratherthanfree. Allocateown16KiB wiredspace/3tables+datapage; cacheclean is preparationonly(nohardwarewalkclaim). ExistingA22ordinaryoptinflagselectsfreshsource-boundartifact; defaultmode8stillreadonly. Strictcurrentheaderbindingandpostcheck added forcompiledAUDIO_CB_CONFIGmarker.
+
+Freshfullbuilddiagnostic-audio-cb-config-a23 build-a23.log session70104running, noUSBowner. Freshroota23-rootbuilt/currentadspbound. Freezecompiledinputs, finishbuild/packagekernel/currentcompiledheaders/rootimage/automaticflag, pairedvalidate thenoneisolated60secaudio-cb-accessrun. NohardwareA23resultyet. Userrequestscontinuoussound, notCrisp.
+
+2026-11-07 A24 candidate: user cancelled UniXNU GPU integration and resumed audio. A23 first cause not proven; per-register expected/actual/read/mismatch instrumentation added. Preserves writes/rollback and all8reads recorded. Host ASan/UBSan failures/restorePASS. No new hardware result.

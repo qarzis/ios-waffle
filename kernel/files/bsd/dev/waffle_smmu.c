@@ -1027,18 +1027,6 @@ struct waffle_gpu_memory *waffle_smmu_owner_memory_adopt(struct waffle_smmu_owne
     }
     return owner->state.gmu_ok?smmu_registry_adopt(&owner->state,prepared):NULL;
 }
-bool waffle_smmu_owner_memory_relocate(struct waffle_smmu_owner *owner,struct waffle_gpu_memory *bo,uint64_t va,bool cpu_unmapped,bool readonly)
-{
- if(!owner || !owner->exercised || !owner->state.gmu_ok || !bo)return false;
- struct smmu_owner *s=&owner->state;
- if(s->compute_image!=13 || !s->child || !s->permission_context.cb || !s->permission_context.lpac_cb)return false;
- const struct waffle_gpu_registry_ops base={smmu_registry_idle,smmu_registry_vacant,smmu_registry_page,smmu_registry_clean,smmu_registry_tlb,s};
- const struct waffle_gpu_reclaim_ops ops={&base,smmu_registry_owns_page,smmu_registry_unmap_page};
- uint64_t old=bo->gpu_va;
- bool ok=waffle_gpu_registry_relocate_access(&s->registry,&ops,bo,va,cpu_unmapped,readonly);
- log_line("waffle-iommu: UNIXNU_BO relocate passed=%u old=%llx new=%llx mapped=%u poisoned=%u\n",ok,old,va,waffle_gpu_memory_gpu_bytes(bo),s->registry.poisoned);
- return ok;
-}
 bool waffle_smmu_owner_memory_reclaim(struct waffle_smmu_owner *owner,struct waffle_gpu_memory *bo,bool cpu_unmapped)
 {
     if(!owner || !owner->exercised || !owner->state.gmu_ok || !bo)return false;

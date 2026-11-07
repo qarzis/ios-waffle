@@ -894,13 +894,6 @@ struct waffle_gpu_memory *waffle_gpu_parent_memory_adopt(struct waffle_gpu_paren
        !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child)return NULL;
     return waffle_smmu_owner_memory_adopt(s->child->child->child,prepared);
 }
-bool waffle_gpu_parent_memory_relocate(struct waffle_gpu_parent *parent,struct waffle_gpu_memory *bo,uint64_t va,bool cpu_unmapped)
-{
- struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;
- if(!s || active_aop_gpu!=s || s->locked || !s->child || s->child!=active_board_power ||
-    !s->child->child || s->child->child!=active_board_clocks || !s->child->child->child)return false;
- return waffle_smmu_owner_memory_relocate(s->child->child->child,bo,va,cpu_unmapped);
-}
 bool waffle_gpu_parent_memory_reclaim(struct waffle_gpu_parent *parent,struct waffle_gpu_memory *bo,bool cpu_unmapped)
 {
     struct aop_gpu_owner *s=(struct aop_gpu_owner *)parent;

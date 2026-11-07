@@ -460,31 +460,8 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             raise RuntimeError('Surface GPU write lacks independent value/restore proof')
         if any(x in text for x in ('SURFACE_WRITE_TEST passed=0','SURFACE_WRITE_TEST uncertain=1','SURFACE_WRITE_TEST command_revoke_failed=1','waffle-gl-surface-write: passed=0')):
             raise RuntimeError('Surface GPU write reported a failure')
-    relocation=r"UNIXNU_BO relocate passed=(\d+) old=([0-9a-f]+) new=([0-9a-f]+)(?: mapped=(\d+))? poisoned=(\d+)"
-    relocated={};mapped_spans={}
     buffers={};active={};seen={};used=0;retired=0;retired_indices=set();surface_indices=set();append_end=0x100000000
-    for event in re.finditer(f"(?P<publication>{publication})|(?P<surface>{surface_publication})|(?P<reclaim>{reclaim})|(?P<relocation>{relocation})",text):
-        if event.group('relocation'):
-            values=re.fullmatch(relocation,event.group(0)).groups()
-            if values[0]!='1' or values[-1]!='0':raise RuntimeError('GL BO relocation failed or poisoned context')
-            if event.start()>release.start() and values in relocated.values():continue
-            old,new=int(values[1],16),int(values[2],16)
-            candidates=[i for i,a in active.items() if a[0]==old]
-            if not candidates:
-                if values in relocated.values():continue  # repeated kernel console export
-                raise RuntimeError('GL BO relocation has no live source')
-            if len(candidates)!=1 or event.start()>release.start():raise RuntimeError('Ambiguous or late GL BO relocation')
-            index=candidates[0];a=active[index]
-            if index in relocated or index in surface_indices:raise RuntimeError('Repeated or imported GL BO relocation')
-            span=int(values[3]) if values[3] is not None else a[2]
-            if not span or (span&4095) or span>a[2] or (values[3] is not None and span!=((a[1]+4095)&~4095)):
-                raise RuntimeError('Invalid GL BO relocated page span')
-            if new&4095 or new<0x100000000 or new+span>0x100000000+va_budget:
-                raise RuntimeError('GL BO relocation out of range')
-            if any(i!=index and new<v[0]+mapped_spans.get(i,v[2]) and v[0]<new+span for i,v in active.items()):
-                raise RuntimeError('GL BO relocation overlaps live backing')
-            active[index]=(new,*a[1:]);relocated[index]=values;mapped_spans[index]=span
-            continue
+    for event in re.finditer(f"(?P<publication>{publication})|(?P<surface>{surface_publication})|(?P<reclaim>{reclaim})",text):
         kind='surface' if event.group('surface') else 'publication' if event.group('publication') else 'reclaim'
         pattern=surface_publication if kind=='surface' else publication if kind=='publication' else reclaim
         values=re.fullmatch(pattern,event.group(0)).groups()
@@ -508,8 +485,8 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
                 flags not in (((0x80002,) if sample_audit else (0x80000,)) if kind=='surface' else (0x20000,0x20002)) or pages!=allocated//4096 or va&16383 or
                 va<0x100000000 or va+allocated>0x100000000+va_budget):
                 raise RuntimeError("Invalid GL BO range/permission publication")
-            if not retired and not relocated and va!=append_end:raise RuntimeError("Unexpected GL VA reuse without revocation")
-            if any(va<a[0]+mapped_spans.get(i,a[2]) and a[0]<va+allocated for i,a in active.items()):
+            if not retired and va!=append_end:raise RuntimeError("Unexpected GL VA reuse without revocation")
+            if any(va<a[0]+a[2] and a[0]<va+allocated for a in active.values()):
                 raise RuntimeError("Overlapping live GL BO ranges")
             used+=allocated
             if used>budget:raise RuntimeError("GL physical BO budget exceeded")
@@ -522,7 +499,6 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             if tuple(map(int,values[3:6]))!=(1,1,1):raise RuntimeError("GL BO revocation lacks CPU/GPU/TLB proof")
             used-=allocated;active.pop(index);retired+=1;retired_indices.add(index)
             if int(values[6])!=used:raise RuntimeError("GL reclaim physical budget mismatch")
-    if relocated and ('waffle-unixnu-map: relocated=2 chosen_VA=10f000000 remap_refused=2' not in text or len(relocated)!=2 or any(int(v[2],16)!=0x10f000000 for v in relocated.values())):raise RuntimeError('Missing/conflicting complete UniXNU relocation proof')
     if not buffers:raise RuntimeError("Missing GL BO publication")
     remaining=int(release[1]);earlier=int(release[2]) if release[2] else 0
     total=int(release[3]) if release[3] else remaining
@@ -591,62 +567,9 @@ def validate_gl_queue_recycle_log(text,count):
         cursor=position+len(marker)
 
 
-def validate_unixnu_runtime_log(text):
-    for bad in ('Library not loaded:', 'dlopen_failed=', 'missing_export=', 'failed_stage=', 'uncertain=1', 'REBOOT REQUIRED', 'result=0 runtime_API=1', 'GENERAL_SUBMIT mismatch'):
-        if bad in text:raise RuntimeError('Native runtime failed: '+bad)
-    markers=['waffle-unixnu-iokit: published=1 PID1_only=1 default_off=1 Metal=0',
-             'waffle-unixnu-init: exec runtime probe pid=1',
-             'waffle-unixnu-runtime: begin PID=1 CPU_fallback=0']
-    cursor=0
-    for marker in markers:
-        at=text.find(marker,cursor)
-        if at<0:raise RuntimeError('Missing runtime startup: '+marker)
-        cursor=at+len(marker)
-    if not re.search(r'waffle-unixnu-runtime: device=[^\n]*750',text[cursor:]):raise RuntimeError('Runtime did not select A750')
-    count=gl_completed_fences(text)
-    for fence in range(1,count+1):
-        seq=gl_sequence(fence-1)
-        for marker in (f'GENERAL_SUBMIT begin fence={fence} seq={seq}',f'GENERAL_IB ACK matched seq{seq} value=00000000 valid=1',f'GENERAL_SUBMIT done fence={fence} seq={seq} control={fence:08x} checked=4096 wrong_words=0',f'GENERAL submitted fence={fence}'):
-            at=text.find(marker,cursor)
-            if at<0:raise RuntimeError('Missing real runtime GPU completion: '+marker)
-            cursor=at+len(marker)
-    proof='waffle-unixnu-runtime: checked=4096 filled=4064 guards=32 wrong=0 CPU_fallback=0'
-    at=text.find(proof,cursor)
-    if at<0:raise RuntimeError('Runtime buffer/guards proof missing')
-    cursor=at+len(proof)
-    close=re.search(rf'GENERAL close passed=1 completed={count} buffers=(\d+) context_null=1',text[cursor:])
-    if not close or int(close[1])==0:raise RuntimeError('Runtime context did not close after GPU writes')
-    cursor+=close.end()
-    for marker in ('waffle-unixnu-runtime: resources_released=1','waffle-unixnu-runtime: result=1 runtime_API=1 Metal_frontend=0'):
-        at=text.find(marker,cursor)
-        if at<0:raise RuntimeError('Runtime did not release resources: '+marker)
-        cursor=at+len(marker)
-    return dict(fences=count,checked=4096,wrong=0,Metal_frontend=False)
-
-
-def validate_unixnu_submit_log(text):
-    summary='waffle-unixnu-submit: completed=2 waited=2 future_refused=2 CPU_map=legacy_MSM Metal_published=0'
-    if summary not in text:raise RuntimeError('UniXNU submit/wait proof missing')
-    records={}
-    pattern=r'waffle-unixnu-submit: pass=([12]) fence=(\d+) checked=4 wrong=(\d+) guards=2 values=([0-9a-f/]+)'
-    for phase,fence,wrong,values in re.findall(pattern,text):
-        row=(int(fence),int(wrong),values)
-        if int(phase) in records and records[int(phase)]!=row:raise RuntimeError('Conflicting UniXNU GPU result')
-        records[int(phase)]=row
-    if set(records)!={1,2} or not 0<records[1][0]<records[2][0]:raise RuntimeError('Missing/invalid UniXNU fences')
-    completed=gl_completed_fences(text)
-    for fence,wrong,values in records.values():
-        if wrong or values!='57414646/4c454750/13579bdf/2468ace0' or fence>completed:
-            raise RuntimeError('Incorrect UniXNU chosen-IOVA GPU writes')
-        if f'UNIXNU_SUBMIT fence={fence} roots=1 words=8 windows=1 synchronous=1' not in text:
-            raise RuntimeError('UniXNU result lacks actual native submission')
-    return {phase:row[0] for phase,row in records.items()}
-
-
 def validate_gl_log(text):
     if "Library not loaded:" in text:
         raise RuntimeError("GL process failed before main: "+re.search(r"Library not loaded: ([^\n]+)",text)[1])
-    if 'waffle-unixnu-submit:' in text:validate_unixnu_submit_log(text)
     pixels=extract_gl_pixels(text);count=gl_completed_fences(text)
     validate_gl_queue_recycle_log(text,count)
     if 'waffle-gl-surface-sample:' in text and count<3:raise RuntimeError('Shader sampling lacks an additional GPU submission')
@@ -883,7 +806,6 @@ def main():
     parser.add_argument("--gpu-writeback",action="store_true",help="E10: GPU writes a guarded dedicated buffer after authenticated ZAP")
     parser.add_argument("--gpu-ib",action="store_true",help="E11: GPU fetches known writeback stream from dedicated BO")
     parser.add_argument("--gpu-session",action="store_true",help="E12: owned kernel session, three independent IB results and verified stop")
-    parser.add_argument("--unixnu-runtime",action="store_true",help="Isolated real metal2vulkan/Turnip/IOKit buffer fill; no OpenGL or system Metal publication")
     parser.add_argument("--gpu-gl-context",action="store_true",help="E36 actual Darwin OSMesa GL renderer")
     parser.add_argument("--gpu-ui",action="store_true",help="E46 real backboardd workload; requires GL backend, no triangle/pixel success claim")
     parser.add_argument("--gpu-mapped",action="store_true",help="E33 direct mapped GPU BOs with revoke-before-submit")
@@ -922,9 +844,6 @@ def main():
     parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
     args = parser.parse_args()
-    if args.unixnu_runtime and (args.gpu_probe!=94 or args.cpus!=1 or args.seconds>90 or args.gpu_gl_context or args.gpu_ui or args.audio_preflight or args.torch_service or args.torch_pulse or args.torch_readonly or args.double_buffer or args.hardware_vsync):
-        parser.error('--unixnu-runtime requires isolated GPU94/CPU1/<=90s without GL/UI/device workloads')
-
     if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--double-buffer requires isolated GPU UI and excludes other display/audio modes")
     if args.display_flip_probe and (args.display_flush_probe or args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -960,10 +879,10 @@ def main():
     if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.gpu_ui):parser.error('--torch-service requires GPU UI and excludes torch probe modes')
     if args.gpu_ui and not args.gpu_gl_context:parser.error("--gpu-ui requires --gpu-gl-context")
     if args.seconds>300 and not (args.seconds==660 and args.gpu_ui and args.gpu_gl_context):parser.error("660 seconds is reserved for the bounded UI soak")
-    if sum((args.unixnu_runtime,args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
+    if sum((args.gpu_gl_context,args.gpu_msm,args.gpu_user_va,args.gpu_glsl,args.gpu_data_bo,args.gpu_user_copy,args.gpu_worker,args.gpu_copy_jobs,args.gpu_image_present,args.gpu_image_copy,args.gpu_image))>1:parser.error("Choose image ramp or uploaded image copy")
     if args.gpu_mesa_transport and not args.gpu_msm:parser.error("--gpu-mesa-transport requires --gpu-msm")
     if args.gpu_mapped and not (args.gpu_msm and args.gpu_mesa_transport):parser.error("--gpu-mapped requires MSM Mesa transport")
-    image_kind=13 if (args.gpu_gl_context or args.unixnu_runtime) else 12 if args.gpu_mapped else 11 if args.gpu_msm else 10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
+    image_kind=13 if args.gpu_gl_context else 12 if args.gpu_mapped else 11 if args.gpu_msm else 10 if args.gpu_user_va else (9 if args.gpu_compute==1 else 8) if args.gpu_glsl else 7 if args.gpu_data_bo else 6 if args.gpu_user_copy else 5 if args.gpu_worker else 4 if args.gpu_copy_jobs else 3 if args.gpu_image_present else 2 if args.gpu_image_copy else int(args.gpu_image)
     if image_kind>=3 and image_kind!=9 and args.gpu_compute!=2:parser.error("Presentation requires compute dispatch")
     args.gpu_image=bool(image_kind)
     if args.gpu_access_matrix and args.gpu_probe!=93:
@@ -1021,7 +940,6 @@ def main():
         raise RuntimeError("This loader only supports early checkpoints; boot the userland test image")
     if args.surface_lock_audit and (not args.gpu_gl_context or args.gpu_ui):parser.error("Surface lock audit requires isolated GL")
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
-    if args.unixnu_runtime:arguments += " waffle_unixnu_iokit=1"
     if args.surface_lock_audit:
         arguments += " waffle_surface_lock_audit=1"
     if args.display_irq_probe:
@@ -1185,25 +1103,6 @@ def main():
             (out / "result.txt").write_text(line + "\n")
             print(f"Logs: {out}", flush=True)
             final_text = (out / "kernel-final.log").read_text(errors="replace")
-            if args.unixnu_runtime:
-                validate_unixnu_runtime_log(final_text)
-                return
-
-            if args.gpu_gl_context and b'waffle-unixnu-submit: completed=2' in args.root.read_bytes():
-                if 'waffle-unixnu-submit: completed=2 waited=2 future_refused=2 CPU_map=legacy_MSM Metal_published=0' not in final_text:
-                    raise RuntimeError('UniXNU submit/wait proof missing')
-                proofs=re.findall(r'waffle-unixnu-submit: pass=([12]) fence=(\d+) checked=4 wrong=0 guards=2 values=57414646/4c454750/13579bdf/2468ace0',final_text)
-                if {int(p) for p,f in proofs}!={1,2} or len({int(f) for p,f in proofs})!=2:
-                    raise RuntimeError('UniXNU chosen IOVA GPU writes missing or conflicting')
-            if args.gpu_gl_context and b'waffle-unixnu-map: relocated=2' in args.root.read_bytes():
-                if 'waffle-unixnu-map: relocated=2 chosen_VA=10f000000 remap_refused=2' not in final_text:
-                    raise RuntimeError('UniXNU chosen IOVA relocation proof missing')
-            if args.gpu_gl_context and b'waffle-unixnu-bo: allocated=2' in args.root.read_bytes():
-                if 'waffle-unixnu-bo: allocated=2 freed=2 stale_refused=2 distinct_handles=1' not in final_text:
-                    raise RuntimeError('UniXNU BO lifetime proof missing')
-            if args.gpu_gl_context and b'waffle-unixnu: query=1' in args.root.read_bytes():
-                if 'waffle-unixnu: query=1 ABI=2 VA=39 PA=36 flags=0 submit_refused=1 Metal_published=0' not in final_text:
-                    raise RuntimeError('UniXNU ABI ingress diagnostic missing; not qualified')
             if args.display_completion_audit:
                 import runpy
                 completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)

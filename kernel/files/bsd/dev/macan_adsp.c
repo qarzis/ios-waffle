@@ -23,6 +23,8 @@
 #include <sys/waffle_glink_intent.h>
 #include <sys/waffle_audio_smmu_survey.h>
 #include <sys/waffle_audio_smmu_inventory.h>
+#include <sys/waffle_audio_cb_access.h>
+#include <sys/waffle_audio_cb_config.h>
 #include <sys/waffle_battery_readonly.h>
 extern vm_offset_t ml_io_map(vm_offset_t phys_addr, vm_size_t size);
 extern vm_offset_t ml_io_map_unmappable(vm_offset_t phys_addr, vm_size_t size, unsigned int flags);
@@ -2475,6 +2477,37 @@ step_ready(void)
  return false;
 }
 static uint32_t mode;
+static bool audio_cb_probe_active;
+static vm_offset_t audio_cb_probe_base;
+static uint32_t audio_cb_probe_offset,audio_cb_probe_original;
+static bool audio_cb_config_active;
+static struct waffle_audio_cb_config_result audio_cb_config_state;
+static bool
+waffle_audio_cb_requested(void)
+{
+ uint32_t value=0;
+ return mode==8 && waffle_board && PE_parse_boot_argn("waffle_audio_cb_access",&value,sizeof(value)) && value==1;
+}
+static bool
+waffle_audio_cb_write32(void *context,uint32_t offset,uint32_t value)
+{
+ if(audio_cb_config_active){
+  if(!waffle_audio_cb_requested() || !audio_cb_probe_active ||
+     (vm_offset_t)context!=audio_cb_probe_base || !audio_cb_config_state.admitted)return false;
+  for(unsigned n=0;n<8;n++)if(offset==audio_cb_config_state.base+waffle_audio_cb_config_offset(n)){
+   bool restore=value==audio_cb_config_state.saved[n];
+   if(!restore && (stopping || value!=audio_cb_config_state.target[n]))return false;
+   wr(audio_cb_probe_base+offset,value);return true;
+  }
+  return false;
+ }
+ if(!waffle_audio_cb_requested() || !audio_cb_probe_active ||
+    (vm_offset_t)context!=audio_cb_probe_base || offset!=audio_cb_probe_offset ||
+    (value!=audio_cb_probe_original && value!=(audio_cb_probe_original^0x80u)) ||
+    (value&1) || (stopping && value!=audio_cb_probe_original))return false;
+ wr(audio_cb_probe_base+offset,value);
+ return true;
+}
 static bool
 waffle_audio_smmu_read32(void *context, uint32_t offset, uint32_t *value)
 {
@@ -2519,9 +2552,50 @@ waffle_audio_iommu_survey(void)
  } else {
   printf("adsp: AUDIO_INVENTORY FAIL ownership=0\n");
  }
+ bool access_valid=true;
+ if(waffle_audio_cb_requested()){
+  access_valid=false;
+  if(valid && inventory_valid){
+   for(uint32_t bank=inventory->s2_banks;bank<inventory->banks;bank++)if(inventory->candidate[bank]){
+    audio_cb_probe_base=base;audio_cb_probe_offset=inventory->cb_base+(bank<<inventory->page_shift);
+    audio_cb_probe_original=inventory->sctlr[bank];audio_cb_probe_active=true;break;
+   }
+   const struct waffle_audio_cb_access_io access_io={io,waffle_audio_cb_write32,audio_cb_probe_active};
+   struct waffle_audio_cb_access_result result;
+   access_valid=waffle_audio_cb_access(&access_io,inventory,&result);
+   printf("adsp: AUDIO_CB_ACCESS passed=%u admitted=%u changed=%u restored=%u cb=%u\n",access_valid,result.admitted,result.changed,result.restored,result.bank);
+   printf("adsp: AUDIO_CB_ACCESS original=%#x test=%#x M_enable=0 route_writes=0 DSP=0\n",result.original,result.test_value);
+   if(access_valid){
+    vm_offset_t memory=0;
+    bool allocated=kmem_alloc(kernel_map,&memory,0x4000,KMA_KOBJECT|KMA_ZERO|KMA_DATA,VM_KERN_MEMORY_IOKIT)==KERN_SUCCESS;
+    bool tables_ok=false;
+    if(allocated){
+     uint64_t pa[3];for(unsigned n=0;n<3;n++)pa[n]=kvtophys(memory+n*4096);
+     tables_ok=waffle_audio_build_page_tables((struct waffle_audio_page_tables *)memory,pa,kvtophys(memory+0x3000),0x10001000);
+     if(tables_ok){
+      for(vm_offset_t a=memory;a<memory+0x4000;a+=64)__asm__ volatile("dc cvac, %0"::"r"(a):"memory");
+      __asm__ volatile("dsb sy":::"memory");
+      audio_cb_config_active=true;
+      access_valid=waffle_audio_cb_config(&access_io,&result,pa[0],&audio_cb_config_state);
+      audio_cb_config_active=false;
+      printf("adsp: AUDIO_CB_CONFIG passed=%u configured=%u restored=%u writes=%u cb=%u\n",access_valid,audio_cb_config_state.configured,audio_cb_config_state.restored,audio_cb_config_state.writes,result.bank);
+      for(unsigned n=0;n<8;n++)printf("adsp: AUDIO_CB_FIELD index=%u offset=%x expected=%08x actual=%08x read=%u mismatch=%u\n",n,waffle_audio_cb_config_offset(n),audio_cb_config_state.target[n],audio_cb_config_state.actual[n],(audio_cb_config_state.read_mask>>n)&1,(audio_cb_config_state.mismatch_mask>>n)&1);
+      printf("adsp: AUDIO_CB_CONFIG own_tables=1 pages=4 IOVA=0x10001000 M_enable=0 route_writes=0 DSP=0\n");
+     }else access_valid=false;
+     if(!tables_ok || audio_cb_config_state.restored || !audio_cb_config_state.admitted)kmem_free(kernel_map,memory,0x4000);
+     else printf("adsp: AUDIO_CB_CONFIG retain_backing=1 incomplete_restore=1\n");
+    }else access_valid=false;
+   }
+   if(!result.restored && result.write_attempted){
+    /* One last bounded restoration before returning; retain original FAIL. */
+    (void)waffle_audio_cb_write32((void *)base,audio_cb_probe_offset,audio_cb_probe_original);
+   }
+   audio_cb_probe_active=false;
+  }
+ }
  if (inventory) { kfree_data(inventory, sizeof(*inventory)); }
  ml_io_unmap(base, 0x100000);
- return valid && inventory_valid;
+ return valid && inventory_valid && access_valid;
 }
 static void
 adsp_thread(__unused void *parameter, __unused wait_result_t result)
@@ -2532,7 +2606,8 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  if (stopping) { goto out; }
  if (mode == 8) {
   success = waffle_board && waffle_audio_iommu_survey();
-  printf("adsp: WAFFLE AUDIO_IOMMU %s: read-only Apps SMMU; no DSP, DMA, TLB or register writes\n", success ? "OK" : "FAIL");
+  if(waffle_audio_cb_requested())printf("adsp: WAFFLE AUDIO_CB_ACCESS %s: disabled bank restored; no DSP, DMA or route writes\n",success?"OK":"FAIL");
+  else printf("adsp: WAFFLE AUDIO_IOMMU %s: read-only Apps SMMU; no DSP, DMA, TLB or register writes\n", success ? "OK" : "FAIL");
   goto out;
  }
  if (mode == 3 || mode == 4 || mode == 5) {
@@ -2672,6 +2747,15 @@ macan_adsp_quiesce(void)
 {
  if (!mode) { return; }
  leaving = stopping = true;
+ if(audio_cb_probe_active){
+  if(audio_cb_config_active && audio_cb_config_state.admitted){
+   for(unsigned n=0;n<8;n++)(void)waffle_audio_cb_write32((void *)audio_cb_probe_base,
+       audio_cb_config_state.base+waffle_audio_cb_config_offset(n),audio_cb_config_state.saved[n]);
+   audio_cb_config_active=false;
+  }
+  (void)waffle_audio_cb_write32((void *)audio_cb_probe_base,audio_cb_probe_offset,audio_cb_probe_original);
+  audio_cb_probe_active=false;
+ }
  if (mode == 3 || mode == 4 || mode == 5 || mode == 8) { return; }
  link_wanted = false;
  dsp_shutdown("panic/loader quiesce");

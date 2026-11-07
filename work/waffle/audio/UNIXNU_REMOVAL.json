@@ -1,0 +1,180 @@
+{
+  "restored": [
+    [
+      "kernel/files/bsd/dev/waffle_adreno.c",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/dev/waffle_gpu_drm.c",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/dev/waffle_gpu_service.c",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/dev/waffle_smmu.c",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/sys/waffle_gpu_iokit.h",
+      "removed"
+    ],
+    [
+      "kernel/files/bsd/sys/waffle_gpu_memory.h",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/sys/waffle_gpu_msm.h",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/sys/waffle_gpu_reclaim.h",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/sys/waffle_gpu_service.h",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/sys/waffle_smmu.h",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/bsd/sys/waffle_unixnu_gpu.h",
+      "removed"
+    ],
+    [
+      "kernel/files/iokit/Kernel/WaffleGPUMap.cpp",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/iokit/Kernel/WaffleGPUMemory.cpp",
+      "A23 snapshot"
+    ],
+    [
+      "kernel/files/iokit/Kernel/WaffleNativeGPU.cpp",
+      "removed"
+    ],
+    [
+      "loader/waffle.h",
+      "A23 snapshot"
+    ],
+    [
+      "scripts/run_waffle_ios.py",
+      "pre-UniXNU"
+    ],
+    [
+      "tools/build-waffle-diagnostic.py",
+      "A23 snapshot"
+    ],
+    [
+      "tools/build-waffle-gl-probe.py",
+      "A23 snapshot"
+    ],
+    [
+      "tools/build-waffle-unixnu-runtime-probe.py",
+      "removed"
+    ],
+    [
+      "tools/build-waffle-unixnu-userspace.py",
+      "removed"
+    ],
+    [
+      "tools/prepare-waffle-unixnu-runtime.py",
+      "removed"
+    ],
+    [
+      "tools/run-waffle-auto.py",
+      "pre-UniXNU"
+    ],
+    [
+      "tools/tests/waffle-general-drm-host.py",
+      "A23 snapshot"
+    ],
+    [
+      "tools/tests/waffle-gpu-host.py",
+      "A23 snapshot"
+    ],
+    [
+      "tools/tests/waffle-service-host.py",
+      "A23 snapshot"
+    ],
+    [
+      "tools/tests/waffle-unixnu-4k-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-abi-host.cpp",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-device-info-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-iokit-backend-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-iokit-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-iokit-policy.c",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-relocate-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-relocate-log-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-relocate-owner-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-runtime-log-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-submit-host.py",
+      "removed"
+    ],
+    [
+      "tools/tests/waffle-unixnu-submit-log-host.py",
+      "removed"
+    ],
+    [
+      "userland/src/waffle_gl_probe.c",
+      "A23 snapshot"
+    ],
+    [
+      "userland/src/waffle_unixnu_runtime_init.c",
+      "removed"
+    ],
+    [
+      "userland/src/waffle_unixnu_runtime_probe.cpp",
+      "removed"
+    ]
+  ],
+  "removed_directories": [
+    "/home/qarzis/ios-macan/work/waffle/unixnu-build",
+    "/home/qarzis/ios-macan/work/waffle/unixnu-audit",
+    "/home/qarzis/ios-macan/work/waffle/houji-reference",
+    "/home/qarzis/unixnu-reference",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-gpu-u01",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-gpu-u02",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-gpu-u03",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-gpu-u04",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-iokit",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-iokit-4k",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-u05-hakios",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-u06-iokit",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-u08-exchange",
+    "/home/qarzis/ios-macan/work/waffle/diagnostic-unixnu-u09-command"
+  ]
+}

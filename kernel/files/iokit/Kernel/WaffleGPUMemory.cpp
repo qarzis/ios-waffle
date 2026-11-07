@@ -27,7 +27,7 @@ bool waffle_gpu_memory_create(uint64_t bytes,uint32_t flags,struct waffle_gpu_me
  uintptr_t address=reinterpret_cast<uintptr_t>(memory->getBytesNoCopy());
  if(!address || (address&16383)){memory->release();return false;}
  *bo=(struct waffle_gpu_memory){.object=reinterpret_cast<uintptr_t>(memory),.memory=address,.gpu_va=0,
-     .bytes=static_cast<uint32_t>(bytes),.allocation_bytes=allocated,.flags=flags,.serial=0,.published=false,.storage=WAFFLE_GPU_STORAGE_OWNED,.mapped_bytes=0};
+     .bytes=static_cast<uint32_t>(bytes),.allocation_bytes=allocated,.flags=flags,.serial=0,.published=false,.storage=WAFFLE_GPU_STORAGE_OWNED};
  for(uint32_t offset=0;offset<allocated;offset+=4096)if(!waffle_gpu_memory_page(bo,offset)){
      memory->release();*bo={};return false;
  }
@@ -43,7 +43,7 @@ bool waffle_gpu_memory_surface(uint32_t sid,struct waffle_gpu_memory *bo)
  if(!waffle_gpu_surface_hold(sid,backing)){IOFree(backing,sizeof(*backing));return false;}
  *bo=(struct waffle_gpu_memory){.object=reinterpret_cast<uintptr_t>(backing),.memory=backing->pixels,.gpu_va=0,
      .bytes=backing->bytes,.allocation_bytes=backing->bytes,.flags=WAFFLE_GPU_BO_CACHED,.serial=0,.published=false,
-     .storage=WAFFLE_GPU_STORAGE_SURFACE,.mapped_bytes=0};
+     .storage=WAFFLE_GPU_STORAGE_SURFACE};
  return true;
 }
 bool waffle_gpu_memory_map(const struct waffle_gpu_memory *bo,bool readonly,uint64_t *address,uintptr_t *token)

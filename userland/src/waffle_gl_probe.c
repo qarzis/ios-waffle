@@ -69,18 +69,15 @@ static void crash_log(int sig,siginfo_t *info,void *context)
  raw_call(55,8,0,0);for(;;){}
 }
 #define printf direct_log
-#if defined(WAFFLE_GL_UNIXNU_QUERY) || defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
+#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include "waffle_gpu_msm.h"
 #endif
-#ifdef WAFFLE_GL_UNIXNU_QUERY
-#include "waffle_gpu_writeback.h"
-#endif
 #ifdef WAFFLE_GL_RECYCLE_BO
 #include "waffle_gl_recycle_probe.h"
 #endif
-#if defined(WAFFLE_GL_UNIXNU_QUERY) || defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
+#if defined(WAFFLE_GL_RECYCLE_BO) || defined(WAFFLE_GL_SURFACE_MAP_TEST)
 static int existing_gpu_fd(void)
 {
  struct stat device;
@@ -571,67 +568,8 @@ int main(void)
  ctx=OSMesaCreateContextAttribs(attrs,NULL);
  direct_log("waffle-gl-diag: after_create_context ptr=%p\n",ctx);
  if(!ctx){printf("waffle-gl-user: context failed\n");goto finish;}
-
-
  for(unsigned i=0;i<256;i++)pixels[i]=0xdead0000u+i;
  if(!OSMesaMakeCurrent(ctx,pixels,GL_UNSIGNED_BYTE,16,16)){printf("waffle-gl-user: makecurrent failed\n");goto finish;}
-#ifdef WAFFLE_GL_UNIXNU_QUERY
- {
-  int fd=existing_gpu_fd();struct waffle_unixnu_call call={.version=2,.method=1,.output_bytes=sizeof(struct waffle_unixnu_params)};
-  if(fd<0 || ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){if(fd>=0)close(fd);goto finish;}
-  struct waffle_unixnu_params params;memcpy(&params,call.payload,sizeof(params));
-  call.method=5;int refused=ioctl(fd,WAFFLE_UNIXNU_CALL,&call);
-  struct waffle_unixnu_alloc alloc={16384,12,0};uint64_t old_handle=0,new_handle=0,native_fence=0;
-  for(unsigned pass=0;pass<2;pass++){
-   call.method=2;call.input_bytes=sizeof(alloc);call.output_bytes=8;memcpy(call.payload,&alloc,sizeof(alloc));
-   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){close(fd);goto finish;}
-   memcpy(&new_handle,call.payload,8);
-   if(!new_handle || new_handle==old_handle){close(fd);goto finish;}
-   struct waffle_unixnu_map mapping={new_handle,0x10f000000ULL,3,0,2,0};
-   call.method=3;call.input_bytes=sizeof(mapping);call.output_bytes=8;memcpy(call.payload,&mapping,sizeof(mapping));
-   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){close(fd);goto finish;}
-   uint64_t mapped_va=0;memcpy(&mapped_va,call.payload,8);
-   if(mapped_va!=mapping.iova){close(fd);goto finish;}
-   memcpy(call.payload,&mapping,sizeof(mapping));
-   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)==0){close(fd);goto finish;}
-   /* Temporary CPU access uses our already-qualified diagnostic GEM mapper;
-    * NativeAdreno IOKit CPU-map tokens are not implemented by this experiment. */
-   struct waffle_msm_map cpu={.handle=(uint32_t)new_handle,.bytes=16384};
-   if(ioctl(fd,WAFFLE_MSM_MAP,&cpu) || !cpu.address){close(fd);goto finish;}
-   volatile uint32_t *memory=(volatile uint32_t *)(uintptr_t)cpu.address;
-   uint32_t packet[9];
-   if(waffle_writeback_packet(packet,9,1,mapping.iova+4096)!=9){close(fd);goto finish;}
-   for(unsigned j=0;j<8;j++)memory[j]=packet[j+1];
-   memory[1023]=memory[1028]=0xc0decafeu;
-   for(unsigned j=0;j<4;j++)memory[1024+j]=0xdeadbeefu;
-   struct waffle_unixnu_submit submit={.count=1,.wait_fence=native_fence,.buffers={{new_handle,mapping.iova,32}}};
-   call.method=5;call.input_bytes=sizeof(submit);call.output_bytes=8;memcpy(call.payload,&submit,sizeof(submit));
-   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){close(fd);goto finish;}
-   memcpy(&native_fence,call.payload,8);
-   if(!native_fence){close(fd);goto finish;}
-   struct waffle_unixnu_wait wait={native_fence,0};
-   call.method=6;call.input_bytes=sizeof(wait);call.output_bytes=0;memcpy(call.payload,&wait,sizeof(wait));
-   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)){close(fd);goto finish;}
-   wait.fence=native_fence+1;memcpy(call.payload,&wait,sizeof(wait));
-   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call)==0){close(fd);goto finish;}
-   unsigned wrong=0;
-   for(unsigned j=0;j<4;j++)wrong+=memory[1024+j]!=waffle_writeback_values[j];
-   wrong+=memory[1023]!=0xc0decafeu;wrong+=memory[1028]!=0xc0decafeu;
-   printf("waffle-unixnu-submit: pass=%u fence=%llu checked=4 wrong=%u guards=2 values=%08x/%08x/%08x/%08x\n",pass+1,(unsigned long long)native_fence,wrong,memory[1024],memory[1025],memory[1026],memory[1027]);
-   if(wrong || ioctl(fd,WAFFLE_MSM_UNMAP,&cpu)){close(fd);goto finish;}
-   memcpy(call.payload,&new_handle,8);
-   call.method=4;call.input_bytes=8;call.output_bytes=0;
-   if(ioctl(fd,WAFFLE_UNIXNU_CALL,&call) || ioctl(fd,WAFFLE_UNIXNU_CALL,&call)==0){close(fd);goto finish;}
-   old_handle=new_handle;
-  }
-  close(fd);
-  printf("waffle-unixnu-submit: completed=2 waited=2 future_refused=2 CPU_map=legacy_MSM Metal_published=0\n");
-  printf("waffle-unixnu-map: relocated=2 chosen_VA=10f000000 remap_refused=2\n");
-  printf("waffle-unixnu-bo: allocated=2 freed=2 stale_refused=2 distinct_handles=1\n");
-  if(params.version!=2 || params.input_bits!=39 || params.output_bits!=36 || params.flags || !params.max_bo_bytes || refused==0)goto finish;
-  printf("waffle-unixnu: query=1 ABI=2 VA=39 PA=36 flags=0 submit_refused=1 Metal_published=0\n");
- }
-#endif
 #endif
  const char *renderer=(const char *)glGetString(GL_RENDERER);
  printf("waffle-gl-user: renderer=%s version=%s\n",renderer?renderer:"NULL",glGetString(GL_VERSION));

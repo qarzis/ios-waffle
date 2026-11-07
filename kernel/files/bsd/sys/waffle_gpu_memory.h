@@ -23,14 +23,7 @@ struct waffle_gpu_memory {
  uint32_t bytes,allocation_bytes,flags,serial;
  bool published;
  uint32_t storage;
- /* Zero preserves the ordinary full-allocation GPU mapping. Native IOVAs
-  * may expose a 4KiB-rounded logical span of 16KiB CPU backing. */
- uint32_t mapped_bytes;
 };
-static inline uint32_t waffle_gpu_memory_gpu_bytes(const struct waffle_gpu_memory *bo)
-{
- return bo?(bo->mapped_bytes?bo->mapped_bytes:bo->allocation_bytes):0;
-}
 #ifdef __cplusplus
 extern "C" {
 #endif

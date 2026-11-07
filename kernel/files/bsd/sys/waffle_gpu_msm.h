@@ -2,9 +2,6 @@
 #define WAFFLE_GPU_MSM_H
 #include <stdint.h>
 #include <sys/ioccom.h>
-#include "waffle_unixnu_gpu.h"
-/* Private diagnostic ingress, not an upstream UniXNU ioctl. */
-#define WAFFLE_UNIXNU_CALL _IOWR('W',0x61,struct waffle_unixnu_call)
 /* Exact legacy MSM UAPI layouts used by MacanGPU.cpp and Mesa drm-shim.
  * E31 supports two owned16KiB BOs and one audited191word compute IB only.
  * Upload/download is a diagnostic extension, not GEM mmap or a full DRM fd. */
