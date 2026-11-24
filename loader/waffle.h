@@ -150,6 +150,18 @@ static inline int waffle_cmdline_allowed(const char *line)
             !waffle_token_equal(line,size,"waffle_vsync=1") &&
             !waffle_token_equal(line,size,"waffle_vsync_audit=1") &&
             !waffle_number(line,size,"waffle_torch=",1,3) &&
+            !waffle_number(line,size,"wlan=",1,14) &&
+            !waffle_token_equal(line,size,"wlan_driver=1") &&
+            !waffle_token_equal(line,size,"wlan_link=1") &&
+            !waffle_token_equal(line,size,"wlan_keep=1") &&
+            !waffle_token_equal(line,size,"wlan_volt=1") &&
+            !waffle_number(line,size,"wlan_pause=",0,10000) &&
+            !waffle_token_equal(line,size,"wifi_scan=1") &&
+            !waffle_token_equal(line,size,"wifi_station=1") &&
+            !waffle_token_equal(line,size,"wifi_join=1") &&
+            !waffle_token_equal(line,size,"wifi_quiet=1") &&
+            !waffle_token_equal(line,size,"wifi_ba=1") &&
+            !waffle_token_equal(line,size,"wifi_wide=1") &&
             !waffle_token_equal(line,size,"adsp=3") && !waffle_token_equal(line,size,"adsp=4") && !waffle_token_equal(line,size,"adsp=5") && !waffle_token_equal(line,size,"adsp=6") && !waffle_token_equal(line,size,"adsp=7") && !waffle_token_equal(line,size,"adsp=8") &&
 #endif
             !waffle_gpu_token_allowed(line, size)) return 0;

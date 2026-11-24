@@ -262,7 +262,9 @@ loader_return(void)
  waffle_synaptics_quiesce();
  redwood_buttons_quiesce();
  redwood_adreno_quiesce();
+ extern void shennong_wlan_quiesce(void);
  redwood_wifi_quiesce();
+ shennong_wlan_quiesce();
  loader_log_linearize();
  if (!loader_return_entered) {
   loader_log_append_msgbuf();

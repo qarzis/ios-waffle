@@ -1,7 +1,7 @@
-#ifndef _LX12_CLK_H
-#define _LX12_CLK_H
+/* Clocks, as ath12k's ahb.h declares a pointer to one (the AHB bus, not built here, uses it). */
+#ifndef _LX12_LINUX_CLK_H_
+#define _LX12_LINUX_CLK_H_
+
 struct clk;
-static inline struct clk *devm_clk_get(void *dev, const char *id) { return NULL; }
-static inline int clk_prepare_enable(struct clk *c) { return 0; }
-static inline void clk_disable_unprepare(struct clk *c) { }
+
 #endif

@@ -172,11 +172,14 @@ redwood_input_init(void)
   printf("redwood-touch: cannot create the device\n");
  }
  exit_call = thread_call_allocate(exit_hold_elapsed, NULL);
+ extern void shennong_wlan_init(void);
  uint32_t waffle = 0;
  if (PE_parse_boot_argn("waffle", &waffle, sizeof(waffle)) && waffle) {
   waffle_adreno_init();
   waffle_synaptics_init();
   redwood_buttons_init();
+  redwood_net_init();
+  shennong_wlan_init();
   macan_adsp_init();
   return;
  }

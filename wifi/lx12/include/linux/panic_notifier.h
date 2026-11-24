@@ -1,8 +1,33 @@
-#ifndef _LX12_PANIC_NOTIFIER_H
-#define _LX12_PANIC_NOTIFIER_H
+/*
+ * The list of who is told when the kernel panics, as ath12k's core.c registers itself on: nobody is
+ * told here (a panic of XNU's goes back to the loader, and shennong_wlan.c's quiesce unpowers the
+ * radio on that way), so registering is accepted and does nothing.
+ */
+#ifndef _LX12_LINUX_PANIC_NOTIFIER_H_
+#define _LX12_LINUX_PANIC_NOTIFIER_H_
+
 #include <linux/notifier.h>
-#define panic_notifier_list (*(struct atomic_notifier_head *)0)
-static inline int lx12_no_panic_notifier(void) { return 0; }
-#define atomic_notifier_chain_register(h,nb) lx12_no_panic_notifier()
-#define atomic_notifier_chain_unregister(h,nb) lx12_no_panic_notifier()
+
+struct atomic_notifier_head {
+	struct notifier_block *head;
+};
+
+static struct atomic_notifier_head panic_notifier_list __attribute__((unused));
+
+static inline int
+atomic_notifier_chain_register(struct atomic_notifier_head *list, struct notifier_block *block)
+{
+	(void)list;
+	(void)block;
+	return 0;
+}
+
+static inline int
+atomic_notifier_chain_unregister(struct atomic_notifier_head *list, struct notifier_block *block)
+{
+	(void)list;
+	(void)block;
+	return 0;
+}
+
 #endif

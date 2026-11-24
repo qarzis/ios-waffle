@@ -38,7 +38,7 @@ static int kernel_hung;
 #define CHECKPOINT_SELFTEST 999
 #define PANIC_LOG_SIZE 0x80000u
 #define NVRAM_BANK_SIZE 0x2000u
-#define PAYLOAD_MAX_SIZE 0x04000000ULL
+#define PAYLOAD_MAX_SIZE 0x05000000ULL
 struct boot_video {
  uint64_t v_baseAddr, v_display, v_rowBytes, v_width, v_height, v_depth;
 };
@@ -2150,7 +2150,7 @@ fb_command(char *cmd)
    } else if (str_eq(var, "version")) {
     fb_reply("OKAY", "0.5");
    } else if (str_eq(var, "max-download-size")) {
-    fb_reply("OKAY", download_to_ramdisk ? "0xffffffff" : "0x03f00000");
+    fb_reply("OKAY", download_to_ramdisk ? "0xffffffff" : "0x04f00000");
    } else if (str_eq(var, "result")) {
     fb_reply("OKAY", last_result);
    } else if (str_eq(var, "screen") && SCREEN.base != 0) {
