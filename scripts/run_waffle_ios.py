@@ -843,6 +843,7 @@ def main():
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
     parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
+    parser.add_argument("--adsp-mode", type=int, default=None, help="Override adsp=<N> boot argument")
     args = parser.parse_args()
     if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--double-buffer requires isolated GPU UI and excludes other display/audio modes")
@@ -957,7 +958,9 @@ def main():
     if args.display_survey:
         if args.audio_preflight:parser.error("--display-survey excludes audio tests")
         arguments += " waffle_vsync_audit=1"
-    if args.audio_preflight:
+    if args.adsp_mode is not None:
+        arguments += f" adsp={args.adsp_mode}"
+    elif args.audio_preflight:
         arguments += " adsp=8" if args.audio_iommu else " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
         if args.battery_readonly:arguments += " waffle_battery_readonly="+('2' if args.battery_report_test else '1')
     if args.audio_cb_access:arguments += " waffle_audio_cb_access=1"
@@ -1001,7 +1004,7 @@ def main():
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
                     f"kernel={args.kernel.resolve()}", f"ramdisk={args.root.resolve()}"], check=True)
-    if payload.stat().st_size > 0x03f00000:
+    if payload.stat().st_size > 0x08f00000:
         raise RuntimeError("Kernel/root payload exceeds the loader's download limit")
     print(command("stage", payload, timeout=60), flush=True)
     if not args.reuse_system:
@@ -1036,7 +1039,7 @@ def main():
                 command('get_staged',screen)
                 request.rename(request.with_suffix('.done'))
                 request.with_suffix('.json').write_text(json.dumps({'screenshot':str(screen),'bytes':screen.stat().st_size})+'\n')
-        time.sleep(0.2 if args.capture_requests or args.gpu_ui else 0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
+        time.sleep(0.2 if args.capture_requests else 5)
         response = command("getvar", "result")
         line = next((s for s in response.splitlines() if s.startswith("result: ")), "")
         sequence += 1

@@ -29,14 +29,14 @@ it was. Apple's files are not in this repository: the script downloads them from
 | **Metal** | ❌ | apps that need Metal do not run |
 | **Touch** | ✅ | multi-touch |
 | **Buttons** | ✅ | power, volume up, volume down |
-| **Wi-Fi** | ✅ | joins your network, DHCP, Internet |
+| **Wi-Fi** | ✅ | WCN7850 Wi-Fi 7 (PCIe/MHI + ath12k), joins your network, DHCP, Internet |
 | **Vibration** | ✅ | keyboard and system haptics, vibrations, CoreHaptics |
 | **Flashlight** | ✅ | from Control Center, with brightness levels |
 | **Battery** | ⚠️ | real level, voltage, temperature and cycles; iOS does not manage charging |
 | **Packages** | ✅ | Sileo, ElleKit, PreferenceLoader, tweaks, NewTerm |
 | **Dynamic Island** | ⚠️ | experimental (`--island 2`): iOS's own alerts show in it, live activities such as timers not yet |
 | **120 Hz** | ⚠️ | iOS draws above 60 fps; the panel itself still runs its default mode |
-| **Sound** | ❌ | the audio DSP is being brought up |
+| **Sound** | ✅ | 48 kHz stereo speaker playback & volume control via SM8650 ADSP AudioReach + dual NXP TFA9874 (`adsp=11`) |
 | **Microphone** | ❌ | waits on the audio DSP |
 | **Camera** | ❌ | |
 | **Sensors** | ❌ | gyroscope, accelerometer, proximity, light |

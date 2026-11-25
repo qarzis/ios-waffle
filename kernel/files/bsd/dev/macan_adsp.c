@@ -20,6 +20,10 @@
 #include <sys/waffle_adsp_power.h>
 #include <sys/waffle_adsp_rpmh.h>
 #include <sys/waffle_apm.h>
+#include <sys/waffle_apm_memory.h>
+#include <sys/waffle_tfa9874.h>
+#include <sys/macan_audio.h>
+#include <sys/macan_i2c.h>
 #include <sys/waffle_glink_intent.h>
 #include <sys/waffle_audio_smmu_survey.h>
 #include <sys/waffle_audio_smmu_inventory.h>
@@ -2161,34 +2165,71 @@ qrtr_input(const uint8_t *data, uint32_t length)
 }
 #define APM_CMD_GET_SPF_STATE 0x01001021u
 #define APM_CMD_RSP_GET_SPF_STATE 0x02001007u
+#define APM_CMD_SET_CFG 0x01001006u
+#define PRM_CMD_REQUEST_HW_RSC 0x0100100Fu
+#define PRM_CMD_RSP_REQUEST_HW_RSC 0x02001002u
+#define PRM_CMD_RELEASE_HW_RSC 0x01001010u
+#define PRM_CMD_RSP_RELEASE_HW_RSC 0x02001003u
+#define GPR_PRM_MODULE_IID 2u
+#define WAFFLE_APM_SUBGRAPH2 0x4f01u
+#define WAFFLE_APM_CONTAINER2 0x5f01u
+#define WAFFLE_APM_I2S_SINK 0x6f02u
+#define WAFFLE_APM_PCM_CNV 0x6f03u
 #define GPR_BASIC_RSP_RESULT 0x02001005u
+#define DATA_CMD_WR_SH_MEM_EP_DATA_BUFFER_V2 0x0400100Au
+#define DATA_CMD_RSP_WR_SH_MEM_EP_DATA_BUFFER_DONE_V2 0x05001004u
 struct gpr_header {
  uint32_t packet, domains, source_port, dest_port, token, opcode;
 };
 static uint32_t gpr_token, gpr_state, gpr_error, gpr_in, gpr_out, gpr_expected_opcode;
-static bool gpr_answered, audio_up;
+static uint32_t gpr_buf_status;
+static bool gpr_answered, gpr_buf_done, audio_up;
 static LCK_MTX_DECLARE(gpr_lock, &adsp_lock_group);
 static void
 gpr_input(const uint8_t *data, uint32_t length)
 {
  struct gpr_header h;
- uint32_t words[2] = { 0 };
+ uint32_t words[4] = { 0 };
  if (length < sizeof(h)) { return; }
  memcpy(&h, data, sizeof(h));
  uint32_t header_size = ((h.packet >> 4) & 15) * 4;
  if ((h.packet & 15) != 0 || header_size < sizeof(h) || (h.packet >> 8) != length ||
-     header_size > length || (h.domains & 0xffff) != 0x0203 || h.dest_port != 1 || h.source_port != 1) { return; }
+     header_size > length || (h.domains & 0xffff) != 0x0203 || h.dest_port != 1 ||
+     (h.source_port != 1 && h.source_port != GPR_PRM_MODULE_IID &&
+      h.source_port != WAFFLE_APM_WRITE_EP && h.source_port != WAFFLE_APM_READ_EP &&
+      h.source_port != WAFFLE_APM_I2S_SINK)) { return; }
  gpr_in++;
- if (length - header_size >= 4) { memcpy(words, data + header_size, 4); }
- if (length - header_size >= 8) { memcpy(words + 1, data + header_size + 4, 4); }
- printf("adsp: GPR reply opcode=%#x token=%u bytes=%u words=%#x,%#x\n", h.opcode, h.token, length - header_size, words[0], words[1]);
+ uint32_t plen = length - header_size;
+ for (unsigned w = 0; w < 4 && (w + 1) * 4 <= plen; w++) {
+  memcpy(&words[w], data + header_size + w * 4, 4);
+ }
+ if (h.opcode != DATA_CMD_RSP_WR_SH_MEM_EP_DATA_BUFFER_DONE_V2) {
+  printf("adsp: GPR reply src=%#x opcode=%#x token=%u bytes=%u words=%#x,%#x,%#x,%#x\n",
+      h.source_port, h.opcode, h.token, plen, words[0], words[1], words[2], words[3]);
+ }
  lck_mtx_lock(&gpr_lock);
+ if (h.opcode == DATA_CMD_RSP_WR_SH_MEM_EP_DATA_BUFFER_DONE_V2 && plen >= 16) {
+  if (words[3] != 0) {
+   printf("adsp: WR_BUF_DONE err token=%u status=%#x\n", h.token, words[3]);
+  }
+  gpr_buf_status = words[3];
+  os_atomic_store(&gpr_buf_done, true, release);
+  lck_mtx_unlock(&gpr_lock);
+  return;
+ }
  if (h.token != gpr_token || os_atomic_load(&gpr_answered, acquire)) { lck_mtx_unlock(&gpr_lock); return; }
- if (gpr_expected_opcode == APM_CMD_GET_SPF_STATE && h.opcode == APM_CMD_RSP_GET_SPF_STATE && length - header_size >= 4) {
+ if (gpr_expected_opcode == APM_CMD_GET_SPF_STATE && h.opcode == APM_CMD_RSP_GET_SPF_STATE && plen >= 4) {
   gpr_state = words[0]; gpr_error = 0;
   os_atomic_store(&gpr_answered, true, release);
- } else if (h.opcode == GPR_BASIC_RSP_RESULT && length - header_size >= 8 && words[0] == gpr_expected_opcode) {
-  if (words[1] || gpr_expected_opcode != APM_CMD_GET_SPF_STATE) {
+ } else if (gpr_expected_opcode == WAFFLE_APM_MEM_MAP && h.opcode == WAFFLE_APM_MEM_MAP_RSP && plen >= 4) {
+  gpr_state = words[0]; gpr_error = 0;
+  os_atomic_store(&gpr_answered, true, release);
+ } else if ((gpr_expected_opcode == PRM_CMD_REQUEST_HW_RSC && h.opcode == PRM_CMD_RSP_REQUEST_HW_RSC) ||
+            (gpr_expected_opcode == PRM_CMD_RELEASE_HW_RSC && h.opcode == PRM_CMD_RSP_RELEASE_HW_RSC)) {
+  gpr_state = words[0]; gpr_error = 0;
+  os_atomic_store(&gpr_answered, true, release);
+ } else if (h.opcode == GPR_BASIC_RSP_RESULT && plen >= 8 && words[0] == gpr_expected_opcode) {
+  if (words[1] || (gpr_expected_opcode != APM_CMD_GET_SPF_STATE && gpr_expected_opcode != WAFFLE_APM_MEM_MAP)) {
    gpr_error = words[1]; os_atomic_store(&gpr_answered, true, release);
   }
  }
@@ -2250,6 +2291,866 @@ step_apm_graph(void)
  printf("adsp: APM_GRAPH lifecycle=1 modules=write_shmem/read_shmem connection=1 no_DMA=1 no_PCM=1 amps_off=1\n");
  return true;
 }
+#define WAFFLE_AUDIO_SMMU_PHYS  0x15000000u
+#define WAFFLE_AUDIO_IOVA       0x10000000u
+#define WAFFLE_AUDIO_BUF_PAGES  4u
+#define WAFFLE_AUDIO_BUF_BYTES  (WAFFLE_AUDIO_BUF_PAGES * 4096u)
+#define WAFFLE_AUDIO_PTE        (3ull | (1ull << 6) | (2ull << 8) | (1ull << 10) | (1ull << 11))
+#define WAFFLE_TLMM_PHYS        0x0f100000u
+#define WAFFLE_TLMM_SIZE        0x000d0000u
+static struct {
+ bool on;
+ vm_offset_t gr0, gr1, ctx;
+ uint32_t page, pages, context;
+ uint32_t match0, match1;
+ uint32_t old_smr0, old_s2cr0, old_smr1, old_s2cr1, old_sctlr;
+ vm_offset_t tables, buf;
+} audio_smmu;
+static void
+waffle_audio_cache_clean(vm_offset_t va, size_t len)
+{
+ for (vm_offset_t a = va & ~63ull; a < va + len; a += 64) {
+  __asm__ volatile ("dc cvac, %0" :: "r"(a) : "memory");
+ }
+ __asm__ volatile ("dsb sy" ::: "memory");
+}
+static void
+waffle_audio_smmu_off(void)
+{
+ if (!audio_smmu.on) { return; }
+ uint32_t fsr = rd(audio_smmu.ctx + 0x58);
+ uint64_t far = (uint64_t)rd(audio_smmu.ctx + 0x60) | ((uint64_t)rd(audio_smmu.ctx + 0x64) << 32);
+ printf("adsp: AUDIO_SMMU_OFF cb=%u FSR=%#x FAR=%#llx\n", audio_smmu.context, fsr, far);
+ wr(audio_smmu.gr0 + 0x800 + 4 * audio_smmu.match0, audio_smmu.old_smr0);
+ wr(audio_smmu.gr0 + 0xc00 + 4 * audio_smmu.match0, audio_smmu.old_s2cr0);
+ wr(audio_smmu.gr0 + 0x800 + 4 * audio_smmu.match1, audio_smmu.old_smr1);
+ wr(audio_smmu.gr0 + 0xc00 + 4 * audio_smmu.match1, audio_smmu.old_s2cr1);
+ wr(audio_smmu.ctx + 0x00, audio_smmu.old_sctlr);
+ audio_smmu.on = false;
+ if (!leaving) {
+  if (audio_smmu.buf) { kmem_free(kernel_map, audio_smmu.buf, WAFFLE_AUDIO_BUF_BYTES); audio_smmu.buf = 0; }
+  if (audio_smmu.tables) { kmem_free(kernel_map, audio_smmu.tables, 3 * 4096); audio_smmu.tables = 0; }
+ }
+}
+static bool
+waffle_audio_smmu_on(void)
+{
+ bool used[256] = { false };
+ vm_offset_t saved_gr0 = audio_smmu.gr0, saved_gr1 = audio_smmu.gr1, saved_ctx = audio_smmu.ctx;
+ uint32_t saved_ctx_idx = audio_smmu.context;
+ bzero(&audio_smmu, sizeof(audio_smmu));
+ audio_smmu.gr0 = saved_gr0 ? saved_gr0 : ml_io_map(WAFFLE_AUDIO_SMMU_PHYS, 0x1000);
+ if (!audio_smmu.gr0) { return false; }
+ uint32_t idr0 = rd(audio_smmu.gr0 + 0x20), idr1 = rd(audio_smmu.gr0 + 0x24);
+ uint32_t matches = idr0 & 0xff, contexts = idr1 & 0xff, s2_banks = (idr1 >> 16) & 0xff;
+ audio_smmu.page = (idr1 >> 31) ? 0x10000 : 0x1000;
+ audio_smmu.pages = 2u << ((idr1 >> 28) & 7);
+ audio_smmu.match0 = audio_smmu.match1 = ~0u;
+ for (uint32_t n = 0; n < matches && (0x800 + 4 * n) < 0xc00; n++) {
+  uint32_t smr = rd(audio_smmu.gr0 + 0x800 + 4 * n);
+  uint32_t s2cr = rd(audio_smmu.gr0 + 0xc00 + 4 * n);
+  if (smr >> 31) {
+   used[s2cr & 0xff] = true;
+  } else if (audio_smmu.match0 == ~0u) {
+   audio_smmu.match0 = n; audio_smmu.old_smr0 = smr; audio_smmu.old_s2cr0 = s2cr;
+  } else if (audio_smmu.match1 == ~0u) {
+   audio_smmu.match1 = n; audio_smmu.old_smr1 = smr; audio_smmu.old_s2cr1 = s2cr;
+  }
+ }
+ audio_smmu.gr1 = saved_gr1 ? saved_gr1 : ml_io_map(WAFFLE_AUDIO_SMMU_PHYS + audio_smmu.page, 0x1000);
+ if (!audio_smmu.gr1 || audio_smmu.match0 == ~0u || audio_smmu.match1 == ~0u) { goto fail; }
+ audio_smmu.context = ~0u;
+ for (uint32_t cb = s2_banks; cb < contexts; cb++) {
+  if (used[cb]) { continue; }
+  vm_offset_t c = (saved_ctx && saved_ctx_idx == cb) ? saved_ctx :
+      ml_io_map(WAFFLE_AUDIO_SMMU_PHYS + (vm_offset_t)(audio_smmu.pages + cb) * audio_smmu.page, 0x1000);
+  if (!c) { continue; }
+  uint32_t sctlr = rd(c + 0x00);
+  if (!(sctlr & 1)) {
+   audio_smmu.context = cb; audio_smmu.ctx = c; audio_smmu.old_sctlr = sctlr;
+   break;
+  }
+ }
+ if (audio_smmu.context == ~0u) { goto fail; }
+ if (kmem_alloc(kernel_map, &audio_smmu.tables, 3 * 4096, KMA_KOBJECT | KMA_ZERO | KMA_DATA, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS ||
+     kmem_alloc(kernel_map, &audio_smmu.buf, WAFFLE_AUDIO_BUF_BYTES, KMA_KOBJECT | KMA_ZERO | KMA_DATA, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) {
+  goto fail;
+ }
+ uint64_t *l1 = (uint64_t *)(audio_smmu.tables + 0);
+ uint64_t *l2 = (uint64_t *)(audio_smmu.tables + 4096);
+ uint64_t *l3 = (uint64_t *)(audio_smmu.tables + 8192);
+ l1[(WAFFLE_AUDIO_IOVA >> 30) & 0x1ff] = kvtophys((vm_offset_t)l2) | 3ull;
+ l2[(WAFFLE_AUDIO_IOVA >> 21) & 0x1ff] = kvtophys((vm_offset_t)l3) | 3ull;
+ for (uint32_t i = 0; i < WAFFLE_AUDIO_BUF_PAGES; i++) {
+  l3[((WAFFLE_AUDIO_IOVA >> 12) + i) & 0x1ff] = (kvtophys(audio_smmu.buf + i * 4096) & 0x0000fffffffff000ull) | WAFFLE_AUDIO_PTE;
+ }
+ waffle_audio_cache_clean(audio_smmu.tables, 3 * 4096);
+ waffle_audio_cache_clean(audio_smmu.buf, WAFFLE_AUDIO_BUF_BYTES);
+ uint64_t root = kvtophys(audio_smmu.tables) | ((uint64_t)audio_smmu.context << 48);
+ wr(audio_smmu.ctx + 0x00, 0);
+ wr(audio_smmu.gr1 + 0x800 + 4 * audio_smmu.context, 1u);
+ wr(audio_smmu.gr1 + 4 * audio_smmu.context, (1u << 16) | (3u << 8) | (0xfu << 12));
+ wr(audio_smmu.ctx + 0x10, (1u | (1u << 4) | (7u << 15)));
+ wr(audio_smmu.ctx + 0x30, (25u | (1u << 8) | (1u << 10) | (3u << 12) | (1u << 23)));
+ wr(audio_smmu.ctx + 0x20, (uint32_t)root);
+ wr(audio_smmu.ctx + 0x24, (uint32_t)(root >> 32));
+ wr(audio_smmu.ctx + 0x28, 0);
+ wr(audio_smmu.ctx + 0x2c, 0);
+ wr(audio_smmu.ctx + 0x38, 0xf404ff44u);
+ wr(audio_smmu.ctx + 0x3c, 0);
+ wr(audio_smmu.ctx + 0x58, 0xc00001feu);
+ wr(audio_smmu.ctx + 0x610, audio_smmu.context);
+ wr(audio_smmu.ctx + 0x7f0, 1);
+ for (unsigned i = 0; i < 10000 && (rd(audio_smmu.ctx + 0x7f4) & 1); i++) { sleep_us(10); }
+ wr(audio_smmu.ctx + 0x00, (1u << 0) | (1u << 1) | (1u << 2) | (1u << 5) | (1u << 8) | (1u << 12));
+ audio_smmu.on = true;
+ uint32_t smr0 = (1u << 31) | (0x80u << 16) | 0x1001u;
+ uint32_t smr1 = (1u << 31) | (0x00u << 16) | 0x1061u;
+ wr(audio_smmu.gr0 + 0xc00 + 4 * audio_smmu.match0, audio_smmu.context);
+ wr(audio_smmu.gr0 + 0x800 + 4 * audio_smmu.match0, smr0);
+ wr(audio_smmu.gr0 + 0xc00 + 4 * audio_smmu.match1, audio_smmu.context);
+ wr(audio_smmu.gr0 + 0x800 + 4 * audio_smmu.match1, smr1);
+ printf("adsp: AUDIO_SMMU_ON cb=%u m0=%u(%#x) m1=%u(%#x) root=%#llx iova=%#x bytes=%u\n",
+     audio_smmu.context, audio_smmu.match0, rd(audio_smmu.gr0 + 0x800 + 4 * audio_smmu.match0),
+     audio_smmu.match1, rd(audio_smmu.gr0 + 0x800 + 4 * audio_smmu.match1),
+     kvtophys(audio_smmu.tables), WAFFLE_AUDIO_IOVA, WAFFLE_AUDIO_BUF_BYTES);
+ return true;
+fail:
+ if (audio_smmu.buf) { kmem_free(kernel_map, audio_smmu.buf, WAFFLE_AUDIO_BUF_BYTES); audio_smmu.buf = 0; }
+ if (audio_smmu.tables) { kmem_free(kernel_map, audio_smmu.tables, 3 * 4096); audio_smmu.tables = 0; }
+ return false;
+}
+static bool
+waffle_tfa_read16(struct macan_i2c *bus, uint8_t addr, uint8_t reg, uint16_t *out)
+{
+ uint8_t hi = 0, lo = 0;
+ bool ok = macan_start(bus) &&
+     macan_write_byte(bus, (uint8_t)(addr << 1)) &&
+     macan_write_byte(bus, reg) &&
+     macan_start(bus) &&
+     macan_write_byte(bus, (uint8_t)((addr << 1) | 1)) &&
+     macan_read_byte(bus, &hi, false) &&
+     macan_read_byte(bus, &lo, true);
+ macan_stop(bus);
+ if (ok) { *out = (uint16_t)(((uint16_t)hi << 8) | lo); }
+ return ok;
+}
+static vm_offset_t waffle_tlmm;
+static void
+waffle_tfa_i2c_probe(void)
+{
+ if (!waffle_tlmm) { waffle_tlmm = ml_io_map(WAFFLE_TLMM_PHYS, WAFFLE_TLMM_SIZE); }
+ vm_offset_t tlmm = waffle_tlmm;
+ if (!tlmm) { printf("adsp: TFA_PROBE map fail\n"); return; }
+ printf("adsp: TFA_PROBE rst173=%#x/%#x rst178=%#x/%#x sda78=%#x/%#x scl79=%#x/%#x\n",
+     rd(tlmm + 173 * 0x1000), rd(tlmm + 173 * 0x1000 + 4),
+     rd(tlmm + 178 * 0x1000), rd(tlmm + 178 * 0x1000 + 4),
+     rd(tlmm + 78 * 0x1000), rd(tlmm + 78 * 0x1000 + 4),
+     rd(tlmm + 79 * 0x1000), rd(tlmm + 79 * 0x1000 + 4));
+ struct macan_i2c bus = { .tlmm = tlmm, .sda = 78, .scl = 79, .half_us = 5, .drive = 2 };
+ macan_pins_take(&bus);
+ uint16_t id34 = 0, id35 = 0;
+ bool ok34 = waffle_tfa_read16(&bus, 0x34, 0x03, &id34);
+ bool ok35 = waffle_tfa_read16(&bus, 0x35, 0x03, &id35);
+ macan_pins_give_back(&bus);
+ printf("adsp: TFA_PROBE addr0x34=%u(id=%#04x) addr0x35=%u(id=%#04x)\n", ok34, id34, ok35, id35);
+}
+static bool
+waffle_gpr_send_wait(const void *pkt, uint32_t len, uint32_t expected_opcode, uint32_t token, uint32_t *out_state)
+{
+ lck_mtx_lock(&gpr_lock);
+ gpr_expected_opcode = expected_opcode;
+ gpr_state = 0; gpr_error = 0;
+ os_atomic_store(&gpr_answered, false, release);
+ lck_mtx_unlock(&gpr_lock);
+ int error = glink_send(&glink.channel[CHANNEL_GPR], pkt, len);
+ if (error) { printf("adsp: GPR send err=%d opcode=%#x\n", error, expected_opcode); return false; }
+ gpr_out++;
+ for (unsigned ms = 0; ms < 5000 && !stopping && !link_failed && !os_atomic_load(&gpr_answered, acquire); ms++) { sleep_ms(1); }
+ bool ack = os_atomic_load(&gpr_answered, acquire);
+ if (out_state) { *out_state = gpr_state; }
+ printf("adsp: GPR wait opcode=%#x token=%u ack=%u state=%#x err=%#x\n", expected_opcode, token, ack, gpr_state, gpr_error);
+ return ack && !gpr_error;
+}
+static bool
+step_apm_mem_test(void)
+{
+ bool ok = false;
+ uint32_t handle = 0, pkt[128];
+ waffle_tfa_i2c_probe();
+ if (!waffle_audio_smmu_on()) { printf("adsp: APM_MEM smmu_on FAIL\n"); return false; }
+ uint32_t tok = ++gpr_token;
+ size_t len = waffle_apm_memory_map(pkt, sizeof(pkt), tok, 0x1001, WAFFLE_AUDIO_IOVA, WAFFLE_AUDIO_BUF_BYTES);
+ if (!len || !waffle_gpr_send_wait(pkt, (uint32_t)len, WAFFLE_APM_MEM_MAP, tok, &handle) || !handle) {
+  printf("adsp: APM_MEM map FAIL handle=%#x\n", handle);
+  goto out;
+ }
+ printf("adsp: APM_MEM mapped handle=%#x iova=%#x bytes=%u\n", handle, WAFFLE_AUDIO_IOVA, WAFFLE_AUDIO_BUF_BYTES);
+ static const uint32_t start_seq[] = { WAFFLE_APM_GRAPH_OPEN, WAFFLE_APM_GRAPH_PREPARE, WAFFLE_APM_GRAPH_START };
+ bool graph_open = false;
+ for (unsigned i = 0; i < 3; i++) {
+  tok = ++gpr_token;
+  len = waffle_apm_packet(pkt, sizeof(pkt), start_seq[i], tok);
+  if (!len || !waffle_gpr_send_wait(pkt, (uint32_t)len, start_seq[i], tok, NULL)) {
+   printf("adsp: APM_MEM graph step %#x FAIL\n", start_seq[i]);
+   goto unmap;
+  }
+  if (i == 0) { graph_open = true; }
+ }
+ /* Send one 4KiB PCM buffer to WR_SHMEM endpoint */
+ uint64_t dsp_addr = (uint64_t)WAFFLE_AUDIO_IOVA | (1ull << 32);
+ struct {
+  struct gpr_header h;
+  uint32_t data_lsw, data_msw, data_handle, data_size;
+  uint32_t ts_lsw, ts_msw, flags;
+  uint32_t md_lsw, md_msw, md_handle, md_size;
+ } wrbuf = {
+  .h = { .packet = (68u << 8) | (6u << 4), .domains = 0x0302,
+      .source_port = 1, .dest_port = WAFFLE_APM_WRITE_EP, .token = ++gpr_token,
+      .opcode = DATA_CMD_WR_SH_MEM_EP_DATA_BUFFER_V2 },
+  .data_lsw = (uint32_t)dsp_addr, .data_msw = (uint32_t)(dsp_addr >> 32),
+  .data_handle = handle, .data_size = 4096u,
+ };
+ os_atomic_store(&gpr_buf_done, false, release);
+ gpr_buf_status = 0xdeadbeefu;
+ if (!glink_send(&glink.channel[CHANNEL_GPR], &wrbuf, sizeof(wrbuf))) {
+  gpr_out++;
+  for (unsigned ms = 0; ms < 1000 && !stopping && !link_failed && !os_atomic_load(&gpr_buf_done, acquire); ms++) { sleep_ms(1); }
+ }
+ printf("adsp: APM_MEM WR_BUF done=%u status=%#x\n", os_atomic_load(&gpr_buf_done, acquire), gpr_buf_status);
+ ok = true;
+unmap:
+ if (graph_open) {
+  static const uint32_t stop_seq[] = { WAFFLE_APM_GRAPH_STOP, WAFFLE_APM_GRAPH_CLOSE };
+  for (unsigned i = 0; i < 2; i++) {
+   tok = ++gpr_token;
+   len = waffle_apm_packet(pkt, sizeof(pkt), stop_seq[i], tok);
+   if (len) { (void)waffle_gpr_send_wait(pkt, (uint32_t)len, stop_seq[i], tok, NULL); }
+  }
+ }
+ if (handle) {
+  tok = ++gpr_token;
+  len = waffle_apm_memory_unmap(pkt, sizeof(pkt), tok, handle);
+  if (len) { (void)waffle_gpr_send_wait(pkt, (uint32_t)len, WAFFLE_APM_MEM_UNMAP, tok, NULL); }
+ }
+out:
+ waffle_audio_smmu_off();
+ return ok;
+}
+static bool
+waffle_tfa_write16(struct macan_i2c *bus, uint8_t addr, uint8_t reg, uint16_t val)
+{
+ bool ok = macan_start(bus) &&
+     macan_write_byte(bus, (uint8_t)(addr << 1)) &&
+     macan_write_byte(bus, reg) &&
+     macan_write_byte(bus, (uint8_t)(val >> 8)) &&
+     macan_write_byte(bus, (uint8_t)(val & 0xff));
+ macan_stop(bus);
+ return ok;
+}
+static bool
+waffle_tfa_set_bf(struct macan_i2c *bus, uint8_t addr, uint16_t bf, uint16_t val)
+{
+ uint8_t reg = (uint8_t)((bf >> 8) & 0xff);
+ uint8_t pos = (uint8_t)((bf >> 4) & 0xf);
+ uint8_t len = (uint8_t)((bf & 0xf) + 1);
+ uint16_t mask = (uint16_t)(((1u << len) - 1u) << pos);
+ uint16_t cur = 0;
+ if (!waffle_tfa_read16(bus, addr, reg, &cur)) { return false; }
+ cur = (uint16_t)((cur & ~mask) | (((uint16_t)val << pos) & mask));
+ return waffle_tfa_write16(bus, addr, reg, cur);
+}
+static bool waffle_tfa_active;
+static bool waffle_tfa_inited;
+static void
+waffle_tfa_power(bool enable)
+{
+ if (!enable && !waffle_tfa_active) { return; }
+ if (!waffle_tlmm) { waffle_tlmm = ml_io_map(WAFFLE_TLMM_PHYS, WAFFLE_TLMM_SIZE); }
+ if (!waffle_tlmm) { return; }
+ struct macan_i2c bus = { .tlmm = waffle_tlmm, .sda = 78, .scl = 79, .half_us = 5, .drive = 2 };
+ macan_pins_take(&bus);
+ if (!enable) {
+  for (uint8_t addr = 0x34; addr <= 0x35; addr++) {
+   (void)waffle_tfa_write16(&bus, addr, 0x00, 0x0001u); /* AMPE=0, PWDN=1 */
+  }
+  macan_pins_give_back(&bus);
+  waffle_tfa_active = false;
+  return;
+ }
+ if (waffle_tfa_inited) {
+  for (uint8_t addr = 0x34; addr <= 0x35; addr++) {
+   (void)waffle_tfa_write16(&bus, addr, 0x00, 0x0018u); /* fast wake: DCA=1, AMPE=1, PWDN=0 (~0.2ms) */
+  }
+  macan_pins_give_back(&bus);
+  waffle_tfa_active = true;
+  return;
+ }
+ const struct waffle_tfa_op *lists[2] = { waffle_tfa_dev0_ops, waffle_tfa_dev1_ops };
+ size_t counts[2] = { sizeof(waffle_tfa_dev0_ops) / sizeof(waffle_tfa_dev0_ops[0]),
+     sizeof(waffle_tfa_dev1_ops) / sizeof(waffle_tfa_dev1_ops[0]) };
+ for (unsigned d = 0; d < 2; d++) {
+  uint8_t addr = (uint8_t)(0x34 + d);
+  (void)waffle_tfa_set_bf(&bus, addr, 0x0010u, 1); /* I2CR=1 soft reset */
+  sleep_ms(2);
+  (void)waffle_tfa_set_bf(&bus, addr, 0x0010u, 0);
+  unsigned ok_ops = 0;
+  for (size_t i = 0; i < counts[d]; i++) {
+   bool r = lists[d][i].is_bf ?
+       waffle_tfa_set_bf(&bus, addr, lists[d][i].reg_or_bf, lists[d][i].val) :
+       waffle_tfa_write16(&bus, addr, (uint8_t)lists[d][i].reg_or_bf, lists[d][i].val);
+   if (r) { ok_ops++; }
+  }
+  /* Power up TFA9874: MANSCONF=1 (0x0120), DCA=1 | AMPE=1 | PWDN=0 (reg 0x00 = 0x0018) */
+  (void)waffle_tfa_set_bf(&bus, addr, 0x0120u, 1); /* MANSCONF=1 */
+  (void)waffle_tfa_write16(&bus, addr, 0x00, 0x0018u); /* DCA=1, AMPE=1, PWDN=0 */
+  printf("adsp: TFA_INIT addr=%#x ops=%u/%zu\n", addr, ok_ops, counts[d]);
+ }
+ waffle_tfa_inited = true;
+ waffle_tfa_active = true;
+ macan_pins_give_back(&bus);
+}
+static bool waffle_i2s_pins_active;
+static uint32_t waffle_i2s_saved[4];
+static void
+waffle_i2s_pins(bool active)
+{
+ static const unsigned pins[4] = { 121, 122, 123, 124 };
+ if (!active && !waffle_i2s_pins_active) { return; }
+ if (!waffle_tlmm) { waffle_tlmm = ml_io_map(WAFFLE_TLMM_PHYS, WAFFLE_TLMM_SIZE); }
+ if (!waffle_tlmm) { return; }
+ if (active) {
+  for (unsigned i = 0; i < 4; i++) {
+   waffle_i2s_saved[i] = rd(waffle_tlmm + pins[i] * 0x1000UL);
+   /* func=1 (i2s1_*), drive=8mA (3<<6), no pull (0) */
+   wr(waffle_tlmm + pins[i] * 0x1000UL, (3u << 6) | (1u << 2));
+  }
+  waffle_i2s_pins_active = true;
+  printf("adsp: I2S1_PINS active saved=%#x,%#x,%#x,%#x\n",
+      waffle_i2s_saved[0], waffle_i2s_saved[1], waffle_i2s_saved[2], waffle_i2s_saved[3]);
+ } else {
+  for (unsigned i = 0; i < 4; i++) {
+   wr(waffle_tlmm + pins[i] * 0x1000UL, waffle_i2s_saved[i]);
+  }
+  waffle_i2s_pins_active = false;
+  printf("adsp: I2S1_PINS restored\n");
+ }
+}
+static bool
+waffle_prm_hw_core(bool enable, uint32_t hw_block_id)
+{
+ uint32_t pkt[24] = { 0 };
+ uint32_t tok = ++gpr_token;
+ uint32_t opcode = enable ? PRM_CMD_REQUEST_HW_RSC : PRM_CMD_RELEASE_HW_RSC;
+ uint32_t payload_sz = 24u; /* apm_module_param_data(16) + hw_clk_id(4) + pad(4) */
+ uint32_t total = 40u + payload_sz;
+ pkt[0] = (total << 8) | (6u << 4);
+ pkt[1] = 0x0302u; pkt[2] = 1u; pkt[3] = GPR_PRM_MODULE_IID;
+ pkt[4] = tok; pkt[5] = opcode;
+ pkt[9] = payload_sz;
+ pkt[10] = GPR_PRM_MODULE_IID;
+ pkt[11] = 0x08001032u; /* PARAM_ID_RSC_HW_CORE */
+ pkt[12] = 8u;
+ pkt[13] = 0u;
+ pkt[14] = hw_block_id;
+ return waffle_gpr_send_wait(pkt, total, opcode, tok, NULL);
+}
+static bool
+waffle_prm_clock(bool enable, uint32_t clk_id, uint32_t freq)
+{
+ uint32_t pkt[32] = { 0 };
+ uint32_t tok = ++gpr_token;
+ uint32_t opcode = enable ? PRM_CMD_REQUEST_HW_RSC : PRM_CMD_RELEASE_HW_RSC;
+ uint32_t param_body = enable ? 20u : 8u; /* num_clk_id + audio_hw_clk[_rel]_cfg */
+ uint32_t payload_sz = (16u + param_body + 7u) & ~7u; /* 8-byte aligned */
+ uint32_t total = 40u + payload_sz;
+ pkt[0] = (total << 8) | (6u << 4);
+ pkt[1] = 0x0302u; pkt[2] = 1u; pkt[3] = GPR_PRM_MODULE_IID;
+ pkt[4] = tok; pkt[5] = opcode;
+ pkt[6] = pkt[7] = pkt[8] = 0; pkt[9] = payload_sz;
+ pkt[10] = GPR_PRM_MODULE_IID;
+ pkt[11] = 0x0800102Cu; /* PARAM_ID_RSC_AUDIO_HW_CLK */
+ pkt[12] = param_body;  /* param_size */
+ pkt[13] = 0u;          /* error_code */
+ pkt[14] = 1u;          /* num_clk_id */
+ pkt[15] = clk_id;
+ if (enable) {
+  pkt[16] = freq;
+  pkt[17] = 1u; /* LPASS_CLK_ATTRIBUTE_COUPLE_NO */
+  pkt[18] = 0u; /* root = default */
+ }
+ return waffle_gpr_send_wait(pkt, total, opcode, tok, NULL);
+}
+#define WAFFLE_APM_SUBGRAPH2  0x4f01u
+#define WAFFLE_APM_CONTAINER2 0x5f01u
+#define WAFFLE_APM_MFC        0x6f04u
+static bool
+waffle_apm_i2s_graph_cmd(uint32_t opcode)
+{
+ uint32_t pkt[200] = { 0 };
+ uint32_t tok = ++gpr_token;
+ /* Proven 2-GC graph: SG1/C1 (STREAM, LOW_POWER): WR_SHMEM -> PCM_DEC
+  *                 -> SG2/C2 (GLOBAL_DEV, LOW_POWER): MFC -> I2S_SINK (MI2S-SEC SD1) */
+ static const uint32_t open_2gc[] = {
+  1, 0x08001001, 96, 0, 2,
+   WAFFLE_APM_SUBGRAPH, 3, 0x0800100e, 4, 2, 0x0800100f, 4, 2, 0x08001010, 4, 1,
+   WAFFLE_APM_SUBGRAPH2, 3, 0x0800100e, 4, 2, 0x0800100f, 4, 2, 0x08001010, 4, 1, 0,
+  1, 0x08001000, 128, 0, 2,
+   WAFFLE_APM_CONTAINER, 4, 0x08001011, 8, 1, WAFFLE_APM_CONTAINER_TYPE_GC, 0x08001012, 4, 1, 0x08001013, 4, 0xffffffffu, 0x08001014, 4, 2,
+   WAFFLE_APM_CONTAINER2, 4, 0x08001011, 8, 1, WAFFLE_APM_CONTAINER_TYPE_GC, 0x08001012, 4, 4, 0x08001013, 4, 0xffffffffu, 0x08001014, 4, 2, 0,
+  1, 0x08001002, 64, 0, 2,
+   WAFFLE_APM_SUBGRAPH, WAFFLE_APM_CONTAINER, 2, 0x07001000, WAFFLE_APM_WRITE_EP, 0x07001005, WAFFLE_APM_PCM_CNV,
+   WAFFLE_APM_SUBGRAPH2, WAFFLE_APM_CONTAINER2, 2, 0x07001015, WAFFLE_APM_MFC, 0x0700100A, WAFFLE_APM_I2S_SINK, 0,
+  1, 0x08001003, 104, 0, 4,
+   WAFFLE_APM_WRITE_EP, 1, 0x08001015, 8, 0, 1,
+   WAFFLE_APM_PCM_CNV,  1, 0x08001015, 8, 1, 1,
+   WAFFLE_APM_MFC,      1, 0x08001015, 8, 1, 1,
+   WAFFLE_APM_I2S_SINK, 1, 0x08001015, 8, 1, 0, 0,
+  1, 0x08001004, 56, 0, 3,
+   WAFFLE_APM_WRITE_EP, 1, WAFFLE_APM_PCM_CNV,  2,
+   WAFFLE_APM_PCM_CNV,  1, WAFFLE_APM_MFC,      2,
+   WAFFLE_APM_MFC,      1, WAFFLE_APM_I2S_SINK, 2, 0
+ };
+ static const uint32_t sg_list2[] = {
+  1, 0x08001005, 16, 0, 2, WAFFLE_APM_SUBGRAPH, WAFFLE_APM_SUBGRAPH2, 0
+ };
+ const uint32_t *pl = (opcode == WAFFLE_APM_GRAPH_OPEN) ? open_2gc : sg_list2;
+ size_t sz = (opcode == WAFFLE_APM_GRAPH_OPEN) ? sizeof(open_2gc) : sizeof(sg_list2);
+ uint32_t total = (uint32_t)(40 + sz);
+ pkt[0] = (total << 8) | (6u << 4);
+ pkt[1] = 0x0302u; pkt[2] = 1u; pkt[3] = 1u; pkt[4] = tok; pkt[5] = opcode;
+ pkt[9] = (uint32_t)sz;
+ memcpy(&pkt[10], pl, sz);
+ return waffle_gpr_send_wait(pkt, total, opcode, tok, NULL);
+}
+static bool
+waffle_apm_i2s_set_cfg(void)
+{
+ uint32_t pkt[64] = { 0 };
+ uint32_t tok = ++gpr_token;
+ /* 1. Configure I2S_SINK (0x6f02): LPAIF=0, SECONDARY=1, SD1=2, WS=INTERNAL(1), 48kHz 24-bit 2ch, fs_factor=1 */
+ static const uint32_t i2s_cfg[] = {
+  WAFFLE_APM_I2S_SINK, 0x08001019u, 16u, 0u,
+   0u, 1u, (2u | (1u << 16)), 0u,
+  WAFFLE_APM_I2S_SINK, 0x08001017u, 16u, 0u,
+   48000u, (24u | (2u << 16)), 1u, 0u,
+  WAFFLE_APM_I2S_SINK, 0x08001018u, 8u, 0u,
+   1u, 0u
+ };
+ uint32_t sz = sizeof(i2s_cfg);
+ uint32_t total = 40u + sz;
+ pkt[0] = (total << 8) | (6u << 4);
+ pkt[1] = 0x0302u; pkt[2] = 1u; pkt[3] = 1u; pkt[4] = tok; pkt[5] = APM_CMD_SET_CFG;
+ pkt[9] = sz;
+ memcpy(&pkt[10], i2s_cfg, sz);
+ if (!waffle_gpr_send_wait(pkt, total, APM_CMD_SET_CFG, tok, NULL)) { return false; }
+
+ /* 2. Configure PCM_DEC (0x6f03): 16-bit LSB LE PCM_DEINTERLEAVED_UNPACKED(3) -> MFC handles 16->24 cleanly */
+ bzero(pkt, sizeof(pkt));
+ tok = ++gpr_token;
+ static const uint32_t dec_cfg[] = {
+  WAFFLE_APM_PCM_CNV, 0x08001008u, 32u, 0u,
+   1u, 0x09001000u, 18u,
+   (16u | (1u << 16)),   /* bit_width=16, alignment=LSB(1) */
+   (16u | (15u << 16)),  /* bits_per_sample=16, q_factor=15 */
+   (1u | (3u << 16)),    /* endianness=LE(1), interleaved=PCM_DEINTERLEAVED_UNPACKED(3) */
+   (0u | (2u << 16)),    /* reserved=0, num_channels=2 */
+   (1u | (2u << 8))      /* FL, FR */
+ };
+ sz = sizeof(dec_cfg);
+ total = 40u + sz;
+ pkt[0] = (total << 8) | (6u << 4);
+ pkt[1] = 0x0302u; pkt[2] = 1u; pkt[3] = 1u; pkt[4] = tok; pkt[5] = APM_CMD_SET_CFG;
+ pkt[9] = sz;
+ memcpy(&pkt[10], dec_cfg, sz);
+ if (!waffle_gpr_send_wait(pkt, total, APM_CMD_SET_CFG, tok, NULL)) { return false; }
+
+ /* 3. Configure MFC (0x6f04): convert 16-bit -> 24-bit 48kHz 2ch for I2S_SINK */
+ bzero(pkt, sizeof(pkt));
+ tok = ++gpr_token;
+ static const uint32_t mfc_cfg[] = {
+  WAFFLE_APM_MFC, 0x08001024u, 12u, 0u,
+   48000u, (24u | (2u << 16)), (1u | (2u << 16)), 0u
+ };
+ sz = sizeof(mfc_cfg);
+ total = 40u + sz;
+ pkt[0] = (total << 8) | (6u << 4);
+ pkt[1] = 0x0302u; pkt[2] = 1u; pkt[3] = 1u; pkt[4] = tok; pkt[5] = APM_CMD_SET_CFG;
+ pkt[9] = sz;
+ memcpy(&pkt[10], mfc_cfg, sz);
+ if (!waffle_gpr_send_wait(pkt, total, APM_CMD_SET_CFG, tok, NULL)) { return false; }
+
+ /* 4. Configure WR_SHMEM (0x6f00): 16-bit stereo 48kHz PCM */
+ bzero(pkt, sizeof(pkt));
+ tok = ++gpr_token;
+ static const uint32_t mf_cfg[] = {
+  WAFFLE_APM_WRITE_EP, 0x0800100Cu, 32u, 0u,
+   1u, 0x09001000u, 20u,
+   48000u,
+   (16u | (1u << 16)),  /* bit_width=16, alignment=LSB(1) */
+   (16u | (15u << 16)), /* bits_per_sample=16, q_factor=15 */
+   (1u | (2u << 16)),   /* endianness=LE(1), num_channels=2 */
+   (1u | (2u << 8))     /* FL, FR */
+ };
+ sz = sizeof(mf_cfg);
+ total = 40u + sz;
+ pkt[0] = (total << 8) | (6u << 4);
+ pkt[1] = 0x0302u; pkt[2] = 1u; pkt[3] = WAFFLE_APM_WRITE_EP; pkt[4] = tok; pkt[5] = APM_CMD_SET_CFG;
+ pkt[9] = sz;
+ memcpy(&pkt[10], mf_cfg, sz);
+ return waffle_gpr_send_wait(pkt, total, APM_CMD_SET_CFG, tok, NULL);
+}
+static bool
+step_apm_speaker_test(void)
+{
+ /* 32-point sine wave LUT scaled to ~1.5% FS (-36 dBFS, quiet and gentle!) */
+ static const int16_t sine32[32] = {
+       0,  100,  196,  284,  362,  425,  473,  502,
+     512,  502,  473,  425,  362,  284,  196,  100,
+       0, -100, -196, -284, -362, -425, -473, -502,
+    -512, -502, -473, -425, -362, -284, -196, -100
+ };
+ bool ok = false, clk_on = false, graph_open = false;
+ uint32_t handle = 0, pkt[128];
+ if (!waffle_audio_smmu_on()) { printf("adsp: SPK smmu_on FAIL\n"); return false; }
+ uint32_t tok = ++gpr_token;
+ size_t len = waffle_apm_memory_map(pkt, sizeof(pkt), tok, 0x1001, WAFFLE_AUDIO_IOVA, WAFFLE_AUDIO_BUF_BYTES);
+ if (!len || !waffle_gpr_send_wait(pkt, (uint32_t)len, WAFFLE_APM_MEM_MAP, tok, &handle) || !handle) {
+  printf("adsp: SPK mem_map FAIL\n"); goto out;
+ }
+ waffle_i2s_pins(true);
+ bool core_on = waffle_prm_hw_core(true, 1u /* Q6PRM_HW_CORE_ID_LPASS */);
+ clk_on = waffle_prm_clock(true, 0x102u /* Q6PRM_LPASS_CLK_ID_SEC_MI2S_IBIT */, 3072000u);
+ printf("adsp: SPK PRM core=%u clk0x102=%u\n", core_on, clk_on);
+ if (!waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_OPEN)) { printf("adsp: SPK GRAPH_OPEN FAIL\n"); goto cleanup; }
+ graph_open = true;
+ if (!waffle_apm_i2s_set_cfg()) { printf("adsp: SPK SET_CFG FAIL\n"); goto cleanup; }
+ if (!waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_PREPARE)) { printf("adsp: SPK GRAPH_PREPARE FAIL\n"); goto cleanup; }
+ if (!waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_START)) { printf("adsp: SPK GRAPH_START FAIL\n"); goto cleanup; }
+ /* Send DATA_CMD_WR_SH_MEM_EP_MEDIA_FORMAT (16-bit stereo 48kHz) */
+ {
+  uint32_t mfpkt[24] = { 0 };
+  static const uint32_t mf_body[] = {
+   1u, 0x09001000u, 20u, 48000u,
+   (16u | (1u << 16)), (16u | (15u << 16)), (1u | (2u << 16)), (1u | (2u << 8))
+  };
+  uint32_t mftotal = 24u + sizeof(mf_body);
+  mfpkt[0] = (mftotal << 8) | (6u << 4);
+  mfpkt[1] = 0x0302u; mfpkt[2] = 1u; mfpkt[3] = WAFFLE_APM_WRITE_EP;
+  mfpkt[4] = ++gpr_token; mfpkt[5] = 0x04001001u;
+  memcpy(&mfpkt[6], mf_body, sizeof(mf_body));
+  (void)glink_send(&glink.channel[CHANNEL_GPR], mfpkt, mftotal);
+  gpr_out++;
+  sleep_ms(10);
+ }
+ waffle_tfa_power(true);
+ /* Stream ~1.5s of quiet 440Hz sine (70 buffers x 1024 frames x 4B = 4096B each, double-buffered) */
+ uint64_t dsp_base = (uint64_t)WAFFLE_AUDIO_IOVA | (1ull << 32);
+ uint32_t phase = 0, done_cnt = 0, fail_cnt = 0;
+ uint64_t t0 = now_us();
+ for (unsigned b = 0; b < 70 && !stopping && !link_failed; b++) {
+  uint32_t nbytes = 4096u;
+  uint32_t slot = (b & 1u) * 4096u;
+  int16_t *pcm = (int16_t *)(audio_smmu.buf + slot);
+  for (unsigned f = 0; f < 1024u; f++) {
+   int16_t s = sine32[(phase >> 16) & 31u];
+   phase += 19224u;
+   pcm[f * 2 + 0] = s;
+   pcm[f * 2 + 1] = s;
+  }
+  waffle_audio_cache_clean(audio_smmu.buf + slot, nbytes);
+  uint64_t dsp_addr = dsp_base + slot;
+  struct {
+   struct gpr_header h;
+   uint32_t data_lsw, data_msw, data_handle, data_size;
+   uint32_t ts_lsw, ts_msw, flags;
+   uint32_t md_lsw, md_msw, md_handle, md_size;
+  } wrbuf = {
+   .h = { .packet = (68u << 8) | (6u << 4), .domains = 0x0302,
+       .source_port = 1, .dest_port = WAFFLE_APM_WRITE_EP, .token = ++gpr_token,
+       .opcode = DATA_CMD_WR_SH_MEM_EP_DATA_BUFFER_V2 },
+   .data_lsw = (uint32_t)dsp_addr, .data_msw = (uint32_t)(dsp_addr >> 32),
+   .data_handle = handle, .data_size = nbytes,
+  };
+  if (b == 0) {
+   os_atomic_store(&gpr_buf_done, false, release);
+   gpr_buf_status = 0xdeadbeefu;
+  }
+  uint64_t tb0 = now_us();
+  if (glink_send(&glink.channel[CHANNEL_GPR], &wrbuf, sizeof(wrbuf))) { fail_cnt++; break; }
+  gpr_out++;
+  if (b == 0) { continue; } /* keep 2 buffers in flight for seamless playback */
+  if (b == 4 && waffle_tlmm) {
+   static const unsigned p[4] = { 121, 122, 123, 124 };
+   uint32_t prev[4], edges[4] = { 0, 0, 0, 0 };
+   for (unsigned i = 0; i < 4; i++) { prev[i] = rd(waffle_tlmm + p[i] * 0x1000UL + 4UL) & 1u; }
+   uint64_t ts0 = now_us();
+   while (now_us() - ts0 < 10000u) {
+    for (unsigned i = 0; i < 4; i++) {
+     uint32_t v = rd(waffle_tlmm + p[i] * 0x1000UL + 4UL) & 1u;
+     if (v != prev[i]) { edges[i]++; prev[i] = v; }
+    }
+   }
+   printf("adsp: I2S1_SCOPE 10ms edges(sck,sd0,ws,sd1)=%u,%u,%u,%u\n", edges[0], edges[1], edges[2], edges[3]);
+  }
+  for (unsigned ms = 0; ms < 100 && !stopping && !link_failed && !os_atomic_load(&gpr_buf_done, acquire); ms++) { sleep_ms(1); }
+  uint64_t dt_us = now_us() - tb0;
+  bool d = os_atomic_load(&gpr_buf_done, acquire);
+  uint32_t st = gpr_buf_status;
+  os_atomic_store(&gpr_buf_done, false, release);
+  gpr_buf_status = 0xdeadbeefu;
+  if (b < 5) { printf("adsp: SPK_BUF b=%u done=%u status=%#x dt_us=%llu\n", b, d, st, dt_us); }
+  if (b == 30 && waffle_tlmm) {
+   struct macan_i2c bus = { .tlmm = waffle_tlmm, .sda = 78, .scl = 79, .half_us = 5, .drive = 2 };
+   macan_pins_take(&bus); sleep_us(100);
+   for (uint8_t addr = 0x34; addr <= 0x35; addr++) {
+    uint16_t s0 = 0, s1 = 0, s3 = 0, r14 = 0;
+    if (!waffle_tfa_read16(&bus, addr, 0x10, &s0)) { sleep_us(100); (void)waffle_tfa_read16(&bus, addr, 0x10, &s0); }
+    (void)waffle_tfa_read16(&bus, addr, 0x11, &s1);
+    (void)waffle_tfa_read16(&bus, addr, 0x13, &s3);
+    (void)waffle_tfa_read16(&bus, addr, 0x14, &r14);
+    printf("adsp: TFA_MID addr=%#x st0=%#04x st1=%#04x st3=%#04x r14=%#04x\n", addr, s0, s1, s3, r14);
+   }
+   macan_pins_give_back(&bus);
+  }
+  if (d && st == 0) { done_cnt++; } else { fail_cnt++; if (fail_cnt >= 3) { break; } }
+ }
+ /* Drain last in-flight buffer */
+ for (unsigned ms = 0; ms < 60 && !stopping && !link_failed && !os_atomic_load(&gpr_buf_done, acquire); ms++) { sleep_ms(1); }
+ if (os_atomic_load(&gpr_buf_done, acquire) && gpr_buf_status == 0) { done_cnt++; }
+ printf("adsp: SPK_TONE done=%u/70 fail=%u elapsed_ms=%llu\n", done_cnt, fail_cnt, (now_us() - t0) / 1000);
+ ok = done_cnt > 0;
+cleanup:
+ waffle_tfa_power(false);
+ if (graph_open) {
+  (void)waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_STOP);
+  (void)waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_CLOSE);
+ }
+ if (clk_on) { (void)waffle_prm_clock(false, 0x102u, 0u); }
+ if (core_on) { (void)waffle_prm_hw_core(false, 1u); }
+ waffle_i2s_pins(false);
+ if (handle) {
+  tok = ++gpr_token;
+  len = waffle_apm_memory_unmap(pkt, sizeof(pkt), tok, handle);
+  if (len) { (void)waffle_gpr_send_wait(pkt, (uint32_t)len, WAFFLE_APM_MEM_UNMAP, tok, NULL); }
+ }
+out:
+ waffle_audio_smmu_off();
+ return ok;
+}
+#define WAFFLE_PCM_RING_FRAMES 16384u
+static LCK_MTX_DECLARE(pcm_ring_lock, &adsp_lock_group);
+static int16_t *pcm_ring_buf;
+static uint32_t pcm_ring_rd, pcm_ring_wr, pcm_ring_count;
+static uint32_t
+waffle_pcm_sink(const int16_t *frames, uint32_t count)
+{
+ uint32_t taken = 0;
+ lck_mtx_lock(&pcm_ring_lock);
+ if (pcm_ring_buf != NULL && !stopping && !link_failed) {
+  uint32_t space = WAFFLE_PCM_RING_FRAMES - pcm_ring_count;
+  taken = count < space ? count : space;
+  uint32_t first = WAFFLE_PCM_RING_FRAMES - pcm_ring_wr;
+  if (first > taken) { first = taken; }
+  if (first) {
+   memcpy(&pcm_ring_buf[pcm_ring_wr * 2], frames, first * 4u);
+   pcm_ring_wr = (pcm_ring_wr + first) % WAFFLE_PCM_RING_FRAMES;
+  }
+  uint32_t rest = taken - first;
+  if (rest) {
+   memcpy(&pcm_ring_buf[pcm_ring_wr * 2], frames + first * 2, rest * 4u);
+   pcm_ring_wr = (pcm_ring_wr + rest) % WAFFLE_PCM_RING_FRAMES;
+  }
+  pcm_ring_count += taken;
+ }
+ lck_mtx_unlock(&pcm_ring_lock);
+ return taken;
+}
+static uint32_t
+waffle_pcm_pull(int16_t *dst, uint32_t max_frames)
+{
+ uint32_t got = 0;
+ lck_mtx_lock(&pcm_ring_lock);
+ if (pcm_ring_buf != NULL && pcm_ring_count > 0) {
+  got = pcm_ring_count < max_frames ? pcm_ring_count : max_frames;
+  uint32_t first = WAFFLE_PCM_RING_FRAMES - pcm_ring_rd;
+  if (first > got) { first = got; }
+  if (first) {
+   memcpy(dst, &pcm_ring_buf[pcm_ring_rd * 2], first * 4u);
+   pcm_ring_rd = (pcm_ring_rd + first) % WAFFLE_PCM_RING_FRAMES;
+  }
+  uint32_t rest = got - first;
+  if (rest) {
+   memcpy(dst + first * 2, &pcm_ring_buf[pcm_ring_rd * 2], rest * 4u);
+   pcm_ring_rd = (pcm_ring_rd + rest) % WAFFLE_PCM_RING_FRAMES;
+  }
+  pcm_ring_count -= got;
+ }
+ lck_mtx_unlock(&pcm_ring_lock);
+ return got;
+}
+static void
+waffle_apply_volume(int16_t *pcm, uint32_t frames, uint32_t below_8th_db, bool muted)
+{
+ /* 8th-dB attenuation table for 0..47 (0..5.875 dB), Q15 scale */
+ static const uint16_t fine_q15[8] = { 32768, 30059, 27574, 25295, 23204, 21286, 19527, 17913 };
+ if (muted || below_8th_db >= 640) {
+  bzero(pcm, frames * 4u);
+  return;
+ }
+ below_8th_db += 96u; /* -12 dB safe headroom on boosted 10V TFA9874 speakers */
+ uint32_t shifts = below_8th_db / 48u; /* each 48 = 6 dB = >>1 */
+ uint32_t rem = (below_8th_db % 48u) / 6u; /* 0..7 in 0.75 dB steps */
+ uint32_t scale = fine_q15[rem & 7u];
+ for (uint32_t i = 0; i < frames * 2u; i++) {
+  int32_t s = ((int32_t)pcm[i] * (int32_t)scale) >> 15;
+  if (shifts) { s >>= shifts; }
+  pcm[i] = (int16_t)s;
+ }
+}
+static bool
+step_apm_ios_sink(void)
+{
+ bool clk_on = false, graph_open = false;
+ uint32_t handle = 0, pkt[128];
+ if (!waffle_audio_smmu_on()) { printf("adsp: IOS_SINK smmu_on FAIL\n"); return false; }
+ uint32_t tok = ++gpr_token;
+ size_t len = waffle_apm_memory_map(pkt, sizeof(pkt), tok, 0x1001, WAFFLE_AUDIO_IOVA, WAFFLE_AUDIO_BUF_BYTES);
+ if (!len || !waffle_gpr_send_wait(pkt, (uint32_t)len, WAFFLE_APM_MEM_MAP, tok, &handle) || !handle) {
+  printf("adsp: IOS_SINK mem_map FAIL\n"); goto out;
+ }
+ waffle_i2s_pins(true);
+ bool core_on = waffle_prm_hw_core(true, 1u);
+ clk_on = waffle_prm_clock(true, 0x102u, 3072000u);
+ if (!clk_on || !waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_OPEN)) { goto cleanup; }
+ graph_open = true;
+ if (!waffle_apm_i2s_set_cfg()) { goto cleanup; }
+ if (!waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_PREPARE)) { goto cleanup; }
+ if (!waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_START)) { goto cleanup; }
+ {
+  uint32_t mfpkt[24] = { 0 };
+  uint32_t mftok = ++gpr_token;
+  static const uint32_t mf_body[] = {
+   1u, 0x09001000u, 20u, 48000u,
+   (16u | (1u << 16)), (16u | (15u << 16)), (1u | (2u << 16)), (1u | (2u << 8))
+  };
+  uint32_t mftotal = 24u + sizeof(mf_body);
+  mfpkt[0] = (mftotal << 8) | (6u << 4);
+  mfpkt[1] = 0x0302u; mfpkt[2] = 1u; mfpkt[3] = WAFFLE_APM_WRITE_EP;
+  mfpkt[4] = mftok; mfpkt[5] = 0x04001001u;
+  memcpy(&mfpkt[6], mf_body, sizeof(mf_body));
+  (void)glink_send(&glink.channel[CHANNEL_GPR], mfpkt, mftotal);
+  gpr_out++;
+  sleep_ms(10);
+ }
+ int16_t *ring = kalloc_data(WAFFLE_PCM_RING_FRAMES * 4u, Z_WAITOK | Z_ZERO);
+ if (!ring) { goto cleanup; }
+ lck_mtx_lock(&pcm_ring_lock);
+ pcm_ring_buf = ring; pcm_ring_rd = pcm_ring_wr = pcm_ring_count = 0;
+ lck_mtx_unlock(&pcm_ring_lock);
+ redwood_audio_set_sink("waffle-tfa9874-adsp", waffle_pcm_sink);
+ printf("adsp: IOS_SINK active (mode=11, 48kHz 2ch 16-bit -> 2-GC PCM_DEC -> MFC -> MI2S-SEC SD1 -> TFA9874)\n");
+ lck_mtx_unlock(&dsp_lock);
+
+ uint64_t dsp_base = (uint64_t)WAFFLE_AUDIO_IOVA | (1ull << 32);
+ uint64_t last_sound_us = 0, bufs_sent = 0;
+ uint32_t slot_idx = 0, inflight = 0, last_vol_gen = 0xffffffffu;
+ while (!stopping && !link_failed) {
+  if (glink.broken || !glink.channel[CHANNEL_QRTR].open || !glink.channel[CHANNEL_GPR].open) {
+   link_failed = true;
+   break;
+  }
+  if (inflight >= 2u) {
+   for (unsigned ms = 0; ms < 100 && !stopping && !link_failed && !os_atomic_load(&gpr_buf_done, acquire); ms += 4) { sleep_ms(4); }
+   if (os_atomic_load(&gpr_buf_done, acquire)) {
+    os_atomic_store(&gpr_buf_done, false, release);
+    inflight--;
+   }
+  }
+  uint32_t slot = (slot_idx & 1u) * 4096u;
+  int16_t *pcm = (int16_t *)(audio_smmu.buf + slot);
+  uint32_t got = waffle_pcm_pull(pcm, 1024u);
+  if (got == 0) {
+   if (inflight > 0 && os_atomic_load(&gpr_buf_done, acquire)) {
+    os_atomic_store(&gpr_buf_done, false, release);
+    inflight--;
+   }
+   if (waffle_tfa_active && now_us() - last_sound_us > 1500000ULL) {
+    waffle_tfa_power(false);
+   }
+   sleep_ms(15);
+   continue;
+  }
+  if (got < 1024u) { bzero(pcm + got * 2u, (1024u - got) * 4u); }
+  uint32_t below = 0, gen = 0;
+  bool muted = false;
+  if (redwood_audio_volume(&below, &muted, &gen)) {
+   if (gen != last_vol_gen) {
+    last_vol_gen = gen;
+    printf("adsp: IOS_SINK vol below=%u/8dB muted=%u\n", below, muted);
+   }
+   waffle_apply_volume(pcm, 1024u, below, muted);
+  } else {
+   waffle_apply_volume(pcm, 1024u, 0, false);
+  }
+  uint32_t peak = 0;
+  for (uint32_t i = 0; i < 2048u; i++) {
+   uint32_t a = pcm[i] < 0 ? (uint32_t)(-(int32_t)pcm[i]) : (uint32_t)pcm[i];
+   if (a > peak) { peak = a; }
+  }
+  if (peak > 8u) {
+   last_sound_us = now_us();
+   if (!waffle_tfa_active) { waffle_tfa_power(true); }
+  } else if (waffle_tfa_active && now_us() - last_sound_us > 1500000ULL) {
+   waffle_tfa_power(false);
+  }
+  waffle_audio_cache_clean(audio_smmu.buf + slot, 4096u);
+  uint64_t dsp_addr = dsp_base + slot;
+  struct {
+   struct gpr_header h;
+   uint32_t data_lsw, data_msw, data_handle, data_size;
+   uint32_t ts_lsw, ts_msw, flags;
+   uint32_t md_lsw, md_msw, md_handle, md_size;
+  } wrbuf = {
+   .h = { .packet = (68u << 8) | (6u << 4), .domains = 0x0302,
+       .source_port = 1, .dest_port = WAFFLE_APM_WRITE_EP, .token = ++gpr_token,
+       .opcode = DATA_CMD_WR_SH_MEM_EP_DATA_BUFFER_V2 },
+   .data_lsw = (uint32_t)dsp_addr, .data_msw = (uint32_t)(dsp_addr >> 32),
+   .data_handle = handle, .data_size = 4096u,
+  };
+  if (inflight == 0) { os_atomic_store(&gpr_buf_done, false, release); }
+  if (!glink_send(&glink.channel[CHANNEL_GPR], &wrbuf, sizeof(wrbuf))) {
+   gpr_out++;
+   inflight++;
+   bufs_sent++;
+   slot_idx++;
+  }
+ }
+ redwood_audio_set_sink("none", NULL);
+ lck_mtx_lock(&pcm_ring_lock);
+ pcm_ring_buf = NULL; pcm_ring_count = 0;
+ lck_mtx_unlock(&pcm_ring_lock);
+ kfree_data(ring, WAFFLE_PCM_RING_FRAMES * 4u);
+ printf("adsp: IOS_SINK stopped bufs_sent=%llu\n", bufs_sent);
+ lck_mtx_lock(&dsp_lock);
+cleanup:
+ waffle_tfa_power(false);
+ if (graph_open) {
+  (void)waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_STOP);
+  (void)waffle_apm_i2s_graph_cmd(WAFFLE_APM_GRAPH_CLOSE);
+ }
+ if (clk_on) { (void)waffle_prm_clock(false, 0x102u, 0u); }
+ if (core_on) { (void)waffle_prm_hw_core(false, 1u); }
+ waffle_i2s_pins(false);
+ if (handle) {
+  tok = ++gpr_token;
+  len = waffle_apm_memory_unmap(pkt, sizeof(pkt), tok, handle);
+  if (len) { (void)waffle_gpr_send_wait(pkt, (uint32_t)len, WAFFLE_APM_MEM_UNMAP, tok, NULL); }
+ }
+out:
+ waffle_audio_smmu_off();
+ return !link_failed;
+}
 static volatile bool link_wanted, link_runs;
 static void
 link_thread(__unused void *parameter, __unused wait_result_t result)
@@ -2260,7 +3161,7 @@ link_thread(__unused void *parameter, __unused wait_result_t result)
  bzero(&last, sizeof(last));
  dsp_words(&last);
  while (link_wanted && !stopping && !link_failed) {
-  sleep_us(1000);
+  sleep_us((pcm_ring_buf != NULL) ? (waffle_tfa_active ? 4000u : 10000u) : 1000u);
   doorbells();
   if (dsp_words(&words) && memcmp(&words, &last, sizeof(words)) != 0) {
    last = words;
@@ -2660,6 +3561,13 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  }
  step = 2;
  if (!firmware_check(&images[0]) || !firmware_check(&images[1])) { goto fail; }
+ if (mode == 11) {
+  uint32_t gpu_mode = 0;
+  if (PE_parse_boot_argn("waffle_gpu", &gpu_mode, sizeof(gpu_mode)) && gpu_mode == 94) {
+   printf("adsp: deferring AOP open 8s so waffle-gpu (FD750) claims AOP_OWNER first\n");
+   for (unsigned s = 0; s < 80 && !stopping; s++) { sleep_ms(100); }
+  }
+ }
  step = 3;
  if (!step_mailbox()) { goto fail; }
  step = 4;
@@ -2713,17 +3621,19 @@ adsp_thread(__unused void *parameter, __unused wait_result_t result)
  printf("adsp: STAGE1 OK PAS=36,1 SMP2P=ready+handover GLINK=up QRTR node=%u services=%u GPR SPF=1 mode=%u\n",
      qrtr_peer, services, mode);
  if (mode == 7) { step = 12; if (!step_apm_graph()) { goto fail; } }
+ if (mode == 9) { step = 12; if (!step_apm_mem_test()) { goto fail; } }
+ if (mode == 10) { step = 12; if (!step_apm_speaker_test()) { goto fail; } }
+ if (mode == 11) { step = 12; if (!step_apm_ios_sink()) { goto fail; } }
  if (battery_probe_requested) {
   step = 12;
   if (!step_battery_samples()) { goto fail; }
  }
  success = true;
- if (mode == 2 || mode == 6 || mode == 7) {
+ if (mode == 2 || mode == 6 || mode == 7 || mode == 9 || mode == 10) {
   stopping = true;
   bool clean = dsp_shutdown(mode >= 6 ? "waffle bounded DSP boot complete" : "adsp=2 complete");
-  if (mode == 6 || mode == 7) {
-   printf("adsp: WAFFLE DSP_BOOT result=%u stop_clean=%u; %s, no PCM or amplifier startup\n", clean, clean,
-       mode == 7 ? "GPR graph lifecycle" : "GPR SPF state only");
+  if (mode == 6 || mode == 7 || mode == 9 || mode == 10) {
+   printf("adsp: WAFFLE DSP_BOOT result=%u stop_clean=%u; mode=%u\n", clean, clean, mode);
    success = clean;
   } else { printf("adsp: adsp=2 stopped clean=%u\n", clean); }
  }
@@ -2771,6 +3681,9 @@ macan_adsp_quiesce(void)
   (void)waffle_audio_cb_write32((void *)audio_cb_probe_base,audio_cb_probe_offset,audio_cb_probe_original);
   audio_cb_probe_active=false;
  }
+ waffle_tfa_power(false);
+ waffle_i2s_pins(false);
+ waffle_audio_smmu_off();
  if (mode == 3 || mode == 4 || mode == 5 || mode == 8) { return; }
  link_wanted = false;
  dsp_shutdown("panic/loader quiesce");
@@ -2793,8 +3706,8 @@ macan_adsp_init(void)
   }
   battery_probe_requested = battery_readonly != 0;
   battery_report_requested = battery_readonly == 2;
-  if (mode < 3 || mode > 8) {
-   printf("adsp: Waffle permits adsp=3 preflight,4 power,5 survey,6 DSP boot,7 graph,8 IOMMU survey\n");
+  if (mode < 3 || mode > 11) {
+   printf("adsp: Waffle permits adsp=3..11\n");
    mode = 0; return;
   }
   images[0].base = 0x9de80000u;
