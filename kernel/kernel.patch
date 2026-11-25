@@ -49,7 +49,7 @@ diff --git a/bsd/conf/files b/bsd/conf/files
 index 44274016a4cf..cd551dd42a09 100644
 --- a/bsd/conf/files
 +++ b/bsd/conf/files
-@@ -109,6 +109,39 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
+@@ -109,6 +109,40 @@ bsd/dev/munge.c 			optional config_requires_u32_munging
  bsd/dev/unix_startup.c			standard
  
  bsd/dev/monotonic.c optional monotonic
@@ -82,6 +82,7 @@ index 44274016a4cf..cd551dd42a09 100644
 +bsd/dev/macan_dsp.c		standard
 +bsd/dev/macan_adsp.c		standard
 +bsd/dev/macan_wifi.c		standard
++bsd/dev/waffle_wlan.c		standard
 +bsd/dev/macan_qmi.c		standard
 +bsd/dev/macan_wlfw.c		standard
 +bsd/dev/macan_lx.c		standard

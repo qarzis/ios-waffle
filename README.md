@@ -19,14 +19,14 @@ XNU and iOS boot through UEFI into RAM.</p>
 | Touch | ✅ | Taps and swipes |
 | Buttons | ✅ | Power, volume up, volume down |
 | Alert Slider | ✅ | Do Not Disturb / vibrate mode / ring; native iOS banners |
-| Wi-Fi | ❌ | |
+| Wi-Fi | ✅ | WCN7850 Wi-Fi 7 (PCIe/MHI + ath12k); joins network, DHCP, Internet |
 | Vibration | ✅ | CoreHaptics and system vibration tested; ColorOS Crisp effect pending |
 | Flashlight | ✅ | On/off from Control Center |
 | Battery | ❌ | Native readings reach iOS power source; live UI percentage pending |
 | Packages | ⚪ | Sileo and tweaks unverified |
 | Dynamic Island | ⚪ | Unverified |
 | 120 Hz | ⚪ | Unverified |
-| Sound | ❌ | DSP and APM graph verified; playback pending |
+| Sound | ✅ | 48 kHz stereo speaker playback & volume control via SM8650 ADSP AudioReach + dual NXP TFA9874 (`adsp=11`) |
 | Microphone | ❌ | |
 | Camera | ❌ | |
 | Sensors | ❌ | |

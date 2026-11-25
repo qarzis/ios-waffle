@@ -31,14 +31,14 @@ static int kernel_hung;
 #define KERNEL_LINK_OFFSET 0x03000000ULL
 #define BASE_ALIGN 0x02000000ULL
 #define MAX_MEM_SIZE 0x180000000ULL
-#define RESIDENT_RD_OFFSET 0x08000000ULL
+#define RESIDENT_RD_OFFSET 0x0C000000ULL
 #define RESIDENT_RD_RESERVE 0x30000000ULL
 #define PAGE_SIZE_MAX 0x4000ULL
 #define LOG_PARTITION u"logdump"
 #define CHECKPOINT_SELFTEST 999
 #define PANIC_LOG_SIZE 0x80000u
 #define NVRAM_BANK_SIZE 0x2000u
-#define PAYLOAD_MAX_SIZE 0x04000000ULL
+#define PAYLOAD_MAX_SIZE 0x09000000ULL
 struct boot_video {
  uint64_t v_baseAddr, v_display, v_rowBytes, v_width, v_height, v_depth;
 };
@@ -1785,6 +1785,13 @@ run_kernel(int have_checkpoint, uint64_t checkpoint)
  dt_end(&w);
  dt_begin(&w, "product");
  dt_identity(&w, identity_product, sizeof(identity_product) / sizeof(identity_product[0]), identity_product_data);
+#if defined(XNU_PLATFORM_WAFFLE)
+ if(waffle_haptic_service_requested(pi.cmdline)) {
+  dt_begin(&w,"haptics");
+  dt_identity(&w,identity_haptics,sizeof(identity_haptics)/sizeof(identity_haptics[0]),identity_haptics_data);
+  dt_end(&w);
+ }
+#endif
  dt_end(&w);
  dt_begin(&w, "options");
  dt_end(&w);
@@ -2143,7 +2150,7 @@ fb_command(char *cmd)
    } else if (str_eq(var, "version")) {
     fb_reply("OKAY", "0.5");
    } else if (str_eq(var, "max-download-size")) {
-    fb_reply("OKAY", download_to_ramdisk ? "0xffffffff" : "0x03f00000");
+    fb_reply("OKAY", download_to_ramdisk ? "0xffffffff" : "0x08f00000");
    } else if (str_eq(var, "result")) {
     fb_reply("OKAY", last_result);
    } else if (str_eq(var, "screen") && SCREEN.base != 0) {

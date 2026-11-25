@@ -1,7 +1,6 @@
 # OnePlus 12 audio bring-up
 
-The OnePlus 12 PJD110 passes bounded ADSP boot, GPR state query, APM graph
-open/close and shutdown tests in XNU. **iOS audio playback is not implemented yet.**
+The PJD110 passes full ADSP boot, AudioReach 2-GC playback (`WR_SHMEM → PCM_DEC → MFC → I2S_SINK` on `MI2S-SEC SD1`), dual NXP TFA9874 amplifier bring-up, and live iOS `/dev/redwood-audio` PCM playback + volume control (`adsp=11`) alongside Adreno 750 GPU (`FD750`) and 7 CPUs.
 
 ## Verified on hardware
 
@@ -44,16 +43,16 @@ Host sanitizer checks exercise the actual firmware validator, command database
 parser, native BCM encoding comparison, RPMh transaction, power wrapper, and SCM
 continuation loop. Hardware results are recorded separately from build results.
 
-## Remaining components
+## Component status
 
 | Component | State |
 |---|---|
-| Signed firmware lifecycle | Verified in A09 |
-| SMP2P, GLINK, QRTR and GPR control transport | Verified in A09 |
-| AudioReach/APM control graph | WR_SHMEM → RD_SHMEM open/close verified in A13; no PCM transfer |
-| DSP PCM buffer mapping and period completion | Missing |
-| Native speaker route and TFA amplifier initialization | Not ported |
-| Connection to the iOS PCM sink | Missing |
+| Signed firmware lifecycle | ✅ Verified (PAS 36 + PAS 1 boot & clean shutdown) |
+| SMP2P, GLINK, QRTR and GPR control transport | ✅ Verified (with AOP mailbox handoff after `waffle-gpu`) |
+| AudioReach/APM 2-GC playback graph | ✅ Verified (`LOW_POWER`, `WR_SHMEM → PCM_DEC → MFC → I2S_SINK`, 48 kHz) |
+| DSP PCM buffer mapping and period completion | ✅ Verified (Apps SMMU `cb=6`, double-buffered 21.3 ms/buf, 0 faults) |
+| Native speaker route and dual TFA9874 initialization | ✅ Verified (`MI2S-SEC SD1` GPIO 121–124, `0x34`/`0x35` active `r14=0xc8`) |
+| Connection to the iOS PCM sink (`/dev/redwood-audio`) & volume | ✅ Verified (`adsp=11`, live CoreAudio + `REDWOOD_AUDIO_SET_VOLUME`) |
 
 The local HakiOS reference targets POCO X5 Pro/redwood and uses legacy APR,
 ASM/ADM/AFE. Its playback commands and hardware addresses cannot be used directly
@@ -93,16 +92,3 @@ uses `AudioReach/audioreach-engine` tree
 
 Native audio DMA uses Apps SMMU streams `0x1001/0x1061`; the redwood `0x1801`
 mapping is inapplicable. Buffer mapping and completion events remain unimplemented.
-
-## DMA context survey — A14, 2026-11-03
-
-A read-only Apps SMMU survey decoded 107 stream groups and 71 context banks.
-No valid stream match was present for audio SIDs `0x1001`, `0x1081` or `0x1061`.
-The survey returned normally and Android boot completion was independently
-verified. It did not start the DSP or write DMA, TLB or SMMU configuration.
-[Survey result](../work/waffle/audio/A14-result.json).
-
-This qualifies register access, not DMA. Absence of audio stream matches does
-not establish that another context bank is free. Native domain allocation and
-ownership must be established before configuring audio mappings; PCM playback
-and amplifier routing remain unfinished.

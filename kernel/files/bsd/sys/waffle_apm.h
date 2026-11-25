@@ -4,6 +4,9 @@
 #include <stddef.h>
 
 #define WAFFLE_APM_GRAPH_OPEN 0x01001000u
+#define WAFFLE_APM_GRAPH_PREPARE 0x01001001u
+#define WAFFLE_APM_GRAPH_START 0x01001002u
+#define WAFFLE_APM_GRAPH_STOP 0x01001003u
 #define WAFFLE_APM_GRAPH_CLOSE 0x01001004u
 #define WAFFLE_APM_SUBGRAPH 0x4f00u
 #define WAFFLE_APM_CONTAINER 0x5f00u
@@ -32,7 +35,8 @@ waffle_apm_packet(uint32_t *out, size_t capacity, uint32_t opcode, uint32_t toke
  const uint32_t *payload;
  size_t size;
  if (opcode == WAFFLE_APM_GRAPH_OPEN) { payload = open; size = sizeof(open); }
- else if (opcode == WAFFLE_APM_GRAPH_CLOSE) { payload = close; size = sizeof(close); }
+ else if (opcode == WAFFLE_APM_GRAPH_PREPARE || opcode == WAFFLE_APM_GRAPH_START ||
+          opcode == WAFFLE_APM_GRAPH_STOP || opcode == WAFFLE_APM_GRAPH_CLOSE) { payload = close; size = sizeof(close); }
  else return 0;
  if (!out || capacity < size + 40) return 0;
  out[0] = (uint32_t)(size + 40) << 8 | 6u << 4;

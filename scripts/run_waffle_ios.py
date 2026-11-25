@@ -232,6 +232,66 @@ def validate_surface_role_log(text):
         raise RuntimeError('Role query lacks actual readonly native import')
 
 
+def validate_surface_target_log(text):
+    start=re.search(r'waffle-gl-surface-target: begin sid=(\d+) texture=(\d+) native_cached=1 exclusive_PID1=1',text)
+    if not start:raise RuntimeError('Native target start missing')
+    sid,texture=start.groups()
+    imported=re.search(rf'SURFACE_TARGET imported=1 sid={sid} handle=(\d+) index=(\d+) GPU_writable=1 private_PID1=1',text[:start.start()])
+    if not imported:raise RuntimeError('Private writable native import missing')
+    handle,index=imported.groups()
+    done=re.search(r'waffle-gl-surface-target: passed=1 checked=1218000 wrong=0 first=ffff0000 last=ff00ff00 CPU_direct=1 glReadPixels=0 restored=1 GL_error=0',text[start.end():])
+    if not done or any(x in text for x in ('waffle-gl-surface-target: passed=0','SURFACE_TARGET invalidate_failed=1','SURFACE_LEASE uncertain=1')):raise RuntimeError('Native target pixels/cache/restore failed')
+    interval=text[start.end():start.end()+done.start()]
+    prepares=list(re.finditer(rf'SURFACE_TARGET prepare=1 handle={handle} bytes=(\d+) CPU_clean=1 private_PID1=1',interval))
+    completions=list(re.finditer(rf'SURFACE_TARGET complete=1 handle={handle} fence=(\d+) CPU_invalidated=1',interval))
+    if not prepares or len(prepares)!=len(completions):raise RuntimeError('Native target clean/invalidate count mismatch')
+    previous_end=0;previous_fence=0
+    for prepare,completion in zip(prepares,completions):
+        if int(prepare[1])<4898816 or not previous_end<=prepare.start()<prepare.end()<=completion.start():raise RuntimeError('Native target cache operation order/range invalid')
+        fence=int(completion[1]);seq=gl_sequence(fence-1)
+        if fence<=previous_fence:raise RuntimeError('Native target reused/stale completion fence')
+        segment=interval[prepare.end():completion.start()]
+        if f'GENERAL_SUBMIT done fence={fence} seq={seq} control={fence:08x} checked=4096 wrong_words=0' not in segment:raise RuntimeError('Native CPU invalidate lacks matching post-clean GPU completion')
+        previous_end=completion.end();previous_fence=fence
+    gem=re.search(rf'GENERAL gem_new handle={handle} bytes=(\d+) allocated=\d+ flags=80000 VA=',text[:start.start()])
+    if not gem or any(int(p[1])!=int(gem[1]) for p in prepares):raise RuntimeError('Native target clean size/mapping identity mismatch')
+
+
+
+def validate_surface_promotion_log(text):
+    begin=re.search(r'waffle-gl-surface-promotion: begin texture=(\d+) sibling=(\d+) sid=(\d+) native_readonly=1',text)
+    if not begin:raise RuntimeError('Native role promotion start missing')
+    texture,sibling,sid=begin.groups()
+    if texture==sibling:raise RuntimeError('Role promotion lacks retained native sibling')
+    middle=re.search(rf'waffle-readonly-promote: passed=1 texture={texture} sid={sid} owned_upload=1 native_GPU_writes=0',text[begin.end():])
+    if not middle or 'attachment_refused' in text:raise RuntimeError('Actual EAGL role promotion failed')
+    start=begin.end()+middle.end()
+    end=re.search(rf'waffle-gl-surface-promotion: passed=1 texture={texture} owned_wrong=0 native_wrong=0 sibling_wrong=0 restored=1 pixels=1218000',text[start:])
+    if not end or 'waffle-gl-surface-promotion: passed=0' in text:raise RuntimeError('Role promotion pixel/coherence/restore proof failed')
+    if 'GENERAL submitted fence=' not in text[start:start+end.start()]:raise RuntimeError('Role promotion lacks actual GPU submission')
+    interval=text[start:start+end.start()]
+    cpu=interval.find('waffle-gl-surface-promotion: native_checked=1218000 wrong=0 before_sibling=1')
+    sibling_done=interval.find('waffle-gl-surface-promotion: sibling_checked=256 wrong=0 native_cache_sync=1')
+    if cpu<0 or sibling_done<=cpu or 'SURFACE_SAMPLE sync=1' not in interval[cpu:sibling_done] or 'GENERAL submitted fence=' not in interval[cpu:sibling_done]:raise RuntimeError('Role promotion lacks actual native sibling cache/submission proof')
+    if 'waffle-gl-surface-promotion: sample_result=1 stage=7 error=0 dispatch=1 wrong=0' not in interval[cpu:sibling_done]:raise RuntimeError('Role promotion lacks typed EAGL sibling result')
+
+    if not re.search(rf'SURFACE_SAMPLE imported=1 sid={sid} handle=\d+ index=\d+ GPU_readonly=1',text[:begin.start()]):raise RuntimeError('Role promotion lacks native readonly import')
+
+
+def validate_surface_detach_log(text):
+    start=re.search(r'waffle-gl-surface-detach: begin texture=(\d+) sid=(\d+) readonly_native=1',text)
+    if not start:raise RuntimeError('Native storage replacement start missing')
+    texture,sid=start.groups()
+    replaced=re.search(rf'waffle-gl-surface-detach: replaced=1 texture={texture} error=0 before_draw=1',text[start.end():])
+    if not replaced:raise RuntimeError('Native storage replacement not confirmed before draw')
+    begin=start.end()+replaced.end()
+    end=re.search(rf'waffle-gl-surface-detach: passed=1 texture={texture} checked=1218000 wrong=0 status=8cd5 error=0 owned_write=1 sibling_retained=1 flush_before_read=[01]',text[begin:])
+    if not end or 'waffle-gl-surface-detach: passed=0' in text:raise RuntimeError('Owned replacement render pixels failed')
+    interval=text[begin:begin+end.start()]
+    if 'GENERAL submitted fence=' not in interval:raise RuntimeError('Owned replacement lacks actual GPU submission')
+    if not re.search(rf'SURFACE_SAMPLE imported=1 sid={sid} handle=\d+ index=\d+ GPU_readonly=1',text[:start.start()]):raise RuntimeError('Storage replacement lacks original readonly import')
+
+
 def validate_surface_lease_log(text):
     pattern=r'waffle-gl-surface-lease: passed=1 sid=(\d+) CPU_writer_refused_GPU_lease=1 AvoidSync_refused=1 reader_allowed=1 kernel_waiter_seen=1 writer_resumed=1 manual_no_GPU=1'
     markers=re.findall(pattern,text)
@@ -254,6 +314,9 @@ def validate_surface_lease_log(text):
 
 def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     """Track unique publications/revocations across console replay duplicates."""
+    if '!wbo' in text:
+        import runpy
+        text=runpy.run_path(str(ROOT/'tools/waffle_bo_log.py'))['normalize'](text)
     if any(x in text for x in ('SURFACE_READ_', 'waffle-gl-surface-read:')):
         if any(x in text for x in ('SURFACE_WRITE_', 'waffle-gl-surface-write:','private_surface_write=1')):
             raise RuntimeError('Mixed surface read/write audits are not qualified')
@@ -261,6 +324,8 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
         # native/user operation names and reject mixed experiments above.
         text=text.replace('SURFACE_READ_', 'SURFACE_WRITE_').replace('waffle-gl-surface-read:', 'waffle-gl-surface-write:').replace('private_surface_read=1', 'private_surface_write=1')
     if 'waffle-gl-surface-role:' in text:validate_surface_role_log(text)
+    if 'waffle-gl-surface-detach:' in text:validate_surface_detach_log(text)
+    if 'waffle-gl-surface-promotion:' in text:validate_surface_promotion_log(text)
     if 'SURFACE_LEASE_TEST' in text or 'waffle-gl-surface-lease:' in text:
         validate_surface_lease_log(text)
     dispatch_audit='waffle-gl-eagl-native-draw:' in text
@@ -268,7 +333,11 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
     if dispatch_audit and not eagl_audit:raise RuntimeError('EAGL draw dispatch lacks native input proof')
     reuse_audit='waffle-gl-surface-reuse:' in text
     if eagl_audit and not reuse_audit:raise RuntimeError('EAGL native input lacks native update/reuse proof')
+    target_audit='SURFACE_TARGET' in text or 'waffle-gl-surface-target:' in text
     sample_audit='SURFACE_SAMPLE' in text or 'waffle-gl-surface-sample:' in text
+    if target_audit:
+        if sample_audit or any(x in text for x in ('SURFACE_READ_','SURFACE_WRITE_','SURFACE_LEASE_TEST','waffle-gl-surface-role:','waffle-gl-surface-promotion:')):raise RuntimeError('Mixed private native target and input/command experiments')
+        validate_surface_target_log(text)
     resource_audit='waffle-gl-surface-resource:' in text
     if reuse_audit and not sample_audit:raise RuntimeError('Native texture reuse lacks shader sampling proof')
     if sample_audit and not resource_audit:raise RuntimeError('Shader sampling lacks Mesa resource proof')
@@ -279,7 +348,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             raise RuntimeError('Mixed native import and memory-access audits')
         if resource_audit:
             if 'waffle-gl-surface-import:' in text:raise RuntimeError('Mixed native lifetime and Mesa resource audits')
-            summaries=set(re.findall(r'waffle-gl-surface-resource: passed=1 sid=(\d+) textures=2 width=750 height=1624 deleted=2 GPU_memory_access='+('1' if sample_audit else '0'),text))
+            summaries=set(re.findall(r'waffle-gl-surface-resource: passed=1 sid=(\d+) textures=2 width=750 height=1624 deleted=2 GPU_memory_access='+('1' if sample_audit or target_audit else '0'),text))
             created=set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+)',text))
             if len(summaries)!=1 or len(created)!=1:raise RuntimeError('Missing Mesa resource/native import proof')
             sid=int(next(iter(summaries)));native_sid,first=map(int,next(iter(created)))
@@ -297,7 +366,7 @@ def validate_gl_bo_lifetimes(text,capacity,budget,va_budget=None):
             raise RuntimeError('Missing duplicate native import reuse')
         for row in set(re.findall(r'SURFACE_IMPORT created=1 sid=(\d+) handle=(\d+) index=(\d+) VA=([0-9a-f]+) bytes=(\d+) lifetime_only=([01])',text)):
             surface,handle,index,va,size=int(row[0]),int(row[1]),int(row[2]),int(row[3],16),int(row[4])
-            if index in imported or surface!=sid or int(row[5])!=(0 if sample_audit else 1):raise RuntimeError('Conflicting native import publication')
+            if index in imported or surface!=sid or int(row[5])!=(0 if sample_audit or target_audit else 1):raise RuntimeError('Conflicting native import publication')
             imported[index]=(handle,va,size)
         if len(imported)!=(1 if resource_audit else 2) or {v[0] for v in imported.values()}!={first,second}:
             raise RuntimeError('Missing native import handle publications')
@@ -721,6 +790,9 @@ def main():
     parser.add_argument("--bootcpu", type=int, default=7, choices=range(1, 8))
     parser.add_argument("--cpus", type=int, choices=range(1, 8), help="XNU cores; one physical core remains with the resident USB loader")
     parser.add_argument("--capture-requests", type=Path, help="Read *.request screenshot requests; this runner alone owns fastboot")
+    parser.add_argument("--haptic-ui-test",action="store_true",help="H10 guarded GPU UI haptic/torch service test")
+    parser.add_argument("--haptic-service-test", action="store_true", help="H05 bounded native PCM actuator bridge")
+    parser.add_argument("--haptic-pulse", action="store_true", help="Dedicated H04 native haptic16ms transaction; CPU1 only")
     parser.add_argument("--torch-readonly", action="store_true", help="Waffle v7 SPMI flash module identification; no PMIC writes")
     parser.add_argument("--torch-pulse", action="store_true", help="Waffle qualified module: one two-second pulse and verified darkness")
     parser.add_argument("--torch-service",action="store_true",help="Expose the qualified flashlight driver to the iOS Control Center")
@@ -756,6 +828,7 @@ def main():
     parser.add_argument("--audio-power", action="store_true", help="With --audio-preflight: bounded native RPMh upvotes retained until Android reset; no DSP boot")
     parser.add_argument("--audio-survey", action="store_true", help="With --audio-preflight: read-only native SMEM/SMP2P/GLINK state survey")
     parser.add_argument('--audio-iommu', action='store_true', help='Read-only native Apps SMMU/audio stream survey; no DSP or DMA writes')
+    parser.add_argument('--audio-cb-access',action='store_true',help='Isolated disabled context control-access/restore test, no DMA or DSP')
     parser.add_argument("--audio-boot", action="store_true", help="With --audio-preflight: bounded native ADSP boot, GPR state query and shutdown; no PCM")
     parser.add_argument("--audio-graph", action="store_true", help="With --audio-boot: open/close two-module shared-memory graph, without DMA or PCM")
     parser.add_argument("--battery-readonly", action="store_true", help="With isolated --audio-boot: query seven native battery/USB properties once; no charger writes")
@@ -765,10 +838,12 @@ def main():
     parser.add_argument("--double-buffer", action="store_true", help="Compose offscreen and commit only complete frames to alternating scanout buffers")
     parser.add_argument("--display-flip-probe", action="store_true", help="Bounded reserved-framebuffer pattern flip and restoration")
     parser.add_argument("--display-flush-probe", action="store_true", help="Bounded unchanged-frame native CTL flush control probe")
+    parser.add_argument("--display-irq-probe", action="store_true", help="Bounded masked PP0_DONE clear/fresh-event diagnostic; keeps two-frame guard")
     parser.add_argument("--display-completion-audit", action="store_true", help="Read-only trace around existing guarded double-buffer commits")
     parser.add_argument("--display-survey", action="store_true", help="Read-only inherited Waffle DPU/TE survey")
     parser.add_argument("--surface-lock-audit",action="store_true",help="Trace bounded actual IOSurface framework lock/unlock traps; no locking behavior changes")
     parser.add_argument("--hardware-vsync", action="store_true", help="Opt-in hardware TE timestamps for native iOS VSync notifications")
+    parser.add_argument("--adsp-mode", type=int, default=None, help="Override adsp=<N> boot argument")
     args = parser.parse_args()
     if args.double_buffer and (args.display_flip_probe or args.display_flush_probe or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--double-buffer requires isolated GPU UI and excludes other display/audio modes")
@@ -776,6 +851,8 @@ def main():
         parser.error("--display-flip-probe requires isolated GPU UI and excludes other display/audio modes")
     if args.display_flush_probe and (args.hardware_vsync or args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-flush-probe requires isolated GPU UI and excludes other display/audio modes")
+    if args.display_irq_probe and not args.display_completion_audit:
+        parser.error("--display-irq-probe requires --display-completion-audit")
     if args.display_completion_audit and (not args.double_buffer or not args.hardware_vsync or args.display_survey or args.display_flip_probe or args.display_flush_probe or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
         parser.error("--display-completion-audit requires guarded hardware-VSync GPU UI")
     if args.hardware_vsync and (args.display_survey or args.audio_preflight or not args.gpu_ui or not args.gpu_gl_context):
@@ -788,9 +865,16 @@ def main():
     if args.audio_graph and not args.audio_boot:parser.error('--audio-graph requires --audio-boot')
     if args.battery_readonly and (not args.audio_boot or args.audio_graph):parser.error('--battery-readonly requires isolated --audio-boot and excludes graph')
     if args.battery_report_test and not args.battery_readonly:parser.error('--battery-report-test requires --battery-readonly')
+    if args.audio_cb_access and not args.audio_iommu:parser.error('--audio-cb-access requires --audio-iommu')
     if args.audio_iommu and (not args.audio_preflight or args.audio_power or args.audio_survey or args.audio_boot or args.audio_graph):parser.error('--audio-iommu requires isolated --audio-preflight')
     if args.audio_preflight and (args.gpu_probe is not None or args.cpus is not None or args.torch_readonly or args.torch_pulse or args.torch_service or args.seconds>60):
         parser.error('--audio-preflight requires an isolated test of at most60 seconds')
+    if args.haptic_ui_test and (not args.gpu_ui or not args.gpu_gl_context or not args.double_buffer or not args.hardware_vsync or not args.torch_service or args.cpus not in range(1,8) or args.seconds>180 or args.haptic_pulse or args.haptic_service_test or args.audio_preflight):
+        parser.error('--haptic-ui-test requires short guarded GPU UI/torch/CPU1')
+    if args.haptic_service_test and (args.haptic_pulse or args.audio_preflight or args.gpu_probe is not None or args.cpus!=1 or args.seconds>90 or args.torch_readonly or args.torch_pulse or args.torch_service):
+        parser.error('--haptic-service-test requires isolated CPU1, <=90seconds, no GPU/audio/flash')
+    if args.haptic_pulse and (args.audio_preflight or args.gpu_probe is not None or args.cpus!=1 or args.seconds>90 or args.torch_readonly or args.torch_pulse or args.torch_service):
+        parser.error('--haptic-pulse requires isolated CPU1, <=90 seconds, no GPU/audio/flash modes')
     if args.torch_readonly and args.gpu_probe is not None and not args.gpu_ui:parser.error('--torch-readonly requires a CPU or GPU UI workload')
     if args.torch_pulse and (args.torch_readonly or not args.gpu_gl_context):parser.error('--torch-pulse requires the controlled GPU GL workload and excludes read-only mode')
     if args.torch_service and (args.torch_pulse or args.torch_readonly or not args.gpu_ui):parser.error('--torch-service requires GPU UI and excludes torch probe modes')
@@ -859,6 +943,8 @@ def main():
     arguments = f"bootcpu={args.bootcpu} loader_return_after={args.seconds} fbscale={args.fbscale} epoch={int(time.time())}"
     if args.surface_lock_audit:
         arguments += " waffle_surface_lock_audit=1"
+    if args.display_irq_probe:
+        arguments += " waffle_display_irq_probe=1"
     if args.display_completion_audit:
         arguments += " waffle_display_completion_audit=1"
     if args.hardware_vsync:
@@ -872,11 +958,20 @@ def main():
     if args.display_survey:
         if args.audio_preflight:parser.error("--display-survey excludes audio tests")
         arguments += " waffle_vsync_audit=1"
-    if args.audio_preflight:
+    if args.adsp_mode is not None:
+        arguments += f" adsp={args.adsp_mode}"
+    elif args.audio_preflight:
         arguments += " adsp=8" if args.audio_iommu else " adsp=7" if args.audio_graph else " adsp=6" if args.audio_boot else " adsp=5" if args.audio_survey else " adsp=4" if args.audio_power else " adsp=3"
         if args.battery_readonly:arguments += " waffle_battery_readonly="+('2' if args.battery_report_test else '1')
+    if args.audio_cb_access:arguments += " waffle_audio_cb_access=1"
     if args.cpus is not None:
         arguments += f" cpus={args.cpus}"
+    if args.haptic_ui_test:
+        arguments += " waffle_haptic_test=2"
+    if args.haptic_service_test:
+        arguments += " waffle_torch=1 waffle_haptic_test=2"
+    if args.haptic_pulse:
+        arguments += " waffle_torch=1 waffle_haptic_test=1"
     if args.torch_readonly:
         arguments += " waffle_torch=1"
     if args.torch_pulse:
@@ -909,7 +1004,7 @@ def main():
     subprocess.run([sys.executable, str(ROOT / "loader/mkpayload.py"), "-o", str(payload), "--usb",
                     "--checkpoint", "0", "--cmdline", arguments,
                     f"kernel={args.kernel.resolve()}", f"ramdisk={args.root.resolve()}"], check=True)
-    if payload.stat().st_size > 0x03f00000:
+    if payload.stat().st_size > 0x08f00000:
         raise RuntimeError("Kernel/root payload exceeds the loader's download limit")
     print(command("stage", payload, timeout=60), flush=True)
     if not args.reuse_system:
@@ -944,7 +1039,7 @@ def main():
                 command('get_staged',screen)
                 request.rename(request.with_suffix('.done'))
                 request.with_suffix('.json').write_text(json.dumps({'screenshot':str(screen),'bytes':screen.stat().st_size})+'\n')
-        time.sleep(0.2 if args.capture_requests or args.gpu_ui else 0.05 if args.gpu_probe in (36,52,53,55,57,58,59,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94) else 5)
+        time.sleep(0.2 if args.capture_requests else 5)
         response = command("getvar", "result")
         line = next((s for s in response.splitlines() if s.startswith("result: ")), "")
         sequence += 1
@@ -1014,9 +1109,23 @@ def main():
             if args.display_completion_audit:
                 import runpy
                 completion=runpy.run_path(str(ROOT/'tools/analyze-waffle-display-completion.py'))['analyze_run'](out)
+                if args.display_irq_probe and b'!dph:v1/' in args.kernel.read_bytes() and completion.get('wire_protocol')!='compact_v1':
+                    raise RuntimeError('Compiled compact display protocol missing')
+                if args.display_irq_probe and not completion.get('irq_probe',{}).get('enabled'):
+                    raise RuntimeError('Masked IRQ probe did not report its diagnostic state')
                 if b'waffle-display-irq:' in args.kernel.read_bytes() and completion['irq_record_count']!=completion['record_count']:
                     raise RuntimeError('Compiled IRQ observation lacks paired samples')
                 (out/'display-completion.json').write_text(json.dumps(completion,indent=2)+'\n')
+                log_stream=runpy.run_path(str(ROOT/'tools/waffle_log_stream.py'))
+                stream,stream_proof=log_stream['merge_run_logs'](out)
+                (out/'kernel-stream-proof.json').write_text(json.dumps(stream_proof,indent=2)+'\n')
+                final_text=stream.decode(errors='replace')
+                if args.display_irq_probe and b'!wbo:v1!' in args.kernel.read_bytes() and '!wbo:v1!' not in final_text:
+                    raise RuntimeError('Compiled compact BO proof protocol was not enabled')
+            elif (args.gpu_ui and args.double_buffer) or getattr(args, 'haptic_pulse', False) or getattr(args, 'haptic_service_test', False) or getattr(args, 'haptic_ui_test', False):
+                # Guarded normal UI also rolls the final ring. Recover only
+                # exact byte overlaps; do not invent or weaken proof records.
+                import runpy
                 log_stream=runpy.run_path(str(ROOT/'tools/waffle_log_stream.py'))
                 stream,stream_proof=log_stream['merge_run_logs'](out)
                 (out/'kernel-stream-proof.json').write_text(json.dumps(stream_proof,indent=2)+'\n')
@@ -1086,7 +1195,7 @@ def main():
                 raise RuntimeError(f"GMU could not stop cleanly; reboot Android before another test; logs: {out}")
             if args.gpu_session and b"AOP_OWNER begin returned" in args.kernel.read_bytes():
                 if args.gpu_ui:
-                    proof=validate_ui_workload_log(final_text,guarded_display=args.display_completion_audit)
+                    proof=validate_ui_workload_log(final_text,guarded_display=args.double_buffer)
                     (out/"gpu-ui-workload.json").write_text(json.dumps(proof,indent=2)+"\n")
                 else:
                     image_pixels=validate_aop_owner_log(final_text, args.gpu_compute or 0, image_kind)
@@ -1273,10 +1382,12 @@ def main():
             if args.audio_preflight:
                 if args.audio_iommu:
                     required=('waffle-audio-probe: PID1 ready', 'adsp: AUDIO_SMMU ids=',
-                              'adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes')
+                              ('adsp: WAFFLE AUDIO_CB_ACCESS OK: disabled bank restored; no DSP, DMA or route writes' if args.audio_cb_access else 'adsp: WAFFLE AUDIO_IOMMU OK: read-only Apps SMMU; no DSP, DMA, TLB or register writes'))
                     forbidden=('adsp: PAS ', 'adsp: RPMh ', 'adsp: POWER_APPLY ', 'adsp: FAIL', 'AUDIO_IOMMU FAIL')
                     if not all(x in final_text for x in required) or any(x in final_text for x in forbidden):
                         raise RuntimeError(f'Audio IOMMU read-only survey failed; logs: {out}')
+                    if args.audio_cb_access and (not re.search(r'AUDIO_CB_ACCESS passed=1 admitted=1 changed=1 restored=1 cb=\d+',final_text) or 'M_enable=0 route_writes=0 DSP=0' not in final_text):raise RuntimeError('Disabled audio context control-access/restore proof missing')
+                    if args.audio_cb_access and b'adsp: AUDIO_CB_CONFIG passed=' in args.kernel.read_bytes() and (not re.search(r'AUDIO_CB_CONFIG passed=1 configured=1 restored=1 writes=16 cb=\d+',final_text) or 'AUDIO_CB_CONFIG own_tables=1 pages=4 IOVA=0x10001000 M_enable=0 route_writes=0 DSP=0' not in final_text):raise RuntimeError('Disabled audio table configuration/restore proof missing')
                     print('Read-only Apps SMMU snapshot captured; DMA ownership unqualified',flush=True)
                     return
                 if args.audio_boot:
@@ -1316,10 +1427,49 @@ def main():
                               ['adsp: WAFFLE PREFLIGHT OK: firmware only; no PAS, mailbox, RPMh, IPCC or amplifier writes']))
                 if not all(s in final_text for s in required) or any(s in final_text for s in ('adsp: FAIL', 'adsp: WAFFLE PREFLIGHT FAIL', 'adsp: WAFFLE POWER_APPLY FAIL', 'adsp: PAS ', 'adsp: RPMh ')):
                     raise RuntimeError(f'ADSP firmware preflight evidence missing or hardware path reached; logs: {out}')
+            if (args.haptic_service_test or args.haptic_ui_test) and not all(marker in final_text for marker in (
+                'haptic-waffle-service: ready=1',
+                'haptic-waffle-service: format=S16_mono tap_us=16000',
+                'haptic-waffle-service: cooldown_us=80000',
+                'waffle-haptic-client: direct_taps=3 errors=0',
+                'haptic-waffle-pulse: passed=1 admitted=1 start=1',
+                'haptic-waffle-pulse: stopped=1 restored=1 emergency=0 writes=7')):
+                raise RuntimeError(f"Native PCM haptic bridge proof incomplete; logs: {out}")
+            if args.haptic_pulse and not all(marker in final_text for marker in (
+                'haptic-waffle-pulse: passed=1 admitted=1 start=1',
+                'haptic-waffle-pulse: stopped=1 restored=1 emergency=0 writes=7',
+                'haptic-waffle-pulse: amplitude=32 requested_us=16000 HBST_writes=0')):
+                raise RuntimeError(f"Native bounded haptic pulse/stop/restore proof failed; logs: {out}")
+            if args.haptic_pulse and b'haptic-fifo-status: passed=' in args.kernel.read_bytes():
+                if not all(marker in final_text for marker in (
+                    'haptic-fifo-status: passed=1 restored=1 writes=4',
+                    'haptic-fifo-status: FIFO_writes=0 motor_started=0')) or not re.search(
+                    r'haptic-fifo-status: fill=0 capacity=1920 empty=[01] full=[01]',final_text):
+                    raise RuntimeError(f'Native FIFO empty/status/selector restore proof incomplete; logs: {out}')
+            if args.haptic_pulse and b'haptic-fifo-buffer: passed=' in args.kernel.read_bytes():
+                zero_record=('haptic-fifo-buffer: zeros=144 consumer=1 HBST_writes=0' if b'haptic-fifo-play: passed=' in args.kernel.read_bytes() else 'haptic-fifo-buffer: zeros=144 motor_STARTED=0 HBST_writes=0')
+                if not all(marker in final_text for marker in (
+                    'haptic-fifo-buffer: passed=1 loaded=1 cleared=1',
+                    'haptic-fifo-buffer: fill=144 final=0 commands=36',
+                    zero_record)) or not re.search(
+                    r'haptic-fifo-buffer: selectors=1 SWR_restored=1 source=[0-35-7]\b',final_text):
+                    raise RuntimeError(f'Native zero FIFO transport/flush/restore proof incomplete; logs: {out}')
+            if args.haptic_pulse and b'haptic-fifo-play: passed=' in args.kernel.read_bytes():
+                if b'haptic-fifo-play: VSET_force=' in args.kernel.read_bytes() and 'haptic-fifo-play: VSET_force=1 VSET_restored=1' not in final_text:
+                    raise RuntimeError(f'Native FIFO VSET handshake/restore proof incomplete; logs: {out}')
+                timing=re.search(r'haptic-fifo-play: initial=144 last=0 active_us=(\d+)',final_text)
+                if not all(marker in final_text for marker in (
+                    'haptic-fifo-play: passed=1 progress=1 drained=1',
+                    'haptic-fifo-play: stopped=1 restored=1 emergency=0',
+                    'haptic-fifo-play: rate=24000 RC=574 zeros=144 HBST_writes=0')) or not timing or not 4500<=int(timing[1])<=30000:
+                    raise RuntimeError(f'Native zero FIFO execution/clock restore proof incomplete; logs: {out}')
             if args.torch_readonly and not all(s in final_text for s in (
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
                     'torch: waffle read-only module=', 'no PMIC writes')):
                 raise RuntimeError(f"Waffle torch identification failed; logs: {out}")
+            if args.torch_readonly and b'haptic-waffle: readonly=' in args.kernel.read_bytes():
+                if not re.search(r'haptic-waffle: readonly=1 cfg_rev=4 ptn_rev=4 boost_rev=[0-9a-f]{4} PMIC_writes=0 motor_started=0',final_text) or not re.search(r'haptic-waffle: direct=[0-9a-f]{2} period1=[0-9a-f]{4} period2=[0-9a-f]{4} complete=1',final_text):
+                    raise RuntimeError(f"Waffle haptic readonly identity incomplete; logs: {out}")
             if args.torch_pulse and not all(s in final_text for s in (
                     'torch: platform=waffle-v7', 'the module says type 0x18, subtype 0x7',
                     'the light ON at 100 mA per channel', 'off again after 2 s', '(dark)')):

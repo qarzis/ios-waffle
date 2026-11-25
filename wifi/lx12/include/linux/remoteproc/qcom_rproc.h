@@ -1,6 +1,5 @@
-#ifndef _LX12_QCOM_RPROC_H
-#define _LX12_QCOM_RPROC_H
-struct notifier_block;
-static inline void *qcom_register_ssr_notifier(const char *name, struct notifier_block *nb) { return (void *)1; }
-static inline int qcom_unregister_ssr_notifier(void *notify, struct notifier_block *nb) { return 0; }
+/* Qualcomm's remote processors, as ath12k's ahb.h (not built) includes them: wifi/lx's remoteproc.h is all there is. */
+#ifndef _LX12_LINUX_REMOTEPROC_QCOM_RPROC_H_
+#define _LX12_LINUX_REMOTEPROC_QCOM_RPROC_H_
+#include <linux/remoteproc.h>
 #endif
