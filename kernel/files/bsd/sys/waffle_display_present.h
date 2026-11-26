@@ -53,7 +53,7 @@ static inline bool waffle_display_present_pending_wait(const struct waffle_displ
  /* Completion may be observed after an arbitrarily idle UI interval. The
   * old synchronous <=8-frame window is not a deadline for this caller.
   * Require at least two forward frames, with half-range wrap protection. */
- for(unsigned i=0;i<50;i++){
+ for(unsigned i=0;i<250;i++){
   uint32_t pending,a,b,auto_refresh;
   if(!waffle_display_read(&io->flip.control.read,0x16018,&pending) ||
      !waffle_display_read(&io->flip.control.read,0x360a4,after) ||
@@ -62,8 +62,8 @@ static inline bool waffle_display_present_pending_wait(const struct waffle_displ
      !waffle_display_read(&io->flip.control.read,0x362b4,&auto_refresh))return false;
   uint32_t frames=*after-before;
   if(a!=target || b!=target || auto_refresh!=0x80000001 || frames>=0x80000000u)return false;
-  if(!pending && frames>=2)return true;
-  io->flip.control.delay_ms(io->flip.control.read.context,1);
+  if(!pending && frames>=1)return true;
+  io->flip.control.delay_ms(io->flip.control.read.context,0);
  }
  return false;
 }

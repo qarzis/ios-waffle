@@ -14,7 +14,7 @@ XNU and iOS boot through UEFI into RAM.</p>
 | --- | :---: | --- |
 | CPU, interrupts, timers | ✅ | 7 cores tested; one core reserved for the USB loader |
 | Display | ✅ | 1440 × 3168 panel; iOS renders at 750 × 1624 |
-| GPU | ✅ | Hardware rendering through Mesa; stutter remains, long-term stability unverified |
+| GPU | ✅ | Hardware rendering on Adreno 750 (`FD750`, 680 MHz GMU OPP + DDR BW5) through Mesa; 60–82 fps with branchless bilinear scaling (`fb_filter=1`) and 1-TE double-buffered flips |
 | Metal | ❌ | |
 | Touch | ✅ | Taps and swipes |
 | Buttons | ✅ | Power, volume up, volume down |
@@ -22,15 +22,15 @@ XNU and iOS boot through UEFI into RAM.</p>
 | Wi-Fi | ✅ | WCN7850 Wi-Fi 7 (PCIe/MHI + ath12k); joins network, DHCP, Internet |
 | Vibration | ✅ | CoreHaptics and system vibration tested; ColorOS Crisp effect pending |
 | Flashlight | ✅ | On/off from Control Center |
-| Battery | ❌ | Native readings reach iOS power source; live UI percentage pending |
+| Battery | ✅ | Live percentage, voltage, current, temperature and USB charging status via ADSP `PMIC_RTR_ADSP_APPS` (`RedwoodBattery`), shown in iOS status bar |
 | Packages | ⚪ | Sileo and tweaks unverified |
 | Dynamic Island | ⚪ | Unverified |
-| 120 Hz | ⚪ | Unverified |
-| Sound | ✅ | 48 kHz stereo speaker playback & volume control via SM8650 ADSP AudioReach + dual NXP TFA9874 (`adsp=11`) |
+| 120 Hz | ✅ | Hardware panel TE VSync (`requested_hz=120`, `divider=1`) with 1-TE double-buffer flips |
+| Sound | ✅ | 48 kHz stereo speakers, volume control, system sounds and ringtones via SM8650 ADSP AudioReach + dual NXP TFA9874 (`adsp=11`, `TLToneManager` fallback) |
 | Microphone | ❌ | |
 | Camera | ❌ | |
 | Sensors | ❌ | |
-| Brightness | ❌ | No iOS brightness control |
+| Brightness | ✅ | Control Center / Settings / lock-screen OLED brightness control via `BrightnessSystem` → `IOMobileFramebuffer` (perceptual gamma curve, pure black on lock) |
 | Bluetooth | ❌ | |
 | Cellular, SIM | ❌ | |
 | GPS, NFC | ❌ | |

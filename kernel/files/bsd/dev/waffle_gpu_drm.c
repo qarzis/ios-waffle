@@ -30,6 +30,7 @@ struct drm_bo {
  uint32_t surface; /* Nonzero only for isolated retained native imports. */
  bool surface_manual_lease;
  bool surface_sample; /* Private read-only shader experiment, never a command root. */
+ bool surface_target; /* PID1 exclusive caller only; synchronous cached output experiment. */
 };
 static struct drm_bo drm_bos[WAFFLE_GPU_BO_LIMIT];
 static struct waffle_gpu_context *drm_context;
@@ -100,7 +101,7 @@ static void drm_root_refused(unsigned index,const struct waffle_msm_submit_cmd *
 }
 static int drm_submit(struct waffle_msm_submit *r)
 {
- redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
+ if(drm_fence<16)redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
  if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_BO_LIMIT || !r->nr_cmds ||
     r->in_syncobjs || r->out_syncobjs || r->nr_in_syncobjs || r->nr_out_syncobjs || r->syncobj_stride || r->pad ||
     !drm_queue_valid(r->queueid))return EINVAL;
@@ -114,7 +115,7 @@ static int drm_submit(struct waffle_msm_submit *r)
  if(!snapshot)return ENOMEM;
  int error=0;
  struct waffle_gpu_memory **sources=NULL;
- unsigned source_count=0;
+ unsigned source_count=0,target_count=0;
  bool sources_held=false;
  struct waffle_msm_submit_bo *bos=snapshot;
  struct waffle_msm_submit_cmd *commands=(void *)(bos+r->nr_bos);
@@ -130,11 +131,20 @@ static int drm_submit(struct waffle_msm_submit *r)
   /* Mesa initializes every reloc to READ|WRITE, including readonly shader
    * BOs. These flags are conservative usage hints, not PTE permissions.
    * Private sampler imports must still have actual immutable readonly PTEs. */
-  if(bo->surface && (!bo->surface_sample || !(bos[i].flags&1u) ||
-      bo->memory->flags!=(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY))){error=ENOTSUP;goto done;}
+  if(bo->surface){
+   bool source=bo->surface_sample && !bo->surface_target && (bos[i].flags&1u) &&
+       bo->memory->flags==(WAFFLE_GPU_BO_CACHED|WAFFLE_GPU_BO_READONLY);
+   bool target=bo->surface_target && !bo->surface_sample && (bos[i].flags&2u) &&
+       bo->memory->flags==WAFFLE_GPU_BO_CACHED && drm_pid==1;
+   if(!source && !target){error=ENOTSUP;goto done;}
+   if(target)target_count++;
+  }
   if(bo->surface_sample)source_count++;
   seen[slot/64]|=1ULL<<(slot%64);
  }
+ /* First writable-surface gate is one private exclusive target, without
+  * imported sources. CPU/GPU writer concurrency is not qualified here. */
+ if(target_count>1 || (target_count && source_count)){error=ENOTSUP;goto done;}
  for(unsigned i=0;i<r->nr_cmds;i++){
   struct waffle_msm_submit_cmd *cmd=&commands[i];
   struct drm_bo *bo=cmd->submit_idx<r->nr_bos?drm_buffer(bos[cmd->submit_idx].handle):NULL;
@@ -156,7 +166,7 @@ static int drm_submit(struct waffle_msm_submit *r)
   if(!waffle_gpu_memory_surface_reads_begin(sources,source_count,250)){error=EBUSY;goto done;}
   sources_held=true;
  }
- /* CPU writers are excluded until every synchronous submission completes.
+ /* For readonly source imports CPU writers are excluded until completion.
   * All input/root checks finish before the first cache transition/submission.
   * GPU page mappings are read-only, so completion cannot dirty this source. */
  for(unsigned i=0;i<r->nr_bos;i++){
@@ -164,6 +174,10 @@ static int drm_submit(struct waffle_msm_submit *r)
   if(bo->surface_sample){
    if(!waffle_gpu_memory_surface_sync(bo->memory,0,bo->memory->bytes,WAFFLE_GPU_SURFACE_TO_GPU)){error=EIO;goto done;}
    redwood_tl("waffle-gpu: SURFACE_SAMPLE sync=1 handle=%u bytes=%u GPU_readonly=1 declared_flags=%u\n",bo->handle,bo->memory->bytes,bos[i].flags);
+  }
+  if(bo->surface_target){
+   if(!waffle_gpu_memory_surface_sync(bo->memory,0,bo->memory->bytes,WAFFLE_GPU_SURFACE_TO_GPU)){error=EIO;goto done;}
+   redwood_tl("waffle-gpu: SURFACE_TARGET prepare=1 handle=%u bytes=%u CPU_clean=1 private_PID1=1\n",bo->handle,bo->memory->bytes);
   }
  }
  /* Controlled caller owns data consistency. Root bytes are snapshotted into
@@ -181,17 +195,27 @@ static int drm_submit(struct waffle_msm_submit *r)
   }
   struct waffle_gpu_submit_job job={.commands=roots+first,.count=cursor-first};
   if(!waffle_gpu_context_submit(drm_context,&job) || job.fence!=drm_fence+1){
-   if(sources_held){
+   if(sources_held || target_count){
     redwood_tl("waffle-gpu: SURFACE_LEASE uncertain=1 retain_backing=1\n");
     loader_return();for(;;);
    }
    error=EIO;goto done;
   }
   drm_fence=job.fence;windows++;
-  redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
+  if(drm_fence<=16)redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
+ }
+ /* The synchronous job validated hardware control and all guard words.
+  * Only now invalidate the exclusive target's cached CPU aliases. */
+ if(target_count)for(unsigned i=0;i<r->nr_bos;i++){
+  struct drm_bo *bo=drm_buffer(bos[i].handle);
+  if(!bo->surface_target)continue;
+  if(!waffle_gpu_memory_surface_sync(bo->memory,0,bo->memory->bytes,WAFFLE_GPU_SURFACE_TO_CPU)){
+   redwood_tl("waffle-gpu: SURFACE_TARGET invalidate_failed=1 retain_backing=1\n");loader_return();for(;;);
+  }
+  redwood_tl("waffle-gpu: SURFACE_TARGET complete=1 handle=%u fence=%u CPU_invalidated=1\n",bo->handle,drm_fence);
  }
  r->fence=drm_fence;
- redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
+ if(drm_fence<=16)redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
 done:
  if(sources_held && !waffle_gpu_memory_surface_reads_end(sources,source_count)){
   redwood_tl("waffle-gpu: SURFACE_LEASE release_failed=1 retain_backing=1\n");
@@ -298,13 +322,15 @@ static int drm_surface_map_test(struct waffle_msm_surface *r,bool write_test,boo
 /* Private lifetime experiment only. Ordinary 0x7e import stays ENOTSUP.
  * Duplicate import returns the existing handle, as PRIME does: it does not
  * create a second kernel reference that would require a second GEM_CLOSE. */
-static int drm_surface_import_access(struct waffle_msm_surface *r,bool sample)
+static int drm_surface_import_access(struct waffle_msm_surface *r,unsigned access)
 {
+ if(access>2 || (access==2 && drm_pid!=1))return EINVAL;
+ bool sample=access==1,target=access==2;
  if(!r->surface || r->handle || r->size || r->offset || r->row_bytes || r->width || r->height || r->pixel_format || r->planes)return EINVAL;
  struct waffle_msm_surface description={.surface=r->surface,.handle=WAFFLE_MSM_SURFACE_DESCRIBE};
  int error=waffle_gpu_surface_describe(&description);if(error)return error;
  for(unsigned i=0;i<drm_count;i++)if(drm_bos[i].live && drm_bos[i].surface==r->surface){
-  if(drm_bos[i].surface_sample!=sample)return EINVAL;
+  if(drm_bos[i].surface_sample!=sample || drm_bos[i].surface_target!=target)return EINVAL;
   description.handle=drm_bos[i].handle;*r=description;
   redwood_tl("waffle-gpu: SURFACE_IMPORT reused=1 sid=%u handle=%u\n",r->surface,r->handle);return 0;
  }
@@ -322,12 +348,13 @@ static int drm_surface_import_access(struct waffle_msm_surface *r,bool sample)
   }
   return EIO;
  }
- drm_bos[slot]=(struct drm_bo){.memory=bo,.live=true,.handle=handle,.surface=r->surface,.surface_sample=sample};
+ drm_bos[slot]=(struct drm_bo){.memory=bo,.live=true,.handle=handle,.surface=r->surface,.surface_sample=sample,.surface_target=target};
  if(slot==drm_count)drm_count++;drm_issued++;description.handle=handle;*r=description;
  redwood_tl("waffle-gpu: GENERAL gem_new handle=%u bytes=%u allocated=%u flags=%x VA=%llx\n",handle,bo->bytes,bo->allocation_bytes,bo->flags,(unsigned long long)bo->gpu_va);
  redwood_tl("waffle-gpu: SURFACE_IMPORT created=1 sid=%u handle=%u index=%u VA=%llx bytes=%u lifetime_only=%u\n",
-     r->surface,handle,bo->serial,(unsigned long long)bo->gpu_va,bo->allocation_bytes,!sample);
+     r->surface,handle,bo->serial,(unsigned long long)bo->gpu_va,bo->allocation_bytes,!(sample||target));
  if(sample)redwood_tl("waffle-gpu: SURFACE_SAMPLE imported=1 sid=%u handle=%u index=%u GPU_readonly=1\n",r->surface,handle,bo->serial);
+ if(target)redwood_tl("waffle-gpu: SURFACE_TARGET imported=1 sid=%u handle=%u index=%u GPU_writable=1 private_PID1=1\n",r->surface,handle,bo->serial);
  return 0;
 }
 /* Diagnostic-only held read lease: no GPU submission is allowed while held. */
@@ -355,8 +382,8 @@ static int drm_ioctl(dev_t dev,u_long command,caddr_t data,int flags,struct proc
  if(!drm_context || proc_pid(p)!=drm_pid){error=EPERM;goto done;}
  if(command==WAFFLE_MSM_SURFACE_LEASE_TEST){
   error=proc_pid(p)==1?drm_surface_lease_test((void *)data):EPERM;
- }else if(command==WAFFLE_MSM_SURFACE_IMPORT_TEST || command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT){
-  error=proc_pid(p)==1?drm_surface_import_access((void *)data,command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT):EPERM;
+ }else if(command==WAFFLE_MSM_SURFACE_IMPORT_TEST || command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT || command==WAFFLE_MSM_SURFACE_TARGET_IMPORT){
+  error=proc_pid(p)==1?drm_surface_import_access((void *)data,command==WAFFLE_MSM_SURFACE_TARGET_IMPORT?2:command==WAFFLE_MSM_SURFACE_SAMPLE_IMPORT?1:0):EPERM;
  }else if(command==WAFFLE_MSM_SURFACE_MAP_TEST || command==WAFFLE_MSM_SURFACE_WRITE_TEST || command==WAFFLE_MSM_SURFACE_READ_TEST){
   error=proc_pid(p)==1?drm_surface_map_test((void *)data,command==WAFFLE_MSM_SURFACE_WRITE_TEST,command==WAFFLE_MSM_SURFACE_READ_TEST):EPERM;
  }else if(command==WAFFLE_MSM_SURFACE){

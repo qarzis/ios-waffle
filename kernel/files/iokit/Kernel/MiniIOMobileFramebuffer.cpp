@@ -1,4 +1,5 @@
 #include <IOKit/IOLib.h>
+#include <stdarg.h>
 #include <IOKit/IOLocks.h>
 #include <IOKit/IOKitKeys.h>
 #include <IOKit/IOService.h>
@@ -23,6 +24,7 @@
 #include "../../bsd/sys/waffle_display_flip.h"
 #include "../../bsd/sys/waffle_display_present.h"
 #include "../../bsd/sys/waffle_display_completion.h"
+#include "../../bsd/sys/waffle_display_irq_probe.h"
 #include "../../bsd/sys/waffle_display_source.h"
 extern "C" {
 #include <console/video_console.h>
@@ -30,9 +32,11 @@ extern struct vc_info vinfo;
 }
 #include <IOKit/IOBufferMemoryDescriptor.h>
 #include "MiniIOSurface.h"
+extern "C" void loader_log_line(const char *);
 extern "C" void redwood_tl(const char * format, ...) __printflike(1, 2);
 extern "C" vm_offset_t ml_io_map_unmappable(vm_offset_t, vm_size_t, unsigned int);
 extern "C" void ml_io_unmap(vm_offset_t, vm_size_t);
+static TUNABLE(uint32_t, gWaffleDisplayIRQProbe, "waffle_display_irq_probe", 0);
 static TUNABLE(uint32_t, gWaffleDisplayCompletionAudit, "waffle_display_completion_audit", 0);
 static TUNABLE(uint32_t, gWaffleDisplaySurvey, "waffle_vsync_audit", 0);
 static TUNABLE(uint32_t, gWaffleDisplayFlush, "waffle_display_flush", 0);
@@ -95,12 +99,30 @@ static void waffleDisplaySMMUSurvey(void)
  }
  ml_io_unmap(base, 0x100000);
 }
-struct WaffleDisplayCompletionRecord {uint64_t ticks;uint32_t sequence,stage;bool valid;struct waffle_display_completion_sample sample;};
+struct WaffleDisplayCompletionRecord {uint64_t ticks;uint32_t sequence,stage;bool valid;struct waffle_display_completion_sample sample;struct waffle_display_irq_probe_result probe;};
 struct WaffleDisplayFlipContext {
  vm_offset_t dpu, smmu, target;unsigned writes;void *owner;bool quiescing;
  uint32_t auditStage,auditSequence,auditCount;bool auditLogged;
  WaffleDisplayCompletionRecord *audit;
+ struct waffle_display_irq_probe_state probeState;uint32_t probeWrites;
 };
+static bool waffleDisplayIRQProbeRead(void *p,uint32_t offset,uint32_t *value)
+{
+ return waffleDisplayRead((void *)((WaffleDisplayFlipContext *)p)->dpu,offset,value);
+}
+static bool waffleDisplayIRQProbeWrite(void *p,uint32_t offset,uint32_t value)
+{
+ WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
+ if (gWaffleDisplayIRQProbe != 1 || gWaffleDisplayCompletionAudit != 1 || gWaffleDisplayPresent != 1 ||
+     c->quiescing || !c->owner || c->auditLogged || c->auditStage != 1 || c->auditSequence > 8 ||
+     c->probeWrites >= 8 || !c->probeState.committed || !c->probeState.attempted || offset != 0x1018 || value != 0x100) return false;
+ uint32_t version,mux,enable;
+ if (!waffleDisplayRead((void *)c->dpu,0,&version) || version != 0xa0000000 ||
+     !waffleDisplayRead((void *)c->dpu,0x3625c,&mux) || (mux && mux != 0xf0000) ||
+     !waffleDisplayRead((void *)c->dpu,0x1010,&enable) || enable) return false;
+ *(volatile uint32_t *)(c->dpu + offset) = value;
+ __asm__ volatile("dsb sy" ::: "memory");c->probeWrites++;return true;
+}
 static void waffleDisplayCompletionObserve(WaffleDisplayFlipContext *c,unsigned stage)
 {
  if (!gWaffleDisplayCompletionAudit || !gWaffleDisplayPresent || !c->owner || c->quiescing ||
@@ -109,13 +131,41 @@ static void waffleDisplayCompletionObserve(WaffleDisplayFlipContext *c,unsigned 
  r->ticks = mach_absolute_time();r->sequence = c->auditSequence;r->stage = stage;
  struct waffle_display_io io = {(void *)c->dpu, waffleDisplayRead};
  r->valid = waffle_display_completion_capture(&io, &r->sample);
+ if (gWaffleDisplayIRQProbe == 1 && r->valid) {
+  if (stage == 2) waffle_display_irq_probe_begin(&c->probeState,c->auditSequence,&r->sample);
+  else if (stage == 3) waffle_display_irq_probe_commit(&c->probeState,c->auditSequence,&r->sample);
+  else if (stage == 1) {
+   struct waffle_display_irq_probe_io probe = {{c,waffleDisplayIRQProbeRead},waffleDisplayIRQProbeWrite};
+   r->probe = waffle_display_irq_probe_step(&probe,&c->probeState,c->auditSequence,&r->sample);
+  }
+ }
+}
+static void waffleDisplayCompactLog(const char *format,...) __printflike(1,2);
+static void waffleDisplayCompactLog(const char *format,...)
+{
+ char line[64];va_list args;va_start(args,format);
+ int n = vsnprintf(line,sizeof(line),format,args);va_end(args);
+ loader_log_line(n > 0 && n < (int)sizeof(line) ? line : "!dph:error!\n");
 }
 static void waffleDisplayCompletionLog(WaffleDisplayFlipContext *c)
 {
  if (!c->auditCount || c->auditLogged) return;
  c->auditLogged = true;c->auditStage = 0;
- redwood_tl("waffle-display-completion: records=%u no_extra_writes=1 guard_frames=2 cntfrq=%llu\n", c->auditCount,
+ if (gWaffleDisplayIRQProbe == 1) {
+  waffleDisplayCompactLog("!dph:v1/%x/%llx/%x/1!\n",c->auditCount,(unsigned long long)__builtin_arm_rsr64("CNTFRQ_EL0"),c->probeWrites);
+  for (unsigned i = 0; i < c->auditCount; i++) {
+   const WaffleDisplayCompletionRecord *r = &c->audit[i];const struct waffle_display_completion_sample *v = &r->sample;
+   waffleDisplayCompactLog("!dpa:%x/%x/%x/%llx/%x/%x/%x!\n",i,r->sequence,r->stage,(unsigned long long)r->ticks,v->frame_before,v->frame_after,r->valid?1u:0u);
+   waffleDisplayCompactLog("!dpb:%x/%x/%x/%x/%x/%x!\n",i,v->flush,v->scheduler,v->auto_status,v->write_line,v->read_line);
+   waffleDisplayCompactLog("!dpc:%x/%x/%x/%x/%x!\n",i,v->address0,v->address1,v->irq_top,v->irq_top_enable);
+   waffleDisplayCompactLog("!dpd:%x/%x/%x/%x/%x/%x!\n",i,v->irq_ctl,v->irq_ctl_enable,v->irq_tear,v->irq_tear_enable,v->ctl_active);
+   if (r->probe.action) waffleDisplayCompactLog("!dpp:%x/%x/%x/%x/%x/%x/%x!\n",i,r->sequence,r->probe.action,r->probe.wrote?1u:0u,r->probe.status_after,r->probe.mux,r->probe.version);
+  }
+  return;
+ }
+ redwood_tl("waffle-display-completion: records=%u no_extra_writes=%u guard_frames=2 cntfrq=%llu\n", c->auditCount, !c->probeWrites,
      (unsigned long long)__builtin_arm_rsr64("CNTFRQ_EL0"));
+ if (gWaffleDisplayIRQProbe == 1) redwood_tl("waffle-display-irq-probe: enabled=1 writes=%u clear_offset=1018 clear_mask=100 guard_frames=2 mode_change=0 irq_enable_writes=0\n",c->probeWrites);
  for (unsigned i = 0; i < c->auditCount; i++) {
   const WaffleDisplayCompletionRecord *r = &c->audit[i];const struct waffle_display_completion_sample *v = &r->sample;
   redwood_tl("waffle-display-completion: row=%u seq=%u stage=%u ticks=%llu valid=%u frame0=%u frame1=%u flush=%x scheduler=%x auto_status=%x write_line=%u read_line=%u address0=%x address1=%x\n",
@@ -123,6 +173,8 @@ static void waffleDisplayCompletionLog(WaffleDisplayFlipContext *c)
       v->flush, v->scheduler, v->auto_status, v->write_line, v->read_line, v->address0, v->address1);
   redwood_tl("waffle-display-irq: row=%u top_status=%x top_enable=%x ctl_status=%x ctl_enable=%x tear_status=%x tear_enable=%x active=%x\n",
       i, v->irq_top, v->irq_top_enable, v->irq_ctl, v->irq_ctl_enable, v->irq_tear, v->irq_tear_enable, v->ctl_active);
+  if (r->probe.action) redwood_tl("waffle-display-irq-probe: row=%u seq=%u action=%u wrote=%u status_after=%x mux=%x version=%x\n",
+      i,r->sequence,r->probe.action,r->probe.wrote,r->probe.status_after,r->probe.mux,r->probe.version);
  }
 }
 
@@ -204,7 +256,8 @@ static WaffleDisplayPresentState *gWafflePresenter;
 static void waffleDisplayPresentDelay(void *p, unsigned ms)
 {
  WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
- if (c->quiescing) delay_for_interval(ms, NSEC_PER_MSEC);
+ if (ms == 0) delay_for_interval(200, NSEC_PER_USEC);
+ else if (c->quiescing) delay_for_interval(ms, NSEC_PER_MSEC);
  else IOSleep(ms);
 }
 static bool waffleDisplayPresentCopy(void *p, uint32_t address)
@@ -400,7 +453,7 @@ enum {
 #define SWAP_LAYERS 4
 #define kFBNotifyVSync 5
 #define kFBNotifyTypes 8
-#define kFBRefreshHz 60
+#define kFBRefreshHz 120
 #define FRAME_TIMES 64
 #define FRAME_PAUSE 90
 #define SWAP_GPU_MS 500
@@ -623,6 +676,7 @@ public:
  bool fRecDone;
  bool fRecWrapped;
  virtual bool start(IOService * provider) APPLE_KEXT_OVERRIDE;
+ virtual IOReturn setProperties(OSObject * properties) APPLE_KEXT_OVERRIDE;
  void publishModes(void);
  MiniIOSurface * defaultSurface(void);
  void present(const uint8_t * swap);
@@ -642,6 +696,90 @@ public:
  void record(MiniIOSurface * s);
 };
 OSDefineMetaClassAndStructors(IOMobileFramebuffer, IOService);
+static volatile uint32_t gBrightnessScale = 256;
+static inline uint32_t
+scalePixel(uint32_t px, uint32_t scale)
+{
+ if (scale == 0u) {
+  return px & 0xff000000u;
+ }
+ uint32_t rb = (((px & 0x00ff00ffu) * scale) >> 8) & 0x00ff00ffu;
+ uint32_t g  = (((px & 0x0000ff00u) * scale) >> 8) & 0x0000ff00u;
+ return (px & 0xff000000u) | rb | g;
+}
+static void
+waffleApplyBrightnessProperty(OSObject * properties)
+{
+ OSDictionary * dict = OSDynamicCast(OSDictionary, properties);
+ if (dict == NULL) {
+  return;
+ }
+ static unsigned logCount = 0;
+ OSCollectionIterator * it = OSCollectionIterator::withCollection(dict);
+ if (it == NULL) {
+  return;
+ }
+ OSSymbol * keySym;
+ while ((keySym = OSDynamicCast(OSSymbol, it->getNextObject())) != NULL) {
+  const char * key = keySym->getCStringNoCopy();
+  OSObject * val = dict->getObject(keySym);
+  if (key == NULL || val == NULL) {
+   continue;
+  }
+  if (OSDictionary * sub = OSDynamicCast(OSDictionary, val)) {
+   waffleApplyBrightnessProperty(sub);
+   continue;
+  }
+  OSNumber * num = OSDynamicCast(OSNumber, val);
+  if (num != NULL) {
+   uint64_t v = num->unsigned64BitValue();
+   bool matched = (strcmp(key, "brightness") == 0 || strcmp(key, "linear-brightness") == 0 ||
+       strcmp(key, "Brightness") == 0 || strcmp(key, "brightness-nits") == 0 ||
+       strcmp(key, "IOMFBBrightness") == 0 || strcmp(key, "DisplayBrightnessFactor") == 0);
+   if (matched) {
+    uint32_t q16 = 0x10000u;
+    if (v == 0) {
+     q16 = 0u;
+    } else if (v <= 100) {
+     q16 = (uint32_t)((v * 0x10000ULL) / 100ULL);
+    } else if (v <= 1000) {
+     q16 = (uint32_t)((v * 0x10000ULL) / 1000ULL);
+    } else if (v <= 0x10000ULL) {
+     q16 = (uint32_t)v;
+    } else {
+     uint64_t nits = v >> 16;
+     q16 = nits >= 600 ? 0x10000u : (uint32_t)((nits * 0x10000ULL) / 600ULL);
+    }
+    if (q16 == 0u) {
+     gBrightnessScale = 0u; /* OLED black on screen lock / factor=0 */
+    } else {
+     /* Perceptual gamma curve: 50% slider -> scale 198 (clean bright whites),
+      * 100% slider -> scale 256 (zero-overhead copy), min awake -> scale 24. */
+     uint64_t inv = 0x10000ULL - q16;
+     uint64_t curved = 0x10000ULL - ((inv * inv) >> 16);
+     uint32_t scale = 24u + (uint32_t)((curved * 232ULL) / 0x10000ULL);
+     if (scale > 256u) { scale = 256u; }
+     gBrightnessScale = scale;
+    }
+   }
+   if (logCount < 48) {
+    logCount++;
+    redwood_tl("waffle-brightness: set key=%s val=%llu (0x%llx) matched=%u scale=%u\n",
+        key, (unsigned long long)v, (unsigned long long)v, matched, gBrightnessScale);
+   }
+  } else if (logCount < 48) {
+   logCount++;
+   redwood_tl("waffle-brightness: set key=%s class=%s\n", key, val->getMetaClass()->getClassName());
+  }
+ }
+ it->release();
+}
+IOReturn
+IOMobileFramebuffer::setProperties(OSObject * properties)
+{
+ waffleApplyBrightnessProperty(properties);
+ return kIOReturnSuccess;
+}
 static void
 setNumber(OSDictionary * dict, const char * key, uint64_t value)
 {
@@ -948,8 +1086,25 @@ IOMobileFramebuffer::drawRows(const RowJob * job, int32_t y0, int32_t y1, uint32
    continue;
   }
   to = (uint32_t *) (fBase + (size_t) y * fRowBytes);
+  uint32_t bscale = gBrightnessScale;
+  if (bscale == 0u) {
+   if (job->unscaled) {
+    memset(to + px0, 0, (size_t) sw * 4);
+   } else {
+    memset(to + cx0, 0, (size_t) (cx1 - cx0) * 4);
+   }
+   continue;
+  }
   if (job->unscaled) {
-   memcpy(to + px0, pixels + (size_t) (sy + y - py0) * stride + (size_t) sx * 4, (size_t) sw * 4);
+   const uint32_t * __restrict srcRow = (const uint32_t *) (pixels + (size_t) (sy + y - py0) * stride + (size_t) sx * 4);
+   if (bscale >= 256u) {
+    memcpy(to + px0, srcRow, (size_t) sw * 4);
+   } else {
+    uint32_t * __restrict out = to + px0;
+    for (int32_t x = 0; x < sw; x++) {
+     out[x] = scalePixel(srcRow[x], bscale);
+    }
+   }
    continue;
   }
   if (filter) {
@@ -963,8 +1118,7 @@ IOMobileFramebuffer::drawRows(const RowJob * job, int32_t y0, int32_t y1, uint32
     uint32_t first = fColumn[cx0], last = fColumn[cx1 - 1] + 1 < (uint32_t) sw ? fColumn[cx1 - 1] + 1 : fColumn[cx1 - 1];
     uint32_t * __restrict mixed = blendRow;
     for (uint32_t c = first; c <= last; c++) {
-     uint32_t a = upper[c], b = lower[c];
-     mixed[c] = a == b ? a : blend(a, b, weight);
+     mixed[c] = blend(upper[c], lower[c], weight);
     }
     from = blendRow;
    }
@@ -988,13 +1142,29 @@ IOMobileFramebuffer::drawRows(const RowJob * job, int32_t y0, int32_t y1, uint32
    const uint32_t * __restrict column = fColumn + cx0;
    const uint16_t * __restrict weights = fColumnWeight + cx0;
    uint32_t * __restrict out = to + cx0;
-   for (uint32_t i = 0, n = (uint32_t) (cx1 - cx0); i < n; i++) {
-    uint32_t c = column[i], w = weights[i], a = from[c];
-    out[i] = w == 0 || a == from[c + 1] ? a : blend(a, from[c + 1], w);
+   if (bscale >= 256u) {
+    for (uint32_t i = 0, n = (uint32_t) (cx1 - cx0); i < n; i++) {
+     uint32_t c = column[i];
+     out[i] = blend(from[c], from[c + 1], weights[i]);
+    }
+   } else {
+    for (uint32_t i = 0, n = (uint32_t) (cx1 - cx0); i < n; i++) {
+     uint32_t c = column[i];
+     out[i] = scalePixel(blend(from[c], from[c + 1], weights[i]), bscale);
+    }
    }
   } else {
-   for (int32_t x = cx0; x < cx1; x++) {
-    to[x] = from[fColumn[x]];
+   const uint32_t * __restrict column = fColumn + cx0;
+   uint32_t * __restrict out = to + cx0;
+   uint32_t n = (uint32_t) (cx1 - cx0);
+   if (bscale >= 256u) {
+    for (uint32_t i = 0; i < n; i++) {
+     out[i] = from[column[i]];
+    }
+   } else {
+    for (uint32_t i = 0; i < n; i++) {
+     out[i] = scalePixel(from[column[i]], bscale);
+    }
    }
   }
  }

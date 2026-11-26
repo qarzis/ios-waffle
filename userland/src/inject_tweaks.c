@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <mach-o/dyld.h>
 #include <objc/runtime.h>
+#include <pthread.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -202,6 +203,112 @@ load_the_tweaks(void)
       who != NULL ? who : "no bundle", opened, tried);
  }
 }
+static const char *const waffle_ringtones[] = {
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Birdsong.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Bright-Eyed.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Droplets.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Early_Riser.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/First_Light.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Helios.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Orbit.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Springtide.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Sunny.m4r",
+};
+static id (*orig_tone_path)(id, SEL, id);
+static id (*orig_tone_path_valid)(id, SEL, id, BOOL *);
+static BOOL (*orig_tone_valid)(id, SEL, id);
+static id
+waffle_fallback_ringtone(id tone_id)
+{
+ char idbuf[128] = "";
+ uint32_t h = 2166136261u;
+ if (tone_id != NULL && CFGetTypeID((CFTypeRef)tone_id) == CFStringGetTypeID()) {
+  CFStringGetCString((CFStringRef)tone_id, idbuf, sizeof(idbuf), kCFStringEncodingUTF8);
+  for (const char *p = idbuf; *p; p++) { h = (h ^ (uint8_t)*p) * 16777619u; }
+ }
+ const char *chosen = waffle_ringtones[h % (sizeof(waffle_ringtones) / sizeof(waffle_ringtones[0]))];
+ static unsigned logged = 0;
+ if (logged < 24) {
+  logged++;
+  say("redwood-tone: mapped '%s' -> %s\n", idbuf, chosen);
+ }
+ return (id)CFStringCreateWithCString(kCFAllocatorDefault, chosen, kCFStringEncodingUTF8);
+}
+static BOOL
+waffle_path_readable(id path_obj)
+{
+ char pbuf[512];
+ if (path_obj == NULL || CFGetTypeID((CFTypeRef)path_obj) != CFStringGetTypeID()) {
+  return NO;
+ }
+ if (!CFStringGetCString((CFStringRef)path_obj, pbuf, sizeof(pbuf), kCFStringEncodingUTF8)) {
+  return NO;
+ }
+ return access(pbuf, R_OK) == 0 ? YES : NO;
+}
+static id
+waffle_tone_file_path(id self, SEL sel, id tone_id)
+{
+ id path = orig_tone_path ? orig_tone_path(self, sel, tone_id) : NULL;
+ if (waffle_path_readable(path)) {
+  return path;
+ }
+ return waffle_fallback_ringtone(tone_id);
+}
+static id
+waffle_tone_file_path_valid(id self, SEL sel, id tone_id, BOOL *is_valid)
+{
+ id path = orig_tone_path_valid ? orig_tone_path_valid(self, sel, tone_id, is_valid) : NULL;
+ if (waffle_path_readable(path)) {
+  return path;
+ }
+ if (is_valid != NULL) {
+  *is_valid = YES;
+ }
+ return waffle_fallback_ringtone(tone_id);
+}
+static BOOL
+waffle_tone_is_valid(id self, SEL sel, id tone_id)
+{
+ if (orig_tone_valid && orig_tone_valid(self, sel, tone_id)) {
+  return YES;
+ }
+ return tone_id != NULL ? YES : NO;
+}
+static void *
+waffle_tone_thread(void *arg __unused)
+{
+ for (unsigned i = 0; i < 120; i++) {
+  Class cls = objc_getClass("TLToneManager");
+  if (cls != NULL) {
+   unsigned hooked = 0;
+   Method m1 = class_getInstanceMethod(cls, sel_registerName("filePathForToneIdentifier:"));
+   if (m1 != NULL) {
+    orig_tone_path = (id (*)(id, SEL, id))method_getImplementation(m1);
+    method_setImplementation(m1, (IMP)waffle_tone_file_path);
+    hooked++;
+   }
+   Method m2 = class_getInstanceMethod(cls, sel_registerName("_filePathForToneIdentifier:isValid:"));
+   if (m2 != NULL) {
+    orig_tone_path_valid = (id (*)(id, SEL, id, BOOL *))method_getImplementation(m2);
+    method_setImplementation(m2, (IMP)waffle_tone_file_path_valid);
+    hooked++;
+   }
+   Method m3 = class_getInstanceMethod(cls, sel_registerName("toneWithIdentifierIsValid:"));
+   if (m3 != NULL) {
+    orig_tone_valid = (BOOL (*)(id, SEL, id))method_getImplementation(m3);
+    method_setImplementation(m3, (IMP)waffle_tone_is_valid);
+    hooked++;
+   }
+   if (hooked) {
+    say("redwood-tone: hooked TLToneManager in Preferences (%u methods)\n", hooked);
+    return NULL;
+   }
+  }
+  usleep(250000);
+ }
+ return NULL;
+}
 __attribute__((constructor))
 static void
 redwood_tweaks_init(void)
@@ -212,4 +319,11 @@ redwood_tweaks_init(void)
  }
  done = true;
  load_the_tweaks();
+ const char *name = executable_name();
+ if (name != NULL && strcmp(name, "Preferences") == 0) {
+  pthread_t t;
+  if (pthread_create(&t, NULL, waffle_tone_thread, NULL) == 0) {
+   pthread_detach(t);
+  }
+ }
 }
