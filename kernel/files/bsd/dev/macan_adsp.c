@@ -2016,6 +2016,48 @@ step_battery_samples(void)
  if (battery_report_requested) printf("adsp: BATTERY_REPORT passed=1 samples=3 period_ms=10000 bounded=1 setters=0\n");
  return true;
 }
+static void
+waffle_battery_poll_live(void)
+{
+ static int last_soc = -1, last_ext = -1;
+ struct glink_channel *channel = NULL;
+ lck_mtx_lock(&glink_lock);
+ for (unsigned i = 0; i < CHANNELS; i++) {
+  if (glink.channel[i].open && !strcmp(glink.channel[i].name, "PMIC_RTR_ADSP_APPS")) {
+   channel = &glink.channel[i];
+   break;
+  }
+ }
+ lck_mtx_unlock(&glink_lock);
+ if (!channel) { return; }
+ const uint32_t properties[6] = {4, 2, 0, 7, 9, 12};
+ uint32_t values[6] = {}, external = 0;
+ for (unsigned i = 0; i < 6; i++) {
+  if (!battery_probe_get(channel, WAFFLE_BATTERY_GET, properties[i], &values[i])) { return; }
+ }
+ if (!battery_probe_get(channel, WAFFLE_BATTERY_USB_GET, 0, &external)) { return; }
+ struct redwood_battery_state state = {
+  .size = sizeof(state),
+  .percent_hundredths = (int32_t)values[0],
+  .present = (int32_t)values[1],
+  .status = (int32_t)values[2],
+  .voltage_uv = (int32_t)values[3],
+  .current_ua = (int32_t)values[4],
+  .temperature_hundredths = (int32_t)values[5],
+  .external = external != 0,
+ };
+ redwood_battery_report(&state);
+ int soc = (state.percent_hundredths + 50) / 100;
+ if (soc != last_soc || (int)state.external != last_ext) {
+  last_soc = soc;
+  last_ext = (int)state.external;
+  printf("adsp: BATTERY_LIVE soc=%d%% V=%dmV I=%dmA T=%d.%dC ext=%u status=%d\n",
+      soc, state.voltage_uv / 1000, state.current_ua / 1000,
+      state.temperature_hundredths / 100,
+      (state.temperature_hundredths < 0 ? -state.temperature_hundredths : state.temperature_hundredths) % 100,
+      state.external, state.status);
+ }
+}
 #define QRTR_US 1u
 #define QRTR_CONTROL 0xfffffffeu
 enum { QRTR_DATA = 1, QRTR_HELLO = 2, QRTR_BYE = 3, QRTR_NEW_SERVER = 4, QRTR_DEL_SERVER = 5, QRTR_DEL_CLIENT = 6, QRTR_RESUME_TX = 7,
@@ -3053,58 +3095,64 @@ step_apm_ios_sink(void)
  lck_mtx_unlock(&dsp_lock);
 
  uint64_t dsp_base = (uint64_t)WAFFLE_AUDIO_IOVA | (1ull << 32);
- uint64_t last_sound_us = 0, bufs_sent = 0;
- uint32_t slot_idx = 0, inflight = 0, last_vol_gen = 0xffffffffu;
+ uint64_t last_bat_us = 0, bufs_sent = 0;
+ uint32_t slot_idx = 0, inflight = 0, tail_zeros = 0, last_vol_gen = 0xffffffffu;
+ /* Keep dual TFA9874 amps awake while IOS_SINK is active so short 10-60ms
+  * system sounds (keyboard clicks, lock click, notifications) never get
+  * swallowed by amp power-up ramp time. Cleanly powered off in cleanup:. */
+ waffle_tfa_power(true);
+ waffle_battery_poll_live();
+ last_bat_us = now_us();
  while (!stopping && !link_failed) {
   if (glink.broken || !glink.channel[CHANNEL_QRTR].open || !glink.channel[CHANNEL_GPR].open) {
    link_failed = true;
    break;
   }
   if (inflight >= 2u) {
-   for (unsigned ms = 0; ms < 100 && !stopping && !link_failed && !os_atomic_load(&gpr_buf_done, acquire); ms += 4) { sleep_ms(4); }
+   for (unsigned ms = 0; ms < 100 && !stopping && !link_failed && !os_atomic_load(&gpr_buf_done, acquire); ms += 2) { sleep_ms(2); }
    if (os_atomic_load(&gpr_buf_done, acquire)) {
     os_atomic_store(&gpr_buf_done, false, release);
     inflight--;
    }
   }
-  uint32_t slot = (slot_idx & 1u) * 4096u;
+  uint32_t slot = (slot_idx & 1u) * 2048u;
   int16_t *pcm = (int16_t *)(audio_smmu.buf + slot);
-  uint32_t got = waffle_pcm_pull(pcm, 1024u);
+  uint32_t got = waffle_pcm_pull(pcm, 512u);
   if (got == 0) {
-   if (inflight > 0 && os_atomic_load(&gpr_buf_done, acquire)) {
-    os_atomic_store(&gpr_buf_done, false, release);
-    inflight--;
+   if (tail_zeros > 0) {
+    /* Flush trailing silence through AudioReach PCM_DEC -> MFC -> MI2S-SEC
+     * so short system sounds (clicks, chimes) play out completely. */
+    bzero(pcm, 2048u);
+    tail_zeros--;
+   } else {
+    if (inflight > 0 && os_atomic_load(&gpr_buf_done, acquire)) {
+     os_atomic_store(&gpr_buf_done, false, release);
+     inflight--;
+    }
+    uint64_t now = now_us();
+    if (now - last_bat_us >= 10000000ULL) {
+     waffle_battery_poll_live();
+     last_bat_us = now_us();
+    }
+    sleep_ms(3);
+    continue;
    }
-   if (waffle_tfa_active && now_us() - last_sound_us > 1500000ULL) {
-    waffle_tfa_power(false);
-   }
-   sleep_ms(15);
-   continue;
-  }
-  if (got < 1024u) { bzero(pcm + got * 2u, (1024u - got) * 4u); }
-  uint32_t below = 0, gen = 0;
-  bool muted = false;
-  if (redwood_audio_volume(&below, &muted, &gen)) {
-   if (gen != last_vol_gen) {
-    last_vol_gen = gen;
-    printf("adsp: IOS_SINK vol below=%u/8dB muted=%u\n", below, muted);
-   }
-   waffle_apply_volume(pcm, 1024u, below, muted);
   } else {
-   waffle_apply_volume(pcm, 1024u, 0, false);
+   if (got < 512u) { bzero(pcm + got * 2u, (512u - got) * 4u); }
+   uint32_t below = 0, gen = 0;
+   bool muted = false;
+   if (redwood_audio_volume(&below, &muted, &gen)) {
+    if (gen != last_vol_gen) {
+     last_vol_gen = gen;
+     printf("adsp: IOS_SINK vol below=%u/8dB muted=%u\n", below, muted);
+    }
+    waffle_apply_volume(pcm, 512u, below, muted);
+   } else {
+    waffle_apply_volume(pcm, 512u, 0, false);
+   }
+   tail_zeros = 4u;
   }
-  uint32_t peak = 0;
-  for (uint32_t i = 0; i < 2048u; i++) {
-   uint32_t a = pcm[i] < 0 ? (uint32_t)(-(int32_t)pcm[i]) : (uint32_t)pcm[i];
-   if (a > peak) { peak = a; }
-  }
-  if (peak > 8u) {
-   last_sound_us = now_us();
-   if (!waffle_tfa_active) { waffle_tfa_power(true); }
-  } else if (waffle_tfa_active && now_us() - last_sound_us > 1500000ULL) {
-   waffle_tfa_power(false);
-  }
-  waffle_audio_cache_clean(audio_smmu.buf + slot, 4096u);
+  waffle_audio_cache_clean(audio_smmu.buf + slot, 2048u);
   uint64_t dsp_addr = dsp_base + slot;
   struct {
    struct gpr_header h;
@@ -3116,7 +3164,7 @@ step_apm_ios_sink(void)
        .source_port = 1, .dest_port = WAFFLE_APM_WRITE_EP, .token = ++gpr_token,
        .opcode = DATA_CMD_WR_SH_MEM_EP_DATA_BUFFER_V2 },
    .data_lsw = (uint32_t)dsp_addr, .data_msw = (uint32_t)(dsp_addr >> 32),
-   .data_handle = handle, .data_size = 4096u,
+   .data_handle = handle, .data_size = 2048u,
   };
   if (inflight == 0) { os_atomic_store(&gpr_buf_done, false, release); }
   if (!glink_send(&glink.channel[CHANNEL_GPR], &wrbuf, sizeof(wrbuf))) {
@@ -3198,7 +3246,7 @@ link_thread(__unused void *parameter, __unused wait_result_t result)
     qrtr_input(packet->data, packet->length);
    } else if (from == CHANNEL_GPR) {
     gpr_input(packet->data, packet->length);
-   } else if (battery_probe_requested && !strcmp(glink.channel[from].name, "PMIC_RTR_ADSP_APPS")) {
+   } else if ((battery_probe_requested || pcm_ring_buf != NULL) && !strcmp(glink.channel[from].name, "PMIC_RTR_ADSP_APPS")) {
     battery_probe_input(packet->data, packet->length);
    } else {
     if (glink.trace) { glink.trace--; printf("adsp: channel %s received %u bytes\n", glink.channel[from].name, packet->length); }

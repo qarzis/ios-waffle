@@ -367,6 +367,177 @@ brightness_fixes(void)
  }
  method_setImplementation(method, (IMP)wait_for_als_arrival);
 }
+static BOOL (*orig_bs_set_prop)(id, SEL, id, id);
+static float waffle_bl_slider = 0.75f, waffle_bl_factor = 1.0f;
+static io_service_t waffle_bl_service = 0;
+static kern_return_t (*waffle_io_set_prop)(io_registry_entry_t, CFStringRef, CFTypeRef);
+static void
+waffle_bl_push(const char *why)
+{
+ if (waffle_io_set_prop == NULL) {
+  waffle_io_set_prop = (kern_return_t (*)(io_registry_entry_t, CFStringRef, CFTypeRef))
+      dlsym(RTLD_DEFAULT, "IORegistryEntrySetCFProperty");
+ }
+ if (waffle_bl_service == 0) {
+  waffle_bl_service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleARMBacklight"));
+  if (waffle_bl_service == 0) {
+   waffle_bl_service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOMobileFramebuffer"));
+  }
+ }
+ if (waffle_bl_service == 0 || waffle_io_set_prop == NULL) {
+  return;
+ }
+ float eff = waffle_bl_slider * waffle_bl_factor;
+ if (eff < 0.0f) eff = 0.0f;
+ if (eff > 1.0f) eff = 1.0f;
+ int32_t level = (waffle_bl_factor <= 0.001f) ? 0 : (int32_t)(eff * 65535.0f + 1.0f);
+ CFNumberRef num = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &level);
+ if (num != NULL) {
+  kern_return_t kr = waffle_io_set_prop(waffle_bl_service, CFSTR("brightness"), num);
+  CFRelease(num);
+  say("redwood-brightness: %s slider=%.3f factor=%.3f level=%d kr=%#x\n",
+      why, (double)waffle_bl_slider, (double)waffle_bl_factor, level, kr);
+ }
+}
+static BOOL
+waffle_bs_set_prop(id self, SEL selector, id value, id key)
+{
+ BOOL res = orig_bs_set_prop ? orig_bs_set_prop(self, selector, value, key) : YES;
+ if (key != NULL && CFGetTypeID((CFTypeRef)key) == CFStringGetTypeID()) {
+  char kbuf[64] = "";
+  if (CFStringGetCString((CFStringRef)key, kbuf, sizeof(kbuf), kCFStringEncodingUTF8)) {
+   if (strcmp(kbuf, "DisplayBrightness") == 0 && value != NULL &&
+       CFGetTypeID((CFTypeRef)value) == CFDictionaryGetTypeID()) {
+    CFTypeRef b = CFDictionaryGetValue((CFDictionaryRef)value, CFSTR("Brightness"));
+    float v = 0.0f;
+    if (b != NULL && CFGetTypeID(b) == CFNumberGetTypeID() &&
+        CFNumberGetValue((CFNumberRef)b, kCFNumberFloatType, &v)) {
+     waffle_bl_slider = v;
+     waffle_bl_push("DisplayBrightness");
+    }
+   } else if ((strcmp(kbuf, "DisplayBrightnessFactor") == 0 ||
+               strcmp(kbuf, "DisplayBrightnessFactorWithFade") == 0) &&
+              value != NULL && CFGetTypeID((CFTypeRef)value) == CFNumberGetTypeID()) {
+    float v = 1.0f;
+    if (CFNumberGetValue((CFNumberRef)value, kCFNumberFloatType, &v)) {
+     waffle_bl_factor = v;
+     waffle_bl_push(kbuf);
+    }
+   }
+  }
+ }
+ return res;
+}
+static const char *const waffle_ringtones[] = {
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Birdsong.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Bright-Eyed.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Droplets.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Early_Riser.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/First_Light.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Helios.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Orbit.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Springtide.m4r",
+ "/System/Library/PrivateFrameworks/ToneLibrary.framework/AlarmWakeUpRingtones/Sunny.m4r",
+};
+static id (*orig_tone_path)(id, SEL, id);
+static id (*orig_tone_path_valid)(id, SEL, id, BOOL *);
+static id
+waffle_fallback_ringtone(id tone_id)
+{
+ char idbuf[128] = "";
+ uint32_t h = 2166136261u;
+ if (tone_id != NULL && CFGetTypeID((CFTypeRef)tone_id) == CFStringGetTypeID()) {
+  CFStringGetCString((CFStringRef)tone_id, idbuf, sizeof(idbuf), kCFStringEncodingUTF8);
+  for (const char *p = idbuf; *p; p++) { h = (h ^ (uint8_t)*p) * 16777619u; }
+ }
+ const char *chosen = waffle_ringtones[h % (sizeof(waffle_ringtones) / sizeof(waffle_ringtones[0]))];
+ static unsigned logged = 0;
+ if (logged < 16) {
+  logged++;
+  say("redwood-tone: mapped '%s' -> %s\n", idbuf, chosen);
+ }
+ return (id)CFStringCreateWithCString(kCFAllocatorDefault, chosen, kCFStringEncodingUTF8);
+}
+static BOOL
+waffle_path_readable(id path_obj)
+{
+ char pbuf[512];
+ if (path_obj == NULL || CFGetTypeID((CFTypeRef)path_obj) != CFStringGetTypeID()) {
+  return NO;
+ }
+ if (!CFStringGetCString((CFStringRef)path_obj, pbuf, sizeof(pbuf), kCFStringEncodingUTF8)) {
+  return NO;
+ }
+ return access(pbuf, R_OK) == 0 ? YES : NO;
+}
+static id
+waffle_tone_file_path(id self, SEL sel, id tone_id)
+{
+ id path = orig_tone_path ? orig_tone_path(self, sel, tone_id) : NULL;
+ if (waffle_path_readable(path)) {
+  return path;
+ }
+ return waffle_fallback_ringtone(tone_id);
+}
+static id
+waffle_tone_file_path_valid(id self, SEL sel, id tone_id, BOOL *is_valid)
+{
+ id path = orig_tone_path_valid ? orig_tone_path_valid(self, sel, tone_id, is_valid) : NULL;
+ if (waffle_path_readable(path)) {
+  return path;
+ }
+ if (is_valid != NULL) {
+  *is_valid = YES;
+ }
+ return waffle_fallback_ringtone(tone_id);
+}
+static void *
+waffle_tone_thread(void *arg __unused)
+{
+ for (unsigned i = 0; i < 80; i++) {
+  Class cls = objc_getClass("TLToneManager");
+  if (cls != NULL) {
+   unsigned hooked = 0;
+   Method m1 = class_getInstanceMethod(cls, sel_registerName("filePathForToneIdentifier:"));
+   if (m1 != NULL) {
+    orig_tone_path = (id (*)(id, SEL, id))method_getImplementation(m1);
+    method_setImplementation(m1, (IMP)waffle_tone_file_path);
+    hooked++;
+   }
+   Method m2 = class_getInstanceMethod(cls, sel_registerName("_filePathForToneIdentifier:isValid:"));
+   if (m2 != NULL) {
+    orig_tone_path_valid = (id (*)(id, SEL, id, BOOL *))method_getImplementation(m2);
+    method_setImplementation(m2, (IMP)waffle_tone_file_path_valid);
+    hooked++;
+   }
+   if (hooked) {
+    say("redwood-tone: hooked TLToneManager (%u methods)\n", hooked);
+    return NULL;
+   }
+  }
+  usleep(250000);
+ }
+ return NULL;
+}
+static void *
+waffle_brightness_thread(void *arg __unused)
+{
+ for (unsigned i = 0; i < 60; i++) {
+  Class cls = objc_getClass("BrightnessSystem");
+  if (cls != NULL) {
+   Method m = class_getInstanceMethod(cls, sel_registerName("setProperty:forKey:"));
+   if (m != NULL) {
+    orig_bs_set_prop = (BOOL (*)(id, SEL, id, id))method_getImplementation(m);
+    method_setImplementation(m, (IMP)waffle_bs_set_prop);
+    say("redwood-brightness: hooked -[BrightnessSystem setProperty:forKey:]\n");
+    return NULL;
+   }
+  }
+  usleep(250000);
+ }
+ say("redwood-brightness: BrightnessSystem class not found\n");
+ return NULL;
+}
 typedef struct __IOHIDEvent *IOHIDEventRef;
 typedef struct __IOHIDEventSystemClient *IOHIDEventSystemClientRef;
 typedef struct __IOHIDServiceClient *IOHIDServiceClientRef;
@@ -881,6 +1052,12 @@ redwood_init(void)
   opengl_es();
   window_server_fixes();
   input_start();
+  {
+   pthread_t bl_thr;
+   if (pthread_create(&bl_thr, NULL, waffle_brightness_thread, NULL) == 0) {
+    pthread_detach(bl_thr);
+   }
+  }
  } else if (strncmp(name, "containermanagerd", 17) == 0) {
   container_manager_fixes();
  } else if (strcmp(name, "Preferences") == 0 || strcmp(name, "PosterBoard") == 0) {
@@ -889,6 +1066,12 @@ redwood_init(void)
   if (sysctlbyname("kern.bootargs", arguments, &size, NULL, 0) == 0 && strstr(arguments, "waffle=1")) {
    say("waffle: %s enables Mesa for client-side CoreImage/OpenGL rendering\n", name);
    opengl_es();
+  }
+  if (strcmp(name, "Preferences") == 0) {
+   pthread_t tone_thr;
+   if (pthread_create(&tone_thr, NULL, waffle_tone_thread, NULL) == 0) {
+    pthread_detach(tone_thr);
+   }
   }
  }
 }

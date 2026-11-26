@@ -256,7 +256,8 @@ static WaffleDisplayPresentState *gWafflePresenter;
 static void waffleDisplayPresentDelay(void *p, unsigned ms)
 {
  WaffleDisplayFlipContext *c = (WaffleDisplayFlipContext *)p;
- if (c->quiescing) delay_for_interval(ms, NSEC_PER_MSEC);
+ if (ms == 0) delay_for_interval(200, NSEC_PER_USEC);
+ else if (c->quiescing) delay_for_interval(ms, NSEC_PER_MSEC);
  else IOSleep(ms);
 }
 static bool waffleDisplayPresentCopy(void *p, uint32_t address)
@@ -452,7 +453,7 @@ enum {
 #define SWAP_LAYERS 4
 #define kFBNotifyVSync 5
 #define kFBNotifyTypes 8
-#define kFBRefreshHz 60
+#define kFBRefreshHz 120
 #define FRAME_TIMES 64
 #define FRAME_PAUSE 90
 #define SWAP_GPU_MS 500
@@ -675,6 +676,7 @@ public:
  bool fRecDone;
  bool fRecWrapped;
  virtual bool start(IOService * provider) APPLE_KEXT_OVERRIDE;
+ virtual IOReturn setProperties(OSObject * properties) APPLE_KEXT_OVERRIDE;
  void publishModes(void);
  MiniIOSurface * defaultSurface(void);
  void present(const uint8_t * swap);
@@ -694,6 +696,90 @@ public:
  void record(MiniIOSurface * s);
 };
 OSDefineMetaClassAndStructors(IOMobileFramebuffer, IOService);
+static volatile uint32_t gBrightnessScale = 256;
+static inline uint32_t
+scalePixel(uint32_t px, uint32_t scale)
+{
+ if (scale == 0u) {
+  return px & 0xff000000u;
+ }
+ uint32_t rb = (((px & 0x00ff00ffu) * scale) >> 8) & 0x00ff00ffu;
+ uint32_t g  = (((px & 0x0000ff00u) * scale) >> 8) & 0x0000ff00u;
+ return (px & 0xff000000u) | rb | g;
+}
+static void
+waffleApplyBrightnessProperty(OSObject * properties)
+{
+ OSDictionary * dict = OSDynamicCast(OSDictionary, properties);
+ if (dict == NULL) {
+  return;
+ }
+ static unsigned logCount = 0;
+ OSCollectionIterator * it = OSCollectionIterator::withCollection(dict);
+ if (it == NULL) {
+  return;
+ }
+ OSSymbol * keySym;
+ while ((keySym = OSDynamicCast(OSSymbol, it->getNextObject())) != NULL) {
+  const char * key = keySym->getCStringNoCopy();
+  OSObject * val = dict->getObject(keySym);
+  if (key == NULL || val == NULL) {
+   continue;
+  }
+  if (OSDictionary * sub = OSDynamicCast(OSDictionary, val)) {
+   waffleApplyBrightnessProperty(sub);
+   continue;
+  }
+  OSNumber * num = OSDynamicCast(OSNumber, val);
+  if (num != NULL) {
+   uint64_t v = num->unsigned64BitValue();
+   bool matched = (strcmp(key, "brightness") == 0 || strcmp(key, "linear-brightness") == 0 ||
+       strcmp(key, "Brightness") == 0 || strcmp(key, "brightness-nits") == 0 ||
+       strcmp(key, "IOMFBBrightness") == 0 || strcmp(key, "DisplayBrightnessFactor") == 0);
+   if (matched) {
+    uint32_t q16 = 0x10000u;
+    if (v == 0) {
+     q16 = 0u;
+    } else if (v <= 100) {
+     q16 = (uint32_t)((v * 0x10000ULL) / 100ULL);
+    } else if (v <= 1000) {
+     q16 = (uint32_t)((v * 0x10000ULL) / 1000ULL);
+    } else if (v <= 0x10000ULL) {
+     q16 = (uint32_t)v;
+    } else {
+     uint64_t nits = v >> 16;
+     q16 = nits >= 600 ? 0x10000u : (uint32_t)((nits * 0x10000ULL) / 600ULL);
+    }
+    if (q16 == 0u) {
+     gBrightnessScale = 0u; /* OLED black on screen lock / factor=0 */
+    } else {
+     /* Perceptual gamma curve: 50% slider -> scale 198 (clean bright whites),
+      * 100% slider -> scale 256 (zero-overhead copy), min awake -> scale 24. */
+     uint64_t inv = 0x10000ULL - q16;
+     uint64_t curved = 0x10000ULL - ((inv * inv) >> 16);
+     uint32_t scale = 24u + (uint32_t)((curved * 232ULL) / 0x10000ULL);
+     if (scale > 256u) { scale = 256u; }
+     gBrightnessScale = scale;
+    }
+   }
+   if (logCount < 48) {
+    logCount++;
+    redwood_tl("waffle-brightness: set key=%s val=%llu (0x%llx) matched=%u scale=%u\n",
+        key, (unsigned long long)v, (unsigned long long)v, matched, gBrightnessScale);
+   }
+  } else if (logCount < 48) {
+   logCount++;
+   redwood_tl("waffle-brightness: set key=%s class=%s\n", key, val->getMetaClass()->getClassName());
+  }
+ }
+ it->release();
+}
+IOReturn
+IOMobileFramebuffer::setProperties(OSObject * properties)
+{
+ waffleApplyBrightnessProperty(properties);
+ return kIOReturnSuccess;
+}
 static void
 setNumber(OSDictionary * dict, const char * key, uint64_t value)
 {
@@ -1000,8 +1086,25 @@ IOMobileFramebuffer::drawRows(const RowJob * job, int32_t y0, int32_t y1, uint32
    continue;
   }
   to = (uint32_t *) (fBase + (size_t) y * fRowBytes);
+  uint32_t bscale = gBrightnessScale;
+  if (bscale == 0u) {
+   if (job->unscaled) {
+    memset(to + px0, 0, (size_t) sw * 4);
+   } else {
+    memset(to + cx0, 0, (size_t) (cx1 - cx0) * 4);
+   }
+   continue;
+  }
   if (job->unscaled) {
-   memcpy(to + px0, pixels + (size_t) (sy + y - py0) * stride + (size_t) sx * 4, (size_t) sw * 4);
+   const uint32_t * __restrict srcRow = (const uint32_t *) (pixels + (size_t) (sy + y - py0) * stride + (size_t) sx * 4);
+   if (bscale >= 256u) {
+    memcpy(to + px0, srcRow, (size_t) sw * 4);
+   } else {
+    uint32_t * __restrict out = to + px0;
+    for (int32_t x = 0; x < sw; x++) {
+     out[x] = scalePixel(srcRow[x], bscale);
+    }
+   }
    continue;
   }
   if (filter) {
@@ -1015,8 +1118,7 @@ IOMobileFramebuffer::drawRows(const RowJob * job, int32_t y0, int32_t y1, uint32
     uint32_t first = fColumn[cx0], last = fColumn[cx1 - 1] + 1 < (uint32_t) sw ? fColumn[cx1 - 1] + 1 : fColumn[cx1 - 1];
     uint32_t * __restrict mixed = blendRow;
     for (uint32_t c = first; c <= last; c++) {
-     uint32_t a = upper[c], b = lower[c];
-     mixed[c] = a == b ? a : blend(a, b, weight);
+     mixed[c] = blend(upper[c], lower[c], weight);
     }
     from = blendRow;
    }
@@ -1040,13 +1142,29 @@ IOMobileFramebuffer::drawRows(const RowJob * job, int32_t y0, int32_t y1, uint32
    const uint32_t * __restrict column = fColumn + cx0;
    const uint16_t * __restrict weights = fColumnWeight + cx0;
    uint32_t * __restrict out = to + cx0;
-   for (uint32_t i = 0, n = (uint32_t) (cx1 - cx0); i < n; i++) {
-    uint32_t c = column[i], w = weights[i], a = from[c];
-    out[i] = w == 0 || a == from[c + 1] ? a : blend(a, from[c + 1], w);
+   if (bscale >= 256u) {
+    for (uint32_t i = 0, n = (uint32_t) (cx1 - cx0); i < n; i++) {
+     uint32_t c = column[i];
+     out[i] = blend(from[c], from[c + 1], weights[i]);
+    }
+   } else {
+    for (uint32_t i = 0, n = (uint32_t) (cx1 - cx0); i < n; i++) {
+     uint32_t c = column[i];
+     out[i] = scalePixel(blend(from[c], from[c + 1], weights[i]), bscale);
+    }
    }
   } else {
-   for (int32_t x = cx0; x < cx1; x++) {
-    to[x] = from[fColumn[x]];
+   const uint32_t * __restrict column = fColumn + cx0;
+   uint32_t * __restrict out = to + cx0;
+   uint32_t n = (uint32_t) (cx1 - cx0);
+   if (bscale >= 256u) {
+    for (uint32_t i = 0; i < n; i++) {
+     out[i] = from[column[i]];
+    }
+   } else {
+    for (uint32_t i = 0; i < n; i++) {
+     out[i] = scalePixel(from[column[i]], bscale);
+    }
    }
   }
  }

@@ -242,7 +242,8 @@ static bool wait_for(vm_offset_t base, unsigned off, uint32_t mask, uint32_t val
 {
     for (unsigned i = 0; i < loops; ++i) {
         if ((rd(base, off) & mask) == value) return true;
-        delay_for_interval(100, NSEC_PER_USEC);
+        if (i < 8) { __asm__ volatile("yield" ::: "memory"); }
+        else { delay_for_interval(15, NSEC_PER_USEC); }
     }
     return false;
 }
@@ -369,7 +370,8 @@ static bool hfi_exchange_watch(vm_offset_t gmu, vm_offset_t alias, const uint32_
         say("waffle-gmu: RAW_EDGE68 notified hold 5s; no diagnostic polling\n");
         delay_for_interval(5000000,NSEC_PER_USEC);
     }
-    for (unsigned i = 0; i < 10000; ++i) {
+    static unsigned hfi_gen_ack_logs = 0;
+    for (unsigned i = 0; i < 60000; ++i) {
         if (raw) {
             hfi_smmu_diagnostic(plan);hfi_raw_diagnostic(gmu,alias,&debug_budget);
             if (!i) hfi_raw_checkpoint(plan,"5-first-poll-done");
@@ -388,13 +390,17 @@ static bool hfi_exchange_watch(vm_offset_t gmu, vm_offset_t alias, const uint32_
                 stop_unsafe("HFI message queue reported firmware fault during RAW");
             if (count >= 3 && ((packet[0] >> 16) & 15) == 1 && packet[1] == request[0]) {
                 bool ok = zero_ack ? packet[2] == 0 : packet[2] != 0xffffffff;
-                say("waffle-gmu: %s ACK matched seq%u value=%08x valid=%u\n",
-                    name, request[0] >> 20, packet[2], ok);
+                if (!ok || !quiet || strcmp(name, "GENERAL_IB") != 0 || hfi_gen_ack_logs < 16) {
+                    if (strcmp(name, "GENERAL_IB") == 0) hfi_gen_ack_logs++;
+                    say("waffle-gmu: %s ACK matched seq%u value=%08x valid=%u\n",
+                        name, request[0] >> 20, packet[2], ok);
+                }
                 return ok;
             }
             if (i >= 32) break; /* bounded unsolicited traffic */
         }
-        delay_for_interval(100, NSEC_PER_USEC);
+        if (i < 16) { __asm__ volatile("yield" ::: "memory"); }
+        else { delay_for_interval(15, NSEC_PER_USEC); }
     }
     say("waffle-gmu: HFI query timeout cmd r/w=%u/%u msg r/w=%u/%u IRQ=%08x\n",
         cmdq[10],cmdq[11],msgq[10],msgq[11],rd(gmu, WAFFLE_GMU_REG(0x1f992)));
@@ -437,12 +443,15 @@ static bool hfi_exchange(vm_offset_t gmu,vm_offset_t alias,const uint32_t *reque
  * replies from pre-mapped normal-NC RAM. Always reset CM3 before freeing it. */
 static bool hfi_boot_votes(vm_offset_t gmu,vm_offset_t alias,unsigned probe)
 {
+    /* Use stock OPP index 8 (680 MHz) for interactive UI probe94 (~3x over idle 231 MHz). */
+    uint32_t gx_idx = (probe == 94) ? 8u : 1u;
     const uint32_t frequency[]={((probe>=31?32u:probe>=24?13u:7u)<<20)|(4u<<8)|30u,
-        1,1,probe>=75?0xffff00ffu:1u};
+        1,gx_idx,probe>=75?0xffff00ffu:1u};
     if(!hfi_exchange(gmu,alias,frequency,4,"MINIMUM_DCVS",true)) return false;
     if(probe>=75){
-        /* Native six-knob-off capture: quantized AB530, IB1; no frequency change. */
-        const uint32_t bandwidth[]={(41u<<20)|(4u<<8)|30u,1,255,0x02120101};
+        /* Stock DDR IB index 5 for probe94 (high memory bandwidth for 120Hz + GL readback). */
+        uint32_t ddr_bw = (probe == 94) ? 0x02120105u : 0x02120101u;
+        const uint32_t bandwidth[]={(41u<<20)|(4u<<8)|30u,1,255,ddr_bw};
         if(!hfi_exchange(gmu,alias,bandwidth,4,"NATIVE_DDR_AB",true)) return false;
     }
     return true;
@@ -1330,6 +1339,13 @@ static bool gmu_boot_finish(struct gmu_boot_context *s)
     if(!s->cm3_released)goto restore;
     if ((s->running || s->minimum_attempted) && probe >= 16 && (probe < 25 || probe >= 31)) {
         bool exercise_ok = s->running;
+        if (probe == 94 && s->running) {
+            /* Return GX/DDR votes to stock minimum (index 1) before PREPARE_SLUMBER for clean shutdown. */
+            const uint32_t min_freq[] = {(4093u << 20) | (4u << 8) | 30u, 1, 1, 0xffff00ffu};
+            const uint32_t min_bw[] = {(4094u << 20) | (4u << 8) | 30u, 1, 255, 0x02120101u};
+            (void)hfi_exchange(gmu, s->hfi_alias, min_freq, 4, "SLUMBER_MIN_DCVS", true);
+            (void)hfi_exchange(gmu, s->hfi_alias, min_bw, 4, "SLUMBER_MIN_BW", true);
+        }
         const uint32_t slumber[] = {((plan->session_slumber_sequence ? plan->session_slumber_sequence : probe==94 && writeback_requested() ? 45u : probe==94 && zap_requested() ? 44u : probe>=79 ? 43u : probe>=33 ? 35u : probe >= 31 ? 33u : probe >= 24 ? 14u : probe >= 17 ? 8u : 7u)<<20)|(3u<<8)|33u,1,1};
         s->saved_counter = rd(gmu,WAFFLE_GMU_REG(0x1f840));
         s->counter_changed = true;
@@ -2214,24 +2230,38 @@ bool waffle_gmu_owner_submit(struct waffle_gmu_owner *owner,struct waffle_gpu_su
     unsigned fence=s->submitted+1,sequence=s->next_sequence;
     uint64_t result_va=s->ib_va-1024+8192;
     volatile uint32_t *out=(volatile uint32_t *)s->alias;
-    for(unsigned i=0;i<4096;i++)out[i]=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false);
-    __asm__ volatile("dsb sy":::"memory");
-    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false))return false;
-    say("waffle-gmu: GENERAL_SUBMIT begin fence=%u seq=%u root_words=%u kernel_tail=15 extra_IB_depth=0\n",fence,sequence,words);
+    bool full_check=(fence<=4);
+    if(full_check){
+        for(unsigned i=0;i<4096;i++)out[i]=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false);
+        __asm__ volatile("dsb sy":::"memory");
+        for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,false))return false;
+    }else{
+        for(unsigned i=0;i<words;i++)out[256+i]=commands[i];
+        for(unsigned i=0;i<WAFFLE_GPU_SUBMIT_TAIL_WORDS;i++)out[256+words+i]=waffle_gpu_submit_tail(i,fence,result_va);
+        out[2048]=0;
+        __asm__ volatile("dsb sy":::"memory");
+    }
+    if(fence<=16)say("waffle-gmu: GENERAL_SUBMIT begin fence=%u seq=%u root_words=%u kernel_tail=15 extra_IB_depth=0\n",fence,sequence,words);
     if(!submit_session_exchange(s,words+WAFFLE_GPU_SUBMIT_TAIL_WORDS,"GENERAL_IB")){owner->exercise_ok=false;return false;}
-    for(unsigned attempt=0;attempt<2000;attempt++){
+    for(unsigned attempt=0;attempt<13333;attempt++){
         __asm__ volatile("dsb sy":::"memory");
         if(out[2048]==fence)break;
-        delay_for_interval(100,NSEC_PER_USEC);
+        if(attempt<20){__asm__ volatile("yield":::"memory");}
+        else{delay_for_interval(15,NSEC_PER_USEC);}
     }
-    unsigned wrong=0;
-    for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,true)){
-        if(!wrong)say("waffle-gmu: GENERAL_SUBMIT mismatch index=%u got=%08x expected=%08x\n",i,out[i],waffle_gpu_submit_initial(i,words,commands,fence,result_va,true));
-        wrong++;
+    if(full_check){
+        unsigned wrong=0;
+        for(unsigned i=0;i<4096;i++)if(out[i]!=waffle_gpu_submit_initial(i,words,commands,fence,result_va,true)){
+            if(!wrong)say("waffle-gmu: GENERAL_SUBMIT mismatch index=%u got=%08x expected=%08x\n",i,out[i],waffle_gpu_submit_initial(i,words,commands,fence,result_va,true));
+            wrong++;
+        }
+        if(wrong){s->phase=SUBMIT_POISONED;owner->exercise_ok=false;return false;}
+    }else if(out[2048]!=fence){
+        say("waffle-gmu: GENERAL_SUBMIT timeout fence=%u got=%08x\n",fence,out[2048]);
+        s->phase=SUBMIT_POISONED;owner->exercise_ok=false;return false;
     }
-    if(wrong){s->phase=SUBMIT_POISONED;owner->exercise_ok=false;return false;}
     s->completed=s->submitted;s->phase=SUBMIT_READY;job->fence=fence;
-    say("waffle-gmu: GENERAL_SUBMIT done fence=%u seq=%u control=%08x checked=4096 wrong_words=0\n",fence,sequence,out[2048]);
+    if(fence<=16)say("waffle-gmu: GENERAL_SUBMIT done fence=%u seq=%u control=%08x checked=%u wrong_words=0\n",fence,sequence,out[2048],full_check?4096u:1u);
     return true;
 }
 

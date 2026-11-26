@@ -101,7 +101,7 @@ static void drm_root_refused(unsigned index,const struct waffle_msm_submit_cmd *
 }
 static int drm_submit(struct waffle_msm_submit *r)
 {
- redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
+ if(drm_fence<16)redwood_tl("waffle-gpu: GENERAL request flags=%x fence=%u bos=%u roots=%u queue=%u\n",r->flags,r->fence,r->nr_bos,r->nr_cmds,r->queueid);
  if(r->flags!=0x10 || r->fence || !r->nr_bos || r->nr_bos>WAFFLE_GPU_BO_LIMIT || !r->nr_cmds ||
     r->in_syncobjs || r->out_syncobjs || r->nr_in_syncobjs || r->nr_out_syncobjs || r->syncobj_stride || r->pad ||
     !drm_queue_valid(r->queueid))return EINVAL;
@@ -202,7 +202,7 @@ static int drm_submit(struct waffle_msm_submit *r)
    error=EIO;goto done;
   }
   drm_fence=job.fence;windows++;
-  redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
+  if(drm_fence<=16)redwood_tl("waffle-gpu: GENERAL submitted fence=%u bos=%u roots=%u words=%u\n",drm_fence,r->nr_bos,job.count,words);
  }
  /* The synchronous job validated hardware control and all guard words.
   * Only now invalidate the exclusive target's cached CPU aliases. */
@@ -215,7 +215,7 @@ static int drm_submit(struct waffle_msm_submit *r)
   redwood_tl("waffle-gpu: SURFACE_TARGET complete=1 handle=%u fence=%u CPU_invalidated=1\n",bo->handle,drm_fence);
  }
  r->fence=drm_fence;
- redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
+ if(drm_fence<=16)redwood_tl("waffle-gpu: GENERAL request_completed fence=%u bos=%u roots=%u words=%u windows=%u metadata_bytes=%llu\n",drm_fence,r->nr_bos,r->nr_cmds,total,windows,(unsigned long long)bytes);
 done:
  if(sources_held && !waffle_gpu_memory_surface_reads_end(sources,source_count)){
   redwood_tl("waffle-gpu: SURFACE_LEASE release_failed=1 retain_backing=1\n");
